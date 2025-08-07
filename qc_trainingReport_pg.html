@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Tracker - Employee Training Management</title>
+         <script type="module" src="auth-guard.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input, textarea, select {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .training-list {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .training-list h2 {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .training-item {
+            border-bottom: 1px solid #e9ecef;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .training-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .training-item:last-child {
+            border-bottom: none;
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .training-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .attendance-rate {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: #d1edff;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .training-details {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .training-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 3px;
+        }
+
+        .training-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .training-header {
+                flex-direction: column;
+                align-items: start;
+            }
+            
+            .training-actions {
+                position: static;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Training Tracker</h1>
+            <p>Manage employee training records and attendance</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2>Add New Training Record</h2>
+                <form id="trainingForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="employeeName">Employee Name *</label>
+                            <input type="text" id="employeeName" required placeholder="Enter employee name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="employeeId">Employee ID *</label>
+                            <input type="text" id="employeeId" required placeholder="Enter employee ID">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trainingName">Training Name *</label>
+                            <input type="text" id="trainingName" required placeholder="Enter training name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trainingTime">Training Time *</label>
+                            <input type="datetime-local" id="trainingTime" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="trainingHours">Training Hours *</label>
+                            <input type="number" id="trainingHours" required placeholder="Enter total hours" min="0.5" step="0.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="department">Department *</label>
+                            <select id="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Human Resources">Human Resources</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Customer Service">Customer Service</option>
+                                <option value="Research & Development">Research & Development</option>
+                                <option value="Quality Assurance">Quality Assurance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="totalParticipants">Total Participants *</label>
+                            <input type="number" id="totalParticipants" required placeholder="Total expected participants" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="actualAttendees">Actual Attendees *</label>
+                            <input type="number" id="actualAttendees" required placeholder="Actual number of attendees" min="0">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Add Training Record</button>
+                </form>
+            </div>
+
+            <div class="training-list">
+                <h2>Training Records</h2>
+                <div id="trainingList">
+                    <div class="empty-state">
+                        <h3>No training records added yet</h3>
+                        <p>Add your first training record using the form above</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TrainingTracker {
+            constructor() {
+                this.trainings = [];
+                this.currentId = 1;
+                this.init();
+            }
+
+            init() {
+                // Bind form submission
+                document.getElementById('trainingForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTraining();
+                });
+
+                // Update attendance rate when participants/attendees change
+                document.getElementById('totalParticipants').addEventListener('input', this.updateAttendanceRate);
+                document.getElementById('actualAttendees').addEventListener('input', this.updateAttendanceRate);
+
+                this.renderTrainings();
+            }
+
+            updateAttendanceRate() {
+                const totalParticipants = parseInt(document.getElementById('totalParticipants').value) || 0;
+                const actualAttendees = parseInt(document.getElementById('actualAttendees').value) || 0;
+                
+                if (totalParticipants > 0 && actualAttendees > totalParticipants) {
+                    document.getElementById('actualAttendees').value = totalParticipants;
+                }
+            }
+
+            addTraining() {
+                const form = document.getElementById('trainingForm');
+                
+                const totalParticipants = parseInt(document.getElementById('totalParticipants').value);
+                const actualAttendees = parseInt(document.getElementById('actualAttendees').value);
+                
+                if (actualAttendees > totalParticipants) {
+                    alert('Actual attendees cannot exceed total participants');
+                    return;
+                }
+
+                const training = {
+                    id: this.currentId++,
+                    employeeName: document.getElementById('employeeName').value.trim(),
+                    employeeId: document.getElementById('employeeId').value.trim(),
+                    trainingName: document.getElementById('trainingName').value.trim(),
+                    trainingTime: document.getElementById('trainingTime').value,
+                    trainingHours: parseFloat(document.getElementById('trainingHours').value),
+                    department: document.getElementById('department').value,
+                    totalParticipants: totalParticipants,
+                    actualAttendees: actualAttendees,
+                    attendanceRate: totalParticipants > 0 ? ((actualAttendees / totalParticipants) * 100).toFixed(1) : 0
+                };
+
+                // Validation
+                if (!training.employeeName || !training.employeeId || !training.trainingName || 
+                    !training.trainingTime || !training.trainingHours || !training.department ||
+                    !training.totalParticipants || training.actualAttendees === '') {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                this.trainings.unshift(training); // Add to beginning of array
+                this.renderTrainings();
+                form.reset();
+            }
+
+            deleteTraining(id) {
+                if (confirm('Are you sure you want to delete this training record?')) {
+                    this.trainings = this.trainings.filter(t => t.id !== id);
+                    this.renderTrainings();
+                }
+            }
+
+            renderTrainings() {
+                const container = document.getElementById('trainingList');
+                
+                if (this.trainings.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No training records added yet</h3>
+                            <p>Add your first training record using the form above</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.trainings.map(training => `
+                    <div class="training-item">
+                        <div class="training-actions">
+                            <button class="btn-small btn-delete" onclick="tracker.deleteTraining(${training.id})">Delete</button>
+                        </div>
+                        
+                        <div class="training-header">
+                            <div class="training-name">${this.escapeHtml(training.trainingName)}</div>
+                            <div class="attendance-rate">${training.attendanceRate}% Attendance</div>
+                        </div>
+                        
+                        <div class="training-details">
+                            <strong>Employee:</strong> ${this.escapeHtml(training.employeeName)} (ID: ${this.escapeHtml(training.employeeId)})
+                        </div>
+                        
+                        <div class="training-info">
+                            <div class="info-item">
+                                <span class="info-label">Training Time:</span>
+                                <span>${this.formatDateTime(training.trainingTime)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Duration:</span>
+                                <span>${training.trainingHours} hours</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Department:</span>
+                                <span>${this.escapeHtml(training.department)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Participants:</span>
+                                <span>${training.actualAttendees} / ${training.totalParticipants}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            formatDateTime(dateTimeStr) {
+                if (!dateTimeStr) return 'Not set';
+                const date = new Date(dateTimeStr);
+                return date.toLocaleString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // Initialize the tracker
+        const tracker = new TrainingTracker();
+    </script>
+</body>
+</html>

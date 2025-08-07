@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Dashboard - Mobile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+         <script type="module" src="auth-guard.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4D6CE3;
+            --secondary-color: #6C63FF;
+            --background-color: #F3F4F6;
+            --card-background: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --bottom-nav-height: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+       /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #0C0E8B;
+            color: white;
+            position: sticky;
+            top: 20px;
+            border-radius: 15px;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .menu-icon {
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .header img {
+            width: 100px;
+            height: 50px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .logo1 img {
+            height: 32px;
+            width: auto;
+        }
+
+        /* Stats Carousel */
+        .stats-carousel {
+            padding: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .stats-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            min-width: 140px;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+           color: #0C0E8B;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0C0E8B;
+        }
+
+        /* Filter Chips */
+        .filter-section {
+            padding: 0.5rem 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            white-space: nowrap;
+        }
+
+        .filter-chips {
+            display: inline-flex;
+            gap: 0.5rem;
+        }
+
+        .filter-chip {
+            background-color: #0C0E8B;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Feedback Cards */
+        .feedback-section {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .feedback-card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-tag {
+            background: #EEF2FF;
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .rating {
+            color: #FBBF24;
+            font-size: 0.875rem;
+        }
+
+        .feedback-content {
+            font-size: 0.9375rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .feedback-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background:  #0C0E8B;
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 35px;
+			width: calc(100% - 40px);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #FFFFFF;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: #2dd4bf;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        .plus-button {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background: #0C0E8B;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center;
+            box-shadow: 0 4px 10px rgba(45, 212, 191, 0.3);
+        }
+
+        .plus-button.active {
+            transform: rotate(45deg);
+        }
+
+        .floating-menu {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .floating-menu.active {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            color: #000000;
+        }
+
+        .menu-item i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .menu-item span {
+            font-size: 12px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Pull to Refresh Indicator */
+        .refresh-indicator {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .feedback-card:active {
+            animation: pulse 0.2s ease-in-out;
+        }
+    </style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+      
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <!-- Stats Carousel -->
+    <div class="stats-carousel">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-title">Total Feedback</div>
+                <div class="stat-value" id="totalFeedback">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Avg Rating</div>
+                <div class="stat-value" id="averageRating">0.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">This Month</div>
+                <div class="stat-value" id="monthlyFeedback">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Categories</div>
+                <div class="stat-value" id="totalCategories">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Chips -->
+    <div class="filter-section">
+        <div class="filter-chips">
+            <button class="filter-chip active">All</button>
+            <button class="filter-chip">Recent</button>
+            <button class="filter-chip">Highest Rated</button>
+            <button class="filter-chip">Food</button>
+            <button class="filter-chip">Service</button>
+        </div>
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="feedback-section">
+        <h2 class="section-title">Recent Feedback</h2>
+        <div id="feedbackList">
+            <!-- Feedback cards will be inserted here -->
+        </div>
+    </div>
+
+     <!-- Bottom Navigation -->
+    <div class="nav-container">
+         <a href="admin_home_pg.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+		</a>
+		 <a href="admin_view_order.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>View Orders</span>
+        </a>
+  
+        
+        <a href="claimed_pg.html" class="nav-item">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Claimed Orders</span>
+        </a>   
+		 <a href="view_feedback_pg.html" class="nav-item">
+            <i class="fas fa-file-alt"></i>
+            <span>view feedback</span>
+        </a>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+           apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function generateStarRating(rating) {
+            return Array(5).fill(0).map((_, i) => 
+                `<i class="fa${i < rating ? 's' : 'r'} fa-star"></i>`
+            ).join('');
+        }
+
+        function updateStats(feedbackList) {
+            const total = feedbackList.length;
+            const avgRating = feedbackList.reduce((acc, curr) => acc + curr.rating, 0) / total;
+            const currentMonth = new Date().getMonth();
+            const monthlyCount = feedbackList.filter(f => 
+                f.timestamp.toDate().getMonth() === currentMonth
+            ).length;
+            const categories = new Set(feedbackList.map(f => f.category)).size;
+
+            document.getElementById('totalFeedback').textContent = total;
+            document.getElementById('averageRating').textContent = avgRating.toFixed(1);
+            document.getElementById('monthlyFeedback').textContent = monthlyCount;
+            document.getElementById('totalCategories').textContent = categories;
+        }
+
+        // Add click handlers for filter chips
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+            });
+        });
+
+        function loadFeedback() {
+            const feedbackList = document.getElementById('feedbackList');
+            onSnapshot(collection(db, "feedback"), (snapshot) => {
+                const feedbackData = [];
+                feedbackList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const feedback = doc.data();
+                    feedbackData.push(feedback);
+                    
+                    const feedbackCard = document.createElement('div');
+                    feedbackCard.classList.add('feedback-card');
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-header">
+                            <span class="category-tag">${feedback.category}</span>
+                            <span class="rating">${generateStarRating(feedback.rating)}</span>
+                        </div>
+                        <div class="feedback-content">
+                            ${feedback.feedback}
+                        </div>
+                        <div class="feedback-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-user"></i>
+                                ${feedback.userEmail}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                ${feedback.timestamp.toDate().toLocaleString()}
+                            </span>
+                        </div>
+                    `;
+                    feedbackList.appendChild(feedbackCard);
+                });
+                
+                updateStats(feedbackData);
+            });
+        }
+
+        loadFeedback();
+    </script>
+</body>
+</html>

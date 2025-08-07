@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>MAIN MENU PAGE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'San Francisco', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(115deg, black, #334155);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .status-bar {
+            width: 100%;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 414px;
+            width: 100%;
+            min-height: calc(100vh - 44px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 60px;
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .department-btn {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: linear-gradient(135deg, #2d2d2d 0%, #404040 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            min-height: 60px;
+        }
+
+        .department-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .department-btn:hover::before {
+            left: 100%;
+        }
+
+        .department-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .department-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .food-ordering {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .food-ordering:hover {
+            background: linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 100%);
+        }
+
+        .production {
+            background: linear-gradient(135deg, #2d2d2d 0%, #404040 100%);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .production:hover {
+            background: linear-gradient(135deg, #3d3d3d 0%, #505050 100%);
+        }
+
+        .quality-control {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .quality-control:hover {
+            background: linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 100%);
+        }
+
+        .hr-department {
+            background: linear-gradient(135deg, #2d2d2d 0%, #404040 100%);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .hr-department:hover {
+            background: linear-gradient(135deg, #3d3d3d 0%, #505050 100%);
+        }
+
+        .button-icon {
+            margin-right: 12px;
+            font-size: 20px;
+            filter: brightness(1.1);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 414px) {
+            .container {
+                padding: 20px 16px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 40px;
+            }
+            
+            .department-btn {
+                padding: 16px 20px;
+                font-size: 15px;
+                min-height: 56px;
+            }
+            
+            .button-icon {
+                font-size: 18px;
+                margin-right: 10px;
+            }
+        }
+
+        /* Haptic feedback simulation */
+        .department-btn:active {
+            animation: buttonPress 0.1s ease;
+        }
+
+        @keyframes buttonPress {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+
+        /* Loading state */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <h1>MAIN MENU</h1>
+        
+        <div class="buttons-container">
+
+            <a href="qc_myproblem_pg.html" class="department-btn food-ordering">
+               <span class="button-icon">🍽️</span>
+         My Problem
+         </a>
+            
+			    <a href="qc_qualityReport_pg.html" class="department-btn production" >
+               <span class="button-icon">🏭</span>
+         Quality Report
+         </a>
+
+            <a href="qc_taskforcema_pg.html" class="department-btn quality-control">
+               <span class="button-icon">✅</span>
+     task force Report
+         </a>
+			
+            <a href="qc_admin_qualityReport_pg.html" class="department-btn hr-department">
+               <span class="navigateTo('hr-department')">👥</span>
+        Quality Department Main 
+         </a>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(department) {
+            // Add loading state
+            const clickedButton = event.target.closest('.department-btn');
+            clickedButton.classList.add('loading');
+            
+            // Create ripple effect
+            createRipple(event, clickedButton);
+            
+            // Simulate navigation delay (remove this in production)
+            setTimeout(() => {
+                // Replace with actual navigation
+                // window.location.href = 'profile_pg.html';
+                
+                // For demonstration, show alert
+                alert(`Navigating to ${department} page...`);
+                
+                // Remove loading state
+                clickedButton.classList.remove('loading');
+            }, 300);
+        }
+
+        function createRipple(event, button) {
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        // Add touch feedback for mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.department-btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                button.addEventListener('touchend', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

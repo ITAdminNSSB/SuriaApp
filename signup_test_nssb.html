@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign_up</title>
+    <style>
+        /* Your existing styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-image: url(https://e0.pxfuel.com/wallpapers/391/776/desktop-wallpaper-white-background-white-metallic.jpg);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            padding-top: 0px; /* Padding to account for fixed header */
+            padding-bottom: 60px; /* Padding to account for fixed footer */
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0C0E8B;
+            color: #fff;
+            margin-top: 20px;
+            z-index: 1000;
+            text-align: center;
+        }
+        form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 10px;
+        }
+        form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1C36B8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #143b7b;
+        }
+        h2 {
+            text-align: center;
+            font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+            font-size: 40px;
+        }
+        h3 {
+            text-align: center;
+            font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+            font-size: 20px;
+        }
+        form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+       const firebaseConfig = {
+  apiKey: "AIzaSyB20IJ8MXilv7meth2IgnhhprXRmrkyg8I",
+  authDomain: "test-login2-86fc4.firebaseapp.com",
+  projectId: "test-login2-86fc4",
+  storageBucket: "test-login2-86fc4.firebasestorage.app",
+  messagingSenderId: "838065762483",
+  appId: "1:838065762483:web:cd57b53cf1b145f842c0c6"
+};
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const firestore = getFirestore(app);
+
+        // Add event listener to the form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();  // Prevent form from refreshing the page
+
+            var name = document.getElementById('name').value;
+            var lastName = document.getElementById('lastName').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            var phone = document.getElementById('phone').value;
+            var department = document.getElementById('department').value;
+            var employeeId = document.getElementById('employeeId').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const createdAt = new Date().toISOString(); // Capture the current date/time
+
+                // Save user data to Firestore
+                await setDoc(doc(firestore, 'users', user.uid), {
+                    userId: user.uid, // Save user ID
+                    name: name,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone,
+                    password: password,
+                    department: department,
+                    employeeId: employeeId,
+                    createdAt: createdAt, // Save creation date
+                    role: "user" // Assign a default role such as 'user'
+                });
+
+                alert('User created successfully!');
+                window.location.href = "login_pg.html";
+            } catch (error) {
+                const errorMessage = error.message;
+                alert(errorMessage); // Show error message to user
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div style="text-align:center;"><img src="pictures/nssb_logo_text1.png" alt="Home" width="324" height="87"></div>
+            <h2>SIGN UP&nbsp;</h2>
+            <h3 style="font-size:20px;">Create your account to Log in</h3>
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="name">First Name :</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="input-group">
+                    <label for="lastName">Last Name :</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+                <div class="input-group">
+                    <label for="employeeId">Employee ID</label>
+                    <input type="text" id="employeeId" name="employeeId" required>
+                </div>
+                <div class="input-group">
+                    <label for="department">Department</label>
+                    <select id="department" name="department" required>
+                        <option value="">Select Department</option>
+                        <option value="MDO">MDO</option>
+                        <option value="SHE">SHE</option>
+                        <option value="TPS">TPS</option>
+                        <option value="IT">IT</option>
+                        <option value="HCD">HCD</option>
+                        <option value="FNA">FNA</option>
+                        <option value="MKTG">MKTG</option>
+                        <option value="PURCH">PURCH</option>
+                        <option value="QA">QA</option>
+						<option value="ENG">ENG</option>
+                        <option value="ME">ME</option>
+                        <option value="PPIC">PPIC</option>
+                        <option value="QC">QC</option>
+                        <option value="PROD">PROD</option>
+                        <option value="ED">ED</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" id="phone" name="phone" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="input-group">
+                    <button type="submit">Sign Up</button>
+                </div>
+                <p>Already have an account? <a href="login_pg.html">Log In</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <h4>Namicoh Suria SDN BHD © 2024 NSSB</h4>
+    </div>
+</body>
+</html>

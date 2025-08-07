@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Refund App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+         <script type="module" src="auth-guard.js"></script>
+    <!-- Same CSS as original -->
+    <!-- Your original CSS style block here -->
+	 <style>
+		:root {
+    --primary-color: #1e40af;
+    --primary-light: #C2D0EA;
+    --primary-dark:#0C0E8B;
+    --primary-gradient:#00026B; 
+    --secondary-color: #ffffff;
+    --text-color: #333333;
+    --text-light: #777777;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-large: 0 10px 25px rgba(142, 68, 173, 0.2);
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --border-radius: 16px;
+    --border-radius-sm: 8px;
+    --transition: all 0.3s ease;
+    --card-bg: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'SF Pro Display', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 420px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.page {
+    display: none;
+    padding-bottom: 80px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.page.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Welcome Page */
+.welcome-page {
+    position: relative;
+    height: 100vh;
+}
+
+.welcome-header {
+   background: linear-gradient(135deg, black, #334155);
+    height: 65vh;
+    border-radius: 0 0 40px 40px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-large);
+}
+
+.bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 10s infinite ease-in-out;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.bubble-1 {
+    width: 120px;
+    height: 120px;
+    top: 10%;
+    left: 20%;
+    animation-delay: 0s;
+    animation-duration: 15s;
+}
+
+.bubble-2 {
+    width: 80px;
+    height: 80px;
+    top: 30%;
+    right: 10%;
+    animation-delay: 2s;
+    animation-duration: 12s;
+}
+
+.bubble-3 {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    left: 15%;
+    animation-delay: 4s;
+    animation-duration: 10s;
+}
+
+.bubble::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+}
+
+.welcome-title {
+    color: white;
+    font-size: 36px;
+    font-weight: 800;
+    margin-top: 50px;
+    margin-bottom: 24px;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
+}
+
+.welcome-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+    max-width: 70%;
+}
+
+.food-image {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    bottom: -60px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.food-image::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    animation: pulse 3s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); }
+    50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); }
+    100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); }
+}
+
+.food-image img {
+    width: 80%;
+    height: 80%;
+    object-fit: cover;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-footer {
+    padding: 20px;
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    width: 100%;
+}
+
+.next-button {
+    background: linear-gradient(135deg, black, #334155);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    float: right;
+    box-shadow: 0 10px 20px rgba(142, 68, 173, 0.4);
+    transition: var(--transition);
+}
+
+.next-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 25px rgba(142, 68, 173, 0.5);
+}
+
+.next-button i {
+    font-size: 20px;
+}
+
+/* Main Page */
+.main-header {
+    background: linear-gradient(135deg, black, #334155);
+    padding: 30px 20px;
+    border-radius: 0 0 30px 30px;
+    color: white;
+    position: relative;
+    box-shadow: var(--shadow-large);
+}
+
+.main-header h1 {
+    font-size: 26px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.main-header p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.menu-button {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: var(--transition);
+}
+
+.menu-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    margin: -20px 20px 20px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    position: relative;
+    z-index: 10;
+}
+
+.tab {
+    padding: 12px 18px;
+    cursor: pointer;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    color: var(--text-light);
+    text-align: center;
+    flex: 1;
+}
+
+.tab.active {
+    background: linear-gradient(135deg, black, #334155);
+    color: white;
+    box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+}
+
+.food-items {
+    padding: 10px 20px;
+}
+
+.food-item {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.food-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-gradient);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.food-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--shadow-color);
+}
+
+.food-item:hover::before {
+    opacity: 1;
+}
+
+.food-item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-right: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.food-item-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom right, rgba(142, 68, 173, 0.1), transparent);
+}
+
+.food-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.food-item:hover .food-item-image img {
+    transform: scale(1.1);
+}
+
+.food-item-info {
+    flex: 1;
+}
+
+.food-item-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.food-item-price {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.food-item-price::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+     background: linear-gradient(135deg, black, #334155);
+    border-radius: 50%;
+    margin-right: 8px;
+    opacity: 0.6;
+}
+
+.food-item-actions {
+    display: flex;
+    align-items: center;
+}
+
+.action-button {
+    background: linear-gradient(135deg, black, #334155);
+    color: WHITE;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.action-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Refund Form Page */
+.form-header {
+     background: linear-gradient(135deg, black, #334155);
+    padding: 25px 20px;
+    border-radius: 0 0 25px 25px;
+    color: white;
+    box-shadow: var(--shadow-large);
+}
+
+.form-header h1 {
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.back-button {
+    margin-right: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: var(--transition);
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(-3px);
+}
+
+.form-content {
+    padding: 20px;
+}
+
+.form-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 20px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.form-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-light) 10%, transparent 80%);
+    opacity: 0.1;
+    border-radius: 0 0 0 100%;
+}
+
+.form-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+}
+
+.form-title::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 20px;
+    background: var(--primary-gradient);
+    margin-right: 12px;
+    border-radius: 4px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid #eef0f5;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: var(--transition);
+    background-color: #f8f9fa;
+    color: var(--text-color);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
+}
+
+textarea.form-control {
+    height: 120px;
+    resize: none;
+    line-height: 1.6;
+}
+
+.date-time-section {
+    background-color: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid #eef0f5;
+}
+
+.date-time-header {
+    padding: 15px;
+     background: linear-gradient(135deg, black, #334155);
+    display: flex;
+    justify-content: space-between;
+}
+
+.date-time-tab {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    color: var(--text-light);
+}
+
+.date-time-tab.active {
+     background: linear-gradient(135deg, black, #334155);
+    color: white;
+    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.2);
+}
+
+.calendar {
+    padding: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.month-nav {
+    display: flex;
+    align-items: center;
+}
+
+.month-button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-color);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.month-button:hover {
+     background: linear-gradient(135deg, black, #334155);
+    color: var(--primary-color);
+}
+
+.current-month {
+    margin: 0 12px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+
+.day-name {
+    font-size: 12px;
+    color: var(--text-light);
+    padding: 5px 0;
+    font-weight: 600;
+}
+
+.day {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 2px auto;
+    font-size: 14px;
+    transition: var(--transition);
+    position: relative;
+}
+
+.day:hover {
+    background-color: rgba(142, 68, 173, 0.1);
+}
+
+.day.today {
+    background-color: rgba(142, 68, 173, 0.1);
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    width: 4px;
+    height: 4px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.day.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+}
+
+.time-slots {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.time-slot {
+    padding: 12px 10px;
+    border: 2px solid #eef0f5;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: var(--transition);
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+
+.time-slot:hover {
+    border-color: rgba(142, 68, 173, 0.3);
+    background-color: rgba(142, 68, 173, 0.05);
+}
+
+.time-slot.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+    font-weight: 600;
+}
+
+.upload-section {
+    position: relative;
+    height: 150px;
+    border: 2px dashed #d1d7e0;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: var(--transition);
+    background-color: #f8f9fa;
+}
+
+.upload-section:hover {
+    border-color: var(--primary-light);
+    background-color: rgba(142, 68, 173, 0.02);
+}
+
+.upload-section i {
+    font-size: 28px;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    opacity: 0.8;
+}
+
+.upload-section p {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.upload-section input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: var(--transition);
+}
+
+.submit-button {
+    background: linear-gradient(135deg, black, #334155);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 14px;
+    width: 100%;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(142, 68, 173, 0.3);
+    transition: var(--transition);
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, BLUE, #334155);
+    transition: 0.5s;
+}
+
+.submit-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(142, 68, 173, 0.4);
+}
+
+.submit-button:hover::before {
+    left: 100%;
+}
+
+/* Confirmation Page */
+.confirmation-content {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.confirmation-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(142, 68, 173, 0.2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    color: var(--primary-color);
+    font-size: 40px;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(142, 68, 173, 0.1);
+    animation: scale-in 0.5s ease-out forwards;
+}
+
+@keyframes scale-in {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.confirmation-icon::before {
+    content: '';
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    border: 2px solid rgba(142, 68, 173, 0.3);
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    70% { transform: scale(1.2); opacity: 0; }
+    100% { transform: scale(0.8); opacity: 0; }
+}
+
+.confirmation-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-color);
+    animation: fade-in 0.5s ease-out forwards 0.3s;
+    opacity: 0;
+}
+
+.confirmation-text {
+    color: var(--text-light);
+    margin-bottom: 30px;
+    font-size: 16px;
+    line-height: 1.6;
+    animation: fade-in 0.5s ease-out forwards 0.5s;
+    opacity: 0;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.confirmation-details {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px var(--shadow-color);
+    text-align: left;
+    animation: slide-up 0.5s ease-out forwards 0.7s;
+    opacity: 0;
+    transform: translateY(20px);
+    position: relative;
+    overflow: hidden;
+}
+
+.confirmation-details::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-gradient);
+}
+
+@keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eef0f5;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.done-button {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 14px;
+    width: 100%;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(142, 68, 173, 0.3);
+    transition: var(--transition);
+    letter-spacing: 0.5px;
+    animation: slide-up 0.5s ease-out forwards 0.9s;
+    opacity: 0;
+    transform: translateY(20px);
+    position: relative;
+    overflow: hidden;
+}
+
+.done-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.done-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(142, 68, 173, 0.4);
+}
+
+.done-button:hover::before {
+    left: 100%;
+}
+
+
+/* Bottom Navigation */
+.nav-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 15px 20px 20px; /* Added more padding at bottom */
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+    z-index: 90;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex: 1;
+    position: relative;
+    padding: 8px 0;
+}
+
+.nav-item.active {
+    color: #334155;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #334155;
+    border-radius: 50%;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover i {
+    transform: translateY(-3px);
+}
+
+.nav-item span {
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover span {
+    color: #334155;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 380px) {
+    .welcome-title {
+        font-size: 32px;
+    }
+    
+    .food-image {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .day {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .time-slots {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Animations and Effects */
+@keyframes shimmer {
+    0% { background-position: -468px 0; }
+    100% { background-position: 468px 0; }
+}
+
+.shimmer {
+    background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+    background-size: 800px 104px;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* Dark Mode Support (for future implementation) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --card-bg: #262830;
+        /* Other dark mode variables can be added here */
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Page -->
+        <div class="page welcome-page active" id="welcome-page">
+            <div class="welcome-header">
+                <div class="bubble bubble-1"></div>
+                <div class="bubble bubble-2"></div>
+                <div class="bubble bubble-3"></div>
+                <h1 class="welcome-title"><br><br>Food Refunds & Cancel order</h1>
+                <p class="welcome-subtitle">Easily submit refund requests or cancel orders that didn't meet your expectations</p>
+                
+                <div class="food-image">
+                    <img src="https://static.vecteezy.com/system/resources/previews/046/342/839/non_2x/vegetable-thai-food-isolated-on-transparent-background-free-png.png" alt="Food">
+                </div>
+            </div>
+            <div class="welcome-footer">
+                <button class="next-button" id="welcome-next">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Page with Tabs and Embedded Form -->
+        <div class="page" id="main-page">
+            <div class="main-header">
+                <h1>Hello</h1>
+                <p>What would you like to do?</p>
+             
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" id="refund-tab">Refund</div>
+                <div class="tab" id="cancel-tab">Cancel Order</div>
+            </div>
+            
+            <!-- Form Section that appears below tabs -->
+            <div id="form-section" style="display: block;">
+                <div class="form-content">
+                    <div class="form-card">
+                        <h2 class="form-title">Date & Time</h2>
+                        <div class="date-time-section">
+                            <div class="date-time-header">
+                                <div class="date-time-tab active">Date</div>
+                                <div class="date-time-tab">Time</div>
+                            </div>
+                            
+                            <div class="calendar">
+                                <div class="calendar-header">
+                                    <div class="month-nav">
+                                        <button class="month-button">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <div class="current-month">May 2025</div>
+                                        <button class="month-button">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="calendar-grid">
+                                    <div class="day-name">S</div>
+                                    <div class="day-name">M</div>
+                                    <div class="day-name">T</div>
+                                    <div class="day-name">W</div>
+                                    <div class="day-name">T</div>
+                                    <div class="day-name">F</div>
+                                    <div class="day-name">S</div>
+                                    
+                                    <div class="day">28</div>
+                                    <div class="day">29</div>
+                                    <div class="day">30</div>
+                                    <div class="day">1</div>
+                                    <div class="day">2</div>
+                                    <div class="day">3</div>
+                                    <div class="day">4</div>
+                                    
+                                    <div class="day">5</div>
+                                    <div class="day">6</div>
+                                    <div class="day">7</div>
+                                    <div class="day today selected">8</div>
+                                    <div class="day">9</div>
+                                    <div class="day">10</div>
+                                    <div class="day">11</div>
+                                    
+                                    <div class="day">12</div>
+                                    <div class="day">13</div>
+                                    <div class="day">14</div>
+                                    <div class="day">15</div>
+                                    <div class="day">16</div>
+                                    <div class="day">17</div>
+                                    <div class="day">18</div>
+                                    
+                                    <div class="day">19</div>
+                                    <div class="day">20</div>
+                                    <div class="day">21</div>
+                                    <div class="day">22</div>
+                                    <div class="day">23</div>
+                                    <div class="day">24</div>
+                                    <div class="day">25</div>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slots" style="display: none;">
+                                <div class="time-slot">7:00 AM</div>
+                                <div class="time-slot">7:30 AM</div>
+                                <div class="time-slot">8:00 AM</div>
+                                <div class="time-slot selected">8:30 AM</div>
+                                <div class="time-slot">9:00 AM</div>
+                                <div class="time-slot">9:30 AM</div>
+                                <div class="time-slot">4:00 PM</div>
+                                <div class="time-slot">4:30 PM</div>
+                                <div class="time-slot">5:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Employee ID field (only shows for cancel order) -->
+                    <div class="form-card" id="emp-id-section" style="display: none;">
+                        <h2 class="form-title">Employee Information</h2>
+                        <div class="form-group">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" class="form-control" id="employee-id" placeholder="Enter your employee ID">
+                        </div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <h2 class="form-title" id="reason-title">Refund Reason</h2>
+                        <div class="form-group">
+                            <label class="form-label" id="reason-label">Describe the issue</label>
+                            <textarea class="form-control" id="reason-text" placeholder="Please explain why you're requesting a refund..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Upload Image (optional)</label>
+                            <div class="upload-section" id="upload-section">
+                                <i class="fas fa-camera"></i>
+                                <p>Tap to upload photo</p>
+                                <input type="file" accept="image/*" id="image-upload">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="submit-button" id="submit-request">Submit Request</button>
+                </div>
+            </div>
+            
+   <!-- Bottom Navigation -->
+<div class="nav-container">
+  <a href="home.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+  </a>
+  <a href="order_pg.html" class="nav-item">
+        <i class="fas fa-utensils"></i>
+        <span>Order</span>
+  </a>
+  <a href="menu_pg.html" class="nav-item">
+        <i class="fas fa-book"></i>
+        <span>Menu</span>
+  </a>
+  <a href="profile_pg.html" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+  </a>
+     <a href="login_pg.html" id="logoutBtn" class="nav-item">
+    <i class="fas fa-sign-out-alt"></i>
+    <span>Logout</span>
+  </a>
+</div>
+
+        </div>
+        
+        <!-- Confirmation Page -->
+        <div class="page" id="confirmation-page">
+            <div class="form-header">
+                <h1>
+                    <button class="back-button" id="back-to-home">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <span id="confirmation-header-title">Request Submitted</span>
+                </h1>
+            </div>
+            
+            <div class="confirmation-content">
+                <div class="confirmation-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                
+                <h2 class="confirmation-title" id="confirmation-title">Request Submitted</h2>
+                <p class="confirmation-text" id="confirmation-text">Your request has been submitted successfully. We'll process it within 24-48 hours.</p>
+                
+                <div class="confirmation-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Request ID</div>
+                        <div class="detail-value" id="request-id">#RF12345</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date</div>
+                        <div class="detail-value" id="request-date">May 8, 2025</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value" style="color: #f39c12;">Processing</div>
+                    </div>
+                </div>
+                
+                <button class="done-button" id="done-button">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Firebase Configuration
+    const firebaseConfig = {
+         apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Navigation between pages
+    const welcomePage = document.getElementById('welcome-page');
+    const mainPage = document.getElementById('main-page');
+    const confirmationPage = document.getElementById('confirmation-page');
+    const formSection = document.getElementById('form-section');
+    const empIdSection = document.getElementById('emp-id-section');
+    
+    // Variables to track current action
+    let currentAction = 'refund'; // 'refund' or 'cancel'
+    let uploadedImageUrl = null; // To store uploaded image URL if any
+    
+    // Welcome page to main page
+    document.getElementById('welcome-next').addEventListener('click', function() {
+        welcomePage.classList.remove('active');
+        mainPage.classList.add('active');
+        
+        // Set the default action to refund
+        currentAction = 'refund';
+        updateFormForAction('refund');
+    });
+    
+    // Function to update form based on selected action
+    function updateFormForAction(action) {
+        if (action === 'refund') {
+            // Update form UI for refund
+            document.getElementById('reason-title').textContent = 'Refund Reason';
+            document.getElementById('reason-label').textContent = 'Describe the issue';
+            document.getElementById('reason-text').placeholder = 'Please explain why you\'re requesting a refund...';
+            document.getElementById('submit-request').textContent = 'Submit Refund Request';
+            
+            // Hide employee ID field for refund
+            empIdSection.style.display = 'none';
+        } else { // cancel
+            // Update form UI for cancellation
+            document.getElementById('reason-title').textContent = 'Cancellation Reason';
+            document.getElementById('reason-label').textContent = 'Reason for cancellation';
+            document.getElementById('reason-text').placeholder = 'Please explain why you\'re cancelling this order...';
+            document.getElementById('submit-request').textContent = 'Submit Cancellation Request';
+            
+            // Show employee ID field for cancel order
+            empIdSection.style.display = 'block';
+        }
+    }
+    
+    // Tab navigation
+    document.getElementById('refund-tab').addEventListener('click', function() {
+        // Set all tabs inactive
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        // Set this tab active
+        this.classList.add('active');
+        
+        // Set action type to refund
+        currentAction = 'refund';
+        
+        // Update form UI for refund
+        updateFormForAction('refund');
+    });
+    
+    document.getElementById('cancel-tab').addEventListener('click', function() {
+        // Set all tabs inactive
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        // Set this tab active
+        this.classList.add('active');
+        
+        // Set action type to cancel
+        currentAction = 'cancel';
+        
+        // Update form UI for cancellation
+        updateFormForAction('cancel');
+    });
+    
+    // Function to get selected date
+    function getSelectedDate() {
+        const selectedDay = document.querySelector('.day.selected');
+        const currentMonth = document.querySelector('.current-month').textContent;
+        
+        if (selectedDay) {
+            return `${selectedDay.textContent} ${currentMonth}`;
+        }
+        
+        return 'Not selected';
+    }
+    
+    // Function to get selected time
+    function getSelectedTime() {
+        const selectedTime = document.querySelector('.time-slot.selected');
+        
+        if (selectedTime) {
+            return selectedTime.textContent;
+        }
+        
+        return 'Not selected';
+    }
+    
+    // Generate unique ID
+    function generateUniqueId() {
+        const timestamp = new Date().getTime();
+        const random = Math.floor(Math.random() * 10000);
+        return `${currentAction === 'refund' ? 'RF' : 'CN'}${timestamp}${random}`;
+    }
+    
+
+    // Save data to Firebase
+    async function saveToFirebase(data) {
+        try {
+            // Select the appropriate collection based on action
+            const collectionName = currentAction === 'refund' ? 'refund' : 'cancel';
+            
+            // Add a new document with a generated ID
+            await db.collection(collectionName).add(data);
+            
+            return true;
+        } catch (error) {
+            console.error("Error saving to Firebase: ", error);
+            alert("Failed to save your request. Please try again.");
+            return false;
+        }
+    }
+    
+    // Submit request
+    document.getElementById('submit-request').addEventListener('click', async function() {
+        // Validate employee ID for cancel order
+        if (currentAction === 'cancel') {
+            const employeeId = document.getElementById('employee-id').value.trim();
+            if (!employeeId) {
+                alert('Please enter your Employee ID to cancel the order.');
+                return;
+            }
+        }
+        
+        // Validate reason
+        const reason = document.getElementById('reason-text').value.trim();
+        if (!reason) {
+            alert('Please provide a reason for your ' + (currentAction === 'refund' ? 'refund request' : 'cancellation'));
+            return;
+        }
+        
+        // Generate a request ID
+        const requestId = generateUniqueId();
+        
+        // Get current date for record
+        const submissionDate = new Date();
+        const formattedDate = submissionDate.toLocaleDateString('en-US', { 
+            month: 'short',
+            day: 'numeric', 
+            year: 'numeric'
+        });
+        
+        // Prepare data for Firebase
+        const requestData = {
+            id: requestId,
+            type: currentAction,
+            reason: reason,
+            selectedDate: getSelectedDate(),
+            selectedTime: getSelectedTime(),
+            imageUrl: uploadedImageUrl,
+            status: 'Processing',
+            submittedOn: formattedDate,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        };
+        
+        // Add employee ID if it's a cancellation
+        if (currentAction === 'cancel') {
+            requestData.employeeId = document.getElementById('employee-id').value.trim();
+        }
+        
+        // Show loading state
+        const submitButton = this;
+        const originalText = submitButton.textContent;
+        submitButton.textContent = 'Saving...';
+        submitButton.disabled = true;
+        
+        // Save to Firebase
+        const saveResult = await saveToFirebase(requestData);
+        
+        if (saveResult) {
+            // Update confirmation page based on current action
+            if (currentAction === 'refund') {
+                document.getElementById('confirmation-header-title').textContent = 'Refund Request';
+                document.getElementById('confirmation-title').textContent = 'Refund Request Submitted';
+                document.getElementById('confirmation-text').textContent = 
+                    'Your refund request has been submitted successfully. We\'ll process it within 24-48 hours.';
+            } else { // cancel
+                document.getElementById('confirmation-header-title').textContent = 'Order Cancellation';
+                document.getElementById('confirmation-title').textContent = 'Order Cancelled';
+                document.getElementById('confirmation-text').textContent = 
+                    'Your order has been cancelled successfully. Your refund will be processed within 24-48 hours.';
+            }
+            
+            // Update confirmation details
+            document.getElementById('request-id').textContent = `#${requestId}`;
+            document.getElementById('request-date').textContent = formattedDate;
+            
+            // Navigate to confirmation page
+            mainPage.classList.remove('active');
+            confirmationPage.classList.add('active');
+        }
+        
+        // Reset button state
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+    });
+    
+    // Done button from confirmation to home
+    document.getElementById('done-button').addEventListener('click', function() {
+        confirmationPage.classList.remove('active');
+        mainPage.classList.add('active');
+        
+        // Reset form
+        document.getElementById('reason-text').value = '';
+        if (document.getElementById('employee-id')) {
+            document.getElementById('employee-id').value = '';
+        }
+        
+        // Reset file upload
+        const uploadSection = document.getElementById('upload-section');
+        uploadSection.innerHTML = `
+            <i class="fas fa-camera"></i>
+            <p>Tap to upload photo</p>
+            <input type="file" accept="image/*" id="image-upload">
+        `;
+        
+        // Reset uploaded image URL
+        uploadedImageUrl = null;
+        
+        // Reattach the event listener to the new input
+        document.getElementById('image-upload').addEventListener('change', handleImageUpload);
+    });
+    
+    // Back button from confirmation to home
+    document.getElementById('back-to-home').addEventListener('click', function() {
+        confirmationPage.classList.remove('active');
+        mainPage.classList.add('active');
+    });
+    
+    // Date & Time tab switching
+    const dateTimeTab = document.querySelectorAll('.date-time-tab');
+    dateTimeTab.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs
+            dateTimeTab.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const calendar = document.querySelector('.calendar');
+            const timeSlots = document.querySelector('.time-slots');
+            
+            if (this.textContent.trim() === 'Date') {
+                calendar.style.display = 'block';
+                timeSlots.style.display = 'none';
+            } else {
+                calendar.style.display = 'none';
+                timeSlots.style.display = 'grid';
+            }
+        });
+    });
+    
+    // Calendar day selection
+    const days = document.querySelectorAll('.day');
+    days.forEach(day => {
+        day.addEventListener('click', function() {
+            days.forEach(d => d.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+    
+    // Time slot selection
+    const timeSlots = document.querySelectorAll('.time-slot');
+    timeSlots.forEach(slot => {
+        slot.addEventListener('click', function() {
+            timeSlots.forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+    
+    // Image upload preview handler and Firebase Storage functions
+    async function handleImageUpload(e) {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            const uploadSection = document.getElementById('upload-section');
+            
+            reader.onload = function(event) {
+                // Remove the icon and text
+                uploadSection.innerHTML = '';
+                
+                // Create and add the preview image
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.classList.add('preview-image');
+                uploadSection.appendChild(img);
+                
+                // Add back the file input
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.id = 'image-upload';
+                uploadSection.appendChild(input);
+                
+                // Reattach the event listener
+                input.addEventListener('change', handleImageUpload);
+            };
+            
+            reader.readAsDataURL(e.target.files[0]);
+            
+            // In a real application, you would upload the image to Firebase Storage here
+            // For demonstration purposes, we'll just pretend it's uploaded and store the URL
+            // In a real app, this would be replaced with actual Firebase Storage upload code
+            
+            // Simulate image URL (in a real app, this would be the URL from Firebase Storage)
+            uploadedImageUrl = `https://example.com/images/${Date.now()}-${e.target.files[0].name}`;
+        }
+    }
+    
+    // Attach the image upload event listener
+    document.getElementById('image-upload').addEventListener('change', handleImageUpload);
+    
+    // Fix for bottom navigation - REMOVE the event prevention that was blocking navigation
+    // Instead, we'll just handle the active state and let the browser navigate
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        // Just set active state, but don't prevent default navigation
+        item.addEventListener('click', function() {
+            navItems.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            // No preventDefault() here - let the link navigate normally
+        });
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the current page filename
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    // Get all navigation items
+    const navItems = document.querySelectorAll('.nav-container .nav-item');
+    
+    // Remove active class from all items
+    navItems.forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to the current page's nav item
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage || 
+            (currentPage === '' && href === 'index.html')) {
+            item.classList.add('active');
+        }
+    });
+});
+</script>
+</body>
+</html>
