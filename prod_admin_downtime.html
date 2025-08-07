@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>LINE Downtime & Rework Report</title>
+    <style>
+        :root {
+            --primary-color: #0062cc;
+            --secondary-color: #343a40;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: var(--secondary-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            background-color: var(--primary-color);
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 60px;
+        }
+        
+        .sidebar-menu {
+            margin-top: 20px;
+        }
+        
+        .menu-header {
+            padding: 15px;
+            font-weight: bold;
+            color: #adb5bd;
+        }
+        
+        .menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(0, 123, 255, 0.5);
+        }
+        
+        .content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .page {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .date-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-inputs input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .date-inputs span {
+            color: #666;
+            font-weight: normal;
+        }
+        
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        #generateReport {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        #generateReport:hover {
+            background: #0056b3;
+        }
+        
+        .department-filter {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+
+
+        }
+        
+        .department-btn {
+            margin: 5px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            background: white;
+            color: #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .department-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .department-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .department-btn.active:hover {
+            background: #0056b3;
+        }
+        
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .current-selection {
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .current-selection strong {
+            color: #155724;
+        }
+        
+        .report-type-btn {
+            margin: 5px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            background: white;
+            color: #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .report-type-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .report-type-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .report-type-btn.active:hover {
+            background: #0056b3;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            
+            .sidebar-header, .menu-header, .menu-item {
+                padding: 15px 5px;
+                text-align: center;
+                font-size: 12px;
+            }
+            
+            .content {
+                margin-left: 70px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-inputs {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content {
+                padding: 10px;
+            }
+            
+            .page {
+                padding: 15px;
+            }
+            
+            .department-btn {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">Operating Stock Tracking System</div>
+        <div class="sidebar-menu">
+            <div class="menu-header">Dashboard</div>
+            <a href="prod_admin_overview.html" class="menu-item">Overview</a>
+            <a href="prod_admin_department.html" class="menu-item">Department Reports</a>
+            <a href="prod_admin_stock.html" class="menu-item">Stock Analysis</a>
+            <a href="prod_admin_downtime.html" class="menu-item active">Down Time & Rework</a>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div class="content">
+        <div class="page">
+            <h1>LINE Downtime & Rework Report</h1>
+            
+            <!-- Filters Section -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Date Range:</label>
+                    <div class="date-inputs">
+                        <input type="date" id="startDate" value="2025-05-28">
+                        <span>to</span>
+                        <input type="date" id="endDate" value="2025-05-28">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Time Slot:</label>
+                    <select id="reportTimeSlot">
+                        <option value="all">All Time Slots</option>
+                        <option value="slot1">8:00 AM - 9:00 AM</option>
+                        <option value="slot2">9:00 AM - 10:00 AM</option>
+                        <option value="slot3">10:00 AM - 11:00 AM</option>
+                        <option value="slot4">11:00 AM - 12:00 PM</option>
+                        <option value="slot5">12:00 PM - 1:00 PM</option>
+                        <option value="slot6">1:00 PM - 2:00 PM</option>
+                        <option value="slot7">2:00 PM - 3:00 PM</option>
+                        <option value="slot8">3:00 PM - 4:00 PM</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button id="generateReport">Generate Report</button>
+                </div>
+            </div>
+            
+            <!-- Department Filter -->
+            <div class="department-filter">
+                <h3>LINE Filter:</h3>
+                <button class="department-btn active" data-classification="all">All LINE</button>
+                <button class="department-btn" data-classification="line-5">LINE-5 Group</button>
+                <button class="department-btn" data-classification="line-7">LINE-7 Group</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-5-1">LINE-5-1</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-5-2">LINE-5-2</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-7-1">LINE-7-1</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-7-3">LINE-7-3</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-7-5">LINE-7-5</button>
+            </div>
+            
+            <!-- Report Type Selection -->
+            <div class="department-filter">
+                <h3>Report Type:</h3>
+                <button id="downtimeBtn" class="report-type-btn active">Downtime Report</button>
+                <button id="reworkBtn" class="report-type-btn">Rework Report</button>
+            </div>
+            
+            <!-- Current Selection Display -->
+            <div id="currentSelection" class="current-selection">
+                <strong>Current Selection:</strong> <span id="selectionText">May 28, 2025 - All Time Slots - All LINE - Downtime Report</span>
+            </div>
+            
+            <!-- Downtime Table -->
+            <div id="downtimeTable" class="table-container" style="display: block;">
+                <div class="table-title">Downtime Report</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>LINE</th>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Downtime Reason</th>
+                            <th>Minutes</th>
+                            <th>Total Downtime</th>
+                        </tr>
+                    </thead>
+                    <tbody id="downtimeTableBody">
+                        <tr>
+                            <td colspan="6">Loading downtime data from Firebase...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Rework Table -->
+            <div id="reworkTable" class="table-container" style="display: none;">
+                <div class="table-title">Rework Report</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>LINE</th>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Rework Reason</th>
+                            <th>Quantity</th>
+                            <th>Total Rework</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reworkTableBody">
+                        <tr>
+                            <td colspan="6">Loading rework data from Firebase...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global variables
+        let currentStartDate = '2025-05-28';
+        let currentEndDate = '2025-05-28';
+        let currentTimeSlot = 'all';
+        let currentDepartmentFilter = 'all';
+        let currentSpecificDepartment = null;
+        let currentReportType = 'downtime';
+        let allData = [];
+
+        // Time slot mapping
+        const timeSlotMapping = {
+            'slot1': '8:00 AM - 9:00 AM',
+            'slot2': '9:00 AM - 10:00 AM',
+            'slot3': '10:00 AM - 11:00 AM',
+            'slot4': '11:00 AM - 12:00 PM',
+            'slot5': '12:00 PM - 1:00 PM',
+            'slot6': '1:00 PM - 2:00 PM',
+            'slot7': '2:00 PM - 3:00 PM',
+            'slot8': '3:00 PM - 4:00 PM'
+        };
+
+        // Load data from Firebase
+        async function loadDataFromFirebase() {
+            try {
+                const downtimeBody = document.getElementById('downtimeTableBody');
+                const reworkBody = document.getElementById('reworkTableBody');
+                downtimeBody.innerHTML = '<tr><td colspan="6">Loading downtime data from Firebase...</td></tr>';
+                reworkBody.innerHTML = '<tr><td colspan="6">Loading rework data from Firebase...</td></tr>';
+
+                const snapshot = await db.collection('prod-user').get();
+                allData = [];
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    allData.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+
+                console.log('Loaded data from Firebase:', allData);
+                generateAndDisplayReport();
+
+            } catch (error) {
+                console.error('Error loading data from Firebase:', error);
+                const downtimeBody = document.getElementById('downtimeTableBody');
+                const reworkBody = document.getElementById('reworkTableBody');
+                downtimeBody.innerHTML = `<tr><td colspan="6">Error loading data: ${error.message}</td></tr>`;
+                reworkBody.innerHTML = `<tr><td colspan="6">Error loading data: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Format date for display
+        function formatDateForDisplay(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Get date range array
+        function getDateRange(startDate, endDate) {
+            const dates = [];
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
+                dates.push(dt.toISOString().split('T')[0]);
+            }
+            
+            return dates;
+        }
+
+        // Update selection display
+        function updateSelectionDisplay() {
+            let dateText = currentStartDate === currentEndDate ? 
+                formatDateForDisplay(currentStartDate) : 
+                `${formatDateForDisplay(currentStartDate)} - ${formatDateForDisplay(currentEndDate)}`;
+            
+            let deptText = 'All Departments';
+            if (currentDepartmentFilter === 'specific') {
+                deptText = currentSpecificDepartment;
+            } else if (currentDepartmentFilter === 'line-5') {
+                deptText = 'LINE-5 Group';
+            } else if (currentDepartmentFilter === 'line-7') {
+                deptText = 'LINE-7 Group';
+            }
+
+            let timeText = currentTimeSlot === 'all' ? 'All Time Slots' : timeSlotMapping[currentTimeSlot] || currentTimeSlot;
+            let reportText = currentReportType === 'downtime' ? 'Downtime Report' : 'Rework Report';
+            
+            document.getElementById('selectionText').textContent = 
+                `${dateText} - ${timeText} - ${deptText} - ${reportText}`;
+        }
+
+        // Get filtered data
+        function getFilteredData() {
+            let filteredData = [...allData];
+            const dateRange = getDateRange(currentStartDate, currentEndDate);
+            
+            // Filter by date range
+            filteredData = filteredData.filter(item => {
+                return dateRange.includes(item.date);
+            });
+
+            // Filter by department
+            if (currentDepartmentFilter === 'line-5') {
+                filteredData = filteredData.filter(item => 
+                    item.departmentName && item.departmentName.startsWith('LINE-5')
+                );
+            } else if (currentDepartmentFilter === 'line-7') {
+                filteredData = filteredData.filter(item => 
+                    item.departmentName && item.departmentName.startsWith('LINE-7')
+                );
+            } else if (currentDepartmentFilter === 'specific' && currentSpecificDepartment) {
+                filteredData = filteredData.filter(item => 
+                    item.departmentName === currentSpecificDepartment
+                );
+            }
+
+            // Filter by time slot
+            if (currentTimeSlot !== 'all') {
+                filteredData = filteredData.filter(item => 
+                    item.timeSlot === currentTimeSlot
+                );
+            }
+            
+            // Sort by date and department
+            filteredData.sort((a, b) => {
+                if (a.date !== b.date) {
+                    return new Date(a.date) - new Date(b.date);
+                }
+                if (a.departmentName !== b.departmentName) {
+                    return (a.departmentName || '').localeCompare(b.departmentName || '');
+                }
+                return (a.timeSlot || '').localeCompare(b.timeSlot || '');
+            });
+            
+            return filteredData;
+        }
+
+        // Update downtime table
+        function updateDowntimeTable(data) {
+            const tableBody = document.getElementById('downtimeTableBody');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="6">No downtime data available for the selected filters</td>';
+                tableBody.appendChild(tr);
+                return;
+            }
+            
+            data.forEach(row => {
+                const downtimeEntries = row.downtimeEntries || [];
+                const totalDowntime = row.totalDowntime || 0;
+                
+                if (downtimeEntries.length === 0) {
+                    // Show row with no downtime
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.departmentName || 'N/A'}</td>
+                        <td>${formatDateForDisplay(row.date)}</td>
+                        <td>${timeSlotMapping[row.timeSlot] || row.timeSlotDisplay || 'N/A'}</td>
+                        <td>No downtime recorded</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    `;
+                    tableBody.appendChild(tr);
+                } else {
+                    // Show each downtime entry as separate row
+                    downtimeEntries.forEach((entry, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${index === 0 ? (row.departmentName || 'N/A') : ''}</td>
+                            <td>${index === 0 ? formatDateForDisplay(row.date) : ''}</td>
+                            <td>${index === 0 ? (timeSlotMapping[row.timeSlot] || row.timeSlotDisplay || 'N/A') : ''}</td>
+                            <td>${entry.reason || 'N/A'}</td>
+                            <td>${entry.minutes || 0}</td>
+                            <td>${index === 0 ? `<strong>${totalDowntime}</strong>` : ''}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                }
+            });
+        }
+
+        // Update rework table
+        function updateReworkTable(data) {
+            const tableBody = document.getElementById('reworkTableBody');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="6">No rework data available for the selected filters</td>';
+                tableBody.appendChild(tr);
+                return;
+            }
+            
+            data.forEach(row => {
+                const reworkEntries = row.reworkEntries || [];
+                const totalRework = row.totalRework || 0;
+                
+                if (reworkEntries.length === 0) {
+                    // Show row with no rework
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.departmentName || 'N/A'}</td>
+                        <td>${formatDateForDisplay(row.date)}</td>
+                        <td>${timeSlotMapping[row.timeSlot] || row.timeSlotDisplay || 'N/A'}</td>
+                        <td>No rework recorded</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    `;
+                    tableBody.appendChild(tr);
+                } else {
+                    // Show each rework entry as separate row
+                    reworkEntries.forEach((entry, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${index === 0 ? (row.departmentName || 'N/A') : ''}</td>
+                            <td>${index === 0 ? formatDateForDisplay(row.date) : ''}</td>
+                            <td>${index === 0 ? (timeSlotMapping[row.timeSlot] || row.timeSlotDisplay || 'N/A') : ''}</td>
+                            <td>${entry.reason || 'N/A'}</td>
+                            <td>${entry.quantity || 0}</td>
+                            <td>${index === 0 ? `<strong>${totalRework}</strong>` : ''}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                }
+            });
+        }
+
+        // Show/hide tables based on report type
+        function switchReportType(reportType) {
+            currentReportType = reportType;
+            
+            if (reportType === 'downtime') {
+                document.getElementById('downtimeTable').style.display = 'block';
+                document.getElementById('reworkTable').style.display = 'none';
+                document.getElementById('downtimeBtn').classList.add('active');
+                document.getElementById('reworkBtn').classList.remove('active');
+            } else {
+                document.getElementById('downtimeTable').style.display = 'none';
+                document.getElementById('reworkTable').style.display = 'block';
+                document.getElementById('reworkBtn').classList.add('active');
+                document.getElementById('downtimeBtn').classList.remove('active');
+            }
+            
+            updateSelectionDisplay();
+        }
+
+        // Generate and display report
+        function generateAndDisplayReport() {
+            console.log(`Generating ${currentReportType} report for:
+                Start Date: ${currentStartDate}
+                End Date: ${currentEndDate}
+                Time Slot: ${currentTimeSlot}
+                Department Filter: ${currentDepartmentFilter}
+                Specific Department: ${currentSpecificDepartment || 'N/A'}`);
+            
+            const filteredData = getFilteredData();
+            
+            // Update both tables with filtered data
+            updateDowntimeTable(filteredData);
+            updateReworkTable(filteredData);
+            updateSelectionDisplay();
+        }
+
+        // Event listeners
+        document.getElementById('generateReport').addEventListener('click', function() {
+            currentStartDate = document.getElementById('startDate').value;
+            currentEndDate = document.getElementById('endDate').value;
+            currentTimeSlot = document.getElementById('reportTimeSlot').value;
+            
+            if (!currentStartDate || !currentEndDate) {
+                alert('Please select both start and end dates.');
+                return;
+            }
+            
+            if (new Date(currentStartDate) > new Date(currentEndDate)) {
+                alert('Start date cannot be after end date.');
+                return;
+            }
+            
+            generateAndDisplayReport();
+        });
+
+        // Report type buttons
+        document.getElementById('downtimeBtn').addEventListener('click', function() {
+            switchReportType('downtime');
+        });
+
+        document.getElementById('reworkBtn').addEventListener('click', function() {
+            switchReportType('rework');
+        });
+
+        // Department filter buttons
+        document.querySelectorAll('.department-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.department-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update current filter
+                currentDepartmentFilter = this.getAttribute('data-classification');
+                currentSpecificDepartment = this.getAttribute('data-department');
+                
+                // Generate and display report with new filter
+                generateAndDisplayReport();
+            });
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Stock Analysis page loaded');
+            
+            // Set default date values
+            document.getElementById('startDate').value = currentStartDate;
+            document.getElementById('endDate').value = currentEndDate;
+           
+            // Load data from Firebase
+            loadDataFromFirebase();
+        });
+    </script>
+</body>
+</html>

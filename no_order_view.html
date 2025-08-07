@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Orders - Canteen Management</title>
+    <script type="module" src="auth-guard.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0C0E8B;
+            --secondary-color: #2dd4bf;
+            --background-color: #f4f4f5;
+            --text-color: #27272a;
+            --white: #ffffff;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px; /* Prevent content from being hidden behind bottom nav */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header .logo1 img {
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        /* Filter Container */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 80px 0 30px;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .date-picker input,
+        .department-filter select {
+            padding: 10px;
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .date-picker input:focus,
+        .department-filter select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        #fetchOrders, #noOrdersBtn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #fetchOrders:hover, #noOrdersBtn:hover {
+            background-color: #1a1e9c;
+        }
+
+        #fetchOrders:active, #noOrdersBtn:active {
+            transform: scale(0.95);
+        }
+
+        #noOrdersBtn {
+            background-color: var(--secondary-color);
+        }
+
+        #noOrdersBtn:hover {
+            background-color: #1ebfab;
+        }
+
+        /* Order Table */
+        .order-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .order-table {
+            width: 100%;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .order-table th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .order-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .order-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .order-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .order-table tr:hover {
+            background-color: #f0f9ff;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Send Information Section */
+        .send-info {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .send-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .send-info .textarea-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .send-info textarea {
+            flex-grow: 1;
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            resize: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .send-info textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        #sendButton {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            align-self: flex-start;
+        }
+
+        #sendButton:hover {
+            background-color: #1ebfab;
+        }
+
+        #sendButton:active {
+            transform: scale(0.95);
+        }
+
+        /* Bottom Navigation */
+        .nav-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 35px;
+            width: 100%;
+            max-width: 1200px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--white);
+            transition: 0.3s;
+            cursor: pointer;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .filter-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .date-picker input,
+            .department-filter select,
+            #fetchOrders,
+            #noOrdersBtn {
+                width: 100%;
+            }
+
+            .nav-container {
+                gap: 15px;
+            }
+
+            .nav-item span {
+                display: none;
+            }
+        }
+		
+        /* Media Queries for responsiveness */
+        @media (max-width: 400px) {
+            .order-table, .send-info {
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+		 .nav-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background:  #0C0E8B;
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 35px;
+			width: calc(100% - 40px);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #FFFFFF;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: #2dd4bf;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        .plus-button {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background: #0C0E8B;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center;
+            box-shadow: 0 4px 10px rgba(45, 212, 191, 0.3);
+        }
+
+        .plus-button.active {
+            transform: rotate(45deg);
+        }
+
+        .floating-menu {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .floating-menu.active {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            color: #000000;
+        }
+
+        .menu-item i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .menu-item span {
+            font-size: 12px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+		 .navbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            background-color: rgba(12, 14, 139, 0.9);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-radius: 15px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .navbar img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .navbar span {
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo1"><img src="pictures/new_logo.png" alt="Company Logo" width="200" height="47"></span>
+    </div>
+
+    <div class="container">
+        <!-- Filter Container -->
+        <div class="filter-container">
+            <!-- Date Picker -->
+            <div class="date-picker">
+                <input type="date" id="datePicker" />
+            </div>
+
+            <!-- Department Filter -->
+            <div class="department-filter">
+                <select id="departmentFilter">
+                    <option value="">All Departments</option>
+                    <option value="MDO">MDO</option>
+                    <option value="SHE">SHE</option>
+                    <option value="TPS">TPS</option>
+                    <option value="IT">IT</option>
+                    <option value="HCD">HCD</option>
+                    <option value="FNA">FNA</option>
+                    <option value="MKTG">MKTG</option>
+                    <option value="PURCH">PURCH</option>
+                    <option value="QA">QA</option>
+                    <option value="ENG">ENG</option>
+                    <option value="ME">ME</option>
+                    <option value="PPIC">PPIC</option>
+                    <option value="QC">QC</option>
+                    <option value="PROD">PROD</option>
+                    <option value="ED">ED</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="fetchOrders">
+                    <i class="fas fa-search"></i> Fetch Orders
+                </button>
+                <button id="noOrdersBtn">
+                    <i class="fas fa-check-circle"></i> orders
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Table -->
+        <table class="order-table" id="orderTable">
+            <thead>
+                <tr>
+                    <th>NO.</th>
+                    <th>Employee Name</th>
+                    <th>Employee ID</th>
+                    <th>Department</th>
+                 
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Order data will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <!-- Send Information Section -->
+        <div class="send-info">
+            <h3>Send Information to Admin</h3>
+            <textarea id="infoTextarea" placeholder="Enter additional comments or instructions here..."></textarea>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav-container">
+        <a href="admin_home_pg.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="admin_view_order.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>View Orders</span>
+        </a>
+        <a href="claimed_pg.html" class="nav-item">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Claimed Orders</span>
+        </a>   
+        <a href="view_feedback_pg.html" class="nav-item">
+            <i class="fas fa-file-alt"></i>
+            <span>View Feedback</span>
+        </a>
+    </div>
+
+   <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const noEatingRef = collection(db, "noEating");
+
+        // Function to retrieve orders based on the selected date and department
+        function getOrdersByDateAndDepartment() {
+            const selectedDate = document.getElementById('datePicker').value;
+            const selectedDepartment = document.getElementById('departmentFilter').value;
+
+            // Set start and end timestamps for the selected date
+            const startOfDay = new Date(selectedDate);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(selectedDate);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            // Build the query with dynamic filters
+            let q = query(
+                noEatingRef,
+                where("noEatingDate", ">=", Timestamp.fromDate(startOfDay)),
+                where("noEatingDate", "<=", Timestamp.fromDate(endOfDay))
+            );
+
+            // Add department filter if a specific department is selected
+            if (selectedDepartment) {
+                q = query(q, where("department", "==", selectedDepartment));
+            }
+
+            onSnapshot(q, (querySnapshot) => {
+                const orderTableBody = document.querySelector('#orderTable tbody');
+                orderTableBody.innerHTML = ''; // Clear existing rows
+
+                // Create a Map to store unique entries based on employeeId
+                const uniqueOrders = new Map();
+
+                // Process all documents and keep only the latest entry for each employeeId
+                querySnapshot.forEach((doc) => {
+                    const orderData = doc.data();
+                    const key = orderData.employeeId;
+                    
+                    if (!uniqueOrders.has(key)) {
+                        uniqueOrders.set(key, orderData);
+                    } else {
+                        // If we already have an entry for this employee, compare timestamps
+                        const existingOrder = uniqueOrders.get(key);
+                        const existingTimestamp = existingOrder.noEatingDate?.toDate() || new Date(0);
+                        const newTimestamp = orderData.noEatingDate?.toDate() || new Date(0);
+                        
+                        if (newTimestamp > existingTimestamp) {
+                            uniqueOrders.set(key, orderData);
+                        }
+                    }
+                });
+
+                // Display unique orders
+                let orderNumber = 1;
+                uniqueOrders.forEach((orderData) => {
+                    const newRow = orderTableBody.insertRow();
+                    newRow.insertCell(0).textContent = orderNumber++; // NO.
+                    newRow.insertCell(1).textContent = orderData.name;
+                    newRow.insertCell(2).textContent = orderData.employeeId;
+                    newRow.insertCell(3).textContent = orderData.department;
+                });
+
+                // If no results found, display a message
+                if (uniqueOrders.size === 0) {
+                    const noResultsRow = orderTableBody.insertRow();
+                    const noResultsCell = noResultsRow.insertCell(0);
+                    noResultsCell.colSpan = 4;
+                    noResultsCell.textContent = "No orders found for the selected date and department.";
+                    noResultsCell.style.textAlign = "center";
+                    noResultsCell.style.color = "#888";
+                }
+            });
+        }
+
+        // Call the function to retrieve orders for today when the page loads
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('datePicker').value = today;
+        getOrdersByDateAndDepartment();
+
+        // Event listeners
+        document.getElementById('fetchOrders').addEventListener('click', getOrdersByDateAndDepartment);
+        document.getElementById('departmentFilter').addEventListener('change', getOrdersByDateAndDepartment);
+        
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const info = document.getElementById('infoTextarea').value;
+            alert(`Information sent to admin: ${info}`);
+            document.getElementById('infoTextarea').value = '';
+        });
+
+        document.getElementById('noOrdersBtn').addEventListener('click', function() {
+            window.location.href = 'admin_view_order.html';
+        });
+    </script>
+</body>
+</html>

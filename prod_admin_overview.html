@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>Stock Tracking Overview</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Firebase SDKs -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-firestore-compat.min.js"></script>
+	<style>
+        :root {
+            --primary-color: #0062cc;
+            --secondary-color: #343a40;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: var(--secondary-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+        
+        .sidebar-header {
+            background-color: var(--primary-color);
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 60px;
+        }
+        
+        .sidebar-menu {
+            margin-top: 20px;
+        }
+        
+        .menu-header {
+            padding: 15px;
+            font-weight: bold;
+            color: #adb5bd;
+        }
+        
+        .menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(0, 123, 255, 0.5);
+        }
+        
+        .content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .card-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .card-value.negative {
+            color: var(--danger-color);
+        }
+        
+        .card-footer {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .trend-up {
+            color: var(--success-color);
+        }
+        
+        .trend-down {
+            color: var(--danger-color);
+        }
+        
+        .neutral {
+            color: var(--primary-color);
+        }
+        
+        .filters {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        label {
+            font-weight: 500;
+        }
+        
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-width: 150px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .chart-area {
+            position: relative;
+            height: 300px;
+        }
+        
+        .performance-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .performance-label {
+            width: 100px;
+            font-weight: 500;
+        }
+        
+        .performance-track {
+            flex: 1;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+        
+        .performance-fill {
+            height: 100%;
+            border-radius: 10px;
+        }
+        
+        .performance-fill.good {
+            background-color: var(--success-color);
+        }
+        
+        .performance-fill.average {
+            background-color: var(--warning-color);
+        }
+        
+        .performance-fill.poor {
+            background-color: var(--danger-color);
+        }
+        
+        .performance-value {
+            font-weight: 500;
+            width: 40px;
+            text-align: right;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        td.positive {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        
+        td.negative {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #f5c6cb;
+
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .dashboard-cards, .chart-container {
+                flex-direction: column;
+            }
+            
+            .card, .chart-card {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            
+            .sidebar-header, .menu-header, .menu-item {
+                padding: 15px 5px;
+                text-align: center;
+                font-size: 12px;
+            }
+            
+            .content {
+                margin-left: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+	<div class="sidebar">
+        <div class="sidebar-header">Operating Stock Tracking System</div>
+        <div class="sidebar-menu">
+            <div class="menu-header">Dashboard</div>
+            <a href="prod_admin_overview.html" class="menu-item active">Overview</a>
+            <a href="prod_admin_department.html" class="menu-item">Line Reporting</a>
+            <a href="prod_admin_stock.html" class="menu-item">Stock Analysis</a>
+            <a href="prod_admin_downtime.html" class="menu-item">Down Time & Rework</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="header">Production Output Tracking System - Overview</div>
+        
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-title">Total Unit Per Hours Entries</div>
+                <div class="card-value" id="totalEntries">Loading...</div>
+                <div class="card-footer" id="totalEntriesTrend">Calculating trend...</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Average  Difference</div>
+                <div class="card-value" id="avgDifference">Loading...</div>
+                <div class="card-footer" id="avgDifferenceTrend">Calculating trend...</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Line Reporting</div>
+                <div class="card-value" id="departmentsReporting">Loading...</div>
+                <div class="card-footer" id="departmentsTrend">Calculating compliance...</div>
+            </div>
+        </div>
+        
+        <div class="filters"> 
+            <div class="filter-group">
+                <label for="dateRange">Date Range:</label>
+                <select id="dateRange">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="1">Today</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="department">LINE :</label>
+                <select id="department">
+                    <option value="">All LINE</option>
+                </select>
+            </div>
+            
+            <button id="applyFilters">Apply Filters</button>
+            <button id="refreshData">Refresh Data</button>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <div class="chart-title">Stock Levels Trend</div>
+                <div class="chart-area">
+                    <canvas id="stockTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">Each LINE Performance</div>
+                <div id="departmentPerformance">
+                    <div class="loading">Loading LINE performance...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-title">Recent Stock Updates</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>LINE</th>
+                        <th>Employee</th>
+                        <th>Date & Time</th>
+                        <th>Plan Stock</th>
+                        <th>Actual Stock</th>
+                        <th>Difference</th>
+                        <th>Downtime (min)</th>
+                        <th>Rework</th>
+                    </tr>
+                </thead>
+                <tbody id="stockTableBody">
+                    <tr>
+                        <td colspan="8" class="loading">Loading recent updates...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration - Replace with your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global variables
+        let stockData = [];
+        let stockTrendChart = null;
+        let currentFilters = {
+            dateRange: 30,
+            department: ''
+        };
+
+        // Utility functions
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function formatDateTime(timestamp) {
+            if (timestamp && timestamp.toDate) {
+                return timestamp.toDate().toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+            return 'N/A';
+        }
+
+        function getDateRangeFilter(days) {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - days);
+            return { startDate, endDate };
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Firebase data fetching
+        async function fetchStockData() {
+            try {
+                hideError();
+                const { startDate, endDate } = getDateRangeFilter(currentFilters.dateRange);
+                
+                let query = db.collection('prod-user')
+                    .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(startDate))
+                    .where('timestamp', '<=', firebase.firestore.Timestamp.fromDate(endDate))
+                    .orderBy('timestamp', 'desc');
+
+                if (currentFilters.department) {
+                    query = query.where('departmentId', '==', currentFilters.department);
+                }
+
+                const snapshot = await query.get();
+                stockData = [];
+                
+                snapshot.forEach(doc => {
+                    stockData.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                console.log('Fetched stock data:', stockData.length, 'records');
+                return stockData;
+            } catch (error) {
+                console.error('Error fetching stock data:', error);
+                showError('Error fetching data from Firebase: ' + error.message);
+                return [];
+            }
+        }
+
+        // Dashboard calculations
+        function updateDashboardCards() {
+            const totalEntries = stockData.length;
+            
+            // Calculate average difference
+            const avgDifference = stockData.length > 0 
+                ? stockData.reduce((sum, item) => sum + (item.difference || 0), 0) / stockData.length 
+                : 0;
+            
+            // Get unique departments
+            const uniqueDepartments = [...new Set(stockData.map(item => item.departmentId))];
+            const totalDepartments = uniqueDepartments.length;
+
+            // Update cards
+            document.getElementById('totalEntries').textContent = totalEntries.toLocaleString();
+            
+            const avgDiffElement = document.getElementById('avgDifference');
+            avgDiffElement.textContent = avgDifference.toFixed(1);
+            avgDiffElement.className = avgDifference < 0 ? 'card-value negative' : 'card-value';
+            
+            document.getElementById('departmentsReporting').textContent = totalDepartments;
+
+            // Update trends (simplified)
+            document.getElementById('totalEntriesTrend').innerHTML = 
+                `<span class="neutral">Total entries tracked</span>`;
+            
+            document.getElementById('avgDifferenceTrend').innerHTML = 
+                avgDifference < 0 
+                    ? `<span class="trend-down">↓ Below target</span>`
+                    : `<span class="trend-up">↑ Above target</span>`;
+            
+            document.getElementById('departmentsTrend').innerHTML = 
+                `<span class="trend-up">${totalDepartments} departments active</span>`;
+        }
+
+        // Department performance
+        function updateDepartmentPerformance() {
+            const departmentStats = {};
+            
+            stockData.forEach(item => {
+                const deptId = item.departmentId;
+                const deptName = item.departmentName;
+                
+                if (!departmentStats[deptId]) {
+                    departmentStats[deptId] = {
+                        name: deptName,
+                        totalEntries: 0,
+                        totalDifference: 0,
+                        positiveEntries: 0
+                    };
+                }
+                
+                departmentStats[deptId].totalEntries++;
+                departmentStats[deptId].totalDifference += (item.difference || 0);
+                if ((item.difference || 0) >= 0) {
+                    departmentStats[deptId].positiveEntries++;
+                }
+            });
+
+            const performanceContainer = document.getElementById('departmentPerformance');
+            performanceContainer.innerHTML = '';
+
+            Object.keys(departmentStats).forEach(deptId => {
+                const stats = departmentStats[deptId];
+                const performance = stats.totalEntries > 0 
+                    ? (stats.positiveEntries / stats.totalEntries) * 100 
+                    : 0;
+                
+                const performanceClass = performance >= 80 ? 'good' : 
+                                       performance >= 60 ? 'average' : 'poor';
+
+                const performanceBar = document.createElement('div');
+                performanceBar.className = 'performance-bar';
+                performanceBar.innerHTML = `
+                    <div class="performance-label">${stats.name}</div>
+                    <div class="performance-track">
+                        <div class="performance-fill ${performanceClass}" style="width: ${performance}%"></div>
+                    </div>
+                    <div class="performance-value">${Math.round(performance)}%</div>
+                `;
+                performanceContainer.appendChild(performanceBar);
+            });
+
+            if (Object.keys(departmentStats).length === 0) {
+                performanceContainer.innerHTML = '<div class="loading">No department data available</div>';
+            }
+        }
+
+        // Stock trend chart
+        function updateStockTrendChart() {
+            const ctx = document.getElementById('stockTrendChart').getContext('2d');
+            
+            // Group data by date
+            const dateGroups = {};
+            stockData.forEach(item => {
+                const date = item.date || formatDate(item.timestamp?.toDate() || new Date());
+                if (!dateGroups[date]) {
+                    dateGroups[date] = {
+                        plannedTotal: 0,
+                        actualTotal: 0,
+                        count: 0
+                    };
+                }
+                dateGroups[date].plannedTotal += (item.planStock || 0);
+                dateGroups[date].actualTotal += (item.actualStock || 0);
+                dateGroups[date].count++;
+            });
+
+            const sortedDates = Object.keys(dateGroups).sort();
+            const labels = sortedDates.slice(-7); // Last 7 data points
+            const plannedData = labels.map(date => 
+                dateGroups[date].count > 0 ? dateGroups[date].plannedTotal / dateGroups[date].count : 0
+            );
+            const actualData = labels.map(date => 
+                dateGroups[date].count > 0 ? dateGroups[date].actualTotal / dateGroups[date].count : 0
+            );
+
+            if (stockTrendChart) {
+                stockTrendChart.destroy();
+            }
+
+            stockTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Planned Stock (Avg)',
+                            data: plannedData,
+                            borderColor: '#0062cc',
+                            backgroundColor: 'rgba(0, 98, 204, 0.1)',
+                            tension: 0.2,
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Actual Stock (Avg)',
+                            data: actualData,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.2,
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Stock Units (Average)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Recent updates table
+        function updateRecentUpdatesTable() {
+            const tableBody = document.getElementById('stockTableBody');
+            tableBody.innerHTML = '';
+
+            const recentData = stockData.slice(0, 10); // Last 10 entries
+
+            if (recentData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="loading">No recent updates found</td></tr>';
+                return;
+            }
+
+            recentData.forEach(item => {
+                const row = document.createElement('tr');
+                const difference = item.difference || 0;
+                const differenceClass = difference > 0 ? 'positive' : difference < 0 ? 'negative' : '';
+                
+                row.innerHTML = `
+                    <td>${item.departmentName || 'N/A'}</td>
+                    <td>${item.employeeName || 'N/A'} (ID: ${item.employeeId || 'N/A'})</td>
+                    <td>${formatDateTime(item.timestamp)}</td>
+                    <td>${item.planStock || 0}</td>
+                    <td>${item.actualStock || 0}</td>
+                    <td class="${differenceClass}">${difference > 0 ? '+' : ''}${difference}</td>
+                    <td>${item.totalDowntime || 0}</td>
+                    <td>${item.totalRework || 0}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Populate department filter
+        function updateDepartmentFilter() {
+            const departmentSelect = document.getElementById('department');
+            const currentValue = departmentSelect.value;
+            
+            // Clear existing options except "All Departments"
+            departmentSelect.innerHTML = '<option value="">All Departments</option>';
+            
+            const uniqueDepartments = [...new Set(stockData.map(item => ({
+                id: item.departmentId,
+                name: item.departmentName
+            })).filter(dept => dept.id && dept.name))];
+            
+            uniqueDepartments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.id;
+                option.textContent = dept.name;
+                if (dept.id === currentValue) {
+                    option.selected = true;
+                }
+                departmentSelect.appendChild(option);
+            });
+        }
+
+        // Main data loading function
+        async function loadData() {
+            console.log('Loading data with filters:', currentFilters);
+            
+            await fetchStockData();
+            
+            updateDashboardCards();
+            updateDepartmentPerformance();
+            updateStockTrendChart();
+            updateRecentUpdatesTable();
+            updateDepartmentFilter();
+        }
+
+        // Event listeners
+        document.getElementById('applyFilters').addEventListener('click', async function() {
+            currentFilters.dateRange = parseInt(document.getElementById('dateRange').value);
+            currentFilters.department = document.getElementById('department').value;
+            
+            await loadData();
+        });
+
+        document.getElementById('refreshData').addEventListener('click', async function() {
+            await loadData();
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', async function() {
+            console.log('Page loaded, initializing...');
+            await loadData();
+        });
+
+        // Auto-refresh every 5 minutes
+        setInterval(async function() {
+            console.log('Auto-refreshing data...');
+            await loadData();
+        }, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

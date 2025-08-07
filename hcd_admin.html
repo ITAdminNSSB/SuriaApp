@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>Admin Dashboard - Grievances</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f8fafc;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, black, #334155);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.total { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.pending { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .stat-icon.resolved { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .stat-icon.critical { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .stat-info p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .filters h3 {
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #0C0E8B;
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        .search-bar {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #718096;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, black, #334155);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1a1a1a, #475569);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Grievances Table */
+        .grievances-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            color: #2d3748;
+            font-size: 1.25rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        td {
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #d69e2e;
+        }
+
+        .status-resolved {
+            background: #f0fff4;
+            color: #38a169;
+        }
+
+        .status-in-progress {
+            background: #e6fffa;
+            color: #319795;
+        }
+
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .severity-low {
+            background: #f0fff4;
+            color: #38a169;
+        }
+
+        .severity-medium {
+            background: #fef5e7;
+            color: #d69e2e;
+        }
+
+        .severity-high {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .severity-critical {
+            background: #fed7d7;
+            color: #822727;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .btn-view {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #3182ce;
+        }
+
+        .btn-edit {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #dd6b20;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, black, #334155);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #0C0E8B;
+        }
+
+        .detail-card h4 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .detail-card p {
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-card .value {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .complaint-details {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .complaint-details h4 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .complaint-details p {
+            line-height: 1.6;
+            color: #4a5568;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .table-container {
+                font-size: 0.8rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+        <div class="admin-info">
+            <span id="adminName">Admin User</span>
+            <div class="admin-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalGrievances">0</h3>
+                    <p>Total Grievances</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="pendingGrievances">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon resolved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="resolvedGrievances">0</h3>
+                    <p>Resolved</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon critical">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="criticalGrievances">0</h3>
+                    <p>Critical</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <h3><i class="fas fa-filter"></i> Filters</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="severityFilter">Severity</label>
+                    <select id="severityFilter">
+                        <option value="">All Severity</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="typeFilter">Issue Type</label>
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="misconduct">Misconduct</option>
+                        <option value="unfair">Unfair Treatment</option>
+                        <option value="policyDelay">Delay in Service</option>
+                        <option value="claimIssue">Claim Issues</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="departmentFilter">Department</label>
+                    <select id="departmentFilter">
+                        <option value="">All Departments</option>
+                        <option value="MDO">MDO</option>
+                        <option value="hr">Human Resources</option>
+                        <option value="finance">Finance</option>
+                        <option value="IT">IT</option>
+                        <option value="Purchasing">Purchasing</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="QA">QA</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="ManufacturingEngineering">Manufacturing Engineering</option>
+                        <option value="PPIC">PPIC</option>
+                        <option value="PROD">PROD</option>
+                        <option value="ED">ED</option>
+                        <option value="QC">QC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="dateFrom">Date From</label>
+                    <input type="date" id="dateFrom">
+                </div>
+                <div class="filter-group">
+                    <label for="dateTo">Date To</label>
+                    <input type="date" id="dateTo">
+                </div>
+                <div class="filter-group">
+                    <label for="searchInput">Search</label>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search by name, email, or reference...">
+                    </div>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <button class="btn btn-secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Grievances Table -->
+        <div class="grievances-section">
+            <div class="section-header">
+                <h3><i class="fas fa-list"></i> Grievances List</h3>
+                <span id="totalCount">0 grievances found</span>
+            </div>
+            <div class="table-container">
+                <table id="grievancesTable">
+                    <thead>
+                        <tr>
+                            <th>Reference #</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Issue Type</th>
+                            <th>Severity</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grievancesTableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Viewing Details -->
+    <div id="grievanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-eye"></i> Grievance Details</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Initialize Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Global variables
+        let allGrievances = [];
+        let filteredGrievances = [];
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGrievances();
+        });
+
+        // Load grievances from Firestore
+        async function loadGrievances() {
+            try {
+                showLoading();
+                const grievancesRef = collection(db, "griIssue");
+                const q = query(grievancesRef, orderBy("timestamp", "desc"));
+                
+                // Real-time listener
+                onSnapshot(q, (querySnapshot) => {
+                    allGrievances = [];
+                    querySnapshot.forEach((doc) => {
+                        allGrievances.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    filteredGrievances = [...allGrievances];
+                    updateStats();
+                    displayGrievances();
+                    hideLoading();
+                });
+            } catch (error) {
+                console.error("Error loading grievances:", error);
+                hideLoading();
+                showError("Failed to load grievances. Please try again.");
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = allGrievances.length;
+            const pending = allGrievances.filter(g => g.status === 'pending').length;
+            const resolved = allGrievances.filter(g => g.status === 'resolved').length;
+            const critical = allGrievances.filter(g => g.severity === 'critical').length;
+
+            document.getElementById('totalGrievances').textContent = total;
+            document.getElementById('pendingGrievances').textContent = pending;
+            document.getElementById('resolvedGrievances').textContent = resolved;
+            document.getElementById('criticalGrievances').textContent = critical;
+        }
+
+        // Display grievances in table
+        function displayGrievances() {
+            const tbody = document.getElementById('grievancesTableBody');
+            const totalCount = document.getElementById('totalCount');
+            
+            totalCount.textContent = `${filteredGrievances.length} grievances found`;
+            
+            if (filteredGrievances.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No grievances found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredGrievances.map(grievance => `
+                <tr>
+                    <td><strong>${grievance.referenceNumber}</strong></td>
+                    <td>${grievance.complainantName}</td>
+                    <td>${grievance.complainantEmail}</td>
+                    <td>${formatIssueType(grievance.issueType)}</td>
+                    <td><span class="severity-badge severity-${grievance.severity}">${grievance.severity}</span></td>
+                    <td>${grievance.department || 'N/A'}</td>
+                    <td><span class="status-badge status-${grievance.status}">${grievance.status}</span></td>
+                    <td>${formatDate(grievance.timestamp)}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-small btn-view" onclick="viewGrievance('${grievance.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-small btn-edit" onclick="updateStatus('${grievance.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Format issue type for display
+        function formatIssueType(type) {
+            const types = {
+                'misconduct': 'Misconduct',
+                'unfair': 'Unfair Treatment',
+                'policyDelay': 'Delay in Service',
+                'claimIssue': 'Claim Issues'
+            };
+            return types[type] || type;
+        }
+
+        // Format date for display
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString();
+        }
+
+        // View grievance details
+        window.viewGrievance = function(id) {
+            const grievance = allGrievances.find(g => g.id === id);
+            if (!grievance) return;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Reference Information</h4>
+                        <p><strong>Reference #:</strong> <span class="value">${grievance.referenceNumber}</span></p>
+                        <p><strong>Date Submitted:</strong> <span class="value">${formatDate(grievance.timestamp)}</span></p>
+                        <p><strong>Status:</strong> <span class="status-badge status-${grievance.status}">${grievance.status}</span></p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Complainant Details</h4>
+                        <p><strong>Name:</strong> <span class="value">${grievance.complainantName}</span></p>
+                        <p><strong>Email:</strong> <span class="value">${grievance.complainantEmail}</span></p>
+                        <p><strong>Phone:</strong> <span class="value">${grievance.complainantPhone}</span></p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Issue Classification</h4>
+                        <p><strong>Type:</strong> <span class="value">${formatIssueType(grievance.issueType)}</span></p>
+                        <p><strong>Severity:</strong> <span class="severity-badge severity-${grievance.severity}">${grievance.severity}</span></p>
+                        <p><strong>Department:</strong> <span class="value">${grievance.department || 'Not specified'}</span></p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Additional Information</h4>
+                        <p><strong>Employee Name:</strong> <span class="value">${grievance.employeeName || 'Not specified'}</span></p>
+                        <p><strong>Incident Date:</strong> <span class="value">${grievance.incidentDate || 'Not specified'}</span></p>
+                        <p><strong>User ID:</strong> <span class="value">${grievance.userId || 'N/A'}</span></p>
+                    </div>
+                </div>
+                <div class="complaint-details">
+                    <h4>Complaint Details</h4>
+                    <p>${grievance.complaintDetails}</p>
+                </div>
+                <div class="complaint-details">
+                    <h4>Desired Outcome</h4>
+                    <p>${grievance.desiredOutcome || 'Not specified'}</p>
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="updateStatus('${grievance.id}')">
+                        <i class="fas fa-edit"></i> Update Status
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('grievanceModal').style.display = 'block';
+        }
+
+        // Update grievance status
+        window.updateStatus = function(id) {
+            const grievance = allGrievances.find(g => g.id === id);
+            if (!grievance) return;
+
+            const newStatus = prompt(`Update status for ${grievance.referenceNumber}:\n\nCurrent: ${grievance.status}\n\nEnter new status (pending/in-progress/resolved):`, grievance.status);
+            
+          if (newStatus && ['pending', 'in-progress', 'resolved'].includes(newStatus)) {
+            updateGrievanceStatus(id, newStatus);
+        } else if (newStatus) {
+            alert('Invalid status. Please use: pending, in-progress, or resolved');
+        }
+    }
+
+    // Update grievance status in Firestore
+    async function updateGrievanceStatus(id, newStatus) {
+        try {
+            const grievanceRef = doc(db, "griIssue", id);
+            await updateDoc(grievanceRef, {
+                status: newStatus,
+                lastUpdated: new Date()
+            });
+            
+            alert('Status updated successfully!');
+            closeModal();
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert('Failed to update status. Please try again.');
+        }
+    }
+
+    // Apply filters
+    window.applyFilters = function() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const severityFilter = document.getElementById('severityFilter').value;
+        const typeFilter = document.getElementById('typeFilter').value;
+        const departmentFilter = document.getElementById('departmentFilter').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        filteredGrievances = allGrievances.filter(grievance => {
+            // Status filter
+            if (statusFilter && grievance.status !== statusFilter) return false;
+            
+            // Severity filter
+            if (severityFilter && grievance.severity !== severityFilter) return false;
+            
+            // Type filter
+            if (typeFilter && grievance.issueType !== typeFilter) return false;
+            
+            // Department filter
+            if (departmentFilter && grievance.department !== departmentFilter) return false;
+            
+            // Date range filter
+            if (dateFrom || dateTo) {
+                const grievanceDate = grievance.timestamp ? 
+                    (grievance.timestamp.toDate ? grievance.timestamp.toDate() : new Date(grievance.timestamp)) : 
+                    new Date();
+                
+                if (dateFrom && grievanceDate < new Date(dateFrom)) return false;
+                if (dateTo && grievanceDate > new Date(dateTo + 'T23:59:59')) return false;
+            }
+            
+            // Search filter
+            if (searchTerm) {
+                const searchableText = [
+                    grievance.complainantName,
+                    grievance.complainantEmail,
+                    grievance.referenceNumber,
+                    grievance.complaintDetails,
+                    grievance.employeeName
+                ].join(' ').toLowerCase();
+                
+                if (!searchableText.includes(searchTerm)) return false;
+            }
+            
+            return true;
+        });
+        
+        displayGrievances();
+    }
+
+    // Clear all filters
+    window.clearFilters = function() {
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('severityFilter').value = '';
+        document.getElementById('typeFilter').value = '';
+        document.getElementById('departmentFilter').value = '';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        document.getElementById('searchInput').value = '';
+        
+        filteredGrievances = [...allGrievances];
+        displayGrievances();
+    }
+
+    // Close modal
+    window.closeModal = function() {
+        document.getElementById('grievanceModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('grievanceModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+
+    // Show loading state
+    function showLoading() {
+        const tbody = document.getElementById('grievancesTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading grievances...</p>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Hide loading state
+    function hideLoading() {
+        // Loading will be hidden when displayGrievances() is called
+    }
+
+    // Show error message
+    function showError(message) {
+        const tbody = document.getElementById('grievancesTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${message}</p>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Real-time search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        if (searchTerm === '') {
+            filteredGrievances = [...allGrievances];
+        } else {
+            filteredGrievances = allGrievances.filter(grievance => {
+                const searchableText = [
+                    grievance.complainantName,
+                    grievance.complainantEmail,
+                    grievance.referenceNumber,
+                    grievance.complaintDetails,
+                    grievance.employeeName
+                ].join(' ').toLowerCase();
+                
+                return searchableText.includes(searchTerm);
+            });
+        }
+        
+        displayGrievances();
+    });
+
+    // Export functions to global scope
+    window.loadGrievances = loadGrievances;
+    window.updateGrievanceStatus = updateGrievanceStatus;
+    </script>
+</body>
+</html>

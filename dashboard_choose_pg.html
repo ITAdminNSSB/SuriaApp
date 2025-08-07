@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script type="module" src="auth-guard.js"></script>
+    <title>Savings Period Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient();
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 360px;
+        }
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .app-header h1 {
+            color: darkslateblue;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-header p {
+            color: rgba(0,0, 0, 0.9);
+            font-size: 16px;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .savings-btn {
+            position: relative;
+            height: 120px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .savings-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .savings-btn.selected {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .savings-btn.selected::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #4ade80;
+        }
+        
+        .savings-btn i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+        
+        .savings-btn p {
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+        
+        .feedback {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Icons using FontAwesome classes but implemented with CSS */
+        .icon-daily::before {
+            content: "24h";
+            font-style: normal;
+            font-weight: 700;
+            font-size: 28px;
+        }
+        
+        .icon-weekly::before {
+            content: "7d";
+            font-style: normal;
+            font-weight: 700;
+            font-size: 28px;
+        }
+        
+        .icon-monthly::before {
+            content: "30d";
+            font-style: normal;
+            font-weight: 700;
+            font-size: 28px;
+        }
+        
+        .icon-yearly::before {
+            content: "365d";
+            font-style: normal;
+            font-weight: 700;
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <h1>Savings Calculator</h1>
+            <p>Choose your preferred savings period</p>
+        </div>
+        
+        <div class="button-grid">
+            <div class="savings-btn" id="daily">
+                <i class="icon-daily"></i>
+                Daily
+              
+            </div>
+            <div class="savings-btn" id="weekly">
+                <i class="icon-weekly"></i>
+                Weekly
+              
+            </div>
+            <div class="savings-btn" id="monthly">
+                <i class="icon-monthly"></i>
+                Monthly
+              
+            </div>
+            <div class="savings-btn" id="yearly">
+                <i class="icon-yearly"></i>
+                Yearly
+				
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback">
+            You've selected Daily savings mode
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.savings-btn');
+            const feedback = document.getElementById('feedback');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove selected class from all buttons
+                    buttons.forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked button
+                    this.classList.add('selected');
+                    
+                    // Show feedback
+                    feedback.textContent = `You've selected ${this.id.charAt(0).toUpperCase() + this.id.slice(1)} savings mode`;
+                    feedback.classList.add('show');
+                    
+                    // Haptic feedback simulation (on supporting devices)
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(50);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

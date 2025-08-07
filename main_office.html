@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Members</title>
+    <script type="module" src="auth-guard.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .member-card {
+            background-color: #e3f2fd;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .member-card .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #bbdefb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #0d47a1;
+        }
+
+        .member-info h3 {
+            margin: 0;
+            color: #0d47a1;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .member-info p {
+            margin: 0;
+            color: #5f6368;
+            font-size: 14px;
+        }
+
+        .member-card .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        .action-button {
+            background-color: #0d47a1;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .action-button:hover {
+            background-color: #1565c0;
+        }
+
+        /* Different background colors for cards */
+        .member-card:nth-child(2n) {
+            background-color: #e8f5e9;
+        }
+        .member-card:nth-child(3n) {
+            background-color: #fff3e0;
+        }
+        .member-card:nth-child(4n) {
+            background-color: #fce4ec;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-content">
+        <!-- Repeat this structure for each member -->
+        <div class="member-card">
+            <div class="header">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="member-info">
+                    <h3>John Smith</h3>
+                    <p>Department Head</p>
+                </div>
+            </div>
+            <p>Ext: 801 | Email: john@nssb.com.my</p>
+            <div class="footer">
+                <span class="date">Joined: 09-06-2018</span>
+                <button class="action-button">Contact</button>
+            </div>
+        </div>
+
+        <div class="member-card">
+            <div class="header">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="member-info">
+                    <h3>Jane Doe</h3>
+                    <p>Project Manager</p>
+                </div>
+            </div>
+            <p>Ext: 805 | Email: jane@nssb.com.my</p>
+            <div class="footer">
+                <span class="date">Joined: 05-04-2019</span>
+                <button class="action-button">Contact</button>
+            </div>
+        </div>
+
+        <!-- Add more member cards as needed -->
+    </div>
+
+</body>
+</html>

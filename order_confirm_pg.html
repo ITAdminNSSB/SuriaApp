@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Order - Canteen</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Styles */
+      /* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-image: url(https://e0.pxfuel.com/wallpapers/391/776/desktop-wallpaper-white-background-white-metallic.jpg);
+}
+
+.container {
+    padding-top: 80px;
+    padding-bottom: 100px;
+}
+
+/* Header styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    padding: 10px;
+    color: white;
+    border: none; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.header .profile-pic {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.header .logo1 {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.header .logo img {
+    height: 40px;
+}
+
+/* Navigation bar styles - Updated for floating effect */
+.navbar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #1C36B8;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 0;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.navbar a {
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    flex-grow: 1;
+    transition: transform 0.2s ease;
+}
+
+.navbar a:hover {
+    transform: translateY(-2px);
+}
+
+.navbar a img {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+}
+
+.navbar a span {
+    display: block;
+    font-size: 12px;
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .navbar {
+        width: 95%;
+        bottom: 15px;
+        padding: 12px 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .navbar {
+        width: 98%;
+        bottom: 10px;
+    }
+    
+    .navbar a img {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .navbar a span {
+        font-size: 11px;
+    }
+}
+        /* Order table styling */
+        .order-table {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+
+        .order-table th,
+        .order-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .order-table th {
+            background-color: #1C36B8;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .order-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .order-table tr:hover {
+            background-color: #ddd;
+        }
+
+        .order-table td {
+            vertical-align: middle;
+        }
+
+        /* Button Styling */
+        .action-btn, .send-info button {
+            background-color: #1C36B8;
+            color: white;
+            border: none;
+            padding: 12px 19px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .action-btn:hover, .send-info button:hover {
+            background-color: #003bb5;
+        }
+
+        /* Send Info Box */
+        .send-info {
+            width: 80%;
+            max-width: 275px;
+            margin: 40px auto;
+            background-color: #1C1C1C;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .send-info textarea {
+            width: 80%;
+            height: 120px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #2C2C2C;
+            color: white;
+            resize: none;
+        }
+
+        .send-info h3 {
+            margin-top: 0;
+        }
+
+        /* Date picker styling */
+        .date-picker {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .date-picker input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        /* Media Queries for responsiveness */
+        @media (max-width: 400px) {
+            .order-table, .send-info {
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+ 
+        <span class="logo1"><img src="pictures/new_logo.png" alt="Company Logo" width="200" height="47"></span>
+    </div>
+
+    <div>
+        <div class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="#">Send Feedback</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="date-picker">
+            <input type="date" id="datePicker" />
+            <button id="fetchOrders">Fetch Orders</button>
+        </div>
+
+        <!-- Order Table -->
+        <table class="order-table" id="orderTable">
+            <thead>
+                <tr>
+                    <th>NO.</th> <!-- Added column for numbering -->
+                    <th>Employee Name</th>
+                    <th>Employee ID</th>
+                    <th>Department</th>
+                    <th>Order Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Order data will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <!-- Send Information Section -->
+        <div class="send-info">
+            <h3>Send Information to Admin</h3>
+            <textarea id="infoTextarea" placeholder="Enter additional comments or instructions here..."></textarea>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="#" id="homeLink">
+            <img src="pictures/home_logo.png" alt="Home">
+            <span>Home</span>
+        </a>
+
+        <a href="#" id="orderLink">
+            <img src="pictures/order_icon_1.png" alt="Order">
+            <span>View Orders</span>
+        </a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const ordersRef = collection(db, "orders");
+
+        // Function to retrieve orders based on a selected date
+        function getOrdersByDate(selectedDate) {
+            // Set start and end timestamps for the selected date
+            const startOfDay = new Date(selectedDate);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(selectedDate);
+            endOfDay.setHours(23, 59, 59, 999);
+            
+            // Query to get orders for the selected date
+            const q = query(
+                ordersRef,
+                where("orderDate", ">=", Timestamp.fromDate(startOfDay)),
+                where("orderDate", "<=", Timestamp.fromDate(endOfDay))
+            );
+
+            // Listen for real-time updates
+            onSnapshot(q, (querySnapshot) => {
+                const orderTableBody = document.querySelector('#orderTable tbody');
+                orderTableBody.innerHTML = '';  // Clear existing rows
+
+                let orderNumber = 1; // To display the order number
+
+                querySnapshot.forEach((doc) => {
+                    const orderData = doc.data();
+                    const newRow = orderTableBody.insertRow();
+
+                    // Insert cells for order data
+                    newRow.insertCell(0).textContent = orderNumber++; // NO.
+                    newRow.insertCell(1).textContent = orderData.name;
+                    newRow.insertCell(2).textContent = orderData.employeeId;
+                    newRow.insertCell(3).textContent = orderData.department;
+                    newRow.insertCell(4).textContent = orderData.orderStatus;
+                });
+            });
+        }
+
+        // Call the function to retrieve orders for today when the page loads
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        document.getElementById('datePicker').value = today; // Set the date picker to today
+        getOrdersByDate(today);
+
+        // Fetch orders based on the selected date when the button is clicked
+        document.getElementById('fetchOrders').addEventListener('click', () => {
+            const selectedDate = document.getElementById('datePicker').value;
+            if (selectedDate) {
+                getOrdersByDate(selectedDate);
+            } else {
+                alert('Please select a date.');
+            }
+        });
+
+        // Send button event listener
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const info = document.getElementById('infoTextarea').value;
+            // Here you can handle sending info to the admin or saving it in Firestore
+            alert(`Information sent to admin: ${info}`);
+            // Clear the textarea after sending
+            document.getElementById('infoTextarea').value = '';
+        });
+    </script>
+</body>
+</html>

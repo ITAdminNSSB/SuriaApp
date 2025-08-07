@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Lunch Menu</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+     <script type="module" src="auth-guard.js"></script>
+    <style>
+        :root {
+            --primary-color: white;
+            --primary-light: #9571F6;
+            --primary-dark: #6B4AC1;
+            --secondary-color: blue;
+            --accent-color: #72F2EB;
+            --dark-bg: #242629;
+            --light-bg: #F9F9F9;
+            --card-bg: #FFFFFF;
+            --text-primary: #16161A;
+            --text-secondary: #5E5E5E;
+            --text-light: #EFEFEF;
+            --border-radius: 1rem;
+            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(127, 90, 240, 0.15);
+            --gradient-primary: linear-gradient(135deg, #7F5AF0, #6B4AC1);
+            --gradient-secondary: linear-gradient(135deg, #00264D, #5E5E5E);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background:linear-gradient(135deg, black,  #00264D);
+            color: var(--text-primary);
+            padding-bottom: 85px;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            background:linear-gradient(135deg, black,  #00264D);
+            border-radius: var(--border-radius);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+            position: relative;
+        }
+        
+        /* Header Styling */
+        .custom-header {
+            background: linear-gradient(135deg, black, #334155);
+            color: white;
+            border-radius: 0 0 25px 25px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .menu-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-container img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Title Styling */
+        .page-title {
+            position: relative;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .page-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-secondary);
+            margin: 0.5rem auto;
+            border-radius: 2px;
+        }
+        
+        /* Menu Section Styling */
+        .menu-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s, box-shadow 0.3s;
+			 width:300px;
+			align-content: center;
+			margin-left: 20px;
+        }
+        
+        .menu-section:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, GREY, #334155);
+            color: white;
+            padding: 1rem 1.5rem;
+            position: relative;
+			
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-header h2::before {
+            content: '\f133';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-right: 10px;
+        }
+        
+        /* Menu Items */
+        .menu-items-container {
+            padding: 0.5rem;
+        }
+        
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: background-color 0.2s;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(127, 90, 240, 0.05);
+        }
+        
+        .menu-item-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .menu-item-price {
+            font-weight: 600;
+            color: var(--secondary-color);
+            background: rgba(252, 140, 116, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            z-index: 1050;
+            box-shadow: var(--shadow-lg);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header img {
+            width: 80px;
+            margin-right: 1rem;
+        }
+        
+        .sidebar-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .sidebar-close:hover {
+            transform: rotate(90deg);
+        }
+        
+        .user-info {
+            background:transparent;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+        
+        .user-info p {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-menu a i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(127, 90, 240, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+      /* Bottom Navigation */
+.nav-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 15px 20px 20px; /* Added more padding at bottom */
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+    z-index: 90;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex: 1;
+    position: relative;
+    padding: 8px 0;
+}
+
+.nav-item.active {
+    color: #334155;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #334155;
+    border-radius: 50%;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover i {
+    transform: translateY(-3px);
+}
+
+.nav-item span {
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover span {
+    color: #334155;
+}
+        
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1040;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Today's Special Highlight */
+        .today-special {
+            position: relative;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(127, 90, 240, 0.1), rgba(252, 140, 116, 0.1));
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .today-special::before {
+            content: 'TODAY\'S SPECIAL';
+            position: absolute;
+            top: 10px;
+            right: -25px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.25rem 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transform: rotate(45deg);
+        }
+        
+        .today-special .menu-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: none;
+        }
+        
+        /* Day Indicators */
+        .day-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 767px) {
+            .custom-header {
+                border-radius: 0;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Animation for menu items */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-item {
+            animation: fadeIn 0.3s ease-out forwards;
+
+        }
+        
+        .menu-section:nth-child(odd) .section-header {
+            background: var(--gradient-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+        
+        <div class="user-info">
+        
+        </div>
+   
+    <!-- Main Container -->
+    <div class="container-fluid p-0">
+      
+            
+                <div class="logo-container">
+                    
+                   
+                </div>
+                <div style="width: 24px;"></div> <!-- Spacer for alignment -->
+            </div>
+      
+        <div class="container app-container">
+            <h1 class="page-title">Weekly Lunch Menu</h1>
+
+            <!-- Today's Special -->
+            <div class="today-special" id="today-special">
+                <div class="loading">Finding today's special...</div>
+            </div>
+
+            <!-- Monday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Monday</h2>
+                </div>
+                <div class="menu-items-container" id="monday-items">
+                    <div class="loading">Loading Monday lunch menu...</div>
+                </div>
+            </div>
+
+            <!-- Tuesday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Tuesday</h2>
+                </div>
+                <div class="menu-items-container" id="tuesday-items">
+                    <div class="loading">Loading Tuesday lunch menu...</div>
+                </div>
+            </div>
+
+            <!-- Wednesday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Wednesday</h2>
+                </div>
+                <div class="menu-items-container" id="wednesday-items">
+                    <div class="loading">Loading Wednesday lunch menu...</div>
+                </div>
+            </div>
+
+            <!-- Thursday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Thursday</h2>
+                </div>
+                <div class="menu-items-container" id="thursday-items">
+                    <div class="loading">Loading Thursday lunch menu...</div>
+                </div>
+            </div>
+
+            <!-- Friday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Friday</h2>
+                </div>
+                <div class="menu-items-container" id="friday-items">
+                    <div class="loading">Loading Friday lunch menu...</div>
+                </div>
+            </div>
+
+            <!-- Saturday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Saturday</h2>
+                </div>
+                <div class="menu-items-container" id="saturday-items">
+                    <div class="loading">Loading Saturday lunch menu...</div>
+                </div>
+            </div>
+
+            <!-- Sunday -->
+            <div class="menu-section">
+                <div class="section-header">
+                    <h2><span class="day-indicator"></span>Sunday</h2>
+                </div>
+                <div class="menu-items-container" id="sunday-items">
+                    <div class="loading">Loading Sunday lunch menu...</div>
+					<div class="menu=item-container" id="total-items">
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+    <!-- Bottom Navigation -->
+    <div class="nav-container">
+      <a href="home.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+      </a>
+      <a href="order_pg.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>Order</span>
+      </a>
+      <a href="menu_pg.html" class="nav-item">
+            <i class="fas fa-book"></i>
+            <span>Menu</span>
+      </a>
+      <a href="profile_pg.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+      </a>
+          <a href="login_pg.html" id="logoutBtn" class="nav-item">
+    <i class="fas fa-sign-out-alt"></i>
+    <span>Logout</span>
+  </a>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Touch handling for sidebar
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const swipeDistance = touchEndX - touchStartX;
+            
+            // Right to left swipe (close sidebar)
+            if (swipeDistance < -50 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+            // Left to right swipe (open sidebar)
+            else if (swipeDistance > 50 && !sidebar.classList.contains('active')) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Set current date in a nice format
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').innerText = today.toLocaleDateString('en-US', options);
+
+        // Close sidebar when overlay is clicked
+        document.getElementById('overlay').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        });
+        
+        // Add subtle delay for animation effect
+        document.querySelectorAll('.menu-item').forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+
+    <!-- Firebase Initialization and Menu Fetching -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const nameinfo = document.getElementById('nameinfo');
+        
+        // Get day of week for today's special
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const todayName = dayNames[new Date().getDay()];
+
+        // Function to display user info
+        function displayUserInfo(userID) {
+            const userDocRef = doc(db, "users", userID);
+            getDoc(userDocRef).then((doc) => {
+                if (doc.exists()) {
+                    const userInfo = doc.data();
+                    nameinfo.textContent = userInfo.name;
+                } else {
+                    nameinfo.textContent = 'Guest';
+                }
+            }).catch((error) => {
+                console.error("Error fetching user info:", error);
+                nameinfo.textContent = 'Guest';
+            });
+        }
+
+        // Fetch and display weekly lunch menu
+        async function fetchWeeklyLunchMenu() {
+            try {
+                const weeklyLunchDocRef = doc(db, 'food', 'weeklyLunch');
+                const weeklyLunchSnapshot = await getDoc(weeklyLunchDocRef);
+
+                if (weeklyLunchSnapshot.exists()) {
+                    const weeklyLunchData = weeklyLunchSnapshot.data();
+                    
+                    // Process each day of the week
+                    displayDayMenu(weeklyLunchData.monday || [], 'monday-items');
+                    displayDayMenu(weeklyLunchData.tuesday || [], 'tuesday-items');
+                    displayDayMenu(weeklyLunchData.wednesday || [], 'wednesday-items');
+                    displayDayMenu(weeklyLunchData.thursday || [], 'thursday-items');
+                    displayDayMenu(weeklyLunchData.friday || [], 'friday-items');
+                    displayDayMenu(weeklyLunchData.saturday || [], 'saturday-items');
+                    displayDayMenu(weeklyLunchData.sunday || [], 'sunday-items');
+                    
+                    // Display today's special
+                    displayTodaySpecial(weeklyLunchData[todayName] || []);
+                    
+                    // Highlight today's section
+                    highlightToday();
+                } else {
+                    console.error("No weekly lunch menu document found!");
+                    document.querySelectorAll('.loading').forEach(elem => {
+                        elem.textContent = 'No menu information available';
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching weekly lunch menu:", error);
+                document.querySelectorAll('.loading').forEach(elem => {
+                    elem.textContent = 'Error loading menu items';
+                });
+            }
+        }
+
+        // Function to display menu items for a specific day
+        function displayDayMenu(items, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; // Clear loading message
+
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div class="menu-item">No items available</div>';
+                return;
+            }
+
+            items.forEach((item, index) => {
+                if (item && item.name) {
+                    const menuItem = document.createElement('div');
+                    menuItem.className = 'menu-item';
+                    menuItem.style.animationDelay = `${index * 0.1}s`;
+                    
+                    menuItem.innerHTML = `
+                        <div class="menu-item-name">${item.name}</div>
+                        <div class="menu-item-price">${item.price ? `RM ${parseFloat(item.price).toFixed(2)}` : 'Free'}</div>
+                    `;
+                    container.appendChild(menuItem);
+                }
+            });
+        }
+        
+        // Function to display today's special
+        function displayTodaySpecial(todayItems) {
+            const container = document.getElementById('today-special');
+            
+            if (!todayItems || todayItems.length === 0) {
+                container.innerHTML = '<div class="text-center py-3">No special for today</div>';
+                return;
+            }
+            
+            // Find the most expensive item as the special
+            let specialItem = todayItems[0];
+            todayItems.forEach(item => {
+                if (parseFloat(item.price) > parseFloat(specialItem.price)) {
+                    specialItem = item;
+                }
+            });
+            
+            container.innerHTML = `
+                <div class="menu-item">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div>
+                            <div class="menu-item-name fs-5">${specialItem.name}</div>
+                            <div class="text-muted mt-2">Chef's recommendation for today</div>
+                        </div>
+                        <div class="menu-item-price">${specialItem.price ? `RM ${parseFloat(specialItem.price).toFixed(2)}` : 'Free'}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Function to highlight today's section
+        function highlightToday() {
+            // First, get the capitalized day name
+            const capitalizedDay = todayName.charAt(0).toUpperCase() + todayName.slice(1);
+            
+            // Find all section headers and check which one matches today
+            document.querySelectorAll('.section-header h2').forEach(header => {
+                if (header.textContent.includes(capitalizedDay)) {
+                    // Add special styling to the parent menu section
+                    const menuSection = header.closest('.menu-section');
+                    menuSection.style.boxShadow = '0 10px 25px rgba(252, 140, 116, 0.25)';
+                    menuSection.style.border = '2px solid var(--secondary-color)';
+                    
+                    // Add a "Today" badge
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-danger ms-2';
+                    badge.textContent = 'Today';
+                    header.appendChild(badge);
+                    
+                    // Scroll to today's section with smooth animation after a short delay
+                    setTimeout(() => {
+                        menuSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 500);
+                }
+            });
+        }
+
+        // Monitor user authentication and display info
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                displayUserInfo(user.uid);
+            } else {
+                nameinfo.textContent = 'Guest';
+            }
+        });
+
+        // Call fetchWeeklyLunchMenu to load menu on page load
+        fetchWeeklyLunchMenu();
+	</script>
+   	<script>
+		// Add this script at the end of your body section
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the current page filename
+    const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+    
+    // Get all navigation items
+    const navItems = document.querySelectorAll('.nav-container .nav-item');
+    
+    // Remove active class from all items
+    navItems.forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to the current page's nav item
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+        }
+    });
+});
+	</script>
+
+</body>
+</html>

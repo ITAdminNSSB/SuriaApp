@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>My Complaint History</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+            color: #4a5568;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, black, #334155);
+            color: white;
+            position: sticky;
+            top: 20px;
+            border-radius: 15px;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 15px rgba(12, 14, 139, 0.2);
+            z-index: 100;
+        }
+
+        .back-icon {
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+            margin-right: 15px;
+        }
+
+        .back-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header img {
+            width: 80px;
+            height: 40px;
+        }
+
+        /* User Info Section */
+        .user-info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0C0E8B, #334155);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .user-employee-id {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0C0E8B;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* Search and Filter Section */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f8fafc;
+            transition: all 0.3s;
+        }
+
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: #0C0E8B;
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+            background-color: #fff;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0C0E8B, #334155);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(12, 14, 139, 0.1);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Complaints List */
+        .complaints-section {
+            margin-top: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .sort-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .complaint-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .complaint-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .complaint-card.pending {
+            border-left-color: #f59e0b;
+        }
+
+        .complaint-card.investigating {
+            border-left-color: #3b82f6;
+        }
+
+        .complaint-card.resolved {
+            border-left-color: #10b981;
+        }
+
+        .complaint-card.closed {
+            border-left-color: #6b7280;
+        }
+
+        .complaint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .complaint-ref {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .complaint-ref i {
+            color: #0C0E8B;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-investigating {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-closed {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .complaint-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .complaint-description {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .description-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .show-more {
+            color: #0C0E8B;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .show-more:hover {
+            text-decoration: underline;
+        }
+
+        .complaint-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn-primary {
+            background: #0C0E8B;
+            color: white;
+            border-color: #0C0E8B;
+        }
+
+        .action-btn-primary:hover {
+            background: #1416a0;
+        }
+
+        .action-btn-secondary {
+            background: white;
+            color: #4a5568;
+            border-color: #e2e8f0;
+        }
+
+        .action-btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        /* Loading and Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+            color: #0C0E8B;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #cbd5e0;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            background: #f8fafc;
+            border-color: #0C0E8B;
+        }
+
+        .pagination-btn.active {
+            background: #0C0E8B;
+            color: white;
+            border-color: #0C0E8B;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .complaint-details {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                min-width: auto;
+            }
+
+            .complaint-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .complaint-actions {
+                flex-wrap: wrap;
+            }
+
+            .stats-row {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .stat-item {
+                min-width: 100px;
+            }
+        }
+
+        /* Additional Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .severity-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .severity-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .severity-medium {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .severity-high {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .severity-critical {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        /* Export and Print Styles */
+        .export-section {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        @media print {
+            body { background: white; }
+            .header, .filter-section, .export-section { display: none; }
+            .complaint-card { 
+                page-break-inside: avoid; 
+                box-shadow: none;
+                border: 1px solid #ccc;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <span class="back-icon" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </span>
+        <div class="header-title">My Complaint History</div>
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <div class="container">
+        <!-- User Info Card -->
+        <div class="user-info-card fade-in">
+            <div class="user-avatar" id="userAvatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-employee-id" id="userEmployeeId">Employee ID: Loading...</div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalComplaints">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="pendingComplaints">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="resolvedComplaints">0</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section fade-in">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="investigating">Investigating</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="issueTypeFilter">Issue Type</label>
+                    <select id="issueTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="misconduct">Misconduct</option>
+                        <option value="unfair">Unfair Treatment</option>
+                        <option value="claimIssue">Claim Issues</option>
+                        <option value="harassment">Sexual Harassment</option>
+                        <option value="bullying">Bullying</option>
+                        <option value="discrimination">Discrimination</option>
+                        <option value="salaryIssue">Salary Issues</option>
+                        <option value="overtimeDispute">Overtime Dispute</option>
+                        <option value="workload">Excessive Workload</option>
+                        <option value="safety">Safety Violation</option>
+                        <option value="equipmentFailure">Equipment Failure</option>
+                        <option value="favoritism">Favoritism</option>
+                        <option value="mentalHealth">Mental Health</option>
+                        <option value="verbalAbuse">Verbal Abuse</option>
+                        <option value="physicalAbuse">Physical Abuse</option>
+                        <option value="lackOfTraining">Lack of Training</option>
+                        <option value="unethicalConduct">Unethical Conduct</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="severityFilter">Severity</label>
+                    <select id="severityFilter">
+                        <option value="">All Severity</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label for="dateFromFilter">From Date</label>
+                    <input type="date" id="dateFromFilter">
+                </div>
+                <div class="filter-item">
+                    <label for="dateToFilter">To Date</label>
+                    <input type="date" id="dateToFilter">
+                </div>
+            </div>
+            <div class="filter-buttons">
+                <button class="btn btn-secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Complaints Section -->
+        <div class="complaints-section">
+            <div class="section-header">
+                <h2 class="section-title">Your Complaints</h2>
+                <select class="sort-dropdown" id="sortOrder" onchange="applySorting()">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="status">By Status</option>
+                    <option value="severity">By Severity</option>
+                </select>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loadingState" style="display: none;">
+                <i class="fas fa-spinner"></i>
+                <p>Loading your complaints...</p>
+            </div>
+
+            <!-- Complaints List -->
+            <div id="complaintsContainer">
+                <!-- Complaints will be dynamically loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <h3>No Complaints Found</h3>
+                <p>You haven't submitted any complaints yet, or no complaints match your current filters.</p>
+                <button class="btn btn-primary" onclick="window.location.href='hcd_grievance_pg.html'" style="margin-top: 15px;">
+                    <i class="fas fa-plus"></i> Submit New Complaint
+                </button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <!-- Pagination will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-section">
+            <div class="export-buttons">
+                <button class="btn btn-secondary" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button class="btn btn-secondary" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button class="btn btn-secondary" onclick="printHistory()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+       // Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getFirestore, collection, query, where, orderBy, getDocs, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+// Firebase configuration
+const firebaseConfig = {
+   apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Global variables
+let currentUser = null;
+let allComplaints = [];
+let filteredComplaints = [];
+let currentPage = 1;
+const complaintsPerPage = 10;
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    showLoading(true);
+    initializeAuth();
+});
+
+// Initialize authentication
+function initializeAuth() {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUser = user;
+            console.log("User is signed in:", user.uid);
+            await loadUserInfo(user.uid);
+            await loadUserComplaints(user.uid);
+        } else {
+            console.log("No user is signed in");
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+    });
+}
+
+// Load user information
+async function loadUserInfo(userId) {
+    try {
+        // Try to get user document directly by ID
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+            const userInfo = userDoc.data();
+            console.log("User info loaded:", userInfo);
+            
+            // Update user display
+            document.getElementById('userName').textContent = userInfo.name || userInfo.fullName || 'Unknown User';
+            document.getElementById('userEmployeeId').textContent = `Employee ID: ${userInfo.employeeId || 'N/A'}`;
+            
+            // Set avatar initials
+            const userAvatar = document.getElementById('userAvatar');
+            const name = userInfo.name || userInfo.fullName;
+            if (name) {
+                const initials = name.split(' ').map(n => n[0]).join('');
+                userAvatar.textContent = initials.toUpperCase();
+            }
+        } else {
+            console.log("User document not found, using auth info");
+            // Fallback to auth email
+            document.getElementById('userName').textContent = currentUser.email || 'Unknown User';
+            document.getElementById('userEmployeeId').textContent = 'Employee ID: N/A';
+            
+            const userAvatar = document.getElementById('userAvatar');
+            if (currentUser.email) {
+                userAvatar.textContent = currentUser.email[0].toUpperCase();
+            }
+        }
+    } catch (error) {
+        console.error("Error loading user info:", error);
+        document.getElementById('userName').textContent = currentUser.email || 'Unknown User';
+        document.getElementById('userEmployeeId').textContent = 'Employee ID: N/A';
+    }
+}
+
+// Load user's complaints from Firestore
+async function loadUserComplaints(userId) {
+    try {
+        showLoading(true);
+        console.log("Loading complaints for user:", userId);
+        
+        // First, get user's employee ID
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+        let employeeId = null;
+        
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            employeeId = userData.employeeId;
+            console.log("Found employee ID:", employeeId);
+        }
+
+        if (!employeeId) {
+            console.warn("No employee ID found for user");
+            
+            // Try to query complaints directly by user ID as fallback
+            console.log("Trying to query complaints by user ID...");
+            const complaintsRef = collection(db, "griIssue");
+            const fallbackQuery = query(complaintsRef, where("userId", "==", userId));
+            
+            const fallbackSnapshot = await getDocs(fallbackQuery);
+            
+            if (!fallbackSnapshot.empty) {
+                console.log("Found complaints by user ID");
+                allComplaints = [];
+                fallbackSnapshot.forEach((doc) => {
+                    const complaintData = doc.data();
+                    complaintData.id = doc.id;
+                    allComplaints.push(complaintData);
+                });
+                
+                updateStatistics();
+                applyFilters();
+                showLoading(false);
+                return;
+            }
+            
+            showLoading(false);
+            showEmptyState(true);
+            return;
+        }
+
+        // Query complaints by employee ID
+        console.log("Querying complaints by employee ID:", employeeId);
+        const complaintsRef = collection(db, "griIssue");
+        
+        // Try different possible field names for complainant employee ID
+        const possibleFields = [
+            "complainantemployeeId",
+            "complainantEmployeeId", 
+            "employeeId",
+            "complainant_employee_id"
+        ];
+        
+        let complaintsFound = false;
+        
+        for (const fieldName of possibleFields) {
+            try {
+                console.log(`Trying field: ${fieldName}`);
+                const q = query(complaintsRef, where(fieldName, "==", employeeId));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    console.log(`Found complaints using field: ${fieldName}`);
+                    complaintsFound = true;
+                    
+                    // Set up real-time listener with the working field
+                    const realtimeQuery = query(
+                        complaintsRef,
+                        where(fieldName, "==", employeeId),
+                        orderBy("timestamp", "desc")
+                    );
+
+                    const unsubscribe = onSnapshot(realtimeQuery, (snapshot) => {
+                        allComplaints = [];
+                        
+                        snapshot.forEach((doc) => {
+                            const complaintData = doc.data();
+                            complaintData.id = doc.id;
+                            allComplaints.push(complaintData);
+                        });
+
+                        console.log(`Loaded ${allComplaints.length} complaints for employee ID: ${employeeId}`);
+                        
+                        updateStatistics();
+                        applyFilters();
+                        showLoading(false);
+                        
+                        if (allComplaints.length === 0) {
+                            showEmptyState(true);
+                        } else {
+                            showEmptyState(false);
+                        }
+                    }, (error) => {
+                        console.error("Error in real-time listener:", error);
+                        // Fall back to one-time query
+                        getDocs(q).then((snapshot) => {
+                            allComplaints = [];
+                            snapshot.forEach((doc) => {
+                                const complaintData = doc.data();
+                                complaintData.id = doc.id;
+                                allComplaints.push(complaintData);
+                            });
+                            updateStatistics();
+                            applyFilters();
+                            showLoading(false);
+                        });
+                    });
+
+                    window.unsubscribeComplaints = unsubscribe;
+                    break;
+                }
+            } catch (error) {
+                console.log(`Field ${fieldName} not indexed or error:`, error.message);
+                continue;
+            }
+        }
+        
+        if (!complaintsFound) {
+            console.log("No complaints found with any field name, trying to get all complaints to debug...");
+            
+            // Debug: Get all complaints to see the structure
+            const allComplaintsQuery = query(complaintsRef);
+            const allComplaintsSnapshot = await getDocs(allComplaintsQuery);
+            
+            console.log("Total complaints in database:", allComplaintsSnapshot.size);
+            
+            if (!allComplaintsSnapshot.empty) {
+                const firstComplaint = allComplaintsSnapshot.docs[0].data();
+                console.log("Sample complaint structure:", Object.keys(firstComplaint));
+                console.log("Sample complaint data:", firstComplaint);
+            }
+            
+            showLoading(false);
+            showEmptyState(true);
+        }
+
+    } catch (error) {
+        console.error("Error loading complaints:", error);
+        showLoading(false);
+        showNotification('Error loading complaints. Please try again.', 'error');
+        
+        // Show available fields for debugging
+        try {
+            const complaintsRef = collection(db, "griIssue");
+            const debugQuery = query(complaintsRef);
+            const debugSnapshot = await getDocs(debugQuery);
+            
+            if (!debugSnapshot.empty) {
+                const sampleDoc = debugSnapshot.docs[0].data();
+                console.log("Available fields in complaints:", Object.keys(sampleDoc));
+            }
+        } catch (debugError) {
+            console.error("Debug query failed:", debugError);
+        }
+    }
+}
+
+// Update statistics
+function updateStatistics() {
+    const total = allComplaints.length;
+    const pending = allComplaints.filter(c => c.status === 'pending').length;
+    const resolved = allComplaints.filter(c => c.status === 'resolved').length;
+
+    document.getElementById('totalComplaints').textContent = total;
+    document.getElementById('pendingComplaints').textContent = pending;
+    document.getElementById('resolvedComplaints').textContent = resolved;
+}
+
+// Apply filters
+function applyFilters() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const issueTypeFilter = document.getElementById('issueTypeFilter').value;
+    const severityFilter = document.getElementById('severityFilter').value;
+    const dateFromFilter = document.getElementById('dateFromFilter').value;
+    const dateToFilter = document.getElementById('dateToFilter').value;
+
+    filteredComplaints = allComplaints.filter(complaint => {
+        // Status filter
+        if (statusFilter && complaint.status !== statusFilter) return false;
+        
+        // Issue type filter
+        if (issueTypeFilter && complaint.issueType !== issueTypeFilter) return false;
+        
+        // Severity filter
+        if (severityFilter && complaint.severity !== severityFilter) return false;
+        
+        // Date filters
+        if (dateFromFilter || dateToFilter) {
+            let complaintDate;
+            
+            // Handle different timestamp formats
+            if (complaint.timestamp?.toDate) {
+                complaintDate = complaint.timestamp.toDate();
+            } else if (complaint.timestamp?.seconds) {
+                complaintDate = new Date(complaint.timestamp.seconds * 1000);
+            } else if (complaint.timestamp) {
+                complaintDate = new Date(complaint.timestamp);
+            } else if (complaint.createdAt?.toDate) {
+                complaintDate = complaint.createdAt.toDate();
+            } else if (complaint.dateSubmitted) {
+                complaintDate = new Date(complaint.dateSubmitted);
+            } else {
+                complaintDate = new Date(); // fallback to current date
+            }
+            
+            if (dateFromFilter && complaintDate < new Date(dateFromFilter)) return false;
+            if (dateToFilter && complaintDate > new Date(dateToFilter + ' 23:59:59')) return false;
+        }
+        return true;
+    });
+
+    // Apply sorting
+    applySorting();
+    
+    // Reset to first page
+    currentPage = 1;
+    
+    // Display complaints
+    displayComplaints();
+}
+
+// Apply sorting
+function applySorting() {
+    const sortOrder = document.getElementById('sortOrder').value;
+    
+    filteredComplaints.sort((a, b) => {
+        switch (sortOrder) {
+            case 'newest':
+                const dateA = getComplaintDate(a);
+                const dateB = getComplaintDate(b);
+                return dateB - dateA;
+            
+            case 'oldest':
+                const dateA2 = getComplaintDate(a);
+                const dateB2 = getComplaintDate(b);
+                return dateA2 - dateB2;
+            
+            case 'status':
+                const statusOrder = { 'pending': 1, 'investigating': 2, 'resolved': 3, 'closed': 4 };
+                return (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
+            
+            case 'severity':
+                const severityOrder = { 'critical': 1, 'high': 2, 'medium': 3, 'low': 4 };
+                return (severityOrder[a.severity] || 5) - (severityOrder[b.severity] || 5);
+            
+            default:
+                return 0;
+        }
+    });
+    
+    if (filteredComplaints.length > 0) {
+        displayComplaints();
+    }
+}
+
+// Helper function to get complaint date
+function getComplaintDate(complaint) {
+    if (complaint.timestamp?.toDate) {
+        return complaint.timestamp.toDate();
+    } else if (complaint.timestamp?.seconds) {
+        return new Date(complaint.timestamp.seconds * 1000);
+    } else if (complaint.timestamp) {
+        return new Date(complaint.timestamp);
+    } else if (complaint.createdAt?.toDate) {
+        return complaint.createdAt.toDate();
+    } else if (complaint.dateSubmitted) {
+        return new Date(complaint.dateSubmitted);
+    } else {
+        return new Date();
+    }
+}
+
+// Display complaints
+function displayComplaints() {
+    const container = document.getElementById('complaintsContainer');
+    const startIndex = (currentPage - 1) * complaintsPerPage;
+    const endIndex = startIndex + complaintsPerPage;
+    const complaintsToShow = filteredComplaints.slice(startIndex, endIndex);
+
+    if (complaintsToShow.length === 0) {
+        showEmptyState(true);
+        return;
+    }
+
+    showEmptyState(false);
+    
+    container.innerHTML = complaintsToShow.map(complaint => createComplaintCard(complaint)).join('');
+    
+    // Update pagination
+    updatePagination();
+}
+
+// Create complaint card HTML
+function createComplaintCard(complaint) {
+    const date = getComplaintDate(complaint);
+    
+    const formattedDate = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    const formattedTime = date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    // Truncate description for display
+    const maxDescLength = 150;
+    const description = complaint.issueDescription || complaint.description || 'No description provided';
+    const truncatedDesc = description.length > maxDescLength ? 
+        description.substring(0, maxDescLength) + '...' : description;
+    const needsShowMore = description.length > maxDescLength;
+
+    return `
+        <div class="complaint-card ${complaint.status || 'pending'} fade-in">
+            <div class="complaint-header">
+                <div class="complaint-ref">
+                    <i class="fas fa-file-alt"></i>
+                    REF: ${complaint.referenceNumber || complaint.complaintId || complaint.id}
+                </div>
+                <span class="status-badge status-${complaint.status || 'pending'}">
+                    ${(complaint.status || 'PENDING').toUpperCase()}
+                </span>
+            </div>
+            
+            <div class="complaint-details">
+                <div class="detail-item">
+                    <div class="detail-label">Issue Type</div>
+                    <div class="detail-value">${getIssueTypeLabel(complaint.issueType || complaint.type)}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Severity</div>
+                    <div class="detail-value">
+                        <span class="severity-indicator severity-${complaint.severity || 'medium'}">
+                            ${(complaint.severity || 'MEDIUM').toUpperCase()}
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Date Submitted</div>
+                    <div class="detail-value">${formattedDate} at ${formattedTime}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Against</div>
+                    <div class="detail-value">${complaint.againstWhom || complaint.respondent || 'Not specified'}</div>
+                </div>
+            </div>
+
+            <div class="complaint-description">
+                <div class="description-text" id="desc-${complaint.id}">
+                    ${truncatedDesc}
+                </div>
+                ${needsShowMore ? `
+                    <div class="show-more" onclick="toggleDescription('${complaint.id}', '${description.replace(/'/g, "\\'")}')">
+                        Show more
+                    </div>
+                ` : ''}
+            </div>
+
+            <div class="complaint-actions">
+                <a href="complaint_details.html?id=${complaint.id}" class="action-btn action-btn-primary">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+                ${(complaint.status === 'pending' || !complaint.status) ? `
+                    <button class="action-btn action-btn-secondary" onclick="editComplaint('${complaint.id}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                ` : ''}
+                <button class="action-btn action-btn-secondary" onclick="downloadComplaint('${complaint.id}')">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Get issue type label
+function getIssueTypeLabel(issueType) {
+    const labels = {
+        'misconduct': 'Misconduct',
+        'unfair': 'Unfair Treatment',
+        'claimIssue': 'Claim Issues',
+        'harassment': 'Sexual Harassment',
+        'bullying': 'Bullying',
+        'discrimination': 'Discrimination',
+        'salaryIssue': 'Salary Issues',
+        'overtimeDispute': 'Overtime Dispute',
+        'workload': 'Excessive Workload',
+        'safety': 'Safety Violation',
+        'equipmentFailure': 'Equipment Failure',
+        'favoritism': 'Favoritism',
+        'mentalHealth': 'Mental Health',
+        'verbalAbuse': 'Verbal Abuse',
+        'physicalAbuse': 'Physical Abuse',
+        'lackOfTraining': 'Lack of Training',
+        'unethicalConduct': 'Unethical Conduct'
+    };
+    return labels[issueType] || issueType || 'Unknown';
+}
+
+// Toggle description display
+window.toggleDescription = function(complaintId, fullDescription) {
+    const descElement = document.getElementById(`desc-${complaintId}`);
+    const showMoreElement = descElement.nextElementSibling;
+    
+    if (showMoreElement && showMoreElement.textContent === 'Show more') {
+        descElement.textContent = fullDescription;
+        showMoreElement.textContent = 'Show less';
+    } else if (showMoreElement) {
+        const truncated = fullDescription.length > 150 ? 
+            fullDescription.substring(0, 150) + '...' : fullDescription;
+        descElement.textContent = truncated;
+        showMoreElement.textContent = 'Show more';
+    }
+};
+
+// Update pagination
+function updatePagination() {
+    const totalPages = Math.ceil(filteredComplaints.length / complaintsPerPage);
+    const paginationContainer = document.getElementById('pagination');
+    
+    if (totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+    
+    paginationContainer.style.display = 'flex';
+    
+    let paginationHTML = '';
+    
+    // Previous button
+    paginationHTML += `
+        <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} 
+                onclick="changePage(${currentPage - 1})">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    `;
+    
+    // Page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    if (startPage > 1) {
+        paginationHTML += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+        if (startPage > 2) {
+            paginationHTML += `<span style="padding: 8px;">...</span>`;
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                    onclick="changePage(${i})">
+                ${i}
+            </button>
+        `;
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationHTML += `<span style="padding: 8px;">...</span>`;
+        }
+        paginationHTML += `<button class="pagination-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+    }
+    
+    // Next button
+    paginationHTML += `
+        <button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} 
+                onclick="changePage(${currentPage + 1})">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+    
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+// Change page
+window.changePage = function(page) {
+    const totalPages = Math.ceil(filteredComplaints.length / complaintsPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        displayComplaints();
+        // Scroll to top of complaints section
+        document.querySelector('.complaints-section').scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+// Clear filters
+window.clearFilters = function() {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('issueTypeFilter').value = '';
+    document.getElementById('severityFilter').value = '';
+    document.getElementById('dateFromFilter').value = '';
+    document.getElementById('dateToFilter').value = '';
+    
+    applyFilters();
+};
+
+// Show/hide loading state
+function showLoading(show) {
+    const loadingElement = document.getElementById('loadingState');
+    if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+    }
+}
+
+// Show/hide empty state
+function showEmptyState(show) {
+    const emptyElement = document.getElementById('emptyState');
+    if (emptyElement) {
+        emptyElement.style.display = show ? 'block' : 'none';
+    }
+}
+
+// Edit complaint
+window.editComplaint = function(complaintId) {
+    window.location.href = `edit_complaint.html?id=${complaintId}`;
+};
+
+// Download complaint
+window.downloadComplaint = function(complaintId) {
+    const complaint = allComplaints.find(c => c.id === complaintId);
+    if (!complaint) return;
+
+    const content = generateComplaintText(complaint);
+    downloadTextFile(`complaint_${complaint.referenceNumber || complaintId}.txt`, content);
+};
+
+// Generate complaint text for download
+function generateComplaintText(complaint) {
+    const date = getComplaintDate(complaint);
+    
+    return `
+COMPLAINT DETAILS
+=================
+
+Reference Number: ${complaint.referenceNumber || complaint.complaintId || complaint.id}
+Status: ${(complaint.status || 'PENDING').toUpperCase()}
+Issue Type: ${getIssueTypeLabel(complaint.issueType || complaint.type)}
+Severity: ${(complaint.severity || 'UNKNOWN').toUpperCase()}
+Date Submitted: ${date.toLocaleString()}
+
+Complainant Information:
+- Name: ${complaint.complainantName || complaint.name || 'N/A'}
+- Employee ID: ${complaint.complainantemployeeId || complaint.employeeId || 'N/A'}
+- Department: ${complaint.complainantDepartment || complaint.department || 'N/A'}
+- Contact: ${complaint.complainantContact || complaint.contact || 'N/A'}
+
+Issue Details:
+- Against Whom: ${complaint.againstWhom || complaint.respondent || 'Not specified'}
+- Description: ${complaint.issueDescription || complaint.description || 'No description provided'}
+
+Additional Information:
+- Witnesses: ${complaint.witnesses || 'None mentioned'}
+- Evidence: ${complaint.evidence || 'None provided'}
+- Previous Reports: ${complaint.previousReports ? 'Yes' : 'No'}
+
+Generated on: ${new Date().toLocaleString()}
+    `.trim();
+}
+
+// Download text file
+function downloadTextFile(filename, content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Export to PDF
+window.exportToPDF = function() {
+    window.print();
+};
+
+// Export to Excel
+window.exportToExcel = function() {
+    if (filteredComplaints.length === 0) {
+        showNotification('No complaints to export', 'warning');
+        return;
+    }
+
+    const csvContent = generateCSVContent();
+    downloadTextFile('complaints_export.csv', csvContent);
+    showNotification('Complaints exported successfully', 'success');
+};
+
+// Generate CSV content
+function generateCSVContent() {
+    const header = 'Reference,Status,Issue Type,Severity,Date,Against Whom,Description\n';
+    const rows = filteredComplaints.map(complaint => {
+        const date = getComplaintDate(complaint);
+        
+        return [
+            `"${complaint.referenceNumber || complaint.id}"`,
+            `"${complaint.status || ''}"`,
+            `"${getIssueTypeLabel(complaint.issueType)}"`,
+            `"${complaint.severity || ''}"`,
+            `"${date.toLocaleDateString()}"`,
+            `"${complaint.againstWhom || ''}"`,
+            `"${(complaint.issueDescription || '').replace(/"/g, '""')}"`
+        ].join(',');
+    }).join('\n');
+    
+    return header + rows;
+}
+
+// Print history
+window.printHistory = function() {
+    window.print();
+};
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 300px;
+    `;
+    
+    // Set background color based on type
+    const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6'
+    };
+    notification.style.backgroundColor = colors[type] || colors.info;
+    
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Add CSS for notifications
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(notificationStyles);
+
+// Make functions globally accessible
+window.applyFilters = applyFilters;
+window.applySorting = applySorting;
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (window.unsubscribeComplaints) {
+        window.unsubscribeComplaints();
+    }
+});
+    </script>
+</body>
+</html>

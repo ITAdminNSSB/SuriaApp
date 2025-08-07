@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operating Stock Tracking System</title>
+	<!-- Firebase libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script type="module" src="auth-guard.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+            background-color: #0056b3;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .department-card {
+            background-color: #e9f0f8;
+            border-radius: 8px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #cce0ff;
+        }
+        
+        .department-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            background-color: #d9e8f7;
+        }
+        
+        .department-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .password-modal, .data-entry-form {
+            display: none;
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 10px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .form-group input:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .time-slot-btn {
+            padding: 12px 15px;
+            background-color: #2a8d46;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .time-slot-btn:hover {
+            background-color: #1e6e36;
+            transform: translateY(-2px);
+        }
+        
+        .time-slot-btn .deadline {
+            font-size: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        
+        .time-slot-btn.unavailable {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .time-slot-btn.completed {
+            background-color: #28a745;
+        }
+        
+        .time-slot-btn.expired {
+            background-color: #dc3545;
+        }
+        
+        .time-slots-container {
+            margin-bottom: 20px;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn:hover {
+            background-color: #003d82;
+        }
+        
+        .back-btn {
+            background-color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background-color: #f2f2f2;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            color: #28a745;
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .highlight-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .highlight-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        /* Additional mobile optimizations */
+        @media screen and (max-width: 600px) {
+            .department-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+    <link href="jQueryAssets/jquery.ui.core.min.css" rel="stylesheet" type="text/css">
+    <link href="jQueryAssets/jquery.ui.theme.min.css" rel="stylesheet" type="text/css">
+    <link href="jQueryAssets/jquery.ui.datepicker.min.css" rel="stylesheet" type="text/css">
+<script src="jQueryAssets/jquery-1.11.1.min.js"></script>
+<script src="jQueryAssets/jquery.ui-1.10.4.datepicker.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Header -->
+        <div class="header">
+            <h1>Operating Stock Tracking System</h1>
+        </div>
+        
+        <!-- Department Selection Section -->
+        <div id="department-selection" class="section">
+            <h2>Select LINE</h2>
+            <p>Please select your operating LINE to continue:</p>
+            
+            <div class="department-grid" id="department-grid">
+                <!-- Departments will be generated here -->
+            </div>
+        </div>
+        
+        <!-- Password Authentication Modal -->
+        <div id="password-modal" class="password-modal section">
+            <button class="btn back-btn" id="password-back-btn">← Back to LINES</button>
+            <h2 id="password-department-name">Department Authentication</h2>
+            <p>Please enter the password for this LINE:</p>
+            
+            <div class="form-group">
+                <label for="department-password">Password:</label>
+                <input type="password" id="department-password" placeholder="Enter department password">
+                <div id="password-error" class="error-message"></div>
+            </div>
+            
+            <button class="btn" id="password-submit">Submit</button>
+        </div>
+        
+        <!-- Time Slot Selection -->
+        <div id="time-slot-selection" class="section" style="display: none;">
+            <button class="btn back-btn" id="time-slot-back-btn">← Back to LINES</button>
+            <h2 id="time-slot-department-name">Production Time Slots</h2>
+            <p>Select the production time slot to update:</p>
+            
+            <div id="time-slots-container" class="time-slots-container">
+                <!-- Time slots will be generated here -->
+            </div>
+        </div>
+        
+        <!-- Data Entry Form -->
+        <div id="data-entry-form" class="data-entry-form section">
+            <button class="btn back-btn" id="form-back-btn">← Back to Time Slots</button>
+            <h2 id="form-department-name">Stock Tracking Form</h2>
+            <p id="form-time-slot">Time Slot: 8:00 AM - 9:00 AM</p>
+            
+            <div class="form-group">
+                <label for="employee-id">Employee ID:</label>
+                <input type="text" id="employee-id" placeholder="Enter employee ID">
+            </div>
+            
+            <div class="form-group">
+                <label for="employee-name">Employee Name:</label>
+                <input type="text" id="employee-name" placeholder="Enter employee name">
+            </div>
+            
+            <div class="form-group">
+                <label for="entry-date">Date:</label>
+                <input type="date" id="entry-date" disabled>
+            </div>
+            
+            <div class="form-group">
+                <label for="entry-time">Production Time:</label>
+                <input type="text" id="entry-time" disabled>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plan-stock">Planned Production (UPH):</label>
+                    <input type="number" id="plan-stock" placeholder="Enter planned stock level" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="actual-stock">Actual Production (UPH):</label>
+                    <input type="number" id="actual-stock" placeholder="Enter actual stock level" min="0">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="stock-difference">Difference (Plan - Actual):</label>
+                <input type="text" id="stock-difference" disabled>
+            </div>
+            
+            <!-- Multiple Downtime Entries -->
+            <div class="form-section">
+                <h3>Downtime Entries (Optional - Max 3)</h3>
+                <div id="downtime-entries">
+                    <div class="downtime-entry" data-index="1">
+                        <h4>Downtime Entry 1</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="downtime-1">Downtime (minutes):</label>
+                                <input type="number" id="downtime-1" name="downtime-1" placeholder="Enter downtime in minutes" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="downtime-reason-1">Downtime Reason:</label>
+                                <select id="downtime-reason-1" name="downtime-reason-1">
+                                    <option value="">-- Select reason --</option>
+                                    <option value="Equipment Failure">Equipment Failure</option>
+                                    <option value="Material Shortage">Material Shortage</option>
+                                    <option value="Quality Issues">Quality Issues</option>
+                                    <option value="Setup/Changeover">Setup/Changeover</option>
+                                    <option value="Operator Break">Operator Break</option>
+                                    <option value="Planned Maintenance">Planned Maintenance</option>
+                                    <option value="Unplanned Maintenance">Unplanned Maintenance</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="downtime-entry" data-index="2">
+                        <h4>Downtime Entry 2</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="downtime-2">Downtime (minutes):</label>
+                                <input type="number" id="downtime-2" name="downtime-2" placeholder="Enter downtime in minutes" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="downtime-reason-2">Downtime Reason:</label>
+                                <select id="downtime-reason-2" name="downtime-reason-2">
+                                    <option value="">-- Select reason --</option>
+                                    <option value="Equipment Failure">Equipment Failure</option>
+                                    <option value="Material Shortage">Material Shortage</option>
+                                    <option value="Quality Issues">Quality Issues</option>
+                                    <option value="Setup/Changeover">Setup/Changeover</option>
+                                    <option value="Operator Break">Operator Break</option>
+                                    <option value="Planned Maintenance">Planned Maintenance</option>
+                                    <option value="Unplanned Maintenance">Unplanned Maintenance</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="downtime-entry" data-index="3">
+                        <h4>Downtime Entry 3</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="downtime-3">Downtime (minutes):</label>
+                                <input type="number" id="downtime-3" name="downtime-3" placeholder="Enter downtime in minutes" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="downtime-reason-3">Downtime Reason:</label>
+                                <select id="downtime-reason-3" name="downtime-reason-3">
+                                    <option value="">-- Select reason --</option>
+                                    <option value="Equipment Failure">Equipment Failure</option>
+                                    <option value="Material Shortage">Material Shortage</option>
+                                    <option value="Quality Issues">Quality Issues</option>
+                                    <option value="Setup/Changeover">Setup/Changeover</option>
+                                    <option value="Operator Break">Operator Break</option>
+                                    <option value="Planned Maintenance">Planned Maintenance</option>
+                                    <option value="Unplanned Maintenance">Unplanned Maintenance</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Multiple Rework Entries -->
+            <div class="form-section">
+                <h3>Rework Entries (Optional - Max 3)</h3>
+                <div id="rework-entries">
+                    <div class="rework-entry" data-index="1">
+                        <h4>Rework Entry 1</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="rework-1">Rework Quantity:</label>
+                                <input type="number" id="rework-1" name="rework-1" placeholder="Enter rework quantity" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="rework-reason-1">Rework Reason:</label>
+                                <input type="text" id="rework-reason-1" name="rework-reason-1" placeholder="Enter rework reason">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rework-entry" data-index="2">
+                        <h4>Rework Entry 2</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="rework-2">Rework Quantity:</label>
+                                <input type="number" id="rework-2" name="rework-2" placeholder="Enter rework quantity" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="rework-reason-2">Rework Reason:</label>
+                                <input type="text" id="rework-reason-2" name="rework-reason-2" placeholder="Enter rework reason">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rework-entry" data-index="3">
+                        <h4>Rework Entry 3</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="rework-3">Rework Quantity:</label>
+                                <input type="number" id="rework-3" name="rework-3" placeholder="Enter rework quantity" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="rework-reason-3">Rework Reason:</label>
+                                <input type="text" id="rework-reason-3" name="rework-reason-3" placeholder="Enter rework reason">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="entry-notes">Notes (Optional):</label>
+                <input type="text" id="entry-notes" placeholder="Any additional notes">
+            </div>
+            
+            <button class="btn" id="data-submit">Submit Data</button>
+            <div id="submission-message" class="success-message"></div>
+            
+            <h3 style="margin-top: 30px;">Recent Stock Updates</h3>
+            <div id="recent-entries">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Plan/Actual</th>
+                            <th>Diff</th>
+                            <th>Total Downtime</th>
+                            <th>Total Rework</th>
+                        </tr>
+                    </thead>
+                    <tbody id="entries-table-body">
+                        <!-- Entries will appear here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Department data with passwords
+const departments = [
+    { id: 'dept1', name: 'LINE-5-1', password: '5-12025' },
+    { id: 'dept2', name: 'LINE-5-2', password: '5-22025' },
+    { id: 'dept3', name: 'LINE-5-3', password: '5-32025' },
+    { id: 'dept4', name: 'LINE-5-4', password: '5-42025' },
+    { id: 'dept5', name: 'LINE-5-5', password: '5-52025' },
+    { id: 'dept6', name: 'LINE-5-6', password: '5-62025' },
+    { id: 'dept31', name: 'LINE-5-7', password: '5-72025' },
+    { id: 'dept32', name: 'LINE-5-8', password: '5-82025' },
+    { id: 'dept7', name: 'LINE-7-1/2 spot weld', password: '7-1/22025spotwel' },
+    { id: 'dept8', name: 'LINE-7-3/4 nut weld', password: '7-3/42025nutweld' },
+    { id: 'dept9', name: 'LINE-7-22', password: '7-222025' },
+    { id: 'dept10', name: 'LINE-7-21', password: '7-212025' },
+    { id: 'dept11', name: 'LINE-5-21', password: '5-212025' },
+    { id: 'dept12', name: 'LINE-5-22', password: '5-222025' },
+    { id: 'dept13', name: 'LINE-5-23', password: '5-232025' },
+    { id: 'dept14', name: 'LINE-5-24', password: '5-242025' },
+    { id: 'dept15', name: 'LINE-5-25', password: '5-252025' },
+    { id: 'dept16', name: 'LINE-5-26', password: '5-262025' },
+    { id: 'dept17', name: 'LINE-5-27', password: '5-272025' },
+    { id: 'dept18', name: 'LINE-5-28', password: '5-282025' },
+    { id: 'dept19', name: 'LINE-5-29', password: '5-292025' },
+    { id: 'dept20', name: 'LINE-5-30', password:'5-302025' },
+    { id: 'dept21', name: 'LINE-5-31', password:'5-312025' },
+    { id: 'dept22', name: 'LINE-5-32', password:'5-322025' },
+    { id: 'dept23', name: 'LINE-5-33', password:'5-332025' },
+    { id: 'dept24', name: 'LINE-5-34', password:'5-342025' },
+    { id: 'dept25', name: 'LINE-6-21', password:'6-212025' },
+    { id: 'dept26', name: 'LINE-8-20', password:'8-202025' },
+    { id: 'dept27', name: 'LINE-8-21', password:'8-212025' },
+    { id: 'dept28', name: 'LINE-8-22', password:'8-222025' },
+    { id: 'dept29', name: 'LINE-8-23', password:'8-232025' }
+   
+	
+	
+];
+
+// Time slots with deadlines (75 minutes after end time)
+const timeSlots = [
+    { id: 'slot1', startTime: '08:00', endTime: '09:00', display: '8:00 AM - 9:00 AM', deadline: '10:15' },
+    { id: 'slot2', startTime: '09:00', endTime: '10:00', display: '9:00 AM - 10:00 AM', deadline: '11:15' },
+    { id: 'slot3', startTime: '10:00', endTime: '11:00', display: '10:00 AM - 11:00 AM', deadline: '12:15' },
+    { id: 'slot4', startTime: '11:00', endTime: '12:00', display: '11:00 AM - 12:00 PM', deadline: '13:15' },
+    { id: 'slot5', startTime: '12:00', endTime: '13:00', display: '12:00 PM - 1:00 PM', deadline: '14:15' },
+    { id: 'slot6', startTime: '13:00', endTime: '14:00', display: '1:00 PM - 2:00 PM', deadline: '15:15' },
+    { id: 'slot7', startTime: '14:00', endTime: '15:00', display: '2:00 PM - 3:00 PM', deadline: '16:15' },
+    { id: 'slot8', startTime: '15:00', endTime: '16:00', display: '3:00 PM - 4:00 PM', deadline: '17:15' },
+    { id: 'slot9', startTime: '16:00', endTime: '17:00', display: '4:00 PM - 5:00 PM', deadline: '18:15' },
+    { id: 'slot10', startTime: '17:00', endTime: '18:00', display: '5:00 PM - 6:00 PM', deadline: '19:15' },
+    { id: 'slot11', startTime: '18:00', endTime: '19:00', display: '6:00 PM - 7:00 PM', deadline: '20:15' },
+    { id: 'slot12', startTime: '19:00', endTime: '20:00', display: '7:00 PM - 8:00 PM', deadline: '21:15' },
+    { id: 'slot13', startTime: '20:00', endTime: '21:00', display: '8:00 PM - 9:00 PM', deadline: '22:15' },
+    { id: 'slot14', startTime: '21:00', endTime: '22:00', display: '9:00 PM - 10:00 PM', deadline: '23:15' },
+    { id: 'slot15', startTime: '22:00', endTime: '23:00', display: '10:00 PM - 11:00 PM', deadline: '00:15' },
+    { id: 'slot16', startTime: '23:00', endTime: '00:00', display: '11:00 PM - 12:00 AM', deadline: '1:15' },
+    { id: 'slot17', startTime: '00:00', endTime: '1:00', display: '12:00 AM - 1:00 AM', deadline: '2:15' },
+    { id: 'slot18', startTime: '1:00', endTime: '2:00', display: '1:00 AM - 2:00 AM', deadline: '3:15' },
+    { id: 'slot18', startTime: '2:00', endTime: '3:00', display: '2:00 AM - 3:00 AM', deadline: '4:15' },
+    { id: 'slot18', startTime: '3:00', endTime: '4:00', display: '3:00 AM - 4:00 AM', deadline: '5:15' },
+    { id: 'slot18', startTime: '4:00', endTime: '5:00', display: '4:00 AM - 5:00 AM', deadline: '6:15' }
+];
+
+// Department-specific data storage (for local use)
+const departmentData = {};
+departments.forEach(dept => {
+    departmentData[dept.id] = {
+        entries: [],
+        completedSlots: {} // Track completed slots by date
+    };
+});
+
+// Current tracking variables
+let currentDepartment = null;
+let currentTimeSlot = null;
+
+// DOM element references
+const departmentGrid = document.getElementById('department-grid');
+const departmentSelection = document.getElementById('department-selection');
+const passwordModal = document.getElementById('password-modal');
+const passwordDepartmentName = document.getElementById('password-department-name');
+const departmentPassword = document.getElementById('department-password');
+const passwordError = document.getElementById('password-error');
+const passwordSubmit = document.getElementById('password-submit');
+const passwordBackBtn = document.getElementById('password-back-btn');
+const timeSlotSelection = document.getElementById('time-slot-selection');
+const timeSlotDepartmentName = document.getElementById('time-slot-department-name');
+const timeSlotsContainer = document.getElementById('time-slots-container');
+const timeSlotBackBtn = document.getElementById('time-slot-back-btn');
+const dataEntryForm = document.getElementById('data-entry-form');
+const formDepartmentName = document.getElementById('form-department-name');
+const formTimeSlot = document.getElementById('form-time-slot');
+const employeeId = document.getElementById('employee-id');
+const employeeName = document.getElementById('employee-name');
+const entryDate = document.getElementById('entry-date');
+const entryTime = document.getElementById('entry-time');
+const planStock = document.getElementById('plan-stock');
+const actualStock = document.getElementById('actual-stock');
+const stockDifference = document.getElementById('stock-difference');
+const entryNotes = document.getElementById('entry-notes');
+const dataSubmit = document.getElementById('data-submit');
+const formBackBtn = document.getElementById('form-back-btn');
+const submissionMessage = document.getElementById('submission-message');
+const entriesTableBody = document.getElementById('entries-table-body');
+
+// Firebase Configuration
+const firebaseConfig = {
+     apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Generate department cards
+function generateDepartmentCards() {
+    departmentGrid.innerHTML = '';
+    departments.forEach(dept => {
+        const card = document.createElement('div');
+        card.className = 'department-card';
+        card.dataset.deptId = dept.id;
+        card.innerHTML = `<h3>${dept.name}</h3>`;
+        card.addEventListener('click', () => selectDepartment(dept));
+        departmentGrid.appendChild(card);
+    });
+}
+
+// Handle department selection
+function selectDepartment(dept) {
+    currentDepartment = dept;
+    passwordDepartmentName.textContent = dept.name + ' Authentication';
+    departmentPassword.value = '';
+    passwordError.textContent = '';
+    
+    departmentSelection.style.display = 'none';
+    passwordModal.style.display = 'block';
+}
+
+// Handle password submission
+passwordSubmit.addEventListener('click', function() {
+    const password = departmentPassword.value;
+    
+    if (password === currentDepartment.password) {
+        passwordModal.style.display = 'none';
+        timeSlotSelection.style.display = 'block';
+        timeSlotDepartmentName.textContent = currentDepartment.name + ' Production Time Slots';
+        
+        loadCompletedSlots(currentDepartment.id).then(() => {
+            generateTimeSlots();
+        });
+    } else {
+        passwordError.textContent = 'Incorrect password. Please try again.';
+    }
+});
+
+// Load completed slots from Firebase
+async function loadCompletedSlots(departmentId) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        
+        const entriesSnapshot = await db.collection('prod-user')
+            .where('departmentId', '==', departmentId)
+            .where('date', '==', today)
+            .get();
+        
+        departmentData[departmentId].completedSlots = {};
+        
+        entriesSnapshot.forEach(doc => {
+            const data = doc.data();
+            const slotKey = `${data.date}-${data.timeSlot}`;
+            departmentData[departmentId].completedSlots[slotKey] = true;
+        });
+        
+        departmentData[departmentId].entries = [];
+        entriesSnapshot.forEach(doc => {
+            const data = doc.data();
+            departmentData[departmentId].entries.push({
+                id: data.employeeId,
+                name: data.employeeName,
+                date: data.date,
+                timeSlot: data.timeSlot,
+                timeDisplay: getTimeSlotDisplayById(data.timeSlot),
+                planStock: data.planStock,
+                actualStock: data.actualStock,
+                difference: data.difference,
+                downtimeEntries: data.downtimeEntries || [],
+                reworkEntries: data.reworkEntries || [],
+                totalDowntime: data.totalDowntime || 0,
+                totalRework: data.totalRework || 0,
+                notes: data.notes,
+                timestamp: data.timestamp
+            });
+        });
+    } catch (error) {
+        console.error("Error loading data from Firebase:", error);
+    }
+}
+// Helper function to get time slot display text by ID
+function getTimeSlotDisplayById(timeSlotId) {
+    const slot = timeSlots.find(slot => slot.id === timeSlotId);
+    return slot ? slot.display : '';
+}
+//
+// Generate time slot buttons
+function generateTimeSlots() {
+    timeSlotsContainer.innerHTML = '';
+    
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const today = now.toISOString().split('T')[0];
+    
+    timeSlots.forEach(slot => {
+        const [deadlineHour, deadlineMinute] = slot.deadline.split(':').map(Number);
+        
+        const isBeforeDeadline = 
+            (currentHour < deadlineHour) || 
+            (currentHour === deadlineHour && currentMinute < deadlineMinute);
+        
+        const slotKey = `${today}-${slot.id}`;
+        const isCompleted = departmentData[currentDepartment.id].completedSlots[slotKey];
+        
+        let status = 'available';
+        let statusText = '';
+        
+        if (isCompleted) {
+            status = 'completed';
+            statusText = 'COMPLETED';
+        } else if (!isBeforeDeadline) {
+            status = 'expired';
+            statusText = 'EXPIRED';
+        }
+        
+        const button = document.createElement('button');
+        button.className = `time-slot-btn ${status !== 'available' ? status : ''}`;
+        button.innerHTML = `
+            <span>${slot.display}</span>
+            <span class="deadline">Update by ${formatTime(slot.deadline)}</span>
+            ${statusText ? `<span class="status">${statusText}</span>` : ''}
+        `;
+        
+        if (status === 'available') {
+            button.addEventListener('click', () => selectTimeSlot(slot));
+        } else {
+            button.disabled = true;
+        }
+        
+        timeSlotsContainer.appendChild(button);
+    });
+}
+function selectTimeSlot(slot) {
+    currentTimeSlot = slot;
+    
+    formDepartmentName.textContent = currentDepartment.name + ' Stock Tracking';
+    formTimeSlot.textContent = 'Time Slot: ' + slot.display;
+    
+    const today = new Date().toISOString().split('T')[0];
+    entryDate.value = today;
+    entryTime.value = slot.display;
+    
+    clearFormFields();
+    
+    timeSlotSelection.style.display = 'none';
+    dataEntryForm.style.display = 'block';
+    
+    displayRecentEntries();
+}
+function clearFormFields() {
+    employeeId.value = '';
+    employeeName.value = '';
+    planStock.value = '';
+    actualStock.value = '';
+    stockDifference.value = '';
+    entryNotes.value = '';
+    submissionMessage.textContent = '';
+    
+    // Clear downtime entries
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById(`downtime-${i}`).value = '';
+        document.getElementById(`downtime-reason-${i}`).value = '';
+    }
+    
+    // Clear rework entries
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById(`rework-${i}`).value = '';
+        document.getElementById(`rework-reason-${i}`).value = '';
+    }
+}
+
+// Calculate stock difference automatically
+actualStock.addEventListener('input', calculateDifference);
+planStock.addEventListener('input', calculateDifference);
+
+function calculateDifference() {
+    const plan = parseInt(planStock.value) || 0;
+    const actual = parseInt(actualStock.value) || 0;
+    const diff = plan - actual;
+    
+    stockDifference.value = diff;
+    
+    if (diff < 0) {
+        stockDifference.classList.add('highlight-negative');
+        stockDifference.classList.remove('highlight-positive');
+    } else {
+        stockDifference.classList.add('highlight-positive');
+        stockDifference.classList.remove('highlight-negative');
+    }
+}
+function collectDowntimeEntries() {
+    const downtimeEntries = [];
+    let totalDowntime = 0;
+    
+    for (let i = 1; i <= 3; i++) {
+        const downtime = parseInt(document.getElementById(`downtime-${i}`).value) || 0;
+        const reason = document.getElementById(`downtime-reason-${i}`).value;
+        
+        if (downtime > 0) {
+            if (!reason) {
+                throw new Error(`Please select a reason for Downtime Entry ${i}`);
+            }
+            downtimeEntries.push({
+                minutes: downtime,
+                reason: reason
+            });
+            totalDowntime += downtime;
+        }
+    }
+    
+    return { downtimeEntries, totalDowntime };
+}
+
+// Collect rework entries
+function collectReworkEntries() {
+    const reworkEntries = [];
+    let totalRework = 0;
+    
+    for (let i = 1; i <= 3; i++) {
+        const rework = parseInt(document.getElementById(`rework-${i}`).value) || 0;
+        const reason = document.getElementById(`rework-reason-${i}`).value;
+        
+        if (rework > 0) {
+            reworkEntries.push({
+                quantity: rework,
+                reason: reason || 'No reason specified'
+            });
+            totalRework += rework;
+        }
+    }
+    
+    return { reworkEntries, totalRework };
+}
+
+// Back button event listeners
+passwordBackBtn.addEventListener('click', function() {
+    passwordModal.style.display = 'none';
+    departmentSelection.style.display = 'block';
+});
+
+timeSlotBackBtn.addEventListener('click', function() {
+    timeSlotSelection.style.display = 'none';
+    departmentSelection.style.display = 'block';
+});
+
+formBackBtn.addEventListener('click', function() {
+    dataEntryForm.style.display = 'none';
+    timeSlotSelection.style.display = 'block';
+    generateTimeSlots();
+});
+
+// Handle data submission
+dataSubmit.addEventListener('click', async function() {
+    const id = employeeId.value;
+    const name = employeeName.value;
+    const date = entryDate.value;
+    const plan = parseInt(planStock.value) || 0;
+    const actual = parseInt(actualStock.value) || 0;
+    const diff = plan - actual;
+    const notes = entryNotes.value;
+    
+    // Basic validation
+    if (!id || !name || !date || isNaN(plan) || isNaN(actual)) {
+        submissionMessage.textContent = 'Please fill in all required fields';
+        submissionMessage.className = 'error-message';
+        return;
+    }
+    
+    try {
+        // Collect downtime and rework data
+        const { downtimeEntries, totalDowntime } = collectDowntimeEntries();
+        const { reworkEntries, totalRework } = collectReworkEntries();
+        
+        const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+        
+        const newEntry = {
+            employeeId: id,
+            employeeName: name,
+            date: date,
+            timeSlot: currentTimeSlot.id,
+            timeSlotDisplay: currentTimeSlot.display,
+            planStock: plan,
+            actualStock: actual,
+            difference: diff,
+            downtimeEntries: downtimeEntries,
+            reworkEntries: reworkEntries,
+            totalDowntime: totalDowntime,
+            totalRework: totalRework,
+            notes: notes,
+            timestamp: timestamp,
+            departmentId: currentDepartment.id,
+            departmentName: currentDepartment.name
+        };
+        
+        // Submit to Firebase
+        dataSubmit.disabled = true;
+        submissionMessage.textContent = 'Submitting data...';
+        submissionMessage.className = 'success-message';
+        
+        await db.collection('prod-user').add(newEntry);
+        
+        // Add to local storage for quick display
+        departmentData[currentDepartment.id].entries.push({
+            id,
+            name,
+            date,
+            timeSlot: currentTimeSlot.id,
+            timeDisplay: currentTimeSlot.display,
+            planStock: plan,
+            actualStock: actual,
+            difference: diff,
+            downtimeEntries: downtimeEntries,
+            reworkEntries: reworkEntries,
+            totalDowntime: totalDowntime,
+            totalRework: totalRework,
+            notes,
+            timestamp: new Date().getTime()
+        });
+        
+        // Mark this time slot as completed
+        const today = date;
+        const slotKey = `${today}-${currentTimeSlot.id}`;
+        departmentData[currentDepartment.id].completedSlots[slotKey] = true;
+        
+        submissionMessage.textContent = 'Stock data submitted successfully!';
+        submissionMessage.className = 'success-message';
+        
+        // Clear form fields but keep employee details
+        planStock.value = '';
+        actualStock.value = '';
+        stockDifference.value = '';
+        entryNotes.value = '';
+        
+        // Clear downtime entries
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById(`downtime-${i}`).value = '';
+            document.getElementById(`downtime-reason-${i}`).value = '';
+        }
+        
+        // Clear rework entries
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById(`rework-${i}`).value = '';
+            document.getElementById(`rework-reason-${i}`).value = '';
+        }
+        
+        displayRecentEntries();
+        
+        setTimeout(() => {
+            submissionMessage.textContent = '';
+            dataEntryForm.style.display = 'none';
+            timeSlotSelection.style.display = 'block';
+            generateTimeSlots();
+        }, 3000);
+        
+    } catch (error) {
+        console.error("Error submitting data: ", error);
+        submissionMessage.textContent = error.message || 'Error submitting data. Please try again.';
+        submissionMessage.className = 'error-message';
+    } finally {
+        dataSubmit.disabled = false;
+    }
+});
+
+// Display recent entries
+function displayRecentEntries() {
+    entriesTableBody.innerHTML = '';
+    
+    if (!currentDepartment) return;
+    
+    const entries = departmentData[currentDepartment.id].entries;
+    
+    // Sort entries by timestamp (newest first)
+    entries.sort((a, b) => {
+        const timestampA = a.timestamp instanceof Object ? a.timestamp.seconds * 1000 : a.timestamp;
+        const timestampB = b.timestamp instanceof Object ? b.timestamp.seconds * 1000 : b.timestamp;
+        return timestampB - timestampA;
+    });
+    
+    // Display up to 10 most recent entries
+
+    const recentEntries = entries.slice(0, 10);
+    
+    recentEntries.forEach(entry => {
+        const row = document.createElement('tr');
+        
+        const diffClass = entry.difference < 0 ? 'highlight-negative' : 'highlight-positive';
+        
+        // Format downtime and rework display
+        const downtimeDisplay = entry.totalDowntime > 0 ? `${entry.totalDowntime} min` : '-';
+        const reworkDisplay = entry.totalRework > 0 ? entry.totalRework : '-';
+        
+        row.innerHTML = `
+            <td>${entry.name} (${entry.id})</td>
+            <td>${formatDate(entry.date)}</td>
+            <td>${entry.timeDisplay}</td>
+            <td>${entry.planStock}/${entry.actualStock}</td>
+            <td class="${diffClass}">${entry.difference}</td>
+            <td>${downtimeDisplay}</td>
+            <td>${reworkDisplay}</td>
+        `;
+        
+        // Add click event to show detailed breakdown 
+        row.addEventListener('click', () => showEntryDetails(entry));
+        row.style.cursor = 'pointer';
+        row.title = 'Click to view detailed breakdown';
+        
+        entriesTableBody.appendChild(row);
+    });
+    
+    if (entries.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="7" style="text-align: center;">No stock entries yet</td>';
+        entriesTableBody.appendChild(row);
+    }
+}
+
+// Show detailed breakdown of entry
+function showEntryDetails(entry) {
+    let detailsHtml = `
+        <h3>Entry Details for ${entry.name} (${entry.id})</h3>
+        <p><strong>Date:</strong> ${formatDate(entry.date)}</p>
+        <p><strong>Time Slot:</strong> ${entry.timeDisplay}</p>
+        <p><strong>Production:</strong> ${entry.planStock} (Plan) / ${entry.actualStock} (Actual)</p>
+        <p><strong>Difference:</strong> ${entry.difference}</p>
+    `;
+    
+    if (entry.downtimeEntries && entry.downtimeEntries.length > 0) {
+        detailsHtml += '<h4>Downtime Breakdown:</h4><ul>';
+        entry.downtimeEntries.forEach((dt, index) => {
+            detailsHtml += `<li>Entry ${index + 1}: ${dt.minutes} minutes - ${dt.reason}</li>`;
+        });
+        detailsHtml += `</ul><p><strong>Total Downtime:</strong> ${entry.totalDowntime} minutes</p>`;
+    }
+    
+    if (entry.reworkEntries && entry.reworkEntries.length > 0) {
+        detailsHtml += '<h4>Rework Breakdown:</h4><ul>';
+        entry.reworkEntries.forEach((rw, index) => {
+            detailsHtml += `<li>Entry ${index + 1}: ${rw.quantity} units - ${rw.reason}</li>`;
+        });
+        detailsHtml += `</ul><p><strong>Total Rework:</strong> ${entry.totalRework} units</p>`;
+    }
+    
+    if (entry.notes) {
+        detailsHtml += `<p><strong>Notes:</strong> ${entry.notes}</p>`;
+    }
+    
+    // Create and show modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    `;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #f44336;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    `;
+    
+    closeBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    modalContent.innerHTML = detailsHtml;
+    modalContent.appendChild(closeBtn);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);               
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+}
+
+// Format date for display
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString();
+}
+
+// Format time for display
+function formatTime(timeStr) {
+    const [hour, minute] = timeStr.split(':').map(Number);
+    return hour > 12 ? 
+        `${hour - 12}:${minute.toString().padStart(2, '0')} PM` : 
+        hour === 12 ? 
+            `12:${minute.toString().padStart(2, '0')} PM` : 
+            `${hour}:${minute.toString().padStart(2, '0')} AM`;
+}
+
+// Initialize the application
+function init() {
+    generateDepartmentCards();
+    
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    entryDate.value = formattedDate;
+}
+
+// Run initialization when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', init);
+
+for (let i = 1; i <= 3; i++) {
+    const downtimeInput = document.getElementById(`downtime-${i}`);
+    const reasonSelect = document.getElementById(`downtime-reason-${i}`);
+    
+    downtimeInput.addEventListener('input', function() {
+        if (parseInt(this.value) > 0 && !reasonSelect.value) {
+            reasonSelect.style.borderColor = '#ff6b6b';
+            reasonSelect.title = 'Please select a reason when downtime is entered';
+        } else {
+            reasonSelect.style.borderColor = '';
+            reasonSelect.title = '';
+        }
+    });
+    
+    reasonSelect.addEventListener('change', function() {
+        this.style.borderColor = '';
+        this.title = '';
+    });
+}
+
+$(function() {
+    $( "#Datepicker1" ).datepicker(); 
+});
+</script>
+
+
+</body>
+</html>

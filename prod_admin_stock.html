@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>Stock Analysis Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+      :root {
+    --primary-color: #0062cc;
+    --secondary-color: #343a40;
+    --light-bg: #f8f9fa;
+    --border-color: #dee2e6;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: var(--secondary-color);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+    background-color: var(--primary-color);
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-menu {
+    margin-top: 20px;
+}
+
+.menu-header {
+    padding: 15px;
+    font-weight: bold;
+    color: #adb5bd;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    color: white;
+    display: block;
+    border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    color: white;
+}
+
+.menu-item.active {
+    background-color: rgba(0, 123, 255, 0.5);
+    border-left-color: var(--primary-color);
+}
+
+.content, #stockAnalysisPage {
+    flex: 1;
+    margin-left: 220px;
+    padding: 20px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    width: calc(100% - 220px);
+}
+
+.header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.card-title {
+    font-size: 16px;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.card-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.card-value.negative {
+    color: var(--danger-color);
+}
+
+.card-footer {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.trend-up {
+    color: var(--success-color);
+}
+
+.trend-down {
+    color: var(--danger-color);
+}
+
+.neutral {
+    color: var(--primary-color);
+}
+
+.filters {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    min-width: 80px;
+}
+
+label {
+    font-weight: 500;
+}
+
+select, input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    min-width: 150px;
+}
+
+.filter-group select, .filter-group input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#updateAnalysis {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#updateAnalysis:hover {
+    background-color: #0056b3;
+}
+
+.department-filter {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.department-btn {
+    padding: 8px 16px;
+    border: 2px solid #007bff;
+    background: white;
+    color: #007bff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.department-btn:hover {
+    background: #e3f2fd;
+}
+
+.department-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.chart-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.chart-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+    min-width: 400px;
+}
+
+.chart-title {
+    font-size: 18px;
+    color: #495057;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.chart-area {
+    position: relative;
+    height: 400px;
+}
+
+.performance-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.performance-label {
+    width: 100px;
+    font-weight: 500;
+}
+
+.performance-track {
+    flex: 1;
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 15px;
+}
+
+.performance-fill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+.performance-fill.good {
+    background-color: var(--success-color);
+}
+
+.performance-fill.average {
+    background-color: var(--warning-color);
+}
+
+.performance-fill.poor {
+    background-color: var(--danger-color);
+}
+
+.performance-value {
+    font-weight: 500;
+    width: 40px;
+    text-align: right;
+}
+
+.table-container {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.table-title {
+    font-size: 18px;
+    color: #495057;
+    margin-bottom: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid var(--border-color);
+}
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+td.positive {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+td.negative {
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+.time-slot-info {
+    background: #e3f2fd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #1976d2;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 20px;
+}
+
+.debug-info {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .chart-card {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .dashboard-cards, .chart-container {
+        flex-direction: column;
+    }
+    
+    .card, .chart-card {
+        min-width: 100%;
+    }
+    
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+        overflow: hidden;
+    }
+    
+    .sidebar-header {
+        padding: 15px 5px;
+        font-size: 12px;
+        line-height: 1.2;
+    }
+    
+    .menu-header, .menu-item {
+        padding: 15px 5px;
+        text-align: center;
+        font-size: 12px;
+    }
+    
+    .content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+        padding: 10px;
+    }
+    
+    .chart-area {
+        height: 300px;
+    }
+    
+    .department-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .department-btn {
+        margin-bottom: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        padding: 10px 5px;
+    }
+    
+    .chart-card {
+        padding: 15px;
+        min-width: 100%;
+    }
+    
+    .filters {
+        padding: 15px;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .filter-group label {
+        min-width: auto;
+    }
+    
+    select, input {
+        min-width: 100%;
+    }
+}
+    </style>
+</head>
+<body>
+	<div class="sidebar">
+        <div class="sidebar-header">Operating Stock Tracking System</div>
+        <div class="sidebar-menu">
+            <div class="menu-header">Dashboard</div>
+            <a href="prod_admin_overview.html" class="menu-item">Overview</a>
+            <a href="prod_admin_department.html" class="menu-item active">LINE Reporting</a>
+            <a href="prod_admin_stock.html" class="menu-item">Stock Analysis</a>
+            <a href="prod_admin_downtime.html" class="menu-item">Down Time & Rework</a>
+        </div>
+    </div>
+    <!-- Stock Analysis Page HTML -->
+    <div id="stockAnalysisPage">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="analysisDate">Date:</label>
+                <input type="date" id="analysisDate" value="2025-05-27">
+            </div>
+            
+            <div class="filter-group">
+                <label for="specificDept">LINE:</label>
+                <select id="specificDept">
+                    <option value="all">All Departments</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="comparisonType">View:</label>
+                <select id="comparisonType">
+                    <option>LINE Comparison</option>
+                    <option>Time Slot Analysis</option>
+                    <option>Weekly Analysis</option>
+					
+                </select>
+            </div>
+            
+            <button id="updateAnalysis">Update Analysis</button>
+        </div>
+        
+        <div class="department-filter">
+            <span style="margin-right: 10px;"><strong>View Options:</strong></span>
+            <button class="department-btn active" data-view="all">All</button>
+            <button class="department-btn" data-view="time-slot">Time Slot View</button>
+            <button class="department-btn" data-view="LINE-5">LINE-5 Group</button>
+            <button class="department-btn" data-view="LINE-7">LINE-7 Group</button>
+            <button class="department-btn" data-view="top5">Top 5 Performance</button>
+            <button class="department-btn" data-view="bottom5">Bottom 5 Performance</button>
+        </div>
+        
+        <div id="loadingIndicator" class="loading">Loading data...</div>
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        <div id="debugInfo" class="debug-info" style="display: none;"></div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <div class="chart-title" id="chartTitle">LINE Stock Comparison</div>
+                <div id="timeSlotInfo" class="time-slot-info" style="display: none;">
+                    Showing time slot data for selected LINE and date
+                </div>
+                <div class="chart-area">
+                    <canvas id="deptComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <div class="chart-title">Daily Stock Trend with Difference</div>
+                <div class="chart-area">
+                    <canvas id="dailyTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">Downtime Analysis by Each LINE</div>
+                <div class="chart-area">
+                    <canvas id="downtimeChart"></canvas>
+                </div>
+            </div>
+	
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    
+        let deptComparisonChart = null;
+        let dailyTrendChart = null;
+        let downtimeChart = null;
+        let currentView = 'all';
+        let stockData = [];
+        let departments = new Set();
+
+        // Debug function
+        function showDebugInfo(message, data = null) {
+            const debugElement = document.getElementById('debugInfo');
+            debugElement.style.display = 'block';
+            debugElement.innerHTML = `<strong>Debug Info:</strong><br>${message}`;
+            if (data) {
+                debugElement.innerHTML += `<br>Data: ${JSON.stringify(data, null, 2)}`;
+            }
+            console.log('Debug:', message, data);
+        }
+
+        // Error handling function
+        function showError(message, error = null) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.style.display = 'block';
+            errorElement.textContent = message;
+            if (error) {
+                errorElement.textContent += ': ' + error.message;
+                console.error('Error:', error);
+            }
+        }
+
+        // Fetch data from Firebase with better error handling
+        async function fetchStockData() {
+            try {
+                document.getElementById('loadingIndicator').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('debugInfo').style.display = 'none';
+                
+                showDebugInfo('Starting data fetch from Firebase...');
+                
+                // Test Firebase connection first
+                const testQuery = await db.collection('prod-user').limit(1).get();
+                showDebugInfo(`Firebase connection test: ${testQuery.size} documents found`);
+                
+                // Fetch all documents from prod-user collection
+                const querySnapshot = await db.collection('prod-user').get();
+                showDebugInfo(`Total documents fetched: ${querySnapshot.size}`);
+                
+                stockData = [];
+                departments.clear();
+                
+                if (querySnapshot.empty) {
+                    showError('No documents found in prod-user collection');
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    console.log('Processing document:', doc.id, data);
+                    
+                    // Create record with safe defaults
+                    const record = {
+                        id: doc.id,
+                        actualStock: Number(data.actualStock) || 0,
+                        planStock: Number(data.planStock) || 0,
+                        difference: Number(data.difference) || 0,
+                        date: data.date || '',
+                        departmentId: data.departmentId || '',
+                        departmentName: data.departmentName || `Unknown-${doc.id}`,
+                        employeeId: data.employeeId || '',
+                        employeeName: data.employeeName || '',
+                        timeSlot: data.timeSlot || '',
+                        timeSlotDisplay: data.timeSlotDisplay || data.timeSlot || '',
+                        totalDowntime: Number(data.totalDowntime) || 0,
+                        totalRework: Number(data.totalRework) || 0,
+                        downtimeEntries: Array.isArray(data.downtimeEntries) ? data.downtimeEntries : [],
+                        reworkEntries: Array.isArray(data.reworkEntries) ? data.reworkEntries : [],
+                        notes: data.notes || '',
+                        timestamp: data.timestamp
+                    };
+                    
+                    stockData.push(record);
+                    
+                    if (record.departmentName && record.departmentName !== `Unknown-${doc.id}`) {
+                        departments.add(record.departmentName);
+                    }
+                });
+                
+                showDebugInfo(`Processed ${stockData.length} records, found ${departments.size} departments`, {
+                    totalRecords: stockData.length,
+                    departments: Array.from(departments),
+                    sampleRecord: stockData[0]
+                });
+                
+                // Populate department dropdown
+                populateDepartmentDropdown();
+                
+                // Initialize charts with error handling
+                try {
+                    updateChartTitle();
+                    initDeptComparisonChart();
+                    initDailyTrendChart();
+                    initDowntimeChart();
+                } catch (chartError) {
+                    showError('Error initializing charts', chartError);
+                }
+                
+                document.getElementById('loadingIndicator').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showError('Error loading data from Firebase', error);
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        function populateDepartmentDropdown() {
+            const select = document.getElementById('specificDept');
+            select.innerHTML = '<option value="all">All Departments</option>';
+            
+            if (departments.size === 0) {
+                showDebugInfo('No departments found in data');
+                return;
+            }
+            
+            Array.from(departments).sort().forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept;
+                option.textContent = dept;
+                select.appendChild(option);
+            });
+            
+            showDebugInfo(`Department dropdown populated with ${departments.size} departments`);
+        }
+
+        function filterDataByDate(date) {
+            if (!Array.isArray(stockData)) {
+                showError('Stock data is not an array');
+                return [];
+            }
+            return stockData.filter(record => record && record.date === date);
+        }
+
+        function filterDataByView(data) {
+            if (!Array.isArray(data)) {
+                showError('Data to filter is not an array');
+                return [];
+            }
+            
+            try {
+                if (currentView === 'all') return data;
+                if (currentView === 'LINE-5') return data.filter(record => record.departmentName && record.departmentName.startsWith('LINE-5'));
+                if (currentView === 'LINE-7') return data.filter(record => record.departmentName && record.departmentName.startsWith('LINE-7'));
+                if (currentView === 'top5') {
+                    return data
+                        .filter(record => record.planStock > 0)
+                        .sort((a, b) => (b.actualStock / b.planStock) - (a.actualStock / a.planStock))
+                        .slice(0, 5);
+                }
+                if (currentView === 'bottom5') {
+                    return data
+                        .filter(record => record.planStock > 0)
+                        .sort((a, b) => (a.actualStock / a.planStock) - (b.actualStock / b.planStock))
+                        .slice(0, 5);
+                }
+                return data;
+            } catch (error) {
+                showError('Error filtering data by view', error);
+                return [];
+            }
+        }
+
+        function groupByTimeSlot(data) {
+            if (!Array.isArray(data)) {
+                showError('Data to group is not an array');
+                return {};
+            }
+            
+            const timeSlotGroups = {};
+            data.forEach(record => {
+                if (!record || !record.timeSlot) return;
+                
+                if (!timeSlotGroups[record.timeSlot]) {
+                    timeSlotGroups[record.timeSlot] = {
+                        timeSlotDisplay: record.timeSlotDisplay || record.timeSlot,
+                        planStock: 0,
+                        actualStock: 0,
+                        difference: 0,
+                        count: 0
+                    };
+                }
+                timeSlotGroups[record.timeSlot].planStock += record.planStock || 0;
+                timeSlotGroups[record.timeSlot].actualStock += record.actualStock || 0;
+                timeSlotGroups[record.timeSlot].difference += record.difference || 0;
+                timeSlotGroups[record.timeSlot].count++;
+            });
+            return timeSlotGroups;
+        }
+
+        // Department button navigation
+        document.querySelectorAll('.department-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.department-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                currentView = this.getAttribute('data-view');
+                
+                updateChartTitle();
+                initDeptComparisonChart();
+                if (currentView !== 'time-slot') {
+                    initDailyTrendChart();
+                    initDowntimeChart();
+                }
+            });
+        });
+
+        document.getElementById('specificDept').addEventListener('change', function() {
+            if (currentView === 'time-slot') {
+                initDeptComparisonChart();
+            }
+        });
+
+        function updateChartTitle() {
+            const titleElement = document.getElementById('chartTitle');
+            const infoElement = document.getElementById('timeSlotInfo');
+            const selectedDept = document.getElementById('specificDept').value;
+            
+            if (currentView === 'time-slot') {
+                if (selectedDept === 'all') {
+                    titleElement.textContent = 'All Departments - Time Slot Analysis';
+                    infoElement.textContent = 'Showing time slot data for all departments on selected date';
+                } else {
+                    titleElement.textContent = `${selectedDept} - Time Slot Analysis`;
+                    infoElement.textContent = `Showing time slot data for ${selectedDept} on selected date`;
+                }
+                infoElement.style.display = 'block';
+            } else {
+                titleElement.textContent = 'Department Stock Comparison';
+                infoElement.style.display = 'none';
+            }
+        }
+
+        function initDeptComparisonChart() {
+            try {
+                const ctx = document.getElementById('deptComparisonChart').getContext('2d');
+                
+                if (deptComparisonChart) {
+                    deptComparisonChart.destroy();
+                }
+
+                const selectedDate = document.getElementById('analysisDate').value;
+                const selectedDept = document.getElementById('specificDept').value;
+                let filteredData = filterDataByDate(selectedDate);
+                
+                if (!Array.isArray(filteredData)) {
+                    showError('Filtered data is not an array');
+                    return;
+                }
+                
+                let labels = [], plannedStock = [], actualStock = [], differenceData = [];
+                
+                if (currentView === 'time-slot') {
+                    if (selectedDept !== 'all') {
+                        filteredData = filteredData.filter(record => record && record.departmentName === selectedDept);
+                    }
+                    
+                    const timeSlotGroups = groupByTimeSlot(filteredData);
+                    labels = Object.keys(timeSlotGroups).map(slot => timeSlotGroups[slot].timeSlotDisplay || slot);
+                    plannedStock = Object.values(timeSlotGroups).map(group => group.planStock || 0);
+                    actualStock = Object.values(timeSlotGroups).map(group => group.actualStock || 0);
+                    differenceData = Object.values(timeSlotGroups).map(group => group.difference || 0);
+                } else {
+                    filteredData = filterDataByView(filteredData);
+                    if (!Array.isArray(filteredData)) {
+                        showError('View filtered data is not an array');
+                        return;
+                    }
+                    
+                    labels = filteredData.map(record => record ? (record.departmentName || 'Unknown') : 'Invalid');
+                    plannedStock = filteredData.map(record => record ? (record.planStock || 0) : 0);
+                    actualStock = filteredData.map(record => record ? (record.actualStock || 0) : 0);
+                    differenceData = filteredData.map(record => record ? (record.difference || 0) : 0);
+                }
+                
+                if (labels.length === 0) {
+                    showError('No data available for the selected criteria');
+                    return;
+                }
+                
+                deptComparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Plan Stock',
+                                data: plannedStock,
+                                backgroundColor: 'rgba(0, 98, 204, 0.7)',
+                                borderColor: '#0062cc',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Actual Stock',
+                                data: actualStock,
+                                backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                                borderColor: '#dc3545',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Difference',
+                                data: differenceData,
+                                backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                                borderColor: '#28a745',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Stock Units'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                showError('Error creating department comparison chart', error);
+            }
+        }
+
+        function initDailyTrendChart() {
+            try {
+                const ctx = document.getElementById('dailyTrendChart').getContext('2d');
+                
+                if (dailyTrendChart) {
+                    dailyTrendChart.destroy();
+                }
+                
+                if (!Array.isArray(stockData) || stockData.length === 0) {
+                    showError('No stock data available for daily trend chart');
+                    return;
+                }
+                
+                const dateGroups = {};
+                stockData.forEach(record => {
+                    if (!record || !record.date) return;
+                    
+                    if (!dateGroups[record.date]) {
+                        dateGroups[record.date] = {
+                            planStock: 0,
+                            actualStock: 0,
+                            difference: 0
+                        };
+                    }
+                    dateGroups[record.date].planStock += record.planStock || 0;
+                    dateGroups[record.date].actualStock += record.actualStock || 0;
+                    dateGroups[record.date].difference += record.difference || 0;
+                });
+                
+                const dates = Object.keys(dateGroups).sort();
+                if (dates.length === 0) {
+                    showError('No date data available for trend chart');
+                    return;
+                }
+                
+                const plannedTotal = dates.map(date => dateGroups[date].planStock || 0);
+                const actualTotal = dates.map(date => dateGroups[date].actualStock || 0);
+                const differenceTotal = dates.map(date => dateGroups[date].difference || 0);
+                
+                dailyTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Planned Total Stock',
+                                data: plannedTotal,
+                                borderColor: '#0062cc',
+                                backgroundColor: 'rgba(0, 98, 204, 0.1)',
+                                tension: 0.2,
+                                borderWidth: 2,
+                                fill: false
+                            },
+                            {
+                                label: 'Actual Total Stock',
+                                data: actualTotal,
+                                borderColor: '#dc3545',
+                                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                tension: 0.2,
+                                borderWidth: 2,
+                                fill: false
+                            },
+                            {
+                                label: 'Difference',
+                                data: differenceTotal,
+                                borderColor: '#28a745',
+                                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                                tension: 0.2,
+                                borderWidth: 2,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Stock Units'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                showError('Error creating daily trend chart', error);
+            }
+        }
+
+        function initDowntimeChart() {
+            try {
+                const ctx = document.getElementById('downtimeChart').getContext('2d');
+                
+                if (downtimeChart) {
+                    downtimeChart.destroy();
+                }
+                
+                const selectedDate = document.getElementById('analysisDate').value;
+                let filteredData = filterDataByDate(selectedDate);
+                filteredData = filterDataByView(filteredData);
+                
+                if (!Array.isArray(filteredData) || filteredData.length === 0) {
+                    showError('No data available for downtime chart');
+                    return;
+                }
+                
+                const departments = filteredData.map(record => record ? (record.departmentName || 'Unknown') : 'Invalid');
+                const downtimes = filteredData.map(record => record ? (record.totalDowntime || 0) : 0);
+                const reworks = filteredData.map(record => record ? (record.totalRework || 0) : 0);
+                
+                downtimeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: departments,
+                        datasets: [
+                            {
+                                label: 'Downtime (minutes)',
+                                data: downtimes,
+                                backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                                borderColor: '#ffc107',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Rework Quantity',
+                                data: reworks,
+                                backgroundColor: 'rgba(108, 117, 125, 0.7)',
+                                borderColor: '#6c757d',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Minutes / Quantity'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                showError('Error creating downtime chart', error);
+            }
+        }
+
+        document.getElementById('updateAnalysis').addEventListener('click', function() {
+            try {
+                updateChartTitle();
+                initDeptComparisonChart();
+                if (currentView !== 'time-slot') {
+                    initDailyTrendChart();
+                    initDowntimeChart();
+                }
+            } catch (error) {
+                showError('Error updating analysis', error);
+            }
+        });
+
+        window.addEventListener('load', function() {
+            fetchStockData();
+        });
+    </script>
+</body>
+</html>

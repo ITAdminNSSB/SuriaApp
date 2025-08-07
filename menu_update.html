@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>Weekly Lunch Menu Management</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .app-container {
+            background: #C2D0EA;
+            border-radius: 30px;
+            padding: 20px;
+            min-height: 100vh;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding-left: 20px;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #0C0E8B;
+            color: white;
+            position: sticky;
+            top: 20px;
+            border-radius: 15px;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .header img {
+            width: 100px;
+            height: 50px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Modern Reset and Variables */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #16a34a;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            letter-spacing: -0.025em;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Menu Section Styling */
+        .menu-section {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .menu-section:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Button Styles */
+        .add-item-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-item-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .add-item-btn:before {
+            content: '+';
+            font-size: 1.25rem;
+        }
+
+        /* Menu Items */
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .menu-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .edit-item-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 0.5rem;
+        }
+
+        .edit-item-btn:hover {
+            background: #2563eb;
+        }
+
+        .delete-item-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .delete-item-btn:hover {
+            background: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Button Layout in Modal */
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* Save All Button */
+        .save-all-btn {
+            display: block;
+            width: 100%;
+            margin: 20px auto;
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            max-width: 300px;
+        }
+
+        .save-all-btn:hover {
+            transform: translateY(-2px);
+            background-color: #15803d;
+        }
+
+        /* Added container for menu sections */
+        .menu-sections-container {
+            margin-bottom: 100px;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            z-index: 2000;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.875rem;
+            }
+
+            .menu-section {
+                padding: 1rem;
+            }
+
+            .save-all-btn {
+                bottom: 1rem;
+                align-content: center;
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0C0E8B;
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: calc(100% - 40px);
+            max-width: 500px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #FFFFFF;
+            transition: 0.3s;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .nav-item:hover {
+            color: #2dd4bf;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        /* Day Tabs */
+        .day-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+
+        .day-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .day-tab {
+            padding: 10px 20px;
+            background: var(--card-background);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .day-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Status Message */
+        .status-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-success {
+            background-color: var(--success-color);
+        }
+
+        .status-error {
+            background-color: #ef4444;
+        }
+
+        .fade-in {
+            opacity: 1;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <div class="app-container">
+        <h1>Weekly Lunch Menu Management</h1>
+
+        <!-- Day Tabs -->
+        <div class="day-tabs" id="dayTabs">
+            <div class="day-tab active" data-day="monday">Monday</div>
+            <div class="day-tab" data-day="tuesday">Tuesday</div>
+            <div class="day-tab" data-day="wednesday">Wednesday</div>
+            <div class="day-tab" data-day="thursday">Thursday</div>
+            <div class="day-tab" data-day="friday">Friday</div>
+            <div class="day-tab" data-day="saturday">Saturday</div>
+            <div class="day-tab" data-day="sunday">Sunday</div>
+        </div>
+
+        <!-- Menu Sections Container -->
+        <div class="menu-sections-container">
+            <div class="menu-section" id="monday-section">
+                <div class="section-header">
+                    <h2>Monday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('monday')">Add Item</button>
+                </div>
+                <div id="monday-items" class="menu-items-container"></div>
+            </div>
+
+            <div class="menu-section" id="tuesday-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Tuesday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('tuesday')">Add Item</button>
+                </div>
+                <div id="tuesday-items" class="menu-items-container"></div>
+            </div>
+
+            <div class="menu-section" id="wednesday-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Wednesday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('wednesday')">Add Item</button>
+                </div>
+                <div id="wednesday-items" class="menu-items-container"></div>
+            </div>
+
+            <div class="menu-section" id="thursday-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Thursday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('thursday')">Add Item</button>
+                </div>
+                <div id="thursday-items" class="menu-items-container"></div>
+            </div>
+
+            <div class="menu-section" id="friday-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Friday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('friday')">Add Item</button>
+                </div>
+                <div id="friday-items" class="menu-items-container"></div>
+            </div>
+
+            <div class="menu-section" id="saturday-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Saturday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('saturday')">Add Item</button>
+                </div>
+                <div id="saturday-items" class="menu-items-container"></div>
+            </div>
+
+            <div class="menu-section" id="sunday-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Sunday Lunch Menu</h2>
+                    <button class="add-item-btn" onclick="openModal('sunday')">Add Item</button>
+                </div>
+                <div id="sunday-items" class="menu-items-container"></div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Item Modal -->
+        <div id="menuModal" class="modal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Add Menu Item</h2>
+                <form id="menuForm">
+                    <div class="form-group">
+                        <label for="itemName">Item Name</label>
+                        <input type="text" id="itemName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemPrice">Price (RM)</label>
+                        <input type="number" id="itemPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="add-item-btn" onclick="saveItem()" style="margin-right: auto;">Save</button>
+                        <button type="button" class="add-item-btn" onclick="closeModal()" style="background-color: var(--text-secondary);">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <button class="save-all-btn" onclick="saveAllMenus()">Save Weekly Menu</button>
+
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Saving changes...</p>
+        </div>
+    </div>
+
+    <div class="nav-container">
+        <a href="canteen_home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="canteen_view_order.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>Orders</span>
+        </a>
+        <a href="canteen_claimed_pg.html" class="nav-item">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Claimed</span>
+        </a>
+        <a href="menu_update.html" class="nav-item">
+            <i class="fas fa-sync"></i>
+            <span>Menu</span>
+        </a>
+        <a href="Analytics_dashboard_pg.html" class="nav-item">
+            <i class="fas fa-file-invoice"></i>
+            <span>Invoices</span>
+        </a>
+    </div>
+
+    <script type="module">
+        // Firebase configuration
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Create global app state
+        const appState = {
+            weeklyLunchMenu: {
+                monday: [],
+                tuesday: [],
+                wednesday: [],
+                thursday: [],
+                friday: [],
+                saturday: [],
+                sunday: []
+            },
+            currentDay: 'monday',
+            currentItemIndex: null,
+            isEditing: false
+        };
+
+        // Create global methods
+        const appMethods = {
+            // Display menu items for the current day
+            displayMenuItems: function() {
+                Object.keys(appState.weeklyLunchMenu).forEach(day => {
+                    const container = document.getElementById(`${day}-items`);
+                    if (container) {
+                        container.innerHTML = '';
+                        
+                        if (appState.weeklyLunchMenu[day].length === 0) {
+                            // Show empty state message
+                            const emptyState = document.createElement('div');
+                            emptyState.className = 'empty-state';
+                            emptyState.innerHTML = `<p>No items added yet. Click "Add Item" to create your ${day} lunch menu.</p>`;
+                            container.appendChild(emptyState);
+                        } else {
+                            // Display menu items
+                            appState.weeklyLunchMenu[day].forEach((item, index) => {
+                                const menuItemDiv = document.createElement('div');
+                                menuItemDiv.className = 'menu-item';
+                                
+                                const itemText = document.createElement('span');
+                                itemText.textContent = `${item.name} - RM ${parseFloat(item.price).toFixed(2)}`;
+                                
+                                const actionButtons = document.createElement('div');
+                                actionButtons.className = 'action-buttons';
+                                
+                                const editBtn = document.createElement('button');
+                                editBtn.className = 'edit-item-btn';
+                                editBtn.textContent = 'Edit';
+                                editBtn.onclick = function() { appMethods.openModal(day, index); };
+                                
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.className = 'delete-item-btn';
+                                deleteBtn.textContent = 'Delete';
+                                deleteBtn.onclick = function() { appMethods.deleteItem(day, index); };
+                                
+                                menuItemDiv.appendChild(itemText);
+                                actionButtons.appendChild(editBtn);
+                                actionButtons.appendChild(deleteBtn);
+                                menuItemDiv.appendChild(actionButtons);
+                                
+                                container.appendChild(menuItemDiv);
+                            });
+                        }
+                    }
+                });
+            },
+
+            // Delete menu item
+            deleteItem: function(day, index) {
+                if (confirm("Are you sure you want to delete this item?")) {
+                    appState.weeklyLunchMenu[day].splice(index, 1);
+                    appMethods.displayMenuItems();
+                    appMethods.showStatusMessage('Item deleted successfully!', 'success');
+                }
+            },
+
+            // Open modal for adding/editing items
+            openModal: function(day, index) {
+                appState.currentDay = day;
+                appState.isEditing = index !== undefined;
+                
+                const modal = document.getElementById("menuModal");
+                const title = document.getElementById("modalTitle");
+                const nameInput = document.getElementById("itemName");
+                const priceInput = document.getElementById("itemPrice");
+                
+                if (appState.isEditing) {
+                    // Edit existing item
+                    appState.currentItemIndex = index;
+                    const item = appState.weeklyLunchMenu[day][index];
+                    title.textContent = "Edit Menu Item";
+                    nameInput.value = item.name;
+                    priceInput.value = item.price;
+                } else {
+                    // Add new item
+                    appState.currentItemIndex = null;
+                    title.textContent = "Add Menu Item";
+                    nameInput.value = "";
+                    priceInput.value = "";
+                }
+                
+                modal.style.display = "flex";
+            },
+
+            // Close modal
+            closeModal: function() {
+                document.getElementById("menuModal").style.display = "none";
+            },
+
+            // Save item from modal
+            saveItem: function() {
+                const name = document.getElementById("itemName").value.trim();
+                const price = parseFloat(document.getElementById("itemPrice").value);
+                
+                if (name && !isNaN(price) && price >= 0) {
+                    if (appState.isEditing) {
+                        // Update existing item
+                        appState.weeklyLunchMenu[appState.currentDay][appState.currentItemIndex] = { name, price };
+                        appMethods.showStatusMessage('Item updated successfully!', 'success');
+                    } else {
+                        // Add new item
+                        appState.weeklyLunchMenu[appState.currentDay].push({ name, price });
+                        appMethods.showStatusMessage('Item added successfully!', 'success');
+                    }
+                    
+                    appMethods.displayMenuItems();
+                    appMethods.closeModal();
+                } else {
+                    alert("Please enter both a valid name and price.");
+                }
+            },
+
+            // Save all menus to Firebase
+            saveAllMenus: async function() {
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                loadingSpinner.style.display = 'block';
+                
+                try {
+                    await setDoc(doc(db, "food", "weeklyLunch"), appState.weeklyLunchMenu);
+                    appMethods.showStatusMessage('Weekly lunch menu saved successfully!', 'success');
+                } catch (error) {
+                    console.error("Error saving menu:", error);
+                    appMethods.showStatusMessage('Error saving menu: ' + error.message, 'error');
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                }
+            },
+
+            // Load menu data from Firebase
+            loadWeeklyLunchMenu: async function() {
+                try {
+                    const loadingSpinner = document.getElementById('loadingSpinner');
+                    loadingSpinner.style.display = 'block';
+                    
+                    const docRef = doc(db, "food", "weeklyLunch");
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        
+                        // Make sure all days exist in the data
+                        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                        days.forEach(day => {
+                            if (!data[day]) {
+                                data[day] = [];
+                            }
+                        });
+                        
+                        appState.weeklyLunchMenu = data;
+                        appMethods.showStatusMessage('Menu data loaded successfully!', 'success');
+                    } else {
+                        console.log("No weekly lunch menu found, creating default structure");
+                    }
+                    
+                    appMethods.displayMenuItems();
+                } catch (error) {
+                    console.error("Error loading weekly lunch menu:", error);
+                    appMethods.showStatusMessage('Error loading menu: ' + error.message, 'error');
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                }
+            },
+
+            // Initialize day tabs
+            initDayTabs: function() {
+                const dayTabs = document.querySelectorAll('.day-tab');
+                dayTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        // Hide all sections
+                        document.querySelectorAll('.menu-section').forEach(section => {
+                            section.style.display = 'none';
+                        });
+                        
+                        // Deactivate all tabs
+                        dayTabs.forEach(t => t.classList.remove('active'));
+                        
+                        // Activate selected tab and show corresponding section
+                        tab.classList.add('active');
+                        const day = tab.getAttribute('data-day');
+                        document.getElementById(`${day}-section`).style.display = 'block';
+                        appState.currentDay = day;
+                    });
+                });
+            },
+
+            // Show status message
+            showStatusMessage: function(message, type) {
+                const statusMessage = document.getElementById('statusMessage');
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message status-${type} fade-in`;
+                
+                // Remove the message after 3 seconds
+                setTimeout(() => {
+                    statusMessage.classList.replace('fade-in', 'fade-out');
+                    setTimeout(() => {
+                        statusMessage.className = 'status-message';
+                        statusMessage.textContent = '';
+                    }, 300);
+                }, 3000);
+            },
+
+            // Initialize the application
+            init: function() {
+                appMethods.initDayTabs();
+                appMethods.loadWeeklyLunchMenu();
+            }
+        };
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', appMethods.init);
+
+        // Expose methods to global scope for HTML event handlers
+        window.openModal = (day, index) => appMethods.openModal(day, index);
+        window.closeModal = () => appMethods.closeModal();
+        window.saveItem = () => appMethods.saveItem();
+        window.saveAllMenus = () => appMethods.saveAllMenus();
+        window.deleteItem = (day, index) => appMethods.deleteItem(day, index);
+    </script>
+</body>
+</html>

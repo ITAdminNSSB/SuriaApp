@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="auth-guard.js"></script>
+    <title>Operating Stock Tracking System</title>
+    <style>
+        :root {
+            --primary-color: #0062cc;
+            --secondary-color: #343a40;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: var(--secondary-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            background-color: var(--primary-color);
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 60px;
+        }
+        
+        .sidebar-menu {
+            margin-top: 20px;
+        }
+        
+        .menu-header {
+            padding: 15px;
+            font-weight: bold;
+            color: #adb5bd;
+        }
+        
+        .menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(0, 123, 255, 0.5);
+        }
+        
+        .content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .page {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .date-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-inputs input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .date-inputs span {
+            color: #666;
+            font-weight: normal;
+        }
+        
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        #generateReport {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        #generateReport:hover {
+            background: #0056b3;
+        }
+        
+        .department-filter {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        
+        .department-btn {
+            margin: 5px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            background: white;
+            color: #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .department-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .department-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .department-btn.active:hover {
+            background: #0056b3;
+        }
+        
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .current-selection {
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .current-selection strong {
+            color: #155724;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            
+            .sidebar-header, .menu-header, .menu-item {
+                padding: 15px 5px;
+                text-align: center;
+                font-size: 12px;
+            }
+            
+            .content {
+                margin-left: 70px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-inputs {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content {
+                padding: 10px;
+            }
+            
+            .page {
+                padding: 15px;
+            }
+            
+            .department-btn {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body> 
+    <div class="sidebar">
+        <div class="sidebar-header">Operating Stock Tracking System</div>
+        <div class="sidebar-menu">
+            <div class="menu-header">Dashboard</div>
+            <a href="prod_admin_overview.html" class="menu-item">Overview</a>
+            <a href="prod_admin_department.html" class="menu-item active">LINE Reporting</a>
+            <a href="prod_admin_stock.html" class="menu-item">Stock Analysis</a>
+            <a href="prod_admin_downtime.html" class="menu-item">Down Time & Rework</a>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="page" id="departmentReportsPage">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="dateRange">Date Selection:</label>
+                    <div class="date-inputs">
+                        <input type="date" id="startDate" value="2025-05-28">
+                        <span>to</span>
+                        <input type="date" id="endDate" value="2025-05-28">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="reportTimeSlot">Time Slot:</label>
+                    <select id="reportTimeSlot">
+                        <option value="all">All Time Slots</option>
+                        <option value="slot1">8:00 AM - 9:00 AM</option>
+                        <option value="slot2">9:00 AM - 10:00 AM</option>
+                        <option value="slot3">10:00 AM - 11:00 AM</option>
+                        <option value="slot4">11:00 AM - 12:00 PM</option>
+                        <option value="slot5">12:00 PM - 1:00 PM</option>
+                        <option value="slot6">1:00 PM - 2:00 PM</option>
+                        <option value="slot7">2:00 PM - 3:00 PM</option>
+                        <option value="slot8">3:00 PM - 4:00 PM</option>
+                    </select>
+                </div>
+                
+                <button id="generateReport">Generate Report</button>
+            </div>
+            
+            <!-- Current Selection Display -->
+            <div class="current-selection" id="currentSelection">
+                <strong>Current Selection:</strong> <span id="selectionText">May 28, 2025 - All Time Slots - All lINE Reporting</span>
+            </div>
+            
+            <!-- Department Classification Buttons -->
+            <div class="department-filter">
+                <span style="margin-right: 10px;"><strong>LINE Classification:</strong></span>
+                <button class="department-btn active" data-classification="all">All LINE</button>
+                <button class="department-btn" data-classification="line-5">LINE-5 Group</button>
+                <button class="department-btn" data-classification="line-7">LINE-7 Group</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-5-1">LINE-5-1</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-5-2">LINE-5-2</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-7-1">LINE-7-1</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-7-3">LINE-7-3</button>
+                <button class="department-btn" data-classification="specific" data-department="LINE-7-5">LINE-7-5</button>
+            </div>
+            
+            <div class="table-container">
+                <div class="table-title">LINE Reporting - Time Slot Data</div>
+                <table id="departmentReportTable">
+                    <thead>
+                        <tr>
+                            <th>LINE</th>
+                            <th>Date</th>
+                            <th>Time Slot</th>
+                            <th>Plan Stock</th>
+                            <th>Actual Stock</th>
+                            <th>Difference</th>
+                            <th>Status</th>
+                            <th>Employee</th>
+                            <th>Downtime (min)</th>
+                            <th>Rework Items</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="10" class="loading">Loading data from Firebase...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-firestore-compat.min.js"></script>
+
+    <script>
+        // REPLACE WITH YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global variables to store current filters
+        let currentStartDate = '2025-05-28';
+        let currentEndDate = '2025-05-28';
+        let currentTimeSlot = 'all';
+        let currentDepartmentFilter = 'all';
+        let currentSpecificDepartment = null;
+        let allData = [];
+
+        // Time slot mapping
+        const timeSlotMapping = {
+            'slot1': '8:00 AM - 9:00 AM',
+            'slot2': '9:00 AM - 10:00 AM',
+            'slot3': '10:00 AM - 11:00 AM',
+            'slot4': '11:00 AM - 12:00 PM',
+            'slot5': '12:00 PM - 1:00 PM',
+            'slot6': '1:00 PM - 2:00 PM',
+            'slot7': '2:00 PM - 3:00 PM',
+            'slot8': '3:00 PM - 4:00 PM'
+        };
+
+        // Function to load data from Firebase
+        async function loadDataFromFirebase() {
+            try {
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '<tr><td colspan="10" class="loading">Loading data from Firebase...</td></tr>';
+
+                const snapshot = await db.collection('prod-user').get();
+                allData = [];
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    allData.push({
+                        id: doc.id,
+                        ...data,
+                        // Calculate percentage difference
+                        percentDifference: data.planStock ? ((data.difference / data.planStock) * 100).toFixed(1) : 0
+                    });
+                });
+
+                console.log('Loaded data from Firebase:', allData);
+                generateAndDisplayReport();
+
+            } catch (error) {
+                console.error('Error loading data from Firebase:', error);
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="error">
+                            Error loading data from Firebase: ${error.message}<br>
+                            Please check your Firebase configuration and connection.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Function to determine status based on difference percentage
+        function getStatus(percentDiff) {
+            const percent = Math.abs(parseFloat(percentDiff));
+            if (percent === 0) return 'On Target';
+            if (percent <= 2) return 'Within Tolerance';
+            if (percent <= 5) return 'Needs Attention';
+            return 'Critical';
+        }
+
+        // Function to get status CSS class
+        function getStatusClass(status) {
+            return 'status-' + status.toLowerCase().replace(/\s+/g, '-');
+        }
+
+        // Helper function to format date for display
+        function formatDateForDisplay(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Helper function to get date range array
+        function getDateRange(startDate, endDate) {
+            const dates = [];
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
+                dates.push(dt.toISOString().split('T')[0]);
+            }
+            
+            return dates;
+        }
+
+        // Update selection display
+        function updateSelectionDisplay() {
+            let dateText = currentStartDate === currentEndDate ? 
+                formatDateForDisplay(currentStartDate) : 
+                `${formatDateForDisplay(currentStartDate)} - ${formatDateForDisplay(currentEndDate)}`;
+            
+            let deptText = 'All LINE';
+            if (currentDepartmentFilter === 'specific') {
+                deptText = currentSpecificDepartment;
+            } else if (currentDepartmentFilter === 'line-5') {
+                deptText = 'LINE-5 Group';
+            } else if (currentDepartmentFilter === 'line-7') {
+                deptText = 'LINE-7 Group';
+            }
+
+            let timeText = currentTimeSlot === 'all' ? 'All Time Slots' : timeSlotMapping[currentTimeSlot] || currentTimeSlot;
+            
+            document.getElementById('selectionText').textContent = 
+                `${dateText} - ${timeText} - ${deptText}`;
+        }
+
+        // Function to get filtered data based on current selections
+        function getFilteredData() {
+            let filteredData = [...allData];
+            const dateRange = getDateRange(currentStartDate, currentEndDate);
+            
+            // Filter by date range
+            filteredData = filteredData.filter(item => {
+                return dateRange.includes(item.date);
+            });
+
+            // Filter by department
+            if (currentDepartmentFilter === 'line-5') {
+                filteredData = filteredData.filter(item => 
+                    item.departmentName && item.departmentName.startsWith('LINE-5')
+                );
+            } else if (currentDepartmentFilter === 'line-7') {
+                filteredData = filteredData.filter(item => 
+                    item.departmentName && item.departmentName.startsWith('LINE-7')
+                );
+            } else if (currentDepartmentFilter === 'specific' && currentSpecificDepartment) {
+                filteredData = filteredData.filter(item => 
+                    item.departmentName === currentSpecificDepartment
+                );
+            }
+
+            // Filter by time slot
+            if (currentTimeSlot !== 'all') {
+                filteredData = filteredData.filter(item => 
+                    item.timeSlot === currentTimeSlot
+                );
+            }
+            
+            // Sort by date and department
+            filteredData.sort((a, b) => {
+                if (a.date !== b.date) {
+                    return new Date(a.date) - new Date(b.date);
+                }
+                if (a.departmentName !== b.departmentName) {
+                    return (a.departmentName || '').localeCompare(b.departmentName || '');
+                }
+                return (a.timeSlot || '').localeCompare(b.timeSlot || '');
+            });
+            
+            return filteredData;
+        }
+
+        // Function to update table data dynamically
+        function updateDepartmentTable(data) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 20px; color: #666;">No data available for the selected filters</td>';
+                tableBody.appendChild(tr);
+                return;
+            }
+            
+            data.forEach(row => {
+                const status = getStatus(row.percentDifference);
+                const tr = document.createElement('tr');
+                
+                // Calculate total downtime
+                const totalDowntime = row.totalDowntime || 0;
+                
+                // Calculate total rework
+                const totalRework = row.totalRework || 0;
+                
+                tr.innerHTML = `
+                    <td>${row.departmentName || 'N/A'}</td>
+                    <td>${formatDateForDisplay(row.date)}</td>
+                    <td>${timeSlotMapping[row.timeSlot] || row.timeSlotDisplay || 'N/A'}</td>
+                    <td>${(row.planStock || 0).toLocaleString()}</td>
+                    <td>${(row.actualStock || 0).toLocaleString()}</td>
+                    <td class="${row.difference < 0 ? 'negative' : row.difference > 0 ? 'positive' : ''}">${row.difference >= 0 ? '+' + (row.difference || 0) : (row.difference || 0)}</td>
+                    <td><span class="${getStatusClass(status)}">${status}</span></td>
+                    <td>${row.employeeName || 'N/A'} (${row.employeeId || 'N/A'})</td>
+                    <td>${totalDowntime}</td>
+                    <td>${totalRework}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Function to generate and display report based on current filters
+        function generateAndDisplayReport() {
+            console.log(`Generating report for:
+                Start Date: ${currentStartDate}
+                End Date: ${currentEndDate}
+                Time Slot: ${currentTimeSlot}
+                Department Filter: ${currentDepartmentFilter}
+                Specific Department: ${currentSpecificDepartment || 'N/A'}`);
+            
+            const filteredData = getFilteredData();
+            updateDepartmentTable(filteredData);
+            updateSelectionDisplay();
+	
+        }
+
+        // Event listener for Generate Report button
+        document.getElementById('generateReport').addEventListener('click', function() {
+            currentStartDate = document.getElementById('startDate').value;
+            currentEndDate = document.getElementById('endDate').value;
+            currentTimeSlot = document.getElementById('reportTimeSlot').value;
+            
+            if (!currentStartDate || !currentEndDate) {
+                alert('Please select both start and end dates.');
+                return;
+            }
+            
+            if (new Date(currentStartDate) > new Date(currentEndDate)) {
+                alert('Start date cannot be after end date.');
+                return;
+            }
+            
+            generateAndDisplayReport();
+        });
+
+        // Event listeners for date inputs to auto-update
+        document.getElementById('startDate').addEventListener('change', function() {
+            const endDateInput = document.getElementById('endDate');
+            if (!endDateInput.value || new Date(this.value) > new Date(endDateInput.value)) {
+                endDateInput.value = this.value;
+            }
+        });
+
+        // Event listeners for department classification buttons
+        document.querySelectorAll('.department-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.department-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update current filter
+                currentDepartmentFilter = this.getAttribute('data-classification');
+                currentSpecificDepartment = this.getAttribute('data-department');
+                
+                // Generate and display report with new filter
+                generateAndDisplayReport();
+            });
+        });
+
+        // Initialize page with Firebase data
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Department Reports page loaded');
+            
+            // Set default date values
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = currentStartDate;
+            document.getElementById('endDate').value = currentEndDate;
+           
+            // Load data from Firebase
+            loadDataFromFirebase();
+        });
+
+        // Optional: Listen for real-time updates
+        function setupRealtimeListener() {
+            db.collection('prod-user').onSnapshot((snapshot) => {
+                console.log('Real-time update detected');
+                loadDataFromFirebase();
+            });
+        }
+
+        // Uncomment the line below if you want real-time updates
+        // setupRealtimeListener();
+    </script>
+</body>
+</html>

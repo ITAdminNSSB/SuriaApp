@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "firebase-tools": "^14.11.1",
+    "nodemailer": "^7.0.5"
+  },
+  "name": "nssb-ordering-system_v2_new_firebase",
+  "version": "1.0.0",
+  "main": "graph.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

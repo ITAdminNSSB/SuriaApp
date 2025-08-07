@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSSB APP Bot assistant</title>
+	   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        header {
+            background: linear-gradient(135deg, black, #334155);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .message-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.4;
+            position: relative;
+            animation: fade-in 0.3s ease;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background-color: #e1e1fc;
+            color: #333;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-message {
+            background-color: #f0f0f0;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #777;
+            margin-top: 4px;
+            text-align: right;
+        }
+        
+        .typing-indicator {
+            background-color: #f0f0f0;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            display: none;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #999;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: typing 1s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+            margin-right: 0;
+        }
+        
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            background-color: white;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .message-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 16px;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            min-height: 48px;
+        }
+        
+        .message-input:focus {
+            border-color: #6e56cf;
+        }
+        
+        .send-button {
+            background-color: #6e56cf;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .send-button:hover {
+            background-color: #5a46b8;
+        }
+        
+        .send-button:disabled {
+            background-color: #b4b4b4;
+            cursor: not-allowed;
+        }
+        
+        .send-icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+        
+        /* Suggestion chips styles */
+        .suggestion-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .suggestion-chip {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .suggestion-chip:hover {
+            background-color: #e1e1fc;
+            border-color: #6e56cf;
+        }
+        
+        .input-row {
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .app-container {
+                height: 100%;
+                width: 100%;
+                max-width: none;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .suggestion-container {
+                overflow-x: auto;
+                padding-bottom: 4px;
+                flex-wrap: nowrap;
+            }
+        }
+		.home-button {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.home-button a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+    text-decoration: none;
+}
+
+.home-button i {
+    font-size: 16px;
+}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+			<div class="home-button">
+    <a href="home.html" class="nav-item active">
+        <i class="fas fa-home"></i>
+    </a>
+</div>
+            <div class="header-title">NSSB APP Bot assistant</div>
+			
+        </header>
+        
+        <div class="message-container" id="messageContainer">
+            <div class="message ai-message">
+                Hello! I'm your AI assistant. How can I help you today?
+                <div class="message-time">Now</div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <div class="suggestion-container" id="suggestionContainer">
+                <!-- Suggestion chips will be added here -->
+            </div>
+            <div class="input-row">
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type your message..." 
+                    rows="1"></textarea>
+                <button class="send-button" id="sendButton" disabled>
+                    <svg class="send-icon" viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const messageContainer = document.getElementById('messageContainer');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const suggestionContainer = document.getElementById('suggestionContainer');
+            
+            // Common questions that users might have
+            const suggestions = [
+                "How to order?",
+                "I forgot to order",
+                "Phone problem",
+                "IT help",
+				"forgot password",
+				"app not working",
+				"cancel my order",
+				"how to refund",
+                "from : admin_shara"
+            ];
+            
+            // Add suggestion chips
+            suggestions.forEach(suggestion => {
+                const chip = document.createElement('div');
+                chip.classList.add('suggestion-chip');
+                chip.textContent = suggestion;
+                chip.addEventListener('click', () => {
+                    // When a suggestion is clicked, treat it as a user message
+                    handleSuggestionClick(suggestion);
+                });
+                suggestionContainer.appendChild(chip);
+            });
+            
+            // Sample AI responses
+            const aiResponses = [
+                "I understand what you're asking. Let me think about that for a moment.",
+                "That's an interesting question! Here's what I know about that topic.",
+                "I'd be happy to help you with that. Here's some information that might be useful.",
+                "Thanks for sharing that with me. Is there anything specific you'd like to know?",
+                "I appreciate your question. Let me provide some insights on this matter.",
+                "I can definitely assist with that. Here's my suggestion.",
+                "Great question! The answer is a bit complex, but I'll explain it clearly.",
+                "I'm here to help! Based on your question, I think the following information would be helpful.",
+                "Thank you for asking. From what I understand, here's what might work for you.",
+                "I'm processing your request. Here's what I can tell you about that."
+            ];
+            
+            // Function to handle suggestion chip clicks
+            function handleSuggestionClick(suggestion) {
+                addMessage(suggestion, 'user');
+                
+                // Show typing indicator
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+                
+                // Simulate AI thinking and responding
+                setTimeout(() => {
+                    // Hide typing indicator and show AI response
+                    typingIndicator.style.display = 'none';
+                    
+                    // Get AI response based on the suggestion
+                    let aiResponse = generateAIResponse(suggestion);
+                    addMessage(aiResponse, 'ai');
+                    
+                    // Show new relevant suggestions based on context
+                    updateSuggestions(suggestion);
+                    
+                    scrollToBottom();
+                }, 1000 + Math.random() * 1000); // Random delay between 1-2s
+            }
+            
+            // Function to update suggestions based on context
+            function updateSuggestions(lastMessage) {
+                // Clear existing suggestions
+                suggestionContainer.innerHTML = '';
+                
+                // Determine new suggestions based on context
+                let newSuggestions = [];
+                
+                if (lastMessage.toLowerCase().includes('order')) {
+                    newSuggestions = [
+                        "Order deadline?", 
+                        "Change my order", 
+                        "Cancel order",
+                        "Phone problem",
+                        "Other issues"
+                    ];
+                } else if (lastMessage.toLowerCase().includes('phone')) {
+                    newSuggestions = [
+                        "Reset password", 
+                        "App not working", 
+                        "How to order",
+                        "Other IT issues"
+                    ];
+                } else if (lastMessage.toLowerCase().includes('joke')) {
+                    newSuggestions = [
+                        "Tell another joke", 
+                        "How to order", 
+                        "IT help",
+                        "Phone problem"
+                    ];
+                } else {
+                    // Default suggestions
+                    newSuggestions = suggestions;
+                }
+                
+                // Add the new suggestion chips
+                newSuggestions.forEach(suggestion => {
+                    const chip = document.createElement('div');
+                    chip.classList.add('suggestion-chip');
+                    chip.textContent = suggestion;
+                    chip.addEventListener('click', () => {
+                        handleSuggestionClick(suggestion);
+                    });
+                    suggestionContainer.appendChild(chip);
+                });
+            }
+            
+            // Auto-resize textarea as user types
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                
+                // Enable/disable send button based on input
+                sendButton.disabled = !this.value.trim();
+            });
+            
+            // Handle pressing Enter to send (Shift+Enter for new line)
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendButton.disabled) {
+                        sendMessage();
+                    }
+                }
+            });
+            
+            // Send button click handler
+            sendButton.addEventListener('click', sendMessage);
+            
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessage(message, 'user');
+                
+                // Clear input and reset height
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                sendButton.disabled = true;
+                
+                // Show typing indicator
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+                
+                // Simulate AI thinking and responding
+                setTimeout(() => {
+                    // Hide typing indicator and show AI response
+                    typingIndicator.style.display = 'none';
+                    
+                    // Get response based on input
+                    let aiResponse = generateAIResponse(message);
+                    addMessage(aiResponse, 'ai');
+                    
+                    // Update suggestions based on context
+                    updateSuggestions(message);
+                    
+                    scrollToBottom();
+                }, 1500 + Math.random() * 1500); // Random delay between 1.5-3s
+            }
+            
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender + '-message');
+                
+                messageDiv.textContent = text;
+                
+                // Add timestamp
+                const timeDiv = document.createElement('div');
+                timeDiv.classList.add('message-time');
+                timeDiv.textContent = 'Now';
+                messageDiv.appendChild(timeDiv);
+                
+                messageContainer.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            function scrollToBottom() {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+            
+            function generateAIResponse(userMessage) {
+                // Simple response generation based on user input
+                userMessage = userMessage.toLowerCase();
+                
+                if (userMessage.includes('hello') || userMessage.includes('hi') || userMessage.includes('hey')) {
+                    return "Hello there! How can I assist you today?";
+                } else if (userMessage.includes('how to order')) {
+                    return "To order food, click the order button on the home page, select yes or no, then click submit. If yes, you'll receive a QR code to show at the canteen.";
+                } else if (userMessage.includes('order deadline') || userMessage.includes('deadline')) {
+                    return "All food orders must be placed before 10:00 AM daily. Orders placed after this time cannot be processed for the same day.";
+                } else if (userMessage.includes('cancel my order') || userMessage.includes('cancel order')) {
+                    return "You can cancel your order before 10:00 AM by canceling your existing order step1:click the button refund or cancel step2 :cancel you orders with reason ";
+                } else if (userMessage.includes('cancel order')) {
+                    return "To cancel your order, go to 'My Orders' section, find today's order, and click the cancel button. Cancellations are only possible before 10:00 AM.";
+                } else if (userMessage.includes('thank')) {
+                    return "You're welcome! Is there anything else I can help with?";
+                } else if (userMessage.includes('bye') || userMessage.includes('goodbye')) {
+                    return "Goodbye! Feel free to return if you have more questions.";
+                } else if (userMessage.includes('forgot to order')) {
+                    return "I'm sorry, we can't help with missed orders. Please remember to order before 10:00 AM daily. We recommend enabling notifications to remind you.";
+                } else if (userMessage.includes('phone problem')) {
+                    return "If you're having phone issues, please inform your admin. Alternatively, you can place orders before 10:00 AM at the guard house using our provided tablets.";
+                } else if (userMessage.includes('forgot password')) {
+                    return "To reset your password, click on 'Forgot Password' on the login screen and follow the instructions sent to your registered email.";
+                } else if (userMessage.includes('app not working')) {
+                    return "If the app isn't working, try these steps: 1) Restart the app, 2) Check your internet connection, 3) Update the app if available by reinstalling the app again 4) Restart your phone.5)log in again to the app. If issues persist, contact IT support.";
+				 } else if (userMessage.includes('how to refund')) {
+                    return "pls click refund page and upload the food image together with the description the issue. term and conditions are:1. Refunds will only be provided in cases where the error is attributable to the canteen.";
+                } else if (userMessage.includes('it help') || userMessage.includes('it issue') || userMessage.includes('other')) {
+                    return "For IT problems or any request issues, please use this form: https://app.jotform.com/nssb-application/nssb-app/222011204651033";
+                } else if (userMessage.includes('from : admin_IT')) {
+                    const jokes = [
+                        "Why don't scientists trust atoms? Because they make up everything!",
+                        "What did the ocean say to the beach? Nothing, it just waved!",
+                        "Why did the scarecrow win an award? Because he was outstanding in his field!",
+                        "How does a penguin build its house? Igloos it together!",
+                        "What do you call a fake noodle? An impasta!",
+                        "How do you organize a space party? You planet!"
+                    ];
+                    return jokes[Math.floor(Math.random() * jokes.length)];
+                } else {
+                    // Return a random generic response
+                    return aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                }
+            }
+            
+            // Initial suggestion chips
+            updateSuggestions("");
+        });
+    </script>
+</body>
+</html>

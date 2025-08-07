@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generation - ADMIN(HR) Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <script type="module" src="auth-guard.js"></script>
+    <style>
+        :root {
+            --primary-color: #0C0E8B;
+            --secondary-color: #2dd4bf;
+            --background-color: #f4f4f5;
+            --text-color: #27272a;
+            --white: #ffffff;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header .logo1 img {
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        .date-selection-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 80px 0 30px;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .date-selection-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-picker {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .date-picker label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .date-picker input {
+            padding: 10px;
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .date-picker input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        .department-filter {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .department-filter label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .department-filter select {
+            padding: 10px;
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .department-filter select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        .quickselect-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quickselect-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .quickselect-btn:hover {
+            background-color: #1a1e9c;
+        }
+
+        #generateInvoiceBtn {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #generateInvoiceBtn:hover {
+            background-color: #1ebfab;
+        }
+
+        .invoice-preview {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .invoice-company-details {
+            flex: 1;
+        }
+
+        .invoice-company-details h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .invoice-details {
+            text-align: right;
+        }
+
+        .invoice-details h1 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .invoice-summary {
+            margin-bottom: 30px;
+        }
+
+        .invoice-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .invoice-summary-table th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .invoice-summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .invoice-summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .invoice-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
+        .invoice-details-table th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .invoice-details-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .invoice-details-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .invoice-total {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e4e4e7;
+        }
+
+        .invoice-total-table {
+            width: 300px;
+        }
+
+        .invoice-total-table td {
+            padding: 8px 0;
+        }
+
+        .invoice-total-table td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .invoice-footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .print-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        #printInvoiceBtn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #printInvoiceBtn:hover {
+            background-color: #1a1e9c;
+        }
+
+        .invoice-status {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .nav-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 35px;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        @media print {
+            .header, .date-selection-container, .print-controls, .nav-container {
+                display: none;
+            }
+
+            .container {
+                padding: 0;
+                margin: 0;
+            }
+
+            .invoice-preview {
+                box-shadow: none;
+                margin: 0;
+                padding: 20px;
+                border-radius: 0;
+            }
+
+            body {
+                background-color: white;
+                padding-bottom: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .date-selection-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .date-picker, .department-filter {
+                min-width: auto;
+            }
+
+            .invoice-header {
+                flex-direction: column;
+            }
+
+            .invoice-details {
+                text-align: left;
+                margin-top: 20px;
+            }
+
+            .invoice-total {
+                justify-content: flex-start;
+            }
+
+            .nav-item span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo1"><img src="pictures/new_logo.png" alt="Company Logo" width="200" height="47"></span>
+    </div>
+
+    <div class="container">
+        <div class="date-selection-container">
+            <h2>Generate Invoice</h2>
+            <div class="date-selection-row">
+                <div class="date-picker">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" />
+                </div>
+                <div class="date-picker">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" />
+                </div>
+                <div class="department-filter">
+                    <label for="departmentFilter">Department:</label>
+                    <select id="departmentFilter">
+                        <option value="">All Departments</option>
+                        <option value="MDO">MDO</option>
+                        <option value="SHE">SHE</option>
+                        <option value="TPS">TPS</option>
+                        <option value="IT">IT</option>
+                        <option value="HCD">HCD</option>
+                        <option value="FNA">FNA</option>
+                        <option value="MKTG">MKTG</option>
+                        <option value="PURCH">PURCH</option>
+                        <option value="QA">QA</option>
+                        <option value="ENG">ENG</option>
+                        <option value="ME">ME</option>
+                        <option value="PPIC">PPIC</option>
+                        <option value="QC">QC</option>
+                        <option value="PROD">PROD</option>
+                        <option value="ED">ED</option>
+                        <option value="PROD-STAMPING">PROD-STAMPING</option>
+                        <option value="PPIC-STAMPING">PPIC-STAMPING</option>
+                        <option value="PPIC-STAMPING-DIEMTCE">PPIC-STAMPING-DIEMTCE</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="date-selection-row" style="margin-top: 15px;">
+                <div class="quickselect-buttons">
+                    <button id="currentPeriodBtn" class="quickselect-btn">Current Pay Period</button>
+                    <button id="lastPeriodBtn" class="quickselect-btn">Last Pay Period</button>
+                    <button id="stampingBtn" class="quickselect-btn">Stamping Departments</button>
+                    <button id="mainCanteenBtn" class="quickselect-btn">Main Canteen</button>
+                </div>
+            </div>
+
+            <div class="date-selection-row" style="margin-top: 15px; justify-content: flex-end;">
+                <button id="generateInvoiceBtn">
+                    <i class="fas fa-file-invoice"></i> Generate Invoice
+                </button>
+            </div>
+        </div>
+
+        <div class="invoice-status" id="invoiceStatus" style="display: none;">
+            Generating invoice... Please wait.
+        </div>
+
+        <div class="print-controls" style="display: none;" id="printControls">
+            <button id="printInvoiceBtn">
+                <i class="fas fa-print"></i> Print Invoice
+            </button>
+        </div>
+
+        <div class="invoice-preview" id="invoicePreview" style="display: none;">
+            <div class="invoice-header">
+                <div class="invoice-company-details">
+                    <h2>NAMICOH SURIA SDN BHD</h2>
+                    <p>Lot 42558, 42559 , 42560, Seksyen U6, Jalan 2c</p>
+                    <p>Kampung Baru Subang, 40150 Shah Alam</p>
+                    <p>Phone: 03-7455 9800</p>
+                    <p>Email: sharamanisha2804@gmail.com</p>
+                </div>
+                <div class="invoice-details">
+                    <h1>INVOICE</h1>
+                    <p><strong>Invoice #:</strong> <span id="invoiceNumber"></span></p>
+                    <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
+                    <p><strong>Period:</strong> <span id="invoicePeriod"></span></p>
+                </div>
+            </div>
+
+            <div class="invoice-summary">
+                <h3>Meal Order Summary</h3>
+                <table class="invoice-summary-table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Number of Orders</th>
+                            <th>Cost Per Order (RM)</th>
+                            <th>Total (RM)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody">
+                        <!-- Summary data will be added here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="invoice-details-section">
+                <h3>Order Details</h3>
+                <table class="invoice-details-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Department</th>
+                            <th>Employee</th>
+                            <th>Employee ID</th>
+                            <th>Order Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailsTableBody">
+                        <!-- Detail data will be added here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="invoice-total">
+                <table class="invoice-total-table">
+                    <tr>
+                        <td>Total Orders:</td>
+                        <td id="totalOrders">0</td>
+                    </tr>
+                    <tr>
+                        <td>Cost Per Meal:</td>
+
+                        <td id="costPerMeal">RM 6.50</td>
+                    </tr>
+                    <tr style="font-size: 18px;">
+                        <td>Total Amount:</td>
+                        <td id="totalAmount">RM 0.00</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="invoice-footer">
+                <p>Thank you for your business!</p>
+                <p>Payment is due within 30 days of invoice date.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-container">
+        <a href="canteen_home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="canteen_view_order.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>View Orders</span>
+        </a>
+        <a href="canteen_claimed_pg.html" class="nav-item">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Claimed Orders</span>
+        </a>
+        <a href="menu_update.html" class="nav-item">
+            <i class="fas fa-sync"></i>
+            <span>Update Menu</span>
+        </a>
+		   <a href="Analytics_dashboard_pg.html" class="nav-item">
+            <i class="fas fa-file-invoice"></i>
+            <span>Invoices</span>
+        </a>
+    </div>
+     
+  
+
+   <script type="module">
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    getDocs,
+    Timestamp
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Collection references
+const ordersRef = collection(db, "orders");
+
+// Department configurations
+const stampingDepartments = ['PROD-STAMPING', 'PPIC-STAMPING', 'PPIC-STAMPING-DIEMTCE'];
+const mainCanteenDepartments = ['IT', 'HCD', 'PROD', 'PPIC', 'QC', 'PURCH', 'MKTG', 'ME', 'ED', 'FNA', 'ENG', 'MDO', 'SHE', 'TPS', 'QA'];
+
+// Cost per meal (fixed at RM 6.50)
+const COST_PER_MEAL = 6.50;
+
+// Format date as YYYY-MM-DD
+function formatDate(date) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+// Format date for display
+function formatDisplayDate(date) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(date).toLocaleDateString(undefined, options);
+}
+
+// Format currency for Malaysian Ringgit
+function formatCurrency(amount) {
+    return `RM ${amount.toFixed(2)}`;
+}
+
+// Get orders for the selected date range and department
+async function getOrders(startDate, endDate, departments = null) {
+    try {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+
+        let q;
+        if (departments && departments.length > 0) {
+            q = query(
+                ordersRef,
+                where("department", "in", departments),
+                where("orderDate", ">=", Timestamp.fromDate(start)),
+                where("orderDate", "<=", Timestamp.fromDate(end))
+            );
+        } else if (document.getElementById('departmentFilter').value) {
+            const department = document.getElementById('departmentFilter').value;
+            q = query(
+                ordersRef,
+                where("department", "==", department),
+                where("orderDate", ">=", Timestamp.fromDate(start)),
+                where("orderDate", "<=", Timestamp.fromDate(end))
+            );
+        } else {
+            q = query(
+                ordersRef,
+                where("orderDate", ">=", Timestamp.fromDate(start)),
+                where("orderDate", "<=", Timestamp.fromDate(end))
+            );
+        }
+
+        const querySnapshot = await getDocs(q);
+        
+        // Process to get unique orders per employee per day
+        const uniqueOrders = new Map();
+        
+        querySnapshot.forEach((doc) => {
+            const orderData = doc.data();
+            const orderDate = orderData.orderDate.toDate();
+            const dateKey = formatDate(orderDate);
+            const employeeKey = `${dateKey}-${orderData.employeeId}`;
+            
+            // Only keep the earliest order per employee per day
+            if (!uniqueOrders.has(employeeKey) || 
+                orderDate < uniqueOrders.get(employeeKey).orderDate.toDate()) {
+                uniqueOrders.set(employeeKey, orderData);
+            }
+        });
+        
+        // Convert to array and sort
+        return Array.from(uniqueOrders.values())
+            .sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
+        
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        return [];
+    }
+}
+
+// Generate invoice number (using date to ensure uniqueness)
+function generateInvoiceNumber() {
+    const date = new Date();
+    const timestamp = date.getTime();
+    return `INV-${timestamp.toString().substring(5)}`;
+}
+
+// Process orders into date summaries
+function processOrdersByDate(orders) {
+    const datesSummary = {};
+    
+    orders.forEach(order => {
+        const orderDate = order.orderDate.toDate();
+        const dateKey = formatDate(orderDate);
+        
+        if (!datesSummary[dateKey]) {
+            datesSummary[dateKey] = {
+                count: 0,
+                cost: 0,
+                displayDate: formatDisplayDate(orderDate)
+            };
+        }
+        datesSummary[dateKey].count++;
+        datesSummary[dateKey].cost += COST_PER_MEAL;
+    });
+    
+    return datesSummary;
+}
+
+// Generate and display the invoice
+async function generateInvoice() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (!startDate || !endDate) {
+        alert("Please select start and end dates");
+        return;
+    }
+    
+    // Show loading status
+    document.getElementById('invoiceStatus').style.display = 'block';
+    document.getElementById('invoicePreview').style.display = 'none';
+    document.getElementById('printControls').style.display = 'none';
+    
+    try {
+        // Determine departments to filter
+        let selectedDepartments = null;
+        if (document.getElementById('stampingBtn').classList.contains('active')) {
+            selectedDepartments = stampingDepartments;
+        } else if (document.getElementById('mainCanteenBtn').classList.contains('active')) {
+            selectedDepartments = mainCanteenDepartments;
+        }
+        
+        // Fetch orders
+        const orders = await getOrders(startDate, endDate, selectedDepartments);
+        
+        if (orders.length === 0) {
+            document.getElementById('invoiceStatus').textContent = 'No orders found for the selected period.';
+            return;
+        }
+        
+        // Process orders into summary by date
+        const datesSummary = processOrdersByDate(orders);
+        
+        // Fill in invoice header details
+        document.getElementById('invoiceNumber').textContent = generateInvoiceNumber();
+        document.getElementById('invoiceDate').textContent = formatDisplayDate(new Date());
+        document.getElementById('invoicePeriod').textContent = `${formatDisplayDate(startDate)} - ${formatDisplayDate(endDate)}`;
+        
+        // Update table header for date-based summary
+        const summaryTableHeader = document.querySelector('.invoice-summary-table thead tr');
+        summaryTableHeader.innerHTML = `
+            <th>Date</th>
+            <th>Number of Orders</th>
+            <th>Cost Per Order (RM)</th>
+            <th>Total (RM)</th>
+        `;
+        
+        // Fill in summary table
+        const summaryTableBody = document.getElementById('summaryTableBody');
+        summaryTableBody.innerHTML = '';
+        
+        let totalOrders = 0;
+        let totalAmount = 0;
+        
+        // Sort dates chronologically
+        const sortedDates = Object.entries(datesSummary).sort((a, b) => 
+            new Date(a[0]) - new Date(b[0])
+        );
+        
+        sortedDates.forEach(([dateKey, data]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${data.displayDate}</td>
+                <td>${data.count}</td>
+                <td>${COST_PER_MEAL.toFixed(2)}</td>
+                <td>${formatCurrency(data.cost)}</td>
+            `;
+            summaryTableBody.appendChild(row);
+            
+            totalOrders += data.count;
+            totalAmount += data.cost;
+        });
+        
+        // Hide the details section completely
+        document.querySelector('.invoice-details-section').style.display = 'none';
+        
+        // Calculate and display totals
+        document.getElementById('totalOrders').textContent = totalOrders;
+        document.getElementById('costPerMeal').textContent = formatCurrency(COST_PER_MEAL);
+        document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
+        
+        // Hide status and show invoice and print button
+        document.getElementById('invoiceStatus').style.display = 'none';
+        document.getElementById('invoicePreview').style.display = 'block';
+        document.getElementById('printControls').style.display = 'flex';
+        
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        document.getElementById('invoiceStatus').textContent = 'An error occurred while generating the invoice.';
+    }
+}
+
+// Set up event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Set today as default end date
+    const today = new Date();
+    document.getElementById('endDate').value = formatDate(today);
+    
+    // Set two weeks ago as default start date
+    const twoWeeksAgo = new Date(today);
+    twoWeeksAgo.setDate(today.getDate() - 14);
+    document.getElementById('startDate').value = formatDate(twoWeeksAgo);
+    
+    // Generate invoice button
+    document.getElementById('generateInvoiceBtn').addEventListener('click', generateInvoice);
+    
+    // Print invoice button
+    document.getElementById('printInvoiceBtn').addEventListener('click', () => {
+        window.print();
+    });
+    
+    // Current pay period button (last two weeks)
+    document.getElementById('currentPeriodBtn').addEventListener('click', () => {
+        const today = new Date();
+        const endDate = today;
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - 14);
+        
+        document.getElementById('startDate').value = formatDate(startDate);
+        document.getElementById('endDate').value = formatDate(endDate);
+        
+        // Reset department selections
+        document.getElementById('departmentFilter').value = '';
+        document.getElementById('stampingBtn').classList.remove('active');
+        document.getElementById('mainCanteenBtn').classList.remove('active');
+    });
+    
+    // Last pay period button (two weeks before current pay period)
+    document.getElementById('lastPeriodBtn').addEventListener('click', () => {
+        const today = new Date();
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - 28);
+        const endDate = new Date(today);
+        endDate.setDate(today.getDate() - 14);
+        
+        document.getElementById('startDate').value = formatDate(startDate);
+        document.getElementById('endDate').value = formatDate(endDate);
+        
+        // Reset department selections
+        document.getElementById('departmentFilter').value = '';
+        document.getElementById('stampingBtn').classList.remove('active');
+        document.getElementById('mainCanteenBtn').classList.remove('active');
+    });
+    
+    // Stamping departments button
+    document.getElementById('stampingBtn').addEventListener('click', () => {
+        document.getElementById('departmentFilter').value = '';
+        document.getElementById('stampingBtn').classList.toggle('active');
+        document.getElementById('mainCanteenBtn').classList.remove('active');
+    });
+    
+    // Main canteen button
+    document.getElementById('mainCanteenBtn').addEventListener('click', () => {
+        document.getElementById('departmentFilter').value = '';
+        document.getElementById('mainCanteenBtn').classList.toggle('active');
+        document.getElementById('stampingBtn').classList.remove('active');
+    });
+    
+    // Department filter change
+    document.getElementById('departmentFilter').addEventListener('change', () => {
+        // If a department is selected, deactivate the department group buttons
+        if (document.getElementById('departmentFilter').value) {
+            document.getElementById('stampingBtn').classList.remove('active');
+            document.getElementById('mainCanteenBtn').classList.remove('active');
+        }
+    });
+});
+</script>
+</body>
+</html>

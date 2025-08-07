@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script type="module" src="auth-guard.js"></script>
+    <title>Complete Mobile App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+             background: linear-gradient(135deg, black, #334155);
+            color: white;
+            position: sticky;
+            top: 20px;
+            border-radius: 15px;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .menu-icon {
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .header img {
+            width: 100px;
+            height: 50px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Improved Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+           background: linear-gradient(135deg, black, #334155);
+            color: white;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            padding: 30px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar img {
+            width: 120px;
+            margin-right: 15px;
+        }
+
+        .sidebar .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar .user-info p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Greeting Section */
+        .greeting {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .greeting h2 {
+            color: #0C0E8B;
+            margin-bottom: 10px;
+        }
+
+        /* Cards Grid */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 255, 0.3); /* Updated to blue */
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Image Slider */
+        .image-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 20px;
+            padding: 20px 0;
+            margin: 30px -20px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .image-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .slide {
+            scroll-snap-align: start;
+            min-width: 300px;
+            background-color: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .slide p {
+            padding: 15px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background-color: #0C0E8B;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .fab-menu {
+            position: fixed;
+            bottom: 170px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+            z-index: 98;
+        }
+
+        .fab-menu.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .fab-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #0C0E8B;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .fab-button:hover {
+            background: #1416a0;
+            transform: scale(1.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+/* Bottom Navigation */
+.nav-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 15px 20px 20px; /* Added more padding at bottom */
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+    z-index: 90;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex: 1;
+    position: relative;
+    padding: 8px 0;
+}
+
+.nav-item.active {
+    color: #334155;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #334155;
+    border-radius: 50%;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover i {
+    transform: translateY(-3px);
+}
+
+.nav-item span {
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover span {
+    color: #334155;
+}
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+		/* Logo Container */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Add space between slider and logo */
+}
+
+.logo-container img {
+    width: 200px; /* Adjust size as needed */
+    height: auto;
+}
+
+
+/* Header Background */
+.header-background img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+
+/* Account and Settings Sections */
+.account-section, .settings-section {
+  background-color: #2d2d2d;
+  padding: 20px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+   /* Profile section styling */
+        .profile-section {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            color: #fff;
+        }
+
+        /* Section Header Styling */
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        /* Detail item styling */
+        .detail-item {
+            display: flex;
+            align-items: center;
+            background-color: #444;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            width: 100%; /* Ensure full width of the container */
+        }
+
+        .detail-item i {
+            color: #fff;
+            font-size: 18px;
+            margin-right: 10px; /* Add space between icon and text */
+        }
+
+        .detail-item span {
+            font-size: 16px;
+            color: #ddd;
+        }
+
+        .profile-pic-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -50px;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+			 margin-top: 75px;
+			margin-bottom: 50px;
+            border-radius: 50%;
+            background-color: white;
+            border: 4px solid #1f1f1f;
+            background-image: url('https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/travel-app-qq7yrm/assets/xw4qknuighs9/User-Profile-PNG-High-Quality-Image.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+		
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            background-color: #444;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .detail-item i {
+            color: #fff;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .detail-item input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #666;
+            color: #ddd;
+            font-size: 16px;
+            padding: 5px;
+            width: 100%;
+            margin-left: 10px;
+        }
+
+        .detail-item input:focus {
+            outline: none;
+            border-bottom-color: #0C0E8B;
+        }
+
+        .save-btn {
+            background-color: #0C0E8B;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .save-btn:hover {
+            background-color: #1416a0;
+        }
+
+        .feedback-message {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback-message.success {
+            background-color: #4CAF50;
+            color: white;
+            display: block;
+        }
+
+        .feedback-message.error {
+            background-color: #f44336;
+            color: white;
+            display: block;
+        }
+		
+    </style>
+	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="pictures/new.png" alt="App Logo">
+            <div>
+
+            </div>
+        </div>
+        
+      <div class="user-info">
+    <p><strong>Welcome back, <span id="nameinfo"></span></strong></p>	  
+  
+</div>
+<div class="user-info">
+  <p id="current-date"></p>
+         
+</div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <span class="menu-icon" onclick="toggleSidebar()">&#9776;</span>
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <!-- Main Content -->
+    
+    <div class="profile-section">
+        <div class="section-header">
+            Update Your Profile
+            <button class="save-btn" id="saveButton">Save Changes</button>
+        </div>
+        <div id="userDetails">
+            <!-- Form fields will be injected here -->
+        </div>
+        <div id="feedbackMessage" class="feedback-message"></div>
+    </div>
+  
+    <!-- Bottom Navigation -->
+    <div class="nav-container">
+      <a href="home.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+      </a>
+      <a href="order_pg.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>Order</span>
+      </a>
+      <a href="menu_pg.html" class="nav-item">
+            <i class="fas fa-book"></i>
+            <span>Menu</span>
+      </a>
+      <a href="profile_pg.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+      </a>
+    </div>
+
+    <script>
+        // Touch handling for sidebar
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const swipeDistance = touchEndX - touchStartX;
+            
+            // Right to left swipe (close sidebar)
+            if (swipeDistance < -50 && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+            // Left to right swipe (open sidebar)
+            else if (swipeDistance > 50 && !sidebar.classList.contains('active')) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Toggle FAB menu
+        function toggleFabMenu() {
+            const fabMenu = document.getElementById('fab-menu');
+            fabMenu.classList.toggle('active');
+        }
+
+          function navigateTo(page) {
+        window.location.href = page;
+    }
+
+    // Set current date
+    const currentDate = new Date().toLocaleDateString();
+    document.getElementById('current-date').innerText = currentDate;
+		
+
+        const plusButton = document.getElementById('plusButton');
+        const floatingMenu = document.getElementById('floatingMenu');
+
+        plusButton.addEventListener('click', () => {
+            plusButton.classList.toggle('active');
+            floatingMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!plusButton.contains(e.target) && !floatingMenu.contains(e.target)) {
+                plusButton.classList.remove('active');
+                floatingMenu.classList.remove('active');
+            }
+        });
+
+</script>
+	<!-- Firebase Initialization -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const userDetails = document.getElementById('userDetails');
+        const saveButton = document.getElementById('saveButton');
+        const feedbackMessage = document.getElementById('feedbackMessage');
+
+        // Function to show feedback message
+        function showFeedback(message, isSuccess) {
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = `feedback-message ${isSuccess ? 'success' : 'error'}`;
+            feedbackMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                feedbackMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Function to create input fields
+        function createInputFields(userInfo = {}) {
+            return `
+                <div class="detail-item">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="name" value="${userInfo.name || ''}" placeholder="First Name">
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-user-friends"></i>
+                    <input type="text" id="lastName" value="${userInfo.lastName || ''}" placeholder="Last Name">
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="phone" value="${userInfo.phone || ''}" placeholder="Phone Number">
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="employeeId" value="${userInfo.employeeId || ''}" placeholder="Employee ID">
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-building"></i>
+                    <input type="text" id="department" value="${userInfo.department || ''}" placeholder="Department">
+                </div>
+            `;
+        }
+
+        // Function to update profile
+        async function updateProfile(userId) {
+            try {
+                const updatedData = {
+                    name: document.getElementById('name').value.trim(),
+                    lastName: document.getElementById('lastName').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    employeeId: document.getElementById('employeeId').value.trim(),
+                    department: document.getElementById('department').value.trim()
+                };
+
+                // Validate that at least some fields are filled
+                if (!Object.values(updatedData).some(value => value)) {
+                    showFeedback('Please fill in at least one field', false);
+                    return;
+                }
+
+                // Update only non-empty fields
+                const filteredData = Object.fromEntries(
+                    Object.entries(updatedData).filter(([_, value]) => value !== '')
+                );
+
+                await updateDoc(doc(db, "users", userId), filteredData);
+                showFeedback('Profile updated successfully!', true);
+
+                // Redirect to profile page after successful update
+                setTimeout(() => {
+                    window.location.href = 'profile_pg.html';
+                }, 2000);
+            } catch (error) {
+                showFeedback(`Error updating profile: ${error.message}`, false);
+                console.error('Update error:', error);
+            }
+        }
+
+        // Auth state observer
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    // Get initial user data
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        userDetails.innerHTML = createInputFields(userDoc.data());
+                    } else {
+                        userDetails.innerHTML = createInputFields();
+                    }
+
+                    // Set up real-time updates
+                    onSnapshot(doc(db, "users", user.uid), (doc) => {
+                        if (doc.exists()) {
+                            userDetails.innerHTML = createInputFields(doc.data());
+                        }
+                    });
+
+                    // Add save button event listener
+                    saveButton.addEventListener('click', () => updateProfile(user.uid));
+                } catch (error) {
+                    console.error("Error setting up profile:", error);
+                    showFeedback('Error loading profile data', false);
+                }
+            } else {
+                userDetails.innerHTML = '<p>Please log in to update your profile</p>';
+                saveButton.disabled = true;
+            }
+        });
+
+        // Navigation functionality
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        };
+
+        // Plus button functionality
+        const plusButton = document.getElementById('plusButton');
+        plusButton.addEventListener('click', () => {
+            plusButton.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!plusButton.contains(e.target)) {
+                plusButton.classList.remove('active');
+            }
+        });
+    </script>
+	   	<script>
+		// Add this script at the end of your body section
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the current page filename
+    const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+    
+    // Get all navigation items
+    const navItems = document.querySelectorAll('.nav-container .nav-item');
+    
+    // Remove active class from all items
+    navItems.forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to the current page's nav item
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+        }
+    });
+});
+	</script>
+</body>
+</html>

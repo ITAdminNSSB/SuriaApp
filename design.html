@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script type="module" src="auth-guard.js"></script>
+    <title>Dashboard</title>
+    <style>
+       /* General Reset */
+         :root {
+            --primary-color: #0C0E8B;
+            --secondary-color: #2dd4bf;
+            --background-color: #f4f4f5;
+            --text-color: #27272a;
+            --white: #ffffff;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+		  .header {
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header .logo1 img {
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+
+
+        .container {
+            max-width: 100%;
+            padding: 16px;
+        }
+
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+			text-align: center;
+			
+        }
+
+
+        .card-header {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .card-number {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #0C0E8B;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #0C0E8B, #6366F1);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #0C0E8B;
+        }
+
+        .time-filters {
+            display: flex;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .time-filter {
+            padding: 8px 16px;
+            font-size: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+
+        .time-filter.active {
+            background-color: #0C0E8B;
+            color: white;
+        }
+
+        .chart-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: 220px;
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .chart {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .line-primary {
+            stroke: #0C0E8B;
+        }
+
+        .line-secondary {
+            stroke: #6366F1;
+            opacity: 0.7;
+        }
+
+        .chart-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .grid-line {
+            width: 100%;
+            height: 1px;
+            background-color: #f0f0f0;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .chart-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .pie-chart-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pie-chart {
+            width: 180px;
+            height: 180px;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .pie-chart-svg {
+            transform: rotate(-90deg);
+        }
+
+        .circle {
+            fill: none;
+            stroke-width: 30;
+            stroke-dasharray: 0 100;
+            stroke-linecap: round;
+        }
+
+        .segment-1 {
+            stroke: #0C0E8B;
+            stroke-dasharray: 25 100;
+        }
+
+        .segment-2 {
+            stroke: #6366F1;
+            stroke-dasharray: 20 100;
+            stroke-dashoffset: -25;
+        }
+
+        .segment-3 {
+            stroke: #818CF8;
+            stroke-dasharray: 15 100;
+            stroke-dashoffset: -45;
+        }
+
+        .segment-4 {
+            stroke: #A5B4FC;
+            stroke-dasharray: 15 100;
+            stroke-dashoffset: -60;
+        }
+
+        .segment-5 {
+            stroke: #C7D2FE;
+            stroke-dasharray: 10 100;
+            stroke-dashoffset: -75;
+        }
+
+        .segment-6 {
+            stroke: #DDD6FE;
+            stroke-dasharray: 15 100;
+            stroke-dashoffset: -85;
+        }
+
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #0C0E8B;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 6px;
+        }
+
+        .bar-chart-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .bar-chart {
+            display: flex;
+            height: 200px;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .bar {
+            width: 8%;
+            background: linear-gradient(180deg, #0C0E8B, #6366F1);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .calendar-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0C0E8B;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-name {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            padding: 8px 0;
+        }
+
+        .calendar-day {
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            background-color: #f5f5f7;
+        }
+
+        .calendar-day.active {
+            background-color: #0C0E8B;
+            color: white;
+        }
+
+        .calendar-day.current-month {
+            color: #333;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        .calendar-day.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #0C0E8B, #6366F1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+
+        .button-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+      .nav-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 35px;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        .hexagon-chart {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .hexagon {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        .hexagon-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* View specific elements */
+        .view-specific {
+            display: none;
+        }
+
+        /* Print invoice button */
+        .print-button {
+            display: none;
+            margin-top: 20px;
+            padding: 12px;
+            background: linear-gradient(135deg, #0C0E8B, #6366F1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        /* Counter Button Styles */
+        .counter-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .counter-button {
+            background: #0C0E8B;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .counter-button:hover {
+            background: #6366F1;
+        }
+
+        .reset-button {
+           background: #B6CAEC;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .reset-button:hover {
+            background: #0E246B;
+        }
+    </style>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+			 <div class="header">
+        <span class="logo1"><img src="pictures/logo_nssb1.png" alt="Company Logo"></span>
+    </div>
+           
+        </header>
+ <div class="revenue-section">
+            <div class="revenue-header">
+                <h2>Revenue</h2>
+                <div class="time-filters">
+                    <button class="time-filter" data-view="yearly">Yearly</button>
+                    <button class="time-filter" data-view="monthly">Monthly</button>
+                    <button class="time-filter active" data-view="weekly">Weekly</button>
+                    <button class="time-filter" data-view="daily">Daily</button>
+                </div>
+            </div>
+        <div class="stats-grid">
+            <div class="stat-card products">
+                <div class="stat-number" id="attendance-count">0</div>
+                <div class="stat-label">Total Attendance</div>
+                <div class="counter-controls">
+                    <button class="counter-button" id="add-attendance">Add Attendance</button>
+                    <button class="reset-button" id="reset-attendance">Reset</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="attendance-progress"></div>
+                </div>
+                <div class="progress-label">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <div class="stat-card orders">
+                <div class="stat-number" id="order-count">0</div>
+                <div class="stat-label">Total Orders App</div>
+                <div class="counter-controls">
+                    <button class="counter-button" id="add-order">Add Order</button>
+                    <button class="reset-button" id="reset-order">Reset</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="order-progress"></div>
+                </div>
+                <div class="progress-label">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <div class="stat-card clients">
+                <div class="stat-number" id="total-price">RM 0.00</div>
+                <div class="stat-label">Total Price</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="price-progress"></div>
+                </div>
+                <div class="progress-label">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <div class="stat-card revenue-card">
+                <div class="stat-number" id="total-savings">RM 0.00</div>
+                <div class="stat-label">Total Savings</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="savings-progress"></div>
+                </div>
+                <div class="progress-label">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+
+       
+
+            <div class="chart-container">
+                <div class="chart">
+                    <div class="chart-grid">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                    </div>
+                    <svg class="chart-line line-pink" viewBox="0 0 100 50" preserveAspectRatio="none">
+                        <path d="M0 30 L14.28 25 L28.57 10 L42.85 20 L57.14 5 L71.42 15 L85.71 30 L100 35" />
+                    </svg>
+                    <svg class="chart-line line-black" viewBox="0 0 100 50" preserveAspectRatio="none">
+                        <path d="M0 15 L14.28 25 L28.57 20 L42.85 35 L57.14 15 L71.42 20 L85.71 40 L100 35" />
+                    </svg>
+                </div>
+                <div class="chart-labels">
+                    <span class="chart-label">S</span>
+                    <span class="chart-label">M</span>
+                    <span class="chart-label">T</span>
+                    <span class="chart-label">W</span>
+                    <span class="chart-label">T</span>
+                    <span class="chart-label">F</span>
+                    <span class="chart-label">S</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar - Daily View only -->
+        <div class="calendar-container view-specific daily-view">
+            <div class="calendar-header">
+                <button id="prev-month">◀</button>
+                <h3 id="current-month">March 2025</h3>
+                <button id="next-month">▶</button>
+            </div>
+            <div class="calendar-grid" id="calendar-days-names">
+                <div class="calendar-day-name">Sun</div>
+                <div class="calendar-day-name">Mon</div>
+                <div class="calendar-day-name">Tue</div>
+                <div class="calendar-day-name">Wed</div>
+                <div class="calendar-day-name">Thu</div>
+                <div class="calendar-day-name">Fri</div>
+                <div class="calendar-day-name">Sat</div>
+            </div>
+            <div class="calendar-grid" id="calendar-days">
+                <!-- JS will populate this -->
+            </div>
+        </div>
+
+        <!-- Print Invoice Button - Weekly and Monthly only -->
+        <button class="print-button view-specific weekly-view monthly-view">Print Invoice</button>
+
+        <!-- Year Selector - Yearly view only -->
+        <div class="year-filter view-specific yearly-view">
+            <div class="year-selector">
+                <button class="year-nav" id="prev-year">◀</button>
+                <span class="current-year" id="selected-year">2025</span>
+                <button class="year-nav" id="next-year">▶</button>
+            </div>
+        </div>
+
+     
+    <div class="nav-container">
+        <a href="canteen_home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="canteen_view_order.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>View Orders</span>
+        </a>
+        <a href="canteen_claimed_pg.html" class="nav-item">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Claimed Orders</span>
+        </a>
+        <a href="menu_update.html" class="nav-item">
+            <i class="fas fa-sync"></i>
+            <span>Update Menu</span>
+        </a>
+    </div>
+    </div>
+
+    <script>
+        // Initialize counters
+        let attendanceCount = 0;
+        let orderCount = 0;
+        const PRICE_PER_ITEM = 6.50;
+        
+        // DOM elements
+        const attendanceElement = document.getElementById('attendance-count');
+        const orderElement = document.getElementById('order-count');
+        const totalPriceElement = document.getElementById('total-price');
+        const totalSavingsElement = document.getElementById('total-savings');
+        
+        // Progress bars
+        const attendanceProgress = document.getElementById('attendance-progress');
+        const orderProgress = document.getElementById('order-progress');
+        const priceProgress = document.getElementById('price-progress');
+        const savingsProgress = document.getElementById('savings-progress');
+        
+        // Function to update calculations
+        function updateCalculations() {
+            // Calculate total price (orders * price per item)
+            const totalPrice = orderCount * PRICE_PER_ITEM;
+            
+            // Calculate potential spending (attendance * price per item)
+            const potentialSpending = attendanceCount * PRICE_PER_ITEM;
+            
+            // Calculate savings (potential - actual)
+            const totalSavings = potentialSpending - totalPrice;
+            
+            // Update displays
+            attendanceElement.textContent = attendanceCount;
+            orderElement.textContent = orderCount;
+            totalPriceElement.textContent = `RM ${totalPrice.toFixed(2)}`;
+            totalSavingsElement.textContent = `RM ${totalSavings.toFixed(2)}`;
+            
+            // Update progress bars (setting arbitrary max values for demonstration)
+            const maxAttendance = 300;
+            const maxOrders = 300;
+            const maxPrice = 2000;
+            const maxSavings = 2000;
+            
+            attendanceProgress.style.width = `${Math.min(100, (attendanceCount / maxAttendance) * 100)}%`;
+            orderProgress.style.width = `${Math.min(100, (orderCount / maxOrders) * 100)}%`;
+            priceProgress.style.width = `${Math.min(100, (totalPrice / maxPrice) * 100)}%`;
+            savingsProgress.style.width = `${Math.min(100, (totalSavings / maxSavings) * 100)}%`;
+        }
+        
+        // Set up button event listeners
+        document.getElementById('add-attendance').addEventListener('click', () => {
+            attendanceCount++;
+            updateCalculations();
+        });
+        
+        document.getElementById('reset-attendance').addEventListener('click', () => {
+            attendanceCount = 0;
+            updateCalculations();
+        });
+        
+        document.getElementById('add-order').addEventListener('click', () => {
+            orderCount++;
+            updateCalculations();
+        });
+        
+        document.getElementById('reset-order').addEventListener('click', () => {
+            orderCount = 0;
+            updateCalculations();
+        });
+        
+        // Initialize calculations
+        updateCalculations();
+        
+        // Time filter functionality
+        const timeFilters = document.querySelectorAll('.time-filter');
+        const viewSpecificElements = document.querySelectorAll('.view-specific');
+        
+        timeFilters.forEach(filter => {
+            filter.addEventListener('click', () => {
+                // Update active filter
+                timeFilters.forEach(f => f.classList.remove('active'));
+                filter.classList.add('active');
+                
+                // Show/hide view specific elements
+                const view = filter.getAttribute('data-view');
+                viewSpecificElements.forEach(element => {
+                    if (element.classList.contains(view + '-view')) {
+                        element.style.display = 'block';
+                    } else {
+                        element.style.display = 'none';
+                    }
+                });
+                
+                // Update chart labels based on view
+                const chartLabels = document.querySelector('.chart-labels');
+                if (view === 'daily') {
+                    chartLabels.innerHTML = `
+                        <span class="chart-label">12AM</span>
+                        <span class="chart-label">4AM</span>
+                        <span class="chart-label">8AM</span>
+                        <span class="chart-label">12PM</span>
+                        <span class="chart-label">4PM</span>
+                        <span class="chart-label">8PM</span>
+                        <span class="chart-label">12AM</span>
+                    `;
+                } else if (view === 'weekly') {
+                    chartLabels.innerHTML = `
+                        <span class="chart-label">S</span>
+                        <span class="chart-label">M</span>
+                        <span class="chart-label">T</span>
+                        <span class="chart-label">W</span>
+                        <span class="chart-label">T</span>
+                        <span class="chart-label">F</span>
+                        <span class="chart-label">S</span>
+                    `;
+                } else if (view === 'monthly') {
+                    chartLabels.innerHTML = `
+                        <span class="chart-label">W1</span>
+                        <span class="chart-label">W2</span>
+                        <span class="chart-label">W3</span>
+                        <span class="chart-label">W4</span>
+                    `;
+                    // Adjust chart path for 4 data points
+                    document.querySelector('.line-pink').innerHTML = 
+                        '<path d="M0 30 L33 10 L66 30 L100 15" />';
+                    document.querySelector('.line-black').innerHTML = 
+                        '<path d="M0 20 L33 35 L66 10 L100 25" />';
+                } else if (view === 'yearly') {
+                    chartLabels.innerHTML = `
+                        <span class="chart-label">Jan</span>
+                        <span class="chart-label">Mar</span>
+                        <span class="chart-label">May</span>
+                        <span class="chart-label">Jul</span>
+                        <span class="chart-label">Sep</span>
+                        <span class="chart-label">Nov</span>
+                    `;
+                    // Adjust chart for 12 months
+                    document.querySelector('.line-pink').innerHTML = 
+                        '<path d="M0 30 L9 25 L18 20 L27 15 L36 20 L45 25 L54 15 L63 10 L72 20 L81 25 L90 30 L100 25" />';
+                    document.querySelector('.line-black').innerHTML = 
+                        '<path d="M0 20 L9 15 L18 25 L27 30 L36 25 L45 15 L54 20 L63 30 L72 25 L81 15 L90 20 L100 30" />';
+                }
+            });
+        });
+        
+        // Calendar functionality
+        class Calendar {
+            constructor() {
+                this.today = new Date();
+                this.currentYear = this.today.getFullYear();
+                this.currentMonthIndex = this.today.getMonth();
+                this.months = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                
+                this.calendarDays = document.getElementById('calendar-days');
+                this.currentMonthElement = document.getElementById('current-month');
+                this.prevMonthButton = document.getElementById('prev-month');
+                this.nextMonthButton = document.getElementById('next-month');
+                
+                this.prevMonthButton.addEventListener('click', () => this.prevMonth());
+                this.nextMonthButton.addEventListener('click', () => this.nextMonth());
+                
+                this.renderCalendar();
+            }
+            
+            renderCalendar() {
+                // Update month and year display
+                this.currentMonthElement.textContent = `${this.months[this.currentMonthIndex]} ${this.currentYear}`;
+                
+                // Clear previous days
+                this.calendarDays.innerHTML = '';
+                
+                // Get days in current month
+                const daysInMonth = new Date(this.currentYear, this.currentMonthIndex + 1, 0).getDate();
+                
+                // Get first day of month
+                const firstDayIndex = new Date(this.currentYear, this.currentMonthIndex, 1).getDay();
+                
+                // Get days from previous month
+                const daysInPrevMonth = new Date(this.currentYear, this.currentMonthIndex, 0).getDate();
+                
+                // Add days from previous month
+                for (let i = firstDayIndex - 1; i >= 0; i--) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.classList.add('calendar-day', 'other-month');
+                    dayDiv.textContent = daysInPrevMonth - i;
+                    this.calendarDays.appendChild(dayDiv);
+                }
+                
+                // Add days for current month
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.classList.add('calendar-day');
+                    dayDiv.textContent = i;
+                    
+                    // Highlight today
+                    if (
+                        i === this.today.getDate() && 
+                        this.currentMonthIndex === this.today.getMonth() && 
+                        this.currentYear === this.today.getFullYear()
+                    ) {
+                        dayDiv.classList.add('active');
+                    }
+                    
+                    dayDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.calendar-day').forEach(day => {
+                            day.classList.remove('active');
+                        });
+                        dayDiv.classList.add('active');
+                    });
+                    
+                    this.calendarDays.appendChild(dayDiv);
+                }
+                
+                // Calculate days needed from next month
+                const totalDaysDisplayed = firstDayIndex + daysInMonth;
+                const daysFromNextMonth = 42 - totalDaysDisplayed; // 6 rows * 7 days = 42
+                
+                // Add days from next month
+                for (let i = 1; i <= daysFromNextMonth; i++) {
+                    if (i <= 14) { // Only add enough to complete the visible calendar (up to 6 rows)
+                        const dayDiv = document.createElement('div');
+                        dayDiv.classList.add('calendar-day', 'other-month');
+                        dayDiv.textContent = i;
+                        this.calendarDays.appendChild(dayDiv);
+                    }
+                }
+            }
+            
+            prevMonth() {
+                this.currentMonthIndex--;
+                if (this.currentMonthIndex < 0) {
+                    this.currentMonthIndex = 11;
+                    this.currentYear--;
+                }
+                this.renderCalendar();
+            }
+            
+            nextMonth() {
+                this.currentMonthIndex++;
+                if (this.currentMonthIndex > 11) {
+                    this.currentMonthIndex = 0;
+                    this.currentYear++;
+                }
+                this.renderCalendar();
+            }
+        }
+        
+        // Year selector functionality
+        class YearSelector {
+            constructor() {
+                this.currentYear = new Date().getFullYear();
+                this.yearElement = document.getElementById('selected-year');
+                this.prevYearButton = document.getElementById('prev-year');
+                this.nextYearButton = document.getElementById('next-year');
+                
+                this.yearElement.textContent = this.currentYear;
+                
+                this.prevYearButton.addEventListener('click', () => {
+                    this.currentYear--;
+                    this.yearElement.textContent = this.currentYear;
+                });
+                
+                this.nextYearButton.addEventListener('click', () => {
+                    this.currentYear++;
+                    this.yearElement.textContent = this.currentYear;
+                });
+            }
+        }
+        
+        // Invoice functionality
+        document.querySelector('.print-button').addEventListener('click', () => {
+            alert('Generating invoice for selected period...');
+            // In a real implementation, this would generate and show a PDF invoice
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendar = new Calendar();
+            const yearSelector = new YearSelector();
+            
+            // Initially set to weekly view (matching the HTML)
+            document.querySelector('.time-filter[data-view="weekly"]').click();
+        });
+    </script>
+</body>
+</html>

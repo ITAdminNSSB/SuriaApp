@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0021a6">
+    <title>LogIn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(115deg, black, #334155);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .main-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 300px;
+        }
+        
+        h2 {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        h3 {
+            color: #cccccc;
+            font-size: 16px;
+            font-weight: 300;
+            margin-bottom: 40px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .input-group input:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+        
+        .forgot-password a {
+            color: #cccccc;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot-password a:hover {
+            color: #ffffff;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #000000 0%, #333333 50%, #555555 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, #1a1a1a 0%, #404040 50%, #666666 100%);
+        }
+        
+        .signup {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .signup h5 {
+            color: #cccccc;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .signup a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .signup a:hover {
+            color: #cccccc;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: #cccccc;
+            text-align: center;
+            padding: 15px;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer p {
+            font-size: 14px;
+            font-weight: 300;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 28px;
+            }
+            
+            .logo {
+                padding: 15px;
+            }
+        }
+        
+        /* Loading state */
+        .login-button.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+       apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        // Login form submit handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loginButton = document.getElementById('login');
+            loginButton.classList.add('loading');
+            loginButton.textContent = 'LOGGING IN...';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+
+                    // Redirect based on user role
+                    if (userData.role === 'hr_admin') {
+                        window.location.href = 'admin_home_pg.html';
+                    } else if (userData.role === 'canteen1_admin') {
+                        window.location.href = 'canteen_home.html';
+                    } else if (userData.role === 'user') {
+                        window.location.href = 'main_menu_pg.html'; 
+                    } else if (userData.role === 'admins') {
+                        window.location.href = 'view_admins_orders.html';
+                    } else if (userData.role === 'prod_admin') {
+                        window.location.href = 'prod_admin_user.html';
+                    } else {
+                        alert("Unknown user role. Please contact support.");
+                    }
+                }
+            } catch (error) {
+                alert(`Login failed: ${error.message}`);
+                loginButton.classList.remove('loading');
+                loginButton.textContent = 'LOGIN';
+            }
+        });
+
+        // Forgot password handler
+        document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = prompt("Please enter your registered email:");
+            if (email) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert("Password reset link has been sent to your email.");
+                } catch (error) {
+                    alert(`Error sending password reset email: ${error.message}`);
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+ 
+    <div class="main-container">
+           
+        <h2>Welcome Back</h2>
+        <h3>Login to your account</h3>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="forgot-password">
+                <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+            </div>
+            <button type="submit" id="login" class="login-button">LOGIN</button>
+            <div class="signup">
+                <h5>Don't have an account yet?</h5>
+                <a href="signIn_pg.html">Sign Up</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="footer">
+        <p>&copy; NAMICOH SURIA SDN BHD NSSB</p>
+    </div>
+</body>
+</html>
