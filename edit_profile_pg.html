@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="auth-guard.js"></script>
     <title>Complete Mobile App</title>
     <style>
         * {
@@ -31,7 +31,7 @@
             display: flex;
             align-items: center;
             padding: 15px 20px;
-             background: linear-gradient(135deg, black, #334155);
+            background: linear-gradient(135deg, black, #334155);
             color: white;
             position: sticky;
             top: 20px;
@@ -62,7 +62,7 @@
             left: -300px;
             width: 300px;
             height: 100vh;
-           background: linear-gradient(135deg, black, #334155);
+            background: linear-gradient(135deg, black, #334155);
             color: white;
             transition: all 0.3s ease;
             z-index: 1000;
@@ -380,24 +380,24 @@
 
 /* Header Background */
 .header-background img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
 }
 
 
 /* Account and Settings Sections */
 .account-section, .settings-section {
-  background-color: #2d2d2d;
-  padding: 20px;
-  margin-top: 10px;
-  border-radius: 10px;
+    background-color: #2d2d2d;
+    padding: 20px;
+    margin-top: 10px;
+    border-radius: 10px;
 }
 
 .section-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
    /* Profile section styling */
         .profile-section {
@@ -447,7 +447,7 @@
         .profile-pic {
             width: 100px;
             height: 100px;
-			 margin-top: 75px;
+			margin-top: 75px;
 			margin-bottom: 50px;
             border-radius: 50%;
             background-color: white;
@@ -536,7 +536,7 @@
         }
 		
     </style>
-	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Overlay -->
@@ -551,13 +551,13 @@
             </div>
         </div>
         
-      <div class="user-info">
+    <div class="user-info">
     <p><strong>Welcome back, <span id="nameinfo"></span></strong></p>	  
-  
+
 </div>
 <div class="user-info">
-  <p id="current-date"></p>
-         
+<p id="current-date"></p>
+        
 </div>
     </div>
 
@@ -579,25 +579,25 @@
         </div>
         <div id="feedbackMessage" class="feedback-message"></div>
     </div>
-  
+
     <!-- Bottom Navigation -->
     <div class="nav-container">
-      <a href="home.html" class="nav-item active">
+    <a href="home.html" class="nav-item active">
             <i class="fas fa-home"></i>
             <span>Home</span>
-      </a>
-      <a href="order_pg.html" class="nav-item">
+    </a>
+    <a href="ramadan_code.html" class="nav-item">
             <i class="fas fa-utensils"></i>
             <span>Order</span>
-      </a>
-      <a href="menu_pg.html" class="nav-item">
+    </a>
+    <a href="menu_pg.html" class="nav-item">
             <i class="fas fa-book"></i>
             <span>Menu</span>
-      </a>
-      <a href="profile_pg.html" class="nav-item">
+    </a>
+    <a href="profile_pg.html" class="nav-item">
             <i class="fas fa-user"></i>
             <span>Profile</span>
-      </a>
+    </a>
     </div>
 
     <script>
@@ -645,7 +645,7 @@
             fabMenu.classList.toggle('active');
         }
 
-          function navigateTo(page) {
+        function navigateTo(page) {
         window.location.href = page;
     }
 
@@ -679,11 +679,11 @@
 
         const firebaseConfig = {
             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
         // Initialize Firebase
@@ -819,7 +819,7 @@
             }
         });
     </script>
-	   	<script>
+	<script>
 		// Add this script at the end of your body section
 document.addEventListener('DOMContentLoaded', function() {
     // Get the current page filename

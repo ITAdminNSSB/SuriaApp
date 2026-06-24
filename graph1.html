@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Savings Summary - Q1-Q2 2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .chart-wrapper {
+            position: relative;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-top: 40px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        .blue { background-color: #4299e1; }
+        .green { background-color: #38a169; }
+        .pink { background-color: #d53f8c; }
+        .orange { background-color: #ed8936; }
+        .savings-summary {
+            margin-top: 30px;
+            background-color: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-left: 5px solid #38a169;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .savings-summary h2 {
+            margin-top: 0;
+            color: #2f855a;
+            font-size: 18px;
+        }
+        .savings-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2f855a;
+            margin: 10px 0;
+        }
+        .savings-details {
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .data-tables {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .data-table {
+            width: 48%;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table, th, td {
+            border: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #edf2f7;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        td {
+            padding: 10px;
+            text-align: right;
+            font-weight: 500;
+        }
+        .highlight {
+            background-color: #f0fff4;
+            color: #2f855a;
+            font-weight: bold;
+        }
+        .warning {
+            background-color: #fff5f5;
+            color: #e53e3e;
+        }
+        .table-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #4a5568;
+            font-weight: bold;
+        }
+        .daily-orders-table {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .daily-orders-table table {
+            min-width: 100%;
+        }
+        .daily-orders-table th, .daily-orders-table td {
+            text-align: center;
+            min-width: 70px;
+        }
+        .daily-orders-table .date-header {
+            font-weight: bold;
+            background-color: #edf2f7;
+        }
+        .daily-orders-table .weekend {
+            background-color: #ebf8ff;
+        }
+        .daily-orders-table .savings-row td {
+            font-weight: bold;
+        }
+        .daily-orders-table .positive-savings {
+            color: #2f855a;
+        }
+        .daily-orders-table .no-orders {
+            background-color: #f7fafc;
+            color: #a0aec0;
+        }
+        .order-totals {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 10;
+            position: absolute;
+            top: -25px;
+        }
+        .total-order {
+            position: absolute;
+            font-size: 12px;
+            color: #4a5568;
+            font-weight: bold;
+            text-align: center;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Monthly Savings Summary - January to April 2025</h1>
+        
+        <div class="data-tables">
+            <div class="data-table">
+                <div class="table-title">Financial Summary</div>
+                <table id="financialTable">
+                    <tr>
+                        <th>BUDGET (RM)</th>
+                        <td id="budgetValue">RM 40,053.00</td>
+                    </tr>
+                    <tr>
+                        <th>ACTUAL (RM)</th>
+                        <td id="actualValue">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>SAVINGS AMOUNT (RM)</th>
+                        <td id="savingsValue" class="highlight">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>SAVINGS RATE (%)</th>
+                        <td id="savingsRateValue" class="highlight">Calculating...</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-title">Order Summary</div>
+                <table id="orderTable">
+                    <tr>
+                        <th>Number Of Total Ordering (PAX)</th>
+                        <td id="totalPax">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Latest Month Attendance</th>
+                        <td id="latestAttendance">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Latest Month Actual Orders</th>
+                        <td id="latestActual">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Latest Month Variance</th>
+                        <td id="planVsActual" class="highlight">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Latest Month Order Accuracy</th>
+                        <td id="accuracyRate">Calculating...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="daily-orders-table">
+            <div class="table-title">Monthly Summary (2025)</div>
+            <table id="monthlyOrdersTable">
+                <!-- Table content will be generated by JavaScript -->
+            </table>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item"><span class="legend-color blue"></span> Total Attendance</div>
+            <div class="legend-item"><span class="legend-color green"></span> Total Orders</div>
+            <div class="legend-item"><span class="legend-color pink"></span> Savings (RM)</div>
+            <div class="legend-item"><span class="legend-color orange"></span> Savings (%)</div>
+        </div>
+        
+        <div class="chart-wrapper">
+            <div class="chart-container">
+                <div class="order-totals" id="orderTotals">
+                </div>
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="savings-summary" id="monthlySavings">
+            <h2>Latest Month Savings Summary</h2>
+            <div class="savings-amount" id="latestMonthSavings">Calculating...</div>
+            <div class="savings-details">
+                <p>Total orders saved: <span id="ordersReduced">Calculating...</span></p>
+                <p>Average daily savings: <span id="avgDailySavings">Calculating...</span></p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Data as of April 2025</p>
+            <p>Each order costs RM 6.50</p>
+            <p>Monthly attendance vs actual orders analysis</p>
+        </div>
+    </div>
+
+    <script>
+       // Data arrays for monthly view
+const months = ['January', 'February', 'March', 'April'];
+
+// Monthly attendance data
+const totalAttendance = [4563, 6789, 8142, 3411]; // Added April attendance
+
+// Monthly orders data
+const totalOrders = [4000, 4059, 6160, 2778]; // Added April orders
+
+// Calculate monthly savings (attendance - orders) * cost per order
+const costPerOrder = 6.50;
+const savings = totalAttendance.map((att, i) => (att - totalOrders[i]) * costPerOrder);
+
+// Calculate savings percentage
+const savingsPercent = totalAttendance.map((att, i) => ((att - totalOrders[i]) / att) * 100);
+
+// Calculate financial summary values
+const totalBudgetAllMonths = totalAttendance.reduce((sum, att) => sum + (att * costPerOrder), 0);
+const actualCostAllMonths = totalOrders.reduce((sum, orders) => sum + (orders * costPerOrder), 0);
+const totalSavingsAllMonths = totalBudgetAllMonths - actualCostAllMonths;
+const savingsRateAllMonths = (totalSavingsAllMonths / totalBudgetAllMonths) * 100;
+
+// Create the monthly table
+function createMonthlyTable() {
+    const monthlyTable = document.getElementById('monthlyOrdersTable');
+    monthlyTable.innerHTML = '';
+    
+    // Create header row
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    
+    // Add metric header
+    const metricHeader = document.createElement('th');
+    metricHeader.textContent = 'Metric';
+    headerRow.appendChild(metricHeader);
+    
+    // Add month headers
+    months.forEach(month => {
+        const th = document.createElement('th');
+        th.textContent = month;
+        th.className = 'date-header';
+        headerRow.appendChild(th);
+    });
+    
+    thead.appendChild(headerRow);
+    monthlyTable.appendChild(thead);
+    
+    // Create table body
+    const tbody = document.createElement('tbody');
+    
+    // Attendance row
+    const attendanceRow = document.createElement('tr');
+    const attendanceHeader = document.createElement('th');
+    attendanceHeader.textContent = 'Total Attendance';
+    attendanceRow.appendChild(attendanceHeader);
+    
+    totalAttendance.forEach(att => {
+        const td = document.createElement('td');
+        td.textContent = att.toLocaleString();
+        attendanceRow.appendChild(td);
+    });
+    tbody.appendChild(attendanceRow);
+    
+    // Orders row
+    const ordersRow = document.createElement('tr');
+    const ordersHeader = document.createElement('th');
+    ordersHeader.textContent = 'Total Orders';
+    ordersRow.appendChild(ordersHeader);
+    
+    totalOrders.forEach(orders => {
+        const td = document.createElement('td');
+        td.textContent = orders.toLocaleString();
+        ordersRow.appendChild(td);
+    });
+    tbody.appendChild(ordersRow);
+    
+    // Difference row
+    const diffRow = document.createElement('tr');
+    diffRow.className = 'savings-row';
+    const diffHeader = document.createElement('th');
+    diffHeader.textContent = 'Difference';
+    diffRow.appendChild(diffHeader);
+    
+    totalAttendance.forEach((att, i) => {
+        const td = document.createElement('td');
+        const diff = att - totalOrders[i];
+        td.textContent = diff.toLocaleString();
+        if (diff > 0) {
+            td.classList.add('positive-savings');
+        }
+        diffRow.appendChild(td);
+    });
+    tbody.appendChild(diffRow);
+    
+    // Savings in MYR row
+    const savingsRow = document.createElement('tr');
+    savingsRow.className = 'savings-row';
+    const savingsHeader = document.createElement('th');
+    savingsHeader.textContent = 'Savings (RM)';
+    savingsRow.appendChild(savingsHeader);
+    
+    savings.forEach(saving => {
+        const td = document.createElement('td');
+        td.textContent = 'RM ' + saving.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        if (saving > 0) {
+            td.classList.add('positive-savings');
+        }
+        savingsRow.appendChild(td);
+    });
+    tbody.appendChild(savingsRow);
+    
+    // Savings percentage row
+    const savingsPercentRow = document.createElement('tr');
+    savingsPercentRow.className = 'savings-row';
+    const savingsPercentHeader = document.createElement('th');
+    savingsPercentHeader.textContent = 'Savings (%)';
+    savingsPercentRow.appendChild(savingsPercentHeader);
+    
+    savingsPercent.forEach(percent => {
+        const td = document.createElement('td');
+        td.textContent = percent.toFixed(2) + '%';
+        if (percent > 0) {
+            td.classList.add('positive-savings');
+        }
+        savingsPercentRow.appendChild(td);
+    });
+    tbody.appendChild(savingsPercentRow);
+    
+    monthlyTable.appendChild(tbody);
+}
+
+// Update the financial and order summary tables
+function updateSummaryTables() {
+    // Update financial table
+    document.getElementById('budgetValue').textContent = 'RM ' + totalBudgetAllMonths.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    document.getElementById('actualValue').textContent = 'RM ' + actualCostAllMonths.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    document.getElementById('savingsValue').textContent = 'RM ' + totalSavingsAllMonths.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    document.getElementById('savingsRateValue').textContent = savingsRateAllMonths.toFixed(2) + '%';
+    
+    // Get latest month index
+    const latestMonthIndex = months.length - 1;
+    
+    // Update order table
+    document.getElementById('totalPax').textContent = totalOrders.reduce((sum, val) => sum + val, 0).toLocaleString();
+    document.getElementById('latestAttendance').textContent = totalAttendance[latestMonthIndex].toLocaleString();
+    document.getElementById('latestActual').textContent = totalOrders[latestMonthIndex].toLocaleString();
+    document.getElementById('planVsActual').textContent = (totalAttendance[latestMonthIndex] - totalOrders[latestMonthIndex]).toLocaleString();
+    document.getElementById('accuracyRate').textContent = ((totalOrders[latestMonthIndex] / totalAttendance[latestMonthIndex]) * 100).toFixed(2) + '%';
+    
+    // Update the monthly savings summary section
+    const latestMonthSavings = savings[latestMonthIndex];
+    const daysInMonth = new Date(2025, latestMonthIndex + 1, 0).getDate(); // Get days in the month
+    
+    document.getElementById('latestMonthSavings').textContent = 'RM ' + latestMonthSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    document.getElementById('ordersReduced').textContent = (totalAttendance[latestMonthIndex] - totalOrders[latestMonthIndex]).toLocaleString();
+    document.getElementById('avgDailySavings').textContent = 'RM ' + (latestMonthSavings / daysInMonth).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Function to add the order totals above the chart's x-axis
+function positionOrderNumbers() {
+    const chart = myChart;
+    const orderTotals = document.getElementById('orderTotals');
+    
+    // Clear any existing totals
+    orderTotals.innerHTML = '';
+    
+    // Get the chart area dimensions
+    const chartArea = chart.chartArea;
+    const totalWidth = chartArea.right - chartArea.left;
+    const barWidth = totalWidth / months.length;
+    
+    // Place each total above the corresponding month on the x-axis
+    months.forEach((month, i) => {
+        // Calculate position (percentage of chart width)
+        const position = chartArea.left + barWidth * (i + 0.5);
+        const percentage = (position / chart.width) * 100;
+        
+        const totalEl = document.createElement('div');
+        totalEl.className = 'total-order';
+        totalEl.textContent = totalOrders[i].toLocaleString();
+        totalEl.style.left = `${percentage}%`;
+        
+        orderTotals.appendChild(totalEl);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Create monthly table
+    createMonthlyTable();
+    
+    // Update summary tables
+    updateSummaryTables();
+    
+    // Create chart
+    const ctx = document.getElementById('myChart').getContext('2d');
+    window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Total Attendance',
+                    data: totalAttendance,
+                    backgroundColor: '#4299e1',
+                    order: 2
+                },
+                {
+                    label: 'Total Orders',
+                    data: totalOrders,
+                    backgroundColor: '#38a169',
+                    order: 3
+                },
+                {
+                    label: 'Savings (RM)',
+                    data: savings,
+                    borderColor: '#d53f8c',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    type: 'line',
+                    yAxisID: 'y1',
+                    order: 1
+                },
+                {
+                    label: 'Savings (%)',
+                    data: savingsPercent,
+                    borderColor: '#ed8936',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    type: 'line',
+                    yAxisID: 'y1',
+                    order: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month (2025)'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Number of Attendances/Orders'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Savings'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000) {
+                                return 'RM ' + (value / 1000).toFixed(1) + 'k';
+                            }
+                            return 'RM ' + value;
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.dataset.label === 'Savings (RM)') {
+                                label += 'RM ' + context.raw.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            } else if (context.dataset.label === 'Savings (%)') {
+                                label += context.raw.toFixed(2) + '%';
+                            } else {
+                                label += context.raw.toLocaleString();
+                            }
+                            return label;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top',
+                }
+            },
+            animation: {
+                onComplete: function() {
+                    positionOrderNumbers();
+                }
+            }
+        }
+    });
+    
+    // When the window is resized, reposition the order numbers
+    window.addEventListener('resize', function() {
+        setTimeout(positionOrderNumbers, 100);
+    });
+});
+    </script>
+</body>
+</html>

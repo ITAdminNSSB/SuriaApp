@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Orders - Canteen Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="auth-guard.js"></script>
+    <style>
+        :root {
+            --primary-color: #0C0E8B;
+            --secondary-color: #2dd4bf;
+            --background-color: #f4f4f5;
+            --text-color: #27272a;
+            --white: #ffffff;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header .logo1 img {
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        .filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 80px 0 20px;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-picker input,
+        .department-filter select,
+        .location-filter select,
+        .mealset-filter select {
+            padding: 10px;
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .date-picker input:focus,
+        .department-filter select:focus,
+        .location-filter select:focus,
+        .mealset-filter select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        #fetchOrders {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #fetchOrders:hover {
+            background-color: #1a1e9c;
+        }
+
+        #fetchOrders:active {
+            transform: scale(0.95);
+        }
+
+        .time-filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            flex-wrap: wrap;
+        }
+
+        .time-filter-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .time-filter-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .time-filter-btn:hover {
+            background-color: #1a1e9c;
+        }
+
+        .time-filter-btn.active {
+            background-color: var(--secondary-color);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.total { background-color: #dbeafe; color: #1e40af; }
+        .stat-icon.pekan { background-color: #dbeafe; color: #1e40af; }
+        .stat-icon.kristal { background-color: #fce7f3; color: #be185d; }
+        .stat-icon.unspecified { background-color: #f3f4f6; color: #6b7280; }
+
+
+        .stat-content { flex: 1; min-width: 0; }
+        .stat-label { font-size: 14px; color: #6b7280; margin-bottom: 5px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--primary-color); }
+
+        .order-table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .order-table {
+            width: 100%;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .order-table th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .order-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .order-table tr:last-child td { border-bottom: none; }
+        .order-table tr:nth-child(even) { background-color: #f8fafc; }
+        .order-table tr:hover { background-color: #f0f9ff; transition: background-color 0.3s ease; }
+
+        .location-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .location-pekan { background-color: #dbeafe; color: #1e40af; }
+        .location-kristal { background-color: #fce7f3; color: #be185d; }
+        .location-unspecified { background-color: #f3f4f6; color: #6b7280; }
+
+        .mealset-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .mealset-a { background-color: #d1fae5; color: #065f46; }
+        .mealset-b { background-color: #fef3c7; color: #92400e; }
+        .mealset-unknown { background-color: #f3f4f6; color: #6b7280; }
+
+        .send-info {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .send-info h3 { color: var(--primary-color); margin-bottom: 15px; font-weight: 600; }
+
+        .send-info textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .send-info textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
+        }
+
+        #sendButton {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            align-self: flex-start;
+        }
+
+        #sendButton:hover { background-color: #1ebfab; }
+        #sendButton:active { transform: scale(0.95); }
+
+        .nav-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 35px;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            z-index: 1000;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--white);
+            transition: 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .nav-item:hover { color: var(--secondary-color); }
+        .nav-item i { font-size: 20px; margin-bottom: 5px; }
+        .nav-item span { font-size: 12px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .header .logo1 img { max-height: 40px; }
+            .filter-container { margin: 70px 0 15px; padding: 15px; gap: 12px; }
+            .filter-row { flex-direction: column; align-items: stretch; gap: 12px; }
+            .date-picker input,
+            .department-filter select,
+            .location-filter select,
+            .mealset-filter select,
+            #fetchOrders { width: 100%; min-width: unset; padding: 12px; font-size: 16px; }
+            .time-filter-container { padding: 15px; margin: 15px 0; gap: 10px; }
+            .time-filter-buttons { flex-direction: column; width: 100%; gap: 10px; }
+            .time-filter-btn { width: 100%; padding: 12px; }
+            .stats-container { grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
+            .stat-card { padding: 15px; gap: 12px; }
+            .stat-icon { font-size: 32px; width: 50px; height: 50px; }
+            .stat-label { font-size: 12px; }
+            .stat-value { font-size: 24px; }
+            .order-table-container { margin-bottom: 20px; max-height: 50vh; }
+            .order-table th { padding: 10px 8px; font-size: 11px; }
+            .order-table td { padding: 10px 8px; font-size: 13px; }
+            .location-badge, .mealset-badge { font-size: 0.7em; padding: 3px 8px; }
+            .send-info { padding: 15px; }
+            .nav-container { bottom: 15px; padding: 12px 20px; gap: 20px; width: calc(100% - 30px); }
+            .nav-item span { display: none; }
+            .nav-item i { font-size: 18px; margin-bottom: 3px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container { grid-template-columns: 1fr; }
+            .stat-value { font-size: 20px; }
+            .order-table th { padding: 8px 6px; font-size: 10px; }
+            .order-table td { padding: 8px 6px; font-size: 12px; }
+            .location-badge, .mealset-badge { font-size: 0.65em; padding: 2px 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo1"><img src="pictures/new_logo.png" alt="Company Logo" width="200" height="47"></span>
+    </div>
+
+    <div class="container">
+        <div class="filter-container">
+            <div class="filter-row">
+                <div class="date-picker">
+                    <input type="date" id="datePicker" />
+                </div>
+
+                <div class="department-filter">
+                    <select id="departmentFilter">
+                        <option value="">All Departments</option>
+                        <option value="HRA">HRA</option>
+                        <option value="FNA">FNA</option>
+                        <option value="MDO">MDO</option>
+                        <option value="BD&Project">BD&Project</option>
+                        <option value="SALES">SALES</option>
+                        <option value="PVD">PVD</option>
+                        <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
+                        <option value="QMS">QMS</option>
+                        <option value="QAQC">QAQC</option>
+                        <option value="PE/LPS">PE/LPS</option>
+                        <option value="MAINTENANCE">MAINTENANCE</option>
+                        <option value="PROD">PROD</option>
+                        <option value="PPCL">PPCL</option>
+                        <option value="SYNERGY">SYNERGY</option>
+                        <option value="SGTSB">SGTSB</option>
+                    </select>
+                </div>
+
+                <div class="location-filter">
+                    <select id="locationFilter">
+                        <option value="">All Locations</option>
+                        <option value="PEKAN SUBANG">PEKAN SUBANG</option>
+                        <option value="SUBANG KRISTAL">SUBANG KRISTAL</option>
+                    </select>
+                </div>
+
+                <!-- NEW: Meal Set Filter -->
+                <div class="mealset-filter">
+                    <select id="mealSetFilter">
+                        <option value="">All Meal Sets</option>
+                        <option value="A">Set A (NON-MUSLIM)</option>
+                        <option value="B">Set B (MUSLIM)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <button id="fetchOrders">
+                    <i class="fas fa-search"></i> Fetch Orders
+                </button>
+            </div>
+        </div>
+
+        <div class="time-filter-container">
+            <div class="time-filter-buttons">
+                <button id="morningTimeBtn" class="time-filter-btn">
+                    Morning (4 AM - 10 AM)
+                </button>
+                <button id="eveningTimeBtn" class="time-filter-btn">
+                    Night (4 PM - 9 PM)
+                </button>
+                <button id="allTimeBtn" class="time-filter-btn active">
+                    All Times
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-value" id="totalOrders">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pekan">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Pekan Subang</div>
+                    <div class="stat-value" id="pekanOrders">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon kristal">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Subang Kristal</div>
+                    <div class="stat-value" id="kristalOrders">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon unspecified">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Not Specified</div>
+                    <div class="stat-value" id="unspecifiedOrders">0</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="order-table-container">
+            <table class="order-table" id="orderTable">
+                <thead>
+                    <tr>
+                        <th>NO.</th>
+                        <th>Employee Name</th>
+                        <th>Employee ID</th>
+                        <th>Department</th>
+                        <th>Location</th>
+                        <th>Meal Set</th>
+                        <th>Order Status</th>
+                        <th>Order Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="send-info">
+            <h3>Send Information to Admin</h3>
+            <textarea id="infoTextarea" placeholder="Enter additional comments or instructions here..."></textarea>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <div class="nav-container">
+        <a href="canteen_home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="canteen_view_order.html" class="nav-item">
+            <i class="fas fa-utensils"></i>
+            <span>View Orders</span>
+        </a>
+        <a href="canteen_claimed_pg.html" class="nav-item">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Claimed Orders</span>
+        </a>
+        <a href="menu_update.html" class="nav-item">
+            <i class="fas fa-sync"></i>
+            <span>Update Menu</span>
+        </a>
+        <a href="Analytics_dashboard_pg.html" class="nav-item">
+            <i class="fas fa-file-invoice"></i>
+            <span>Invoices</span>
+        </a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, Timestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const ordersRef = collection(db, "orders");
+
+        function getLocationBadge(location) {
+            if (!location) return '<span class="location-badge location-unspecified">Not Specified</span>';
+            if (location === 'PEKAN SUBANG') return '<span class="location-badge location-pekan">PEKAN SUBANG</span>';
+            if (location === 'SUBANG KRISTAL') return '<span class="location-badge location-kristal">SUBANG KRISTAL</span>';
+            return `<span class="location-badge">${location}</span>`;
+        }
+
+        function getMealSetBadge(mealSet) {
+            if (!mealSet) return '<span class="mealset-badge mealset-unknown">—</span>';
+            if (mealSet === 'A') return '<span class="mealset-badge mealset-a">Set A (NON-MUSLIM)</span>';
+            if (mealSet === 'B') return '<span class="mealset-badge mealset-b">Set B (MUSLIM)</span>';
+            return `<span class="mealset-badge mealset-unknown">${mealSet}</span>`;
+        }
+
+        function updateStatistics(orders) {
+            const stats = { total: orders.length, pekan: 0, kristal: 0, unspecified: 0 };
+
+            orders.forEach(order => {
+                if (order.location === 'PEKAN SUBANG') stats.pekan++;
+                else if (order.location === 'SUBANG KRISTAL') stats.kristal++;
+                else stats.unspecified++;
+            });
+
+            document.getElementById('totalOrders').textContent = stats.total;
+            document.getElementById('pekanOrders').textContent = stats.pekan;
+            document.getElementById('kristalOrders').textContent = stats.kristal;
+            document.getElementById('unspecifiedOrders').textContent = stats.unspecified;
+        }
+
+        function getOrdersByFilter() {
+            const selectedDate = document.getElementById('datePicker').value;
+            const selectedDepartment = document.getElementById('departmentFilter').value;
+            const selectedLocation = document.getElementById('locationFilter').value;
+            const selectedMealSet = document.getElementById('mealSetFilter').value;
+            const morningTimeBtn = document.getElementById('morningTimeBtn');
+            const eveningTimeBtn = document.getElementById('eveningTimeBtn');
+
+            const startOfDay = new Date(selectedDate);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(selectedDate);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            let q = query(
+                ordersRef,
+                where("orderDate", ">=", Timestamp.fromDate(startOfDay)),
+                where("orderDate", "<=", Timestamp.fromDate(endOfDay))
+            );
+
+            if (selectedDepartment) {
+                q = query(q, where("department", "==", selectedDepartment));
+            }
+
+            if (morningTimeBtn.classList.contains('active')) {
+                const morningStart = new Date(selectedDate); morningStart.setHours(4, 0, 0, 0);
+                const morningEnd = new Date(selectedDate); morningEnd.setHours(10, 0, 0, 0);
+                q = query(q,
+                    where("orderDate", ">=", Timestamp.fromDate(morningStart)),
+                    where("orderDate", "<=", Timestamp.fromDate(morningEnd))
+                );
+            } else if (eveningTimeBtn.classList.contains('active')) {
+                const eveningStart = new Date(selectedDate); eveningStart.setHours(16, 0, 0, 0);
+                const eveningEnd = new Date(selectedDate); eveningEnd.setHours(21, 0, 0, 0);
+                q = query(q,
+                    where("orderDate", ">=", Timestamp.fromDate(eveningStart)),
+                    where("orderDate", "<=", Timestamp.fromDate(eveningEnd))
+                );
+            }
+
+            onSnapshot(q, (querySnapshot) => {
+                const orderTableBody = document.querySelector('#orderTable tbody');
+                orderTableBody.innerHTML = '';
+
+                let orderNumber = 1;
+                const employeeOrders = new Map();
+
+                querySnapshot.forEach((doc) => {
+                    const orderData = doc.data();
+                    const orderTime = orderData.orderDate.toDate();
+                    if (!employeeOrders.has(orderData.employeeId) ||
+                        orderTime < employeeOrders.get(orderData.employeeId).orderDate.toDate()) {
+                        employeeOrders.set(orderData.employeeId, orderData);
+                    }
+                });
+
+                let filteredOrders = Array.from(employeeOrders.values());
+
+                // Filter by location (client-side)
+                if (selectedLocation) {
+                    filteredOrders = filteredOrders.filter(order => order.location === selectedLocation);
+                }
+
+                // Filter by meal set (client-side)
+                if (selectedMealSet) {
+                    filteredOrders = filteredOrders.filter(order => order.mealSet === selectedMealSet);
+                }
+
+                const sortedOrders = filteredOrders.sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
+
+                updateStatistics(sortedOrders);
+
+                if (sortedOrders.length === 0) {
+                    const newRow = orderTableBody.insertRow();
+                    const cell = newRow.insertCell(0);
+                    cell.colSpan = 8;
+                    cell.textContent = "No orders found for the selected criteria";
+                    cell.style.textAlign = "center";
+                    cell.style.padding = "20px";
+                    return;
+                }
+
+                sortedOrders.forEach((orderData) => {
+                    const newRow = orderTableBody.insertRow();
+                    const orderTime = orderData.orderDate.toDate();
+                    const formattedTime = orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    newRow.insertCell(0).textContent = orderNumber++;
+                    newRow.insertCell(1).textContent = orderData.name;
+                    newRow.insertCell(2).textContent = orderData.employeeId;
+                    newRow.insertCell(3).textContent = orderData.department;
+                    newRow.insertCell(4).innerHTML = getLocationBadge(orderData.location);
+                    newRow.insertCell(5).innerHTML = getMealSetBadge(orderData.mealSet);
+                    newRow.insertCell(6).textContent = orderData.orderStatus;
+                    newRow.insertCell(7).textContent = formattedTime;
+                });
+            });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('datePicker').value = today;
+        getOrdersByFilter();
+
+        document.getElementById('fetchOrders').addEventListener('click', getOrdersByFilter);
+        document.getElementById('departmentFilter').addEventListener('change', getOrdersByFilter);
+        document.getElementById('locationFilter').addEventListener('change', getOrdersByFilter);
+        document.getElementById('mealSetFilter').addEventListener('change', getOrdersByFilter);
+
+        document.getElementById('morningTimeBtn').addEventListener('click', function() {
+            document.getElementById('morningTimeBtn').classList.add('active');
+            document.getElementById('eveningTimeBtn').classList.remove('active');
+            document.getElementById('allTimeBtn').classList.remove('active');
+            getOrdersByFilter();
+        });
+
+        document.getElementById('eveningTimeBtn').addEventListener('click', function() {
+            document.getElementById('eveningTimeBtn').classList.add('active');
+            document.getElementById('morningTimeBtn').classList.remove('active');
+            document.getElementById('allTimeBtn').classList.remove('active');
+            getOrdersByFilter();
+        });
+
+        document.getElementById('allTimeBtn').addEventListener('click', function() {
+            document.getElementById('allTimeBtn').classList.add('active');
+            document.getElementById('morningTimeBtn').classList.remove('active');
+            document.getElementById('eveningTimeBtn').classList.remove('active');
+            getOrdersByFilter();
+        });
+
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const info = document.getElementById('infoTextarea').value;
+            if (!info.trim()) {
+                alert('Please enter a message');
+                return;
+            }
+            try {
+                await addDoc(collection(db, "adminMessages"), {
+                    message: info,
+                    timestamp: Timestamp.now(),
+                    status: "unread"
+                });
+                alert('Information sent successfully to admin!');
+                document.getElementById('infoTextarea').value = '';
+            } catch (error) {
+                console.error("Error sending information:", error);
+                alert('Failed to send information. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+const firebaseConfig = {
+     apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+    authDomain: "test-login2-e4c7f.firebaseapp.com",
+    projectId: "test-login2-e4c7f",
+    storageBucket: "test-login2-e4c7f.appspot.com",
+    messagingSenderId: "698181085162",
+    appId: "1:698181085162:web:3b91954eb1779a05894cd2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const submitButton = document.getElementById('submitOrder');
+const thankYouMessage = document.getElementById('thankYouMessage');
+const overlay = document.getElementById('overlay');
+const loadingSpinner = document.getElementById('loadingSpinner');
+const timeMessage = document.getElementById('time-message');
+const calendarElement = document.getElementById('calendar');
+const plusButton = document.getElementById('plusButton');
+const floatingMenu = document.getElementById('floatingMenu');
+
+const today = new Date();
+const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+calendarElement.textContent = today.toLocaleDateString('en-US', options);
+
+function isOrderingTime() {
+    const currentTime = new Date();
+    const morningStart = new Date(currentTime).setHours(6, 0, 0, 0);
+    const morningEnd = new Date(currentTime).setHours(10, 0, 0, 0);
+    const eveningStart = new Date(currentTime).setHours(19, 0, 0, 0);
+    const eveningEnd = new Date(currentTime).setHours(21, 0, 0, 0);
+    return (currentTime >= morningStart && currentTime <= morningEnd) || 
+           (currentTime >= eveningStart && currentTime <= eveningEnd);
+}
+
+function storeOrderData(orderData) {
+    localStorage.setItem('orderData', JSON.stringify(orderData));
+    localStorage.setItem('orderDate', new Date().toISOString());
+}
+
+function isStoredOrderFromToday() {
+    const storedDate = localStorage.getItem('orderDate');
+    if (!storedDate) return false;
+
+    const currentDate = new Date();
+    const storedDateTime = new Date(storedDate);
+
+    // Check if the stored date is from today
+    return storedDateTime.getDate() === currentDate.getDate() &&
+           storedDateTime.getMonth() === currentDate.getMonth() &&
+           storedDateTime.getFullYear() === currentDate.getFullYear();
+}
+
+function clearStoredOrderData() {
+    localStorage.removeItem('orderData');
+    localStorage.removeItem('orderDate');
+}
+
+async function getOrderDetails(orderRef) {
+    try {
+        const orderDoc = await getDoc(orderRef);
+        if (orderDoc.exists()) {
+            const fullData = orderDoc.data();
+            return {
+                employeeId: fullData.employeeId,
+                orderDate: fullData.orderDate,
+                orderTimestamp: fullData.orderTimestamp,
+                orderStatus: fullData.orderStatus
+            };
+        }
+        throw new Error("Order not found");
+    } catch (error) {
+        console.error("Error getting order details:", error);
+        return null;
+    }
+}
+
+function generateQRCode(data) {
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    
+    const qrData = {
+        employeeId: data.employeeId,
+        orderDate: data.orderDate,
+        orderTimestamp: data.orderTimestamp,
+        orderStatus: data.orderStatus
+    };
+
+    new QRCode(qrContainer, {
+        text: JSON.stringify(qrData),
+        width: 200,
+        height: 200,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    const downloadBtn = document.getElementById('downloadQR');
+    downloadBtn.style.display = 'block';
+    downloadBtn.onclick = () => {
+        const canvas = qrContainer.querySelector('canvas');
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `order-qr-${data.orderTimestamp}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+}
+
+async function checkPreviousOrder(userID, collectionRef) {
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const q = query(
+            collectionRef, 
+            where("userId", "==", userID),
+            where("noEatingDate", ">=", todayStart)
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.empty;
+    } catch (error) {
+        console.error("Error checking previous entries:", error);
+        return true;
+    }
+}
+
+async function getUserInfo(userID) {
+    try {
+        const userDoc = await getDoc(doc(db, "users", userID));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            return {
+                employeeId: userData.employeeId
+            };
+        }
+        throw new Error("User data not found");
+    } catch (error) {
+        console.error("Error getting user info:", error);
+        return null;
+    }
+}
+
+async function processOrder(userID) {
+    try {
+        if (!isOrderingTime()) {
+            alert("Order is closed. Please order between 6 AM - 10 AM or 7 PM - 9 PM.");
+            return;
+        }
+
+        const hasNoPreviousOrder = await checkPreviousOrder(userID, collection(db, "orders"));
+        if (!hasNoPreviousOrder) {
+            alert("You have already placed an order today.");
+            return;
+        }
+
+        overlay.style.display = 'block';
+        loadingSpinner.style.display = 'block';
+
+        const userDoc = await getDoc(doc(db, "users", userID));
+        if (!userDoc.exists()) throw new Error("Could not get user info");
+
+        const userData = userDoc.data();
+        const orderDetails = {
+            ...userData,
+            orderDate: serverTimestamp(),
+            orderTimestamp: new Date(),
+            userId: userID,
+            orderStatus: "ordered"
+        };
+
+        const orderRef = await addDoc(collection(db, "orders"), orderDetails);
+        const savedOrder = await getOrderDetails(orderRef);
+        
+        thankYouMessage.style.display = 'block';
+        generateQRCode(savedOrder);
+        submitButton.style.display = 'none';
+        storeOrderData(orderDetails);
+    } catch (error) {
+        console.error("Error processing order:", error);
+        alert("There was an error processing your order. Please try again.");
+        thankYouMessage.style.display = 'none';
+    } finally {
+        overlay.style.display = 'none';
+        loadingSpinner.style.display = 'none';
+    }
+}
+
+window.handleYesClick = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Please log in to continue");
+        return;
+    }
+
+    const isTimeValid = isOrderingTime();
+    const hasNoPreviousOrder = await checkPreviousOrder(user.uid, collection(db, "orders"));
+
+    if (!isTimeValid) {
+        timeMessage.textContent = "Order is closed. Please order between 6 AM - 10 AM or 7 PM - 9 PM.";
+        submitButton.style.display = 'none';
+        return;
+    }
+
+    if (!hasNoPreviousOrder) {
+        timeMessage.textContent = "You have already placed an order today.";
+        submitButton.style.display = 'none';
+        return;
+    }
+
+    submitButton.style.display = 'inline-block';
+    timeMessage.textContent = "You can place an order.";
+};
+
+window.handleNoClick = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Please log in to continue");
+        return;
+    }
+
+    if (!isOrderingTime()) {
+        alert("You can only submit 'No Eating' during 6 AM - 6 PM or 7 PM - 9 PM.");
+        return;
+    }
+
+    const noEatingCollection = collection(db, "noEating");
+    const hasNoPreviousNoEating = await checkPreviousOrder(user.uid, noEatingCollection);
+    
+    if (!hasNoPreviousNoEating) {
+        alert("You have already submitted a 'No Eating' entry today.");
+        return;
+    }
+
+    const confirmDialog = document.createElement('div');
+    confirmDialog.innerHTML = `
+        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;display:flex;justify-content:center;align-items:center;">
+            <div style="background:white;padding:20px;border-radius:10px;text-align:center;">
+                <p style="margin-bottom:20px;">Are you sure you don't want to order food today?</p>
+                <button id="confirmYes" style="margin:0 10px;padding:8px 16px;background:#4CAF50;color:white;border:none;border-radius:4px;cursor:pointer;">Yes</button>
+                <button id="confirmNo" style="margin:0 10px;padding:8px 16px;background:#f44336;color:white;border:none;border-radius:4px;cursor:pointer;">No</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(confirmDialog);
+
+    const handleConfirmation = async (confirmed) => {
+        if (confirmed) {
+            try {
+                overlay.style.display = 'block';
+                loadingSpinner.style.display = 'block';
+
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) throw new Error("Could not get user info");
+
+                const userData = userDoc.data();
+                const noEatingDetails = {
+                    ...userData,
+                    userId: user.uid,
+                    noEatingDate: serverTimestamp()
+                };
+
+                await addDoc(noEatingCollection, noEatingDetails);
+                alert('Thank you for letting us know!');
+                window.location.href = 'home.html';
+            } catch (error) {
+                console.error("Error processing no eating option:", error);
+                alert("There was an error. Please try again.");
+            } finally {
+                overlay.style.display = 'none';
+                loadingSpinner.style.display = 'none';
+            }
+        }
+        confirmDialog.remove();
+    };
+
+    confirmDialog.querySelector('#confirmYes').addEventListener('click', () => handleConfirmation(true));
+    confirmDialog.querySelector('#confirmNo').addEventListener('click', () => handleConfirmation(false));
+};
+
+async function checkAndDisplayExistingOrder(userID) {
+    try {
+        if (isStoredOrderFromToday()) {
+            restoreOrderDisplay();
+            return;
+        }
+
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const q = query(
+            collection(db, "orders"),
+            where("userId", "==", userID),
+            where("orderDate", ">=", todayStart)
+        );
+
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const orderData = querySnapshot.docs[0].data();
+            const displayData = {
+                employeeId: orderData.employeeId,
+                orderDate: orderData.orderDate,
+                orderTimestamp: orderData.orderTimestamp,
+                orderStatus: orderData.orderStatus
+            };
+            thankYouMessage.style.display = 'block';
+            generateQRCode(displayData);
+            submitButton.style.display = 'none';
+            storeOrderData(orderData);
+        }
+    } catch (error) {
+        console.error("Error checking existing order:", error);
+    }
+}
+
+function restoreOrderDisplay() {
+    if (isStoredOrderFromToday()) {
+        const orderData = JSON.parse(localStorage.getItem('orderData'));
+        if (orderData) {
+            thankYouMessage.style.display = 'block';
+            generateQRCode({
+                employeeId: orderData.employeeId,
+                orderDate: orderData.orderDate,
+                orderTimestamp: orderData.orderTimestamp,
+                orderStatus: orderData.orderStatus
+            });
+            submitButton.style.display = 'none';
+        }
+    } else {
+        clearStoredOrderData();
+    }
+}
+
+submitButton.addEventListener("click", () => {
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            processOrder(user.uid);
+        } else {
+            alert("Please log in to place an order");
+        }
+    });
+});
+
+auth.onAuthStateChanged((user) => {
+    if (user) checkAndDisplayExistingOrder(user.uid);
+});
+
+plusButton.addEventListener('click', () => {
+    plusButton.classList.toggle('active');
+    floatingMenu.classList.toggle('active');
+});
+
+document.addEventListener('click', (e) => {
+    if (!plusButton.contains(e.target) && !floatingMenu.contains(e.target)) {
+        plusButton.classList.remove('active');
+        floatingMenu.classList.remove('active');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', restoreOrderDisplay);
+
+// Check every minute if we need to clear the display
+setInterval(() => {
+    const now = new Date();
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    // If it's past 11:59 PM and the order is not from today
+    if (now >= endOfDay && !isStoredOrderFromToday()) {
+        clearStoredOrderData();
+        location.reload();
+    }
+}, 60000);

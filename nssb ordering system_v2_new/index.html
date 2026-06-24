@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00a651">
+    <style>
+        body {
+            background-image: url('pictures/splashhhh.png'); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .logo {
+            position: absolute;
+            top: 100px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo img {
+            max-width: 350px; 
+            height: auto;
+        }
+
+        .splash-container {
+            text-align: center;
+            color: #000000; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+            border-radius: 15px;
+            animation: fadeIn 2s ease-in-out;
+            margin-top: 85px; 
+        }
+
+        .splash-container h1 {
+            font-size: 2em;
+			font-family: 'Montserrat', sans-serif; 
+            animation: slideIn 1.5s ease-in-out;
+			color: #fff;
+        }
+
+        .splash-container p {
+            font-size: 1em;
+            margin-bottom: 20px;
+			color: #000000;
+			
+        }
+
+        .loader {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #0000FF; 
+            animation: spin 1s ease-in-out infinite;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .loader::before, .loader::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 80%;
+            border: 4px solid transparent;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .loader::before {
+            border-top-color: #0000FF; 
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+
+        .loader::after {
+            border-bottom-color: #0000FF; 
+            transform: translate(-50%, -50%) rotate(180deg);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(0.85); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+       
+    </div>
+    <div class="splash-container">
+        <p>Loading...</p>
+        <div class="loader"></div>
+    </div>
+<script src="script.js"></script>
+
+<script>
+        
+        if (window.innerWidth < 769) {
+           
+            document.querySelector('.splash-container').style.display = 'block';
+
+            
+            setTimeout(function() {
+                window.location.href = "login_pg.html"; 
+            }, 3000);
+        } else {
+           
+            window.location.href = "login_pg.html"; 
+        }
+		
+			  if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then((registration) => {
+      console.log('Service Worker registered with scope:', registration.scope);
+    })
+    .catch((error) => {
+      console.log('Service Worker registration failed:', error);
+    });
+}
+
+    </script>
+	<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-messaging.js"></script>
+
+	<script>
+		const firebaseConfig = {
+            apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+  authDomain: "test-login2-e4c7f.firebaseapp.com",
+  databaseURL: "https://test-login2-e4c7f-default-rtdb.firebaseio.com",
+  projectId: "test-login2-e4c7f",
+  storageBucket: "test-login2-e4c7f.firebasestorage.app",
+  messagingSenderId: "698181575885",
+  appId: "1:698181575885:web:4e9110486e5c6fd5eab584",
+  measurementId: "G-428DYPE8X1"
+
+};
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// Request permission to send notifications
+messaging.requestPermission()
+    .then(() => messaging.getToken())
+    .then(token => {
+        console.log('Notification Token:', token);
+        // Send this token to your server to send notifications
+    })
+    .catch(err => console.error('Permission denied', err));
+
+	</script>
+</body>
+</html>

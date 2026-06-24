@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Food Order Optimization Analysis - 3 Weeks</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .chart-container { margin-bottom: 20px; }
+        .language-toggle { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1 id="page-title">Food Order Optimization Dashboard - 3 Week Analysis</h1>
+    
+    <div class="language-toggle">
+        <button onclick="changeLanguage('en')">English</button>
+        <button onclick="changeLanguage('ne')">Nepali</button>
+        <button onclick="changeLanguage('bn')">Bengali</button>
+    </div>
+    
+    <div class="chart-container">
+        <h2 id="order-comparison-title">Weekly Order Comparison</h2>
+        <canvas id="orderChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2 id="savings-breakdown-title">Weekly Savings Breakdown</h2>
+        <canvas id="savingsChart"></canvas>
+    </div>
+
+    <div>
+        <h2 id="summary-title">Summary Statistics</h2>
+        <p><strong id="total-orders-before">Total Orders Before App (3 Weeks):</strong> 3,632</p>
+        <p><strong id="total-orders-after">Total Orders After App (3 Weeks):</strong> 2,990</p>
+        <p><strong id="order-reduction">Order Reduction:</strong> 17.68%</p>
+        <p><strong id="total-cost-before">Total Cost Before App:</strong> RM 23,608.00</p>
+        <p><strong id="total-cost-after">Total Cost After App:</strong> RM 19,435.00</p>
+        <p><strong id="total-savings">Total Savings IN 3 WEEKS:</strong> RM 4,166.50</p>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                pageTitle: "Food Order Optimization Dashboard - 3 Week Analysis",
+                orderComparisonTitle: "Weekly Order Comparison",
+                savingsBreakdownTitle: "Weekly Savings Breakdown",
+                summaryTitle: "Summary Statistics",
+                totalOrdersBefore: "Total Orders Before App (3 Weeks):",
+                totalOrdersAfter: "Total Orders After App (3 Weeks):",
+                orderReduction: "Order Reduction:",
+                totalCostBefore: "Total Cost Before App:",
+                totalCostAfter: "Total Cost After App:",
+                totalSavings: "Total Savings IN 3 WEEKS:"
+            },
+            ne: {
+                pageTitle: "खाद्य अर्डर अनुकूलन ड्यासबोर्ड - ३ हप्ता विश्लेषण",
+                orderComparisonTitle: "साप्ताहिक अर्डर तुलना",
+                savingsBreakdownTitle: "साप्ताहिक बचत विश्लेषण",
+                summaryTitle: "सारांश तथ्याङ्क",
+                totalOrdersBefore: "एप्स अघि जम्मा अर्डर (३ हप्ता):",
+                totalOrdersAfter: "एप्स पछि जम्मा अर्डर (३ हप्ता):",
+                orderReduction: "अर्डर घटाउन प्रतिशत:",
+                totalCostBefore: "एप्स अघि कुल लागत:",
+                totalCostAfter: "एप्स पछि कुल लागत:",
+                totalSavings: "३ हप्तामा कुल बचत:"
+            },
+            bn: {
+                pageTitle: "খাদ্য অর্ডার অপ্টিমাইজেশন ড্যাশবোর্ড - ৩ সপ্তাহ বিশ্লেষণ",
+                orderComparisonTitle: "সাপ্তাহিক অর্ডার তুলনা",
+                savingsBreakdownTitle: "সাপ্তাহিক সঞ্চয় বিশ্লেষণ",
+                summaryTitle: "সারাংশ পরিসংখ্যান",
+                totalOrdersBefore: "অ্যাপ আগে মোট অর্ডার (৩ সপ্তাহ):",
+                totalOrdersAfter: "অ্যাপ পরে মোট অর্ডার (৩ সপ্তাহ):",
+                orderReduction: "অর্ডার হ্রাস শতাংশ:",
+                totalCostBefore: "অ্যাপ আগে মোট খরচ:",
+                totalCostAfter: "অ্যাপ পরে মোট খরচ:",
+                totalSavings: "৩ সপ্তাহে মোট সঞ্চয়:"
+            }
+        };
+
+        function changeLanguage(language) {
+            const translation = translations[language];
+            document.getElementById('page-title').innerText = translation.pageTitle;
+            document.getElementById('order-comparison-title').innerText = translation.orderComparisonTitle;
+            document.getElementById('savings-breakdown-title').innerText = translation.savingsBreakdownTitle;
+            document.getElementById('summary-title').innerText = translation.summaryTitle;
+            document.getElementById('total-orders-before').innerText = translation.totalOrdersBefore;
+            document.getElementById('total-orders-after').innerText = translation.totalOrdersAfter;
+            document.getElementById('order-reduction').innerText = translation.orderReduction;
+            document.getElementById('total-cost-before').innerText = translation.totalCostBefore;
+            document.getElementById('total-cost-after').innerText = translation.totalCostAfter;
+            document.getElementById('total-savings').innerText = translation.totalSavings;
+        }
+
+        new Chart(document.getElementById('orderChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3'],
+                datasets: [
+                    {
+                        label: 'Pre-App Orders',
+                        data: [1034, 1307, 1291],
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                    },
+                    {
+                        label: 'Post-App Orders',
+                        data: [919, 1136, 935],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Weekly Order Comparison: Pre-App vs Post-App'
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('savingsChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3'],
+                datasets: [{
+                    label: 'Weekly Savings (RM)',
+                    data: [747.50, 1111.50, 2307.50],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Savings (RM)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Weekly Savings Breakdown'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

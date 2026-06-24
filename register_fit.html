@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Diet ID - SURIA</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; background: #f0f0f0; text-align: center; }
+        .container { background: white; padding: 30px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input[type="text"] { padding: 10px; width: 80%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        button { padding: 10px 20px; background: #0C0E8B; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 84%; font-weight: bold; }
+        button:hover { background: #1416a0; }
+        button:disabled { background: #cccccc; cursor: not-allowed; }
+        #msg { margin-top: 15px; font-weight: bold; }
+        .slot-counter { font-size: 14px; color: #555; margin-bottom: 15px; font-weight: 600; }
+        .time-alert { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 10px; border-radius: 5px; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>SURIA Diet Menu Registration</h2>
+        
+        <div class="slot-counter" id="liveCounter">Active slots filled: Fetching...</div>
+        
+        <div class="time-alert" id="timeAlert">System Locked: Input window opens Fridays 3:00 PM - 11:59 PM only.</div>
+        
+        <input type="text" id="employeeId" placeholder="Enter Employee ID (e.g. A-1042!)">
+        <br>
+        <button id="registerBtn">Register ID</button>
+        <p id="msg"></p>
+    </div>
+
+    <script type="module">
+        import { db } from './firebaseConfig.js'; 
+        import { collection, addDoc, query, where, getDocs, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const fitCollection = collection(db, "fit_program_users");
+        const usersCollection = collection(db, "users"); // Reference to the users database
+
+        const liveCounter = document.getElementById('liveCounter');
+        const registerBtn = document.getElementById('registerBtn');
+        const employeeIdInput = document.getElementById('employeeId');
+        const timeAlert = document.getElementById('timeAlert');
+        const msg = document.getElementById('msg');
+
+        // --- Time Gate Guard (Fridays 3pm - 11:59pm) ---
+        // COMMENTED OUT FOR TESTING
+        function checkAdminTimeWindow() {
+            
+            // const now = new Date();
+            // const currentDay = now.getDay(); 
+            // const currentHour = now.getHours();
+
+            // const isWindowOpen = (currentDay === 5 && currentHour >= 15);
+
+            // if (!isWindowOpen) {
+            //     registerBtn.disabled = true;
+            //     employeeIdInput.disabled = true;
+            //     timeAlert.style.display = 'block';
+            //     return false;
+            // } else {
+            //     registerBtn.disabled = false;
+            //     employeeIdInput.disabled = false;
+            //     timeAlert.style.display = 'none';
+            //     return true;
+            // }
+            
+            // Testing Override: Open all weekend
+            registerBtn.disabled = false;
+            employeeIdInput.disabled = false;
+            timeAlert.style.display = 'none';
+            return true;
+        }
+
+        // --- Fetch Current Batch Active Slots (Starting from June 22, 2026) ---
+        async function updateLiveCounter() {
+            // Starts counting exactly from June 22, 2026 at 12:00 AM (Midnight) Malaysian Time.
+            // Anyone registered before this exact timestamp is completely ignored.
+            const epochStart = new Date('2026-06-22T00:00:00+08:00');
+            
+            try {
+                const qCount = query(fitCollection, where("registeredAt", ">=", Timestamp.fromDate(epochStart)));
+                const snap = await getDocs(qCount);
+                
+                const activeTotal = snap.size;
+                liveCounter.textContent = `Active slots filled: ${activeTotal} / 100`;
+                return activeTotal;
+            } catch (err) {
+                console.error("Counter Sync Breakdown: ", err);
+                liveCounter.textContent = "Active slots filled: Sync Error";
+                return null;
+            }
+        }
+
+        checkAdminTimeWindow();
+        updateLiveCounter();
+
+        // --- Registration Logic ---
+        registerBtn.addEventListener('click', async () => {
+            if (!checkAdminTimeWindow()) return;
+
+            const empId = employeeIdInput.value.trim();
+
+            // Removed the strict alphanumeric check so it allows symbols as well.
+            if (!empId) {
+                msg.textContent = "Please enter a valid ID!";
+                msg.style.color = "red";
+                return;
+            }
+
+            msg.textContent = "Verifying ID availability...";
+            msg.style.color = "black";
+
+            try {
+                // 1. Check if Employee ID exists in the main 'users' database
+                const verifyUserQuery = query(usersCollection, where("employeeId", "==", empId));
+                const userSnap = await getDocs(verifyUserQuery);
+
+                if (userSnap.empty) {
+                    msg.textContent = `Error: ID ${empId} is not found in the employee database.`;
+                    msg.style.color = "red";
+                    return; // Stop execution if user doesn't exist
+                }
+
+                msg.textContent = "Verifying registration rules...";
+                
+                // 2. Proceed with duplicate logic check
+                const activeDuplicateQuery = query(fitCollection, where("employeeId", "==", empId));
+                const [snapDuplicate, totalCurrentSlots] = await Promise.all([
+                    getDocs(activeDuplicateQuery),
+                    updateLiveCounter()
+                ]);
+
+                let alreadyRegistered = false;
+                snapDuplicate.forEach(doc => {
+                    const data = doc.data();
+                    // Checking if the field actually exists, allowing you to re-register 
+                    // someone if you wiped their fields out in the database.
+                    if (data.registeredAt) {
+                        alreadyRegistered = true;
+                    }
+                });
+
+                if (alreadyRegistered) {
+                    msg.textContent = `ID ${empId} is already registered!`;
+                    msg.style.color = "red";
+                    return;
+                }
+
+                // Checked against SURIA cap limit (100)
+                if (totalCurrentSlots !== null && totalCurrentSlots >= 100) {
+                    msg.textContent = "Registration Blocked: SURIA limit reached (100/100)!";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                // 3. Register the user for the fit program
+                await addDoc(fitCollection, {
+                    employeeId: empId,
+                    registeredAt: serverTimestamp() 
+                });
+
+                msg.textContent = `Success! ID ${empId} registered to SURIA permanently.`;
+                msg.style.color = "green";
+                employeeIdInput.value = ''; 
+                
+                updateLiveCounter();
+
+            } catch (err) {
+                console.error("Data Write Failure: ", err);
+                msg.textContent = "Transaction Error checking/registering ID.";
+                msg.style.color = "red";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Force MA Monitoring Report</title>
-         <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="auth-guard.js"></script>
     <style>
         * {
             margin: 0;
@@ -398,6 +398,9 @@
     </div>
 
     <script>
+        // === PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ===
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwU0lgLqeWw5xHZT4iKSpEYKdKNNYdO3r2_pyP62crtWbWDk72BqgVXuoud8bj1XR5t2Q/exec";
+
         class TaskForceMonitor {
             constructor() {
                 this.issues = [];
@@ -406,10 +409,8 @@
             }
 
             init() {
-                // Set today's date as default
                 document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
                 
-                // Bind form submission
                 document.getElementById('issueForm').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.addIssue();
@@ -419,7 +420,7 @@
                 this.updateStats();
             }
 
-            addIssue() {
+            async addIssue() {
                 const form = document.getElementById('issueForm');
 
                 const issue = {
@@ -431,18 +432,31 @@
                     createdAt: new Date().toISOString()
                 };
 
-                // Validation
                 if (!issue.date || !issue.personInCharge || !issue.details || !issue.status) {
                     alert('Please fill in all required fields');
                     return;
                 }
 
-                this.issues.unshift(issue); // Add to beginning of array
+                // SEND TO GOOGLE SHEETS
+                try {
+                    fetch(GOOGLE_SHEETS_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(issue)
+                    });
+                    console.log("Sent to Google Sheets successfully.");
+                } catch (error) {
+                    console.error("Error sending data to Google Sheets:", error);
+                }
+
+                this.issues.unshift(issue);
                 this.renderIssues();
                 this.updateStats();
                 form.reset();
                 
-                // Reset date to today
                 document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
             }
 
@@ -552,7 +566,6 @@
             }
         }
 
-        // Initialize the monitor
         const monitor = new TaskForceMonitor();
     </script>
 </body>

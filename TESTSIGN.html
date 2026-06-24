@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Display</title>
+</head>
+<body>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="pictures/new.png" alt="App Logo">
+        </div>
+        <div class="user-info">
+            <p><strong>Welcome back, <span id="nameinfo"></span></strong></p>
+        </div>
+        <div class="user-info">
+            <p id="current-date"></p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <span class="menu-icon" onclick="toggleSidebar()">&#9776;</span>
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <!-- Main Content -->
+    <div class="app-container">
+        <h1>Menu Display</h1>
+
+        <div class="menu-section">
+            <div class="section-header">
+                <h2>Breakfast Menu</h2>
+            </div>
+            <div id="breakfast-items">
+                <div class="loading">Loading breakfast menu...</div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-header">
+                <h2>Lunch Menu</h2>
+            </div>
+            <div id="lunch-items">
+                <div class="loading">Loading lunch menu...</div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-header">
+                <h2>Teatime Menu</h2>
+            </div>
+            <div id="teatime-items">
+                <div class="loading">Loading teatime menu...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Initialization and Menu Fetching -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+            authDomain: "test-login2-e4c7f.firebaseapp.com",
+            databaseURL: "https://test-login2-e4c7f-default-rtdb.firebaseio.com",
+            projectId: "test-login2-e4c7f",
+            storageBucket: "test-login2-e4c7f.appspot.com",
+            messagingSenderId: "698181575885",
+            appId: "1:698181575885:web:4e9110486e5c6fd5eab584"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const nameinfo = document.getElementById('nameinfo');
+
+        // Function to display user info
+        function displayUserInfo(userID) {
+            const userDocRef = doc(db, "users", userID);
+            getDoc(userDocRef).then((doc) => {
+                if (doc.exists()) {
+                    const userInfo = doc.data();
+                    nameinfo.innerHTML = `<div class="detail-item"><i class="fas fa-user"></i> <span>${userInfo.name}</span></div>`;
+                } else {
+                    nameinfo.innerHTML = `<p>User info not found</p>`;
+                }
+            }).catch((error) => {
+                console.error("Error fetching user info:", error);
+            });
+        }
+
+        // Fetch and display menu items from Firestore
+        async function fetchMenuItems() {
+            try {
+                const menuDocRef = doc(db, 'food', 'menu');
+                const menuSnapshot = await getDoc(menuDocRef);
+
+                if (menuSnapshot.exists()) {
+                    const menuData = menuSnapshot.data();
+                    displayMenuItems(menuData.breakfast || [], 'breakfast-items');
+                    displayMenuItems(menuData.lunch || [], 'lunch-items');
+                    displayMenuItems(menuData.teatime || [], 'teatime-items');
+                } else {
+                    console.error("No menu document found!");
+                }
+            } catch (error) {
+                console.error("Error fetching menu items:", error);
+                document.querySelectorAll('.loading').forEach(elem => {
+                    elem.textContent = 'Error loading menu items';
+                });
+            }
+        }
+
+        // Function to display menu items
+        function displayMenuItems(items, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; // Clear loading message
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="menu-item">No items available</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.innerHTML = `
+                    <div class="menu-item-details">
+                        <span class="menu-item-name">${item.name}</span>
+                        <span class="menu-item-price">RM ${item.price.toFixed(2)}</span>
+                    </div>
+                `;
+                container.appendChild(menuItem);
+            });
+        }
+
+        // Monitor user authentication and display info
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                displayUserInfo(user.uid);
+            } else {
+                nameinfo.innerHTML = `<p>Please log in</p>`;
+            }
+        });
+
+        // Call fetchMenuItems to load menu on page load
+        fetchMenuItems();
+    </script>
+</body>
+</html>

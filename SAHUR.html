@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-	 <title>Employee QR Scanner</title>
+
+	<title>Employee QR Scanner</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-firestore-compat.js"></script>
-         <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="auth-guard.js"></script>
     <style>
         /* General Reset */
         * {
@@ -294,7 +294,7 @@
             font-family: Arial, sans-serif;
         }
 
-      	 .nav-container {
+    .nav-container {
             position: fixed;
             bottom: 20px;
             left: 50%;
@@ -432,7 +432,7 @@
                 height: 200px;
             }
         }
-		  .qr-container {
+		.qr-container {
             width: 355px;
             height: 355px;
             background: white;
@@ -460,7 +460,7 @@
             text-align: center;
         }
 
-		 .categories {
+		.categories {
             display: flex;
             gap: 15px;
             overflow-x: auto;
@@ -729,7 +729,7 @@
         }
 
         /* Save All Button */
-          .save-all-btn {
+        .save-all-btn {
         display: block; /* Changed to block */
         width: 100%; /* Full width */
         margin: 20px auto;
@@ -832,7 +832,7 @@
             opacity: 1;
             pointer-events: all;
         }
-		        .container {
+		.container {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
@@ -878,7 +878,7 @@
             border-radius: 4px;
             border: 1px solid #dee2e6;
         }
-		    #scanHistory {
+		#scanHistory {
             margin-top: 20px;
         }
 
@@ -1145,7 +1145,7 @@
     }
 }
     </style>
-	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Overlay -->
@@ -1155,11 +1155,11 @@
 
     <!-- Header -->
     <div class="header">
-      
+    
         <img src="pictures/new.png" alt="App Logo">
     </div>
-  <!-- Main Content -->
-      <div class="container">
+<!-- Main Content -->
+    <div class="container">
         <h1>Employee QR Scanner</h1>
         <div id="reader"></div>
         <div id="result"></div>
@@ -1189,7 +1189,7 @@
             <button class="modal-button" onclick="closeDuplicateModal()">OK</button>
         </div>
     </div>
-      <!-- Bottom Navigation -->
+    <!-- Bottom Navigation -->
     <div class="nav-container">
         <a href="canteen_home.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -1204,12 +1204,12 @@
             <span>Claimed Orders</span>
         </a>
         <a href="menu_update.html" class="nav-item">
-          <i class="fas fa-sync"></i> 
+        <i class="fas fa-sync"></i> 
             <span>Update Menu</span>
         </a>
     </div>
 
-  <script>
+<script>
   // QR Scanner Configuration
 function initQRScanner() {
     // Clear any existing scanner
@@ -1260,12 +1260,12 @@ function onScanFailure(error) {
 }
 
 const firebaseConfig = {
-     apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
 };
 
 // Initialize Firebase
@@ -1400,8 +1400,8 @@ async function onScanSuccess(decodedText, decodedResult) {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             scannedDate: new Date().toLocaleDateString(),
             scannedTime: new Date().toLocaleTimeString(),
-            orderTimestamp: orderDate ? orderDate.toISOString() : null,
-            mealSet: employeeData.mealSet || 'N/A' // Add mealSet to the scan data
+            orderTimestamp: employeeData.orderDate ? new Date(employeeData.orderDate).toISOString() : null,
+            mealSet: employeeData.mealSet || 'N/A' 
         };
 
         await db.collection('claimed').add(scanData);

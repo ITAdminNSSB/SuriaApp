@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log1 In</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url(https://e0.pxfuel.com/wallpapers/391/776/desktop-wallpaper-white-background-white-metallic.jpg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-image: url(https://e0.pxfuel.com/wallpapers/391/776/desktop-wallpaper-white-background-white-metallic.jpg);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            padding-top: 0px;
+            padding-bottom: 60px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0C0E8B;
+            color: #fff;
+            margin-top: 20px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 10px;
+        }
+
+        form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1C36B8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #143b7b;
+        }
+
+        h2 {
+            text-align: center;
+            text-decoration-style: solid;
+            font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+            font-size: 40px;
+            align-content: center;
+        }
+
+        h1 {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #5356E4;
+        }
+
+        .input-group i {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            color: #ddd;
+        }
+
+        .input-group .icon-right {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            color: #ddd;
+        }
+
+        button[type="submit"] {
+            background-color: #0C0E8B;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #585858;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .remember input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .forgot-password {
+            text-align: right;
+        }
+
+        .forgot-password a {
+            color: #5356E4;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .signup {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .signup a {
+            color: #5356E4;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .signup a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+            authDomain: "test-login2-e4c7f.firebaseapp.com",
+            databaseURL: "https://test-login2-e4c7f-default-rtdb.firebaseio.com",
+            projectId: "test-login2-e4c7f",
+            storageBucket: "test-login2-e4c7f.appspot.com",
+            messagingSenderId: "698181575885",
+            appId: "1:698181575885:web:4e9110486e5c6fd5eab584"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        // Login form submit handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Firebase authentication
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Fetch user role from Firestore
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    
+                    // Debugging log: Check what the role is
+                    console.log("User data:", userData);  // Log the entire user data
+                    console.log("User role:", userData.role);  // Specifically log the role
+
+                    // Redirect based on user role
+                  // Redirect based on user role
+		if (userData.role === 'hr_admin') {
+			window.location.href = 'admin_home_pg.html';
+		} else if (userData.role === 'canteen1_admin') {  // Fixed mismatched quotation marks
+			window.location.href = 'canteen_home.html';
+		} else if (userData.role === 'user') {
+			window.location.href = 'home.html';
+		} else {
+			alert("Unknown user role. Please contact support.");
+			console.error("Unknown role:", userData.role);
+		}
+
+                }
+            } catch (error) {
+                alert(`Login failed: ${error.message}`);
+                console.error("Error during login:", error);
+            }
+        });
+    </script>
+</head>
+<body>
+ 
+    <div class="container">
+        <div class="form-container">
+            <div style="text-align:center;">
+                <img src="pictures/nssb_logo_text1.png" alt="Home" width="324" height="87">
+            </div>
+            <h2>Welcome Back</h2>
+            <h3 style="font-size: 20px; text-align: center;">Login to your account</h3>
+            <form id="loginForm">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="email" placeholder="E-mail" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <i class="fas fa-eye icon-right"></i>
+                </div>
+                <div class="forgot-password">
+                    <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                </div>
+                <button type="submit" id="login" name="login" value="Login">LOGIN</button>
+                <div class="signup">
+                    <h5>Don't have an account yet?</h5>
+                    <a href="signIn_pg.html">Sign In</a>
+                </div>
+            </form>
+        </div>
+		</div>
+         
+
+    <div class="footer">
+        <p>&copy; 2023 NS Smart Builders. All rights reserved.</p>
+    </div>
+</body>
+</html>

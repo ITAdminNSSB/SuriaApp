@@ -23,16 +23,14 @@ self.addEventListener('fetch', (event) => {
 importScripts("https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js");
 
-// Firebase Configuration
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
-  authDomain: "test-login2-e4c7f.firebaseapp.com",
-  databaseURL: "https://test-login2-e4c7f-default-rtdb.firebaseio.com",
-  projectId: "test-login2-e4c7f",
-  storageBucket: "test-login2-e4c7f.appspot.com",
-  messagingSenderId: "698181575885",
-  appId: "1:698181575885:web:4e9110486e5c6fd5eab584",
-  measurementId: "G-428DYPE8X1",
+  apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+  authDomain: "suria-food-ordering-system.firebaseapp.com",
+  projectId: "suria-food-ordering-system",
+  storageBucket: "suria-food-ordering-system.firebasestorage.app",
+  messagingSenderId: "204528329291",
+  appId: "1:204528329291:web:cba270a2968e6d159963ce"
 };
 
 // Initialize Firebase

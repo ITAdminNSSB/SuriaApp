@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Comparison 2024-2025</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9fafb;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .header h1 {
+      margin: 0;
+      color: #1f2937;
+      font-size: 24px;
+    }
+    .header p {
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-bottom: 30px;
+    }
+    .summary-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .summary-box {
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      padding: 15px;
+      width: 45%;
+      min-width: 250px;
+      margin-bottom: 15px;
+      border-left: 5px solid #3b82f6;
+    }
+    .summary-box h3 {
+      margin-top: 0;
+      color: #1f2937;
+      font-size: 16px;
+    }
+    .summary-box p {
+      margin-bottom: 5px;
+      color: #4b5563;
+    }
+    .highlight {
+      font-weight: bold;
+      color: #ef4444;
+    }
+    .positive {
+      color: #10b981;
+    }
+    .trend-indicator {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      width: 100px;
+      height: 60px;
+    }
+    .trend-arrow {
+      stroke: #ef4444;
+      stroke-width: 4;
+      fill: none;
+    }
+    .trend-arrowhead {
+      fill: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Order Volume Comparison: 2024 vs 2025</h1>
+      <p>Analyzing the significant drop in orders for January-February 2025</p>
+      <svg class="trend-indicator" viewBox="0 0 100 60">
+        <polyline class="trend-arrow" points="5,20 30,40 45,10 70,30 95,50" />
+        <polygon class="trend-arrowhead" points="95,50 85,40 90,55" />
+      </svg>
+    </div>
+    
+    <div class="chart-container">
+      <canvas id="orderChart"></canvas>
+    </div>
+    
+    <div class="summary-container">
+      <div class="summary-box">
+        <h3>2025 Order Summary</h3>
+        <p>January 2025: <span class="highlight">5,700</span> orders</p>
+        <p>February 2025: <span class="highlight">4,755</span> orders</p>
+        <p>Month-over-month change: <span class="highlight">-16.58%</span></p>
+      </div>
+      
+      <div class="summary-box">
+        <h3>Year-over-Year Comparison</h3>
+        <p>January: <span class="highlight">-14.93%</span> vs 2024</p>
+        <p>February: <span class="highlight">-28.73%</span> vs 2024</p>
+        <p>Average 2025 drop: <span class="highlight">-21.83%</span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sample data for 2024 (all months)
+    const data2024 = [6700, 6670, 6800, 6750, 6900, 7100, 7300, 7200, 7000, 6950, 6850, 6800];
+    
+    // 2025 data (January and February)
+    const data2025 = [5700, 4755, null, null, null, null, null, null, null, null, null, null];
+    
+    // Calculate savings
+    const janSavingsPercent = ((data2024[0] - data2025[0]) / data2024[0] * 100).toFixed(2);
+    const febSavingsPercent = ((data2024[1] - data2025[1]) / data2024[1] * 100).toFixed(2);
+    
+    // Add trend line overlay
+    const trend = {
+      id: 'trendLine',
+      beforeDatasetsDraw(chart, args, options) {
+        const {ctx, chartArea: {top, bottom, left, right, width, height}, scales: {x, y}} = chart;
+        
+        // Only show trend for 2025 data (first two months)
+        if (data2025[0] && data2025[1]) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+          ctx.lineWidth = 3;
+          ctx.setLineDash([5, 3]);
+          
+          // Start point (January 2025)
+          const startX = x.getPixelForValue(0) + (x.getPixelForValue(1) - x.getPixelForValue(0)) / 2;
+          const startY = y.getPixelForValue(data2025[0]);
+          
+          // End point (February 2025)
+          const endX = x.getPixelForValue(1) + (x.getPixelForValue(2) - x.getPixelForValue(1)) / 2;
+          const endY = y.getPixelForValue(data2025[1]);
+          
+          // Extension point (projected March)
+          const extendX = x.getPixelForValue(2) + (x.getPixelForValue(3) - x.getPixelForValue(2)) / 2;
+          const extendY = startY + 2 * (endY - startY);
+          
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
+          ctx.lineTo(extendX, extendY);
+          ctx.stroke();
+          
+          // Draw arrow at the end
+          const arrowSize = 10;
+          const angle = Math.atan2(extendY - endY, extendX - endX);
+          
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.moveTo(extendX, extendY);
+          ctx.lineTo(
+            extendX - arrowSize * Math.cos(angle - Math.PI/6),
+            extendY - arrowSize * Math.sin(angle - Math.PI/6)
+          );
+          ctx.lineTo(
+            extendX - arrowSize * Math.cos(angle + Math.PI/6),
+            extendY - arrowSize * Math.sin(angle + Math.PI/6)
+          );
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.8)';
+          ctx.fill();
+          
+          ctx.restore();
+        }
+      }
+    };
+    
+    // Initialize the chart
+    const ctx = document.getElementById('orderChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        datasets: [
+          {
+            label: '2024 Orders',
+            data: data2024,
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1
+          },
+          {
+            label: '2025 Orders',
+            data: data2025,
+            backgroundColor: 'rgba(239, 68, 68, 0.6)',
+            borderColor: 'rgba(239, 68, 68, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            callbacks: {
+              footer: function(tooltipItems) {
+                const dataIndex = tooltipItems[0].dataIndex;
+                if (dataIndex <= 1 && tooltipItems[0].dataset.label === '2025 Orders') {
+                  const yoy = ((data2025[dataIndex] - data2024[dataIndex]) / data2024[dataIndex] * 100).toFixed(2);
+                  return `Year-over-Year: ${yoy}%`;
+                }
+                return '';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Orders'
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Month'
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          }
+        }
+      },
+      plugins: [trend]
+    });
+  </script>
+</body>
+</html>

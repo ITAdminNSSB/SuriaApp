@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Performance Dashboard | 27/3/2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --secondary-color: #50e3c2;
+            --background-light: #f4f4f4;
+            --text-dark: #333333;
+            --card-background: #ffffff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .dashboard-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .dashboard-date {
+            font-size: 16px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .card-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            font-weight: 500;
+            color: #666;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .chart-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .kpi-card {
+            background-color: var(--card-background);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+        }
+        .kpi-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .issues-chart {
+            margin-top: 20px;
+        }
+        @media (max-width: 1024px) {
+            .dashboard-grid, .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h1>Order Performance Dashboard</h1>
+            </div>
+            <div class="dashboard-date">27/3/2025</div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Attendance</div>
+                <div class="kpi-value">365</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Orders</div>
+                <div class="kpi-value">247</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Non Claimed</div>
+                <div class="kpi-value">19</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-title">Attendance Breakdown</div>
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Morning</span>
+                    <span class="metric-value">258</span>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Night</span>
+                    <span class="metric-value">107</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Order Distribution</div>
+                <div class="chart-container">
+                    <canvas id="orderChart"></canvas>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Morning Orders</span>
+                    <span class="metric-value">152</span>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Night Orders</span>
+                    <span class="metric-value">92</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Order Status</div>
+                <div class="chart-container">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Claimed Orders</span>
+                    <span class="metric-value">225</span>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Not Claimed</span>
+                    <span class="metric-value">19</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card issues-chart">
+            <div class="card-title">order issues</div>
+            <div class="chart-container">
+                <canvas id="issuesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attendance Chart
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Morning', 'Night'],
+                datasets: [{
+                    data: [258, 107],
+                    backgroundColor: ['#0078d4', '#50e3c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Order Distribution Chart
+        const orderCtx = document.getElementById('orderChart').getContext('2d');
+        new Chart(orderCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Morning', 'Night'],
+                datasets: [{
+                    data: [152, 92],
+                    backgroundColor: ['#0078d4', '#50e3c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Order Status Chart
+        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        new Chart(orderStatusCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Claimed', 'Not Claimed'],
+                datasets: [{
+                    data: [225, 19],
+                    backgroundColor: ['#0078d4', '#50e3c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // IT Ticket Issues Chart
+        const issuesCtx = document.getElementById('issuesChart').getContext('2d');
+        new Chart(issuesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['17 Mar', '20 Mar', '24 Mar', '25 Mar'],
+                datasets: [
+                    {
+                        label: 'Issues',
+                        data: [3, 4, 3, 2],
+                        backgroundColor: '#e74c3c'
+                    },
+                    {
+                        label: 'Fixed',
+                        data: [3, 4, 3, 2],
+                        backgroundColor: '#2ecc71'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Issues/Fixes'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

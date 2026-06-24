@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogIn</title>
+    <style>
+        /* Your existing styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-image: url(https://e0.pxfuel.com/wallpapers/391/776/desktop-wallpaper-white-background-white-metallic.jpg);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            padding-top: 0px;
+            padding-bottom: 60px;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0C0E8B;
+            color: #fff;
+            margin-top: 20px;
+            z-index: 1000;
+            text-align: center;
+        }
+        form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 10px;
+        }
+        form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1C36B8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #143b7b;
+        }
+        h2 {
+            text-align: center;
+            font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+            font-size: 40px;
+        }
+        h3 {
+            text-align: center;
+            font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+            font-size: 20px;
+        }
+        form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail,
+            onAuthStateChanged,
+            signOut,
+            setPersistence,
+            browserLocalPersistence
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+            authDomain: "test-login2-e4c7f.firebaseapp.com",
+            projectId: "test-login2-e4c7f",
+            storageBucket: "test-login2-e4c7f.appspot.com",
+            messagingSenderId: "698181575885",
+            appId: "1:698181575885:web:4e9110486e5c6fd5eab584"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        // Persistent Authentication
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                console.log("Persistence mode set to browserLocalPersistence.");
+            })
+            .catch((error) => {
+                console.error("Error setting persistence: ", error.message);
+            });
+
+        // Persistent Authentication: Check if the user is already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                alert("Welcome back, you are already logged in!");
+                // Redirect user based on role or default
+                redirectToRolePage(user);
+            }
+        });
+
+        // Login form submit handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                redirectToRolePage(user);
+            } catch (error) {
+                alert(`Login failed: ${error.message}`);
+            }
+        });
+
+        // Redirect user based on their role
+        async function redirectToRolePage(user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+
+                if (userData.role === 'hr_admin') {
+                    window.location.href = 'admin_home_pg.html';
+                } else if (userData.role === 'canteen1_admin') {
+                    window.location.href = 'canteen_home.html';
+                } else if (userData.role === 'user') {
+                    window.location.href = 'home.html';
+                } else {
+                    alert("Unknown user role. Please contact support.");
+                }
+            } else {
+                alert("User data not found. Please contact support.");
+            }
+        }
+
+        // Forgot password handler
+        document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = prompt("Please enter your registered email:");
+            if (email) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert("Password reset link has been sent to your email.");
+                } catch (error) {
+                    alert(`Error sending password reset email: ${error.message}`);
+                }
+            }
+        });
+
+        // Logout button handler
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            if (confirm("Are you sure you want to log out?")) {
+                try {
+                    await signOut(auth);
+                    alert("You have successfully logged out.");
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    alert(`Logout failed: ${error.message}`);
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align:center;">
+            <img src="pictures/nssb_logo_text1.png" alt="Home" width="324" height="87">
+        </div>
+        <h2>Welcome Back</h2>
+        <h3 style="font-size: 20px; text-align: center;">Login to your account</h3>
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="text" id="email" placeholder="E-mail" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="forgot-password">
+                <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+            </div>
+            <button type="submit" id="login" name="login" value="Login">LOGIN</button>
+            <div class="signup">
+                <h5>Don't have an account yet?</h5>
+                <a href="signIn_pg.html">Sign Up</a>
+            </div>
+        </form>
+        <button id="logoutButton" style="margin-top: 20px; background-color: #e53935; color: white;">Logout</button>
+    </div>
+    <div class="footer">
+        <p></p>
+    </div>
+</body>
+</html>

@@ -7,7 +7,6 @@
     <script type="module" src="auth-guard.js"></script>
     <title>Order Page</title>
     <style>
-        /* General Reset */
         * {
             margin: 0;
             padding: 0;
@@ -20,12 +19,12 @@
             overflow-x: hidden;
             padding-bottom: 100px;
         }
-		 /* Header */
+
         .header {
             display: flex;
             align-items: center;
             padding: 15px 20px;
-           background: linear-gradient(135deg, black, #334155);
+            background: linear-gradient(135deg, black, #334155);
             color: white;
             position: sticky;
             top: 20px;
@@ -37,11 +36,6 @@
             z-index: 100;
         }
 
-        .menu-icon {
-            font-size: 30px;
-            cursor: pointer;
-        }
-
         .header img {
             width: 100px;
             height: 50px;
@@ -49,76 +43,6 @@
             margin-right: auto;
         }
 
-        /* Improved Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100vh;
-            background: linear-gradient(145deg, #0C0E8B, #1416a0);
-            color: white;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            padding: 30px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar img {
-            width: 120px;
-            margin-right: 15px;
-        }
-
-        .sidebar .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .sidebar .user-info p {
-            margin: 5px 0;
-            font-size: 0.9em;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            padding: 12px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-        }
-
-     
-
-        /* Container Styles */
         .container {
             width: 90%;
             max-width: 400px;
@@ -128,7 +52,6 @@
             margin: 30px auto;
             padding: 25px;
             transition: all 0.3s ease;
-            transform-style: preserve-3d;
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(12, 14, 139, 0.1);
@@ -146,10 +69,9 @@
             left: 0;
             width: 100%;
             height: 5px;
-          background: linear-gradient(135deg, black, #334155);
+            background: linear-gradient(135deg, black, #334155);
         }
 
-        /* Calendar Container */
         .calendar-container {
             margin-bottom: 25px;
         }
@@ -172,7 +94,6 @@
             margin-top: 10px;
         }
 
-        /* Order Section */
         .order-section {
             padding: 20px;
             background: white;
@@ -230,6 +151,48 @@
             box-shadow: 0 6px 20px rgba(220, 53, 69, 0.2);
         }
 
+        .location-selection {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .location-title {
+            font-size: 1.2rem;
+            color: #0C0E8B;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .location-option {
+            background: white;
+            border: 2px solid #5BA7E1;
+            color: #5BA7E1;
+            padding: 15px 25px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .location-option:hover {
+            background: #5BA7E1;
+            color: white;
+        }
+
+        .location-option.selected {
+            background: #5BA7E1;
+            color: white;
+        }
+
+        .location-option i {
+            font-size: 1.2rem;
+        }
+
         #submitOrder {
             display: none;
             background: linear-gradient(135deg, #5BA7E1, #4a90e2);
@@ -263,9 +226,9 @@
             background-color: rgba(220, 53, 69, 0.1);
             color: #dc3545;
             font-weight: 500;
+            display: none;
         }
 
-        /* Thank You Container */
         .thank-you-container {
             position: fixed;
             top: 50%;
@@ -297,7 +260,6 @@
             margin-bottom: 20px;
         }
 
-        /* Loading Spinner */
         .loading-spinner {
             display: none;
             width: 40px;
@@ -314,7 +276,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Overlay */
         .overlay {
             position: fixed;
             top: 0;
@@ -326,114 +287,69 @@
             z-index: 999;
         }
 
-        /* Responsive Design */
-        @media (max-width: 480px) {
-            .container {
-                width: 95%;
-                padding: 20px;
-            }
-
-            .order-buttons {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .order-buttons button {
-                width: 100%;
-            }
-
-            .thank-you-container {
-                width: 90%;
-                padding: 20px;
-            }
-        }
-		 
-/* Bottom Navigation */
-.nav-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: white;
-    padding: 15px 20px 20px; /* Added more padding at bottom */
-    display: flex;
-    justify-content: space-between;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
-    z-index: 90;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: #94a3b8;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    flex: 1;
-    position: relative;
-    padding: 8px 0;
-}
-
-.nav-item.active {
-    color: #334155;
-}
-
-.nav-item.active::before {
-    content: '';
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 5px;
-    height: 5px;
-    background: #334155;
-    border-radius: 50%;
-}
-
-.nav-item i {
-    font-size: 20px;
-    margin-bottom: 6px;
-    transition: all 0.3s ease;
-}
-
-.nav-item:hover i {
-    transform: translateY(-3px);
-}
-
-.nav-item span {
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.nav-item:hover span {
-    color: #334155;
-}
-
-        /* Overlay */
-        .overlay {
+        .nav-container {
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            visibility: hidden;
+            background: white;
+            padding: 15px 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+            z-index: 90;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #94a3b8;
             transition: all 0.3s ease;
-            z-index: 999;
-
+            cursor: pointer;
+            flex: 1;
+            position: relative;
+            padding: 8px 0;
         }
 
-        .overlay.active {
-            opacity: 1;
-            visibility: visible;
+        .nav-item.active {
+            color: #334155;
         }
-		 
 
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            background: #334155;
+            border-radius: 50%;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover span {
+            color: #334155;
+        }
 
         #qrcode {
             margin: 20px auto;
@@ -463,42 +379,45 @@
         .download-btn:hover {
             background: #1416a0;
         }
-        /* Add new styles for meal sets */
-        .meal-sets {
-            display: none;
-            margin: 20px 0;
-        }
 
-        .meal-set-option {
-            background: white;
-            border: 2px solid #0C0E8B;
-            color: #0C0E8B;
-            padding: 15px 25px;
+        .location-display {
             margin: 10px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .meal-set-option:hover {
-            background: #0C0E8B;
-            color: white;
-        }
-
-        .meal-set-option.selected {
-            background: #0C0E8B;
-            color: white;
-        }
-
-        .meal-set-title {
-            font-size: 1.2rem;
+            font-weight: 600;
             color: #0C0E8B;
-            margin-bottom: 15px;
-            font-weight: 500;
         }
 
-        /* Rest of the previous styles remain the same */
+        .location-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .order-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .order-buttons button {
+                width: 100%;
+            }
+
+            .thank-you-container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
     </style>
 	
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -506,180 +425,154 @@
 <body>
     <div class="overlay" id="overlay"></div>
 
-    <!-- Header -->
     <div class="header">
         <img src="pictures/new.png" alt="App Logo">
     </div>
 
     <div class="container">
-        <!-- Calendar Section -->
         <div class="calendar-container">
             <h2>Today's Date</h2>
             <div id="calendar"></div>
         </div>
-		</div>
-<div class="container">
-        <!-- Order Section -->
+	</div>
+    
+    <div class="container">
         <div class="order-section">
             <p class="order-question">Do you want to order food today?</p>
             <div class="order-buttons">
                 <button class="yes-btn" onclick="handleYesClick()">Yes</button>
                 <button class="no-btn" onclick="handleNoClick()">No</button>
             </div>
-            
-            <!-- Meal sets section -->
-            <div class="meal-sets" id="mealSets">
-                <p class="meal-set-title">Please select SET A OR B </p>
-                <button class="meal-set-option" data-set="A">( A )</button>
-                <button class="meal-set-option" data-set="B">( B )</button>
+
+            <div class="location-selection" id="locationSelection">
+                <p class="location-title">Select Your Eating Location *</p>
+                <button class="location-option" data-location="PEKAN SUBANG">
+                    <i class="fas fa-map-marker-alt"></i> PEKAN SUBANG
+                </button>
+                <button class="location-option" data-location="SUBANG KRISTAL">
+                    <i class="fas fa-map-marker-alt"></i> SUBANG KRISTAL
+                </button>
+                <div class="location-warning" id="locationWarning">
+                    <i class="fas fa-exclamation-triangle"></i> Please select a location to continue
+                </div>
             </div>
 
             <button id="submitOrder">Submit Order</button>
             <p id="time-message"></p>
             <div class="loading-spinner" id="loadingSpinner"></div>
         </div>
-    
 	</div>
 
-   <!-- Thank You Message with QR Code -->
     <div class="thank-you-container" id="thankYouMessage">
         <i class="fas fa-check-circle"></i>
         <h2>Thank You!</h2>
         <p>Your order has been successfully placed.</p>
-        <!-- Added meal set display here -->
-        <div class="meal-set-display" id="mealSetDisplay">
-            Your Selected Meal: <span id="selectedMealText"></span>
+        <div class="location-display" id="locationDisplay" style="display:none;">
+            Eating Location: <span id="selectedLocationText"></span>
         </div>
         <div id="qrcode"></div>
         <p class="qr-instruction">Show this QR code when collecting your food</p>
         <button class="download-btn" id="downloadQR">Download QR Code</button>
     </div>
-   
 
-    <!-- Bottom Navigation -->
     <div class="nav-container">
-      <a href="home.html" class="nav-item active">
+    <a href="home.html" class="nav-item active">
             <i class="fas fa-home"></i>
             <span>Home</span>
-      </a>
-      <a href="order_pg.html" class="nav-item">
+    </a>
+    <a href="ramadan_code.html" class="nav-item">
             <i class="fas fa-utensils"></i>
             <span>Order</span>
-      </a>
-      <a href="menu_pg.html" class="nav-item">
+    </a>
+    <a href="menu_pg.html" class="nav-item">
             <i class="fas fa-book"></i>
             <span>Menu</span>
-      </a>
-      <a href="profile_pg.html" class="nav-item">
+    </a>
+    <a href="profile_pg.html" class="nav-item">
             <i class="fas fa-user"></i>
             <span>Profile</span>
-      </a>
-          <a href="login_pg.html" id="logoutBtn" class="nav-item">
-    <i class="fas fa-sign-out-alt"></i>
-    <span>Logout</span>
-  </a>
-      
+    </a>
+    <a href="login_pg.html" id="logoutBtn" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </a>
     </div>
-	
 
-
-    <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
 const firebaseConfig = {
-   apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+    apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+    authDomain: "suria-food-ordering-system.firebaseapp.com",
+    projectId: "suria-food-ordering-system",
+    storageBucket: "suria-food-ordering-system.firebasestorage.app",
+    messagingSenderId: "204528329291",
+    appId: "1:204528329291:web:cba270a2968e6d159963ce"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// DOM Elements
 const submitButton = document.getElementById('submitOrder');
 const thankYouMessage = document.getElementById('thankYouMessage');
 const overlay = document.getElementById('overlay');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const timeMessage = document.getElementById('time-message');
 const calendarElement = document.getElementById('calendar');
-const plusButton = document.getElementById('plusButton');
-const floatingMenu = document.getElementById('floatingMenu');
-const mealSetsContainer = document.getElementById('mealSets');
-const selectedMealText = document.getElementById('selectedMealText');
-const mealSetDisplay = document.getElementById('mealSetDisplay');
-let selectedMealSet = null;
+const locationSelection = document.getElementById('locationSelection');
+const selectedLocationText = document.getElementById('selectedLocationText');
+const locationDisplay = document.getElementById('locationDisplay');
+const locationWarning = document.getElementById('locationWarning');
 
-// Function to get server time
+let selectedLocation = null;
+
 async function getCurrentServerTime() {
     try {
-        // Create a temporary document to get the server timestamp
         const timestampRef = await addDoc(collection(db, "timestamps"), {
             timestamp: serverTimestamp()
         });
-        
-        // Get the document with the server timestamp
         const timestampDoc = await getDoc(timestampRef);
         const serverTime = timestampDoc.data().timestamp.toDate();
-        
-        // Delete the temporary document (cleanup)
         await deleteDoc(timestampRef);
-        
         return serverTime;
     } catch (error) {
         console.error("Error getting server time:", error);
-        // Fallback to local time only if server time fails
         return new Date();
     }
 }
-//im gonna take my box and bring back my box 
-// Function to display meal set text
-function displayMealSetText(mealSet) {
-    if (mealSet === 'A') {
-        selectedMealText.textContent = "Set A";
-        mealSetDisplay.style.display = 'block';
-    } else if (mealSet === 'B') {
-        selectedMealText.textContent = "Set B";
-        mealSetDisplay.style.display = 'block';
+
+function displayOrderInfo(location) {
+    if (location) {
+        selectedLocationText.textContent = location;
+        locationDisplay.style.display = 'block';
     } else {
-        mealSetDisplay.style.display = 'none';
+        locationDisplay.style.display = 'none';
     }
 }
 
-// Set up calendar with server time
 async function updateCalendarDisplay() {
     const today = await getCurrentServerTime();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     calendarElement.textContent = today.toLocaleDateString('en-US', options);
 }
 
-// Check if current time is within ordering hours and determine shift type
 async function isOrderingTime() {
     const currentTime = await getCurrentServerTime();
     const morningStart = new Date(currentTime).setHours(4, 0, 0, 0);
     const morningEnd = new Date(currentTime).setHours(10, 0, 0, 0);
-    
-    // Early night shift (both A and B options)
-    const earlyNightStart = new Date(currentTime).setHours(16, 0, 0, 0); // 4 PM
-    const earlyNightEnd = new Date(currentTime).setHours(17, 59, 59, 999); // 5:59 PM
-    
-    // Late night shift (B option only)
-    const lateNightStart = new Date(currentTime).setHours(18, 0, 0, 0); // 6 PM
-    const lateNightEnd = new Date(currentTime).setHours(21, 0, 0, 0); // 9 PM
+    const nightStart = new Date(currentTime).setHours(16, 0, 0, 0);
+    const nightEnd = new Date(currentTime).setHours(21, 0, 0, 0);
     
     const isMorningShift = currentTime >= morningStart && currentTime <= morningEnd;
-    const isEarlyNightShift = currentTime >= earlyNightStart && currentTime <= earlyNightEnd;
-    const isLateNightShift = currentTime >= lateNightStart && currentTime <= lateNightEnd;
+    const isNightShift = currentTime >= nightStart && currentTime <= nightEnd;
     
     return {
-        isValid: isMorningShift || isEarlyNightShift || isLateNightShift,
+        isValid: isMorningShift || isNightShift,
         isMorningShift: isMorningShift,
-        isEarlyNightShift: isEarlyNightShift,
-        isLateNightShift: isLateNightShift
+        isNightShift: isNightShift
     };
 }
 
@@ -689,13 +582,12 @@ function displayTimeMessage(message) {
 }
 
 function storeOrderData(orderData) {
-    // Convert any Firestore timestamps to strings before storing
     const orderToStore = {
         ...orderData,
         orderDate: orderData.orderDate && typeof orderData.orderDate.toDate === 'function' 
             ? orderData.orderDate.toDate().toISOString() 
             : orderData.orderDate,
-        orderTimestamp: new Date().toISOString() // Ensure we always have a timestamp string
+        orderTimestamp: new Date().toISOString()
     };
     
     localStorage.setItem('orderData', JSON.stringify(orderToStore));
@@ -710,8 +602,8 @@ async function isStoredOrderFromToday() {
     const storedDateTime = new Date(storedDate);
 
     return storedDateTime.getDate() === currentDate.getDate() &&
-           storedDateTime.getMonth() === currentDate.getMonth() &&
-           storedDateTime.getFullYear() === currentDate.getFullYear();
+        storedDateTime.getMonth() === currentDate.getMonth() &&
+        storedDateTime.getFullYear() === currentDate.getFullYear();
 }
 
 function clearStoredOrderData() {
@@ -719,54 +611,32 @@ function clearStoredOrderData() {
     localStorage.removeItem('orderDate');
 }
 
-function setupMealSetSelection(onlySetB = false) {
-    const mealSetOptions = document.querySelectorAll('.meal-set-option');
-    
-    // If onlySetB is true, hide Set A option
-    if (onlySetB) {
-        mealSetOptions.forEach(option => {
-            if (option.dataset.set === 'A') {
-                option.style.display = 'none';
-            } else {
-                option.style.display = 'block';
-            }
-        });
-    } else {
-        // Show both options
-        mealSetOptions.forEach(option => {
-            option.style.display = 'block';
-        });
-    }
-    
-    mealSetOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            mealSetOptions.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
+function setupLocationSelection() {
+    const locationOptions = document.querySelectorAll('.location-option');
 
-            selectedMealSet = option.dataset.set;
+    // Reset location selection
+    locationOptions.forEach(option => option.classList.remove('selected'));
+    selectedLocation = null;
+    submitButton.style.display = 'none';
+    locationWarning.style.display = 'none';
+
+    locationOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selection from all options
+            locationOptions.forEach(opt => opt.classList.remove('selected'));
+
+            // Select clicked option
+            option.classList.add('selected');
+            selectedLocation = option.dataset.location;
+
+            // Show submit button only after location is selected
             submitButton.style.display = 'inline-block';
+            timeMessage.style.display = 'none';
+            locationWarning.style.display = 'none';
+
+            console.log("Location selected:", selectedLocation);
         });
     });
-}
-
-async function getOrderDetails(orderRef) {
-    try {
-        const orderDoc = await getDoc(orderRef);
-        if (orderDoc.exists()) {
-            const fullData = orderDoc.data();
-            return {
-                employeeId: fullData.employeeId,
-                orderDate: fullData.orderDate,
-                orderTimestamp: fullData.orderDate ? fullData.orderDate.toDate().toISOString() : null,
-                orderStatus: fullData.orderStatus,
-                mealSet: fullData.mealSet
-            };
-        }
-        throw new Error("Order not found");
-    } catch (error) {
-        console.error("Error getting order details:", error);
-        return null;
-    }
 }
 
 function generateQRCode(data) {
@@ -780,20 +650,18 @@ function generateQRCode(data) {
     
     qrContainer.innerHTML = '';
     
-    // Ensure all data is in string format for QR code
     const qrData = {
         employeeId: data.employeeId || '',
         orderDate: typeof data.orderDate === 'string' ? data.orderDate : 
-                   (data.orderDate instanceof Date ? data.orderDate.toISOString() : 
-                   (data.orderDate && typeof data.orderDate.toDate === 'function' ? 
+                (data.orderDate instanceof Date ? data.orderDate.toISOString() : 
+                (data.orderDate && typeof data.orderDate.toDate === 'function' ? 
                     data.orderDate.toDate().toISOString() : new Date().toISOString())),
         orderTimestamp: data.orderTimestamp || new Date().toISOString(),
         orderStatus: data.orderStatus || 'ordered',
-        mealSet: data.mealSet || ''
+        location: data.location || ''
     };
 
-    // Display meal set information
-    displayMealSetText(data.mealSet);
+    displayOrderInfo(data.location);
 
     try {
         new QRCode(qrContainer, {
@@ -818,12 +686,8 @@ function generateQRCode(data) {
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                } else {
-                    console.error("Canvas element not found in QR container");
                 }
             };
-        } else {
-            console.error("Download button not found");
         }
     } catch (error) {
         console.error("Error generating QR code:", error);
@@ -849,21 +713,20 @@ async function checkPreviousOrder(userID, collectionRef) {
 
 async function processOrder(userID) {
     try {
+        // CRITICAL VALIDATION: Check if location is selected
+        if (!selectedLocation || selectedLocation.trim() === '') {
+            locationWarning.style.display = 'block';
+            submitButton.style.display = 'none';
+            alert("Please select your eating location before submitting your order.");
+            return;
+        }
+
+        console.log("Processing order with location:", selectedLocation);
+
         const timeStatus = await isOrderingTime();
         if (!timeStatus.isValid) {
-            alert("Order is closed. Please order between 4 AM - 10 AM, 4 PM - 9 PM.");
+            alert("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
             return;
-        }
-
-        // Check if meal set is required
-        if ((timeStatus.isEarlyNightShift || timeStatus.isLateNightShift) && !selectedMealSet) {
-            alert("Please select a meal set before submitting your order.");
-            return;
-        }
-
-        // If it's late night shift, automatically select Set B if not already selected
-        if (timeStatus.isLateNightShift && selectedMealSet !== 'B') {
-            selectedMealSet = 'B';
         }
 
         const hasNoPreviousOrder = await checkPreviousOrder(userID, collection(db, "orders"));
@@ -880,27 +743,39 @@ async function processOrder(userID) {
 
         const userData = userDoc.data();
         
-        // Determine meal set based on shift
+        // CRITICAL: Ensure location is included in order details
         const orderDetails = {
             ...userData,
-            orderDate: serverTimestamp(), // Server-side timestamp
+            orderDate: serverTimestamp(),
             userId: userID,
             orderStatus: "ordered",
-            mealSet: timeStatus.isMorningShift ? null : selectedMealSet // Only include meal set for night shifts
+            location: selectedLocation // This is required
         };
+
+        // Double check location before submitting
+        if (!orderDetails.location || orderDetails.location.trim() === '') {
+            throw new Error("Location is required but was not provided");
+        }
+
+        console.log("Submitting order with details:", orderDetails);
 
         const orderRef = await addDoc(collection(db, "orders"), orderDetails);
         
-        // Get the order with the populated server timestamp
         const orderSnapshot = await getDoc(orderRef);
         const orderWithTimestamp = {
             ...orderSnapshot.data(),
             id: orderRef.id
         };
         
+        // Verify location was saved
+        if (!orderWithTimestamp.location) {
+            console.error("WARNING: Order was saved without location!");
+        }
+
         thankYouMessage.style.display = 'block';
         generateQRCode(orderWithTimestamp);
         submitButton.style.display = 'none';
+        locationSelection.style.display = 'none';
         storeOrderData(orderWithTimestamp);
     } catch (error) {
         console.error("Error processing order:", error);
@@ -912,7 +787,6 @@ async function processOrder(userID) {
     }
 }
 
-// Handle Yes Click
 window.handleYesClick = async function() {
     const user = auth.currentUser;
     if (!user) {
@@ -922,8 +796,9 @@ window.handleYesClick = async function() {
 
     const timeStatus = await isOrderingTime();
     if (!timeStatus.isValid) {
-        displayTimeMessage("Order is closed. Please order between 4 AM - 10 AM, 4 PM - 5:59 PM (Sets A & B), or 6 PM - 9 PM (Set B only).");
+        displayTimeMessage("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
         submitButton.style.display = 'none';
+        locationSelection.style.display = 'none';
         return;
     }
 
@@ -931,37 +806,17 @@ window.handleYesClick = async function() {
     if (!hasNoPreviousOrder) {
         displayTimeMessage("You have already placed an order today.");
         submitButton.style.display = 'none';
+        locationSelection.style.display = 'none';
         return;
     }
 
-    // Handle different shifts
-    if (timeStatus.isMorningShift) {
-        // Morning shift - no meal set selection needed
-        submitButton.style.display = 'inline-block';
-        mealSetsContainer.style.display = 'none';
-        displayTimeMessage("You can place a morning order.");
-    } else if (timeStatus.isEarlyNightShift) {
-        // Early night shift - show both Set A and B options
-        mealSetsContainer.style.display = 'block';
-        submitButton.style.display = 'none';
-        displayTimeMessage("Please select your meal set (A or B).");
-        setupMealSetSelection(false); // Show both options
-    } else if (timeStatus.isLateNightShift) {
-        // Late night shift - show only Set B option
-        mealSetsContainer.style.display = 'block';
-        submitButton.style.display = 'none';
-        displayTimeMessage("Only Set B is available at this time.");
-        setupMealSetSelection(true); // Show only Set B
-        
-        // Auto-select Set B
-        const setBOption = document.querySelector('.meal-set-option[data-set="B"]');
-        if (setBOption) {
-            setBOption.click();
-        }
-    }
+    // Show location selection, but hide submit button until location is chosen
+    locationSelection.style.display = 'block';
+    submitButton.style.display = 'none';
+    timeMessage.style.display = 'none';
+    setupLocationSelection();
 };
 
-// Handle No Click
 window.handleNoClick = async function() {
     const user = auth.currentUser;
     if (!user) {
@@ -1030,7 +885,6 @@ window.handleNoClick = async function() {
     confirmDialog.querySelector('#confirmNo').addEventListener('click', () => handleConfirmation(false));
 };
 
-// Function to check if user has an existing order and display it
 async function checkAndDisplayExistingOrder(userID) {
     if (await isStoredOrderFromToday()) {
         try {
@@ -1043,52 +897,18 @@ async function checkAndDisplayExistingOrder(userID) {
             const orderData = JSON.parse(orderDataString);
             console.log("Retrieved order data from localStorage:", orderData);
             
-            if (orderData && orderData.userId === userID) {
-                // Display the stored QR code
+            if (orderData && orderData.location) {
                 thankYouMessage.style.display = 'block';
                 submitButton.style.display = 'none';
+                locationSelection.style.display = 'none';
                 
-                // Ensure the QR code element exists before generating
-                setTimeout(() => {
-                    generateQRCode(orderData);
-                }, 300); // Small delay to ensure DOM is ready
-                
-                return true;
-            }
-        } catch (error) {
-            console.error("Error displaying stored order:", error);
-        }
-    }
-    return false;
-}
-
-// Function to restore order display when page loads
-async function restoreOrderDisplay() {
-    console.log("Restoring order display...");
-    if (await isStoredOrderFromToday()) {
-        try {
-            const orderDataString = localStorage.getItem('orderData');
-            if (!orderDataString) {
-                console.error("No order data found in localStorage");
-                return;
-            }
-            
-            const orderData = JSON.parse(orderDataString);
-            console.log("Retrieved order data from localStorage:", orderData);
-            
-            if (orderData) {
-                // Display the stored QR code without waiting for auth
-                thankYouMessage.style.display = 'block';
-                submitButton.style.display = 'none';
-                
-                // Ensure the QR code generation happens after DOM is fully loaded
                 setTimeout(() => {
                     if (document.getElementById('qrcode')) {
                         generateQRCode(orderData);
                     } else {
                         console.error("QR code container not found!");
                     }
-                }, 500); // Delay to ensure DOM is ready
+                }, 500);
             }
         } catch (error) {
             console.error("Error restoring order display:", error);
@@ -1098,9 +918,15 @@ async function restoreOrderDisplay() {
     }
 }
 
-// Event Listeners
 if (submitButton) {
     submitButton.addEventListener("click", () => {
+        // Validate location before proceeding
+        if (!selectedLocation || selectedLocation.trim() === '') {
+            locationWarning.style.display = 'block';
+            alert("Please select your eating location before submitting your order.");
+            return;
+        }
+
         auth.onAuthStateChanged((user) => {
             if (user) {
                 processOrder(user.uid);
@@ -1115,35 +941,20 @@ auth.onAuthStateChanged((user) => {
     if (user) checkAndDisplayExistingOrder(user.uid);
 });
 
-if (plusButton) {
-    plusButton.addEventListener('click', () => {
-        plusButton.classList.toggle('active');
-        floatingMenu.classList.toggle('active');
-    });
-}
-
-document.addEventListener('click', (e) => {
-    if (plusButton && floatingMenu && !plusButton.contains(e.target) && !floatingMenu.contains(e.target)) {
-        plusButton.classList.remove('active');
-        floatingMenu.classList.remove('active');
-    }
-});
-
-// Initialize the page with server time
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM content loaded");
     
-    // Make sure QR code library is loaded
     if (typeof QRCode === 'undefined') {
         console.error("QR Code library not loaded!");
         
-        // Try to load QR code library dynamically if needed
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
         script.onload = async () => {
             console.log("QR Code library loaded dynamically");
             await updateCalendarDisplay();
-            await restoreOrderDisplay();
+            auth.onAuthStateChanged((user) => {
+                if (user) checkAndDisplayExistingOrder(user.uid);
+            });
         };
         script.onerror = () => {
             console.error("Failed to load QR Code library dynamically");
@@ -1151,38 +962,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.head.appendChild(script);
     } else {
         await updateCalendarDisplay();
-        await restoreOrderDisplay();
+        auth.onAuthStateChanged((user) => {
+            if (user) checkAndDisplayExistingOrder(user.uid);
+        });
     }
 });
 
-// Check every minute if we need to clear the display
 setInterval(async () => {
     const now = await getCurrentServerTime();
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
     
-    // If it's past 11:59 PM and the order is not from today
     if (now >= endOfDay && !(await isStoredOrderFromToday())) {
         clearStoredOrderData();
         location.reload();
     }
 }, 60000);
     </script>
-	   	<script>
-		// Add this script at the end of your body section
+	<script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the current page filename
     const currentPage = window.location.pathname.split('/').pop() || 'home.html';
-    
-    // Get all navigation items
     const navItems = document.querySelectorAll('.nav-container .nav-item');
     
-    // Remove active class from all items
     navItems.forEach(item => {
         item.classList.remove('active');
     });
     
-    // Add active class to the current page's nav item
     navItems.forEach(item => {
         const href = item.getAttribute('href');
         if (href === currentPage) {

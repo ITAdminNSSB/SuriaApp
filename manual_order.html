@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manual Order Entry</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {font-family: 'Helvetica', sans-serif;background-color: #f8fafc;color: #4a5568;line-height: 1.6;min-height: 100vh;padding: 20px;}
+        .pin-overlay {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.95);display: flex;justify-content: center;align-items: center;z-index: 9999;}
+        .pin-overlay.hidden {display: none;}
+        .pin-container {background: white;padding: 40px;border-radius: 20px;text-align: center;max-width: 400px;width: 90%;box-shadow: 0 20px 60px rgba(0,0,0,0.3);}
+        .pin-input {width: 100%;padding: 15px;font-size: 1.5rem;text-align: center;border: 2px solid #e2e8f0;border-radius: 10px;letter-spacing: 10px;margin-bottom: 20px;transition: border-color 0.3s ease;}
+        .pin-input:focus {outline: none;border-color: #334155;box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1);}
+        .pin-error {color: #e53e3e;margin-top: 10px;display: none;}
+        .admin-container {max-width: 1000px;margin: 0 auto;background: white;border-radius: 20px;box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .admin-header {background: linear-gradient(135deg, black, #334155);color: white;padding: 2rem;text-align: center;border-radius: 20px 20px 0 0;box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+        .admin-header h1 {font-size: 1.75rem;font-weight: 600;margin-bottom: 0.5rem;}
+        .admin-header p {opacity: 0.9;font-size: 0.95rem;}
+        .admin-content {padding: 2rem;}
+        .section-title {font-size: 1.25rem;color: #2d3748;margin-bottom: 1.5rem;padding-bottom: 0.75rem;border-bottom: 2px solid #e2e8f0;font-weight: 600;}
+        .search-section {background: #f8fafc;padding: 1.5rem;border-radius: 15px;margin-bottom: 2rem;border: 1px solid #e2e8f0;}
+        .form-group {margin-bottom: 1.5rem;}
+        .form-group label {display: block;margin-bottom: 0.5rem;color: #4a5568;font-weight: 500;}
+        .form-group input,
+        .form-group select {width: 100%;padding: 0.75rem 1rem;border: 1px solid #e2e8f0;border-radius: 8px;font-size: 0.95rem;transition: border-color 0.3s ease;}
+        .form-group input:focus,
+        .form-group select:focus {outline: none;border-color: #334155;box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1);}
+        .btn {padding: 0.75rem 1.5rem;border: none;border-radius: 8px;font-size: 0.95rem;font-weight: 500;cursor: pointer;transition: all 0.3s ease;display: inline-flex;align-items: center;gap: 0.5rem;}
+        .btn:disabled {opacity: 0.5;cursor: not-allowed;}
+        .btn-primary {background: linear-gradient(135deg, black, #334155);color: white;}
+        .btn-primary:hover:not(:disabled) {background: linear-gradient(135deg, #1a1a1a, #475569);transform: translateY(-1px);}
+        .btn-success {background: linear-gradient(135deg, #4facfe, #00f2fe);color: white;}
+        .btn-success:hover:not(:disabled) {background: linear-gradient(135deg, #3a9cef, #00e3ef);transform: translateY(-1px);}
+        .btn-secondary {background: #e2e8f0;color: #4a5568;}
+        .btn-secondary:hover {background: #cbd5e0;}
+        .user-info-card {background: white;border: 2px solid #e2e8f0;border-radius: 15px;padding: 1.5rem;margin-top: 1.5rem;display: none;box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .user-info-card.active {display: block;}
+        .user-info-card h3 {color: #2d3748;margin-bottom: 1rem;font-size: 1.1rem;}
+        .info-row {display: flex;padding: 0.75rem 0;border-bottom: 1px solid #e2e8f0;}
+        .info-row:last-child {border-bottom: none;}
+        .info-label {font-weight: 600;color: #2d3748;min-width: 150px;}
+        .order-form {background: #f8fafc;padding: 1.5rem;border-radius: 15px;margin-top: 1.5rem;display: none;border: 1px solid #e2e8f0;}
+        .order-form.active {display: block;}
+        .time-warning {padding: 1rem;border-radius: 10px;margin-bottom: 1.5rem;display: none;font-size: 0.95rem;}
+        .time-warning.active {display: block;}
+        .location-options {display: flex; gap: 1rem; margin-top: 0.75rem;}
+        .location-label {flex: 1; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 500; display: block; background: white; transition: all 0.3s ease;}
+        .location-label:hover {border-color: #334155;}
+        .location-label input[type="radio"] {margin-right: 8px;}
+        .qr-modal {display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.5);z-index: 1000;justify-content: center;align-items: center;}
+        .qr-modal.active {display: flex;}
+        .qr-modal-content {background: white;padding: 2.5rem;border-radius: 20px;text-align: center;max-width: 500px;width: 90%;box-shadow: 0 20px 60px rgba(0,0,0,0.3);}
+        .qr-modal-content h2 {color: #2d3748;margin-bottom: 1.5rem;}
+        #qrcode {margin: 1.5rem auto;padding: 1.5rem;display: flex;justify-content: center;align-items: center;}
+        #qrcode canvas {margin: 0 auto !important;display: block !important;}
+        #qrcode img {display: none !important;}
+        .loading {display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.7);z-index: 9998;justify-content: center;align-items: center;}
+        .loading.active {display: flex;}
+        .loading-content {text-align: center;color: white;}
+        .spinner {border: 4px solid #f3f3f3;border-top: 4px solid #334155;border-radius: 50%;width: 50px;height: 50px;animation: spin 1s linear infinite;margin: 0 auto 20px;}
+        @keyframes spin {0% { transform: rotate(0deg); }100% { transform: rotate(360deg); }}
+        .button-group {display: flex;gap: 1rem;margin-top: 1.5rem;}
+        @media (max-width: 768px) {body {padding: 10px;}
+        .admin-content {padding: 1.5rem 1rem;}
+        .button-group {flex-direction: column;}
+        .location-options {flex-direction: column;}
+        .info-row {flex-direction: column;gap: 0.25rem;}
+        .info-label {min-width: unset;}}
+        @media print {body * {visibility: hidden;}
+        .qr-modal-content, .qr-modal-content * {visibility: visible;}
+        .qr-modal-content {position: absolute;left: 0;top: 0;}.button-group {display: none;}}
+    </style>
+</head>
+<body>
+    <div class="pin-overlay" id="pinOverlay">
+        <div class="pin-container">
+            <i class="fas fa-lock" style="font-size: 3rem; color: #334155; margin-bottom: 20px;"></i>
+            <h2 style="color: #2d3748; margin-bottom: 10px;">Admin Access</h2>
+            <p style="color: #718096; margin-bottom: 30px;">Enter PIN to continue</p>
+            <input type="password" class="pin-input" id="pinInput" maxlength="7" placeholder="•••••••" autofocus>
+            <button class="btn btn-primary" id="verifyPinBtn" style="width: 100%;">Verify PIN</button>
+            <p class="pin-error" id="pinError">Incorrect PIN</p>
+        </div>
+    </div>
+
+    <div class="loading" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p style="font-size: 1.2rem;">Processing...</p>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <i class="fas fa-user-plus" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <h1>Manual Order Entry</h1>
+            <p>Create orders for users with issues</p>
+        </div>
+
+        <div class="admin-content">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-search"></i> Search User</h2>
+                <div class="search-section">
+                    <div class="form-group">
+                        <label>Search By:</label>
+                        <select id="searchMethod">
+                            <option value="employeeId">Employee ID</option>
+                            <option value="email">Email</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Enter Value:</label>
+                        <input type="text" id="searchInput" placeholder="Enter employee ID or email">
+                    </div>
+                    <button class="btn btn-primary" id="searchBtn">
+                        <i class="fas fa-search"></i> Search User
+                    </button>
+                </div>
+
+                <div class="user-info-card" id="userInfoCard">
+                    <h3><i class="fas fa-user"></i> User Information</h3>
+                    <div id="userInfoContent"></div>
+                </div>
+            </div>
+
+            <div class="order-form" id="orderForm">
+                <h2 class="section-title"><i class="fas fa-plus-circle"></i> Create Order</h2>
+                
+                <div class="time-warning" id="timeWarning">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="timeWarningText"></span>
+                </div>
+                
+                <div class="form-group" id="locationGroup">
+                    <label>Delivery Location: <span style="color: #e53e3e;">*</span></label>
+                    <div class="location-options">
+                        <label class="location-label">
+                            <input type="radio" name="manualLocation" value="Pekan Subang" checked> Pekan Subang
+                        </label>
+                        <label class="location-label">
+                            <input type="radio" name="manualLocation" value="Subang Kristal"> Subang Kristal
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-success" id="createOrderBtn">
+                        <i class="fas fa-check"></i> Create Order
+                    </button>
+                    <button class="btn btn-secondary" id="cancelBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="qr-modal" id="qrModal">
+        <div class="qr-modal-content">
+            <i class="fas fa-check-circle" style="font-size: 60px; color: #38a169; margin-bottom: 20px;"></i>
+            <h2>Order Created Successfully!</h2>
+            <div id="qrcode"></div>
+            <p style="margin: 15px 0; font-size: 1rem; color: #4a5568;">Employee: <strong id="qrEmployeeId"></strong></p>
+            <p style="margin-bottom: 20px; font-size: 1rem; color: #4a5568;">Location: <strong id="qrLocation"></strong></p>
+            <div class="button-group" style="justify-content: center;">
+                <button class="btn btn-primary" id="downloadQR">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button class="btn btn-primary" id="printQR">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn btn-secondary" id="closeModal">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from './firebaseConfig.js';
+        import { 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            addDoc,
+            serverTimestamp,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const ADMIN_PIN = 'HcD2026';
+        let isAuthenticated = false;
+        let selectedUser = null;
+        let isProcessing = false;
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        // PIN Auth
+        document.getElementById('verifyPinBtn').onclick = function() {
+            if (document.getElementById('pinInput').value === ADMIN_PIN) {
+                document.getElementById('pinOverlay').classList.add('hidden');
+                isAuthenticated = true;
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+                document.getElementById('pinInput').value = '';
+            }
+        };
+
+        document.getElementById('pinInput').onkeypress = function(e) {
+            if (e.key === 'Enter') document.getElementById('verifyPinBtn').click();
+        };
+
+        // Strict 4 AM to 10 AM Time Logic
+        function isOrderingTime() {
+            const currentTime = new Date();
+            const morningStart = new Date(currentTime).setHours(4, 0, 0, 0);
+            const morningEnd = new Date(currentTime).setHours(10, 0, 0, 0);
+            return currentTime >= morningStart && currentTime <= morningEnd;
+        }
+
+        function updateTimeWarning() {
+            const isValid = isOrderingTime();
+            const warningDiv = document.getElementById('timeWarning');
+            const warningText = document.getElementById('timeWarningText');
+            const createBtn = document.getElementById('createOrderBtn');
+
+            warningDiv.classList.add('active');
+            
+            if (isValid) {
+                warningDiv.style.background = '#d4edda';
+                warningDiv.style.color = '#155724';
+                warningDiv.style.border = '1px solid #c3e6cb';
+                warningText.textContent = '☀️ Morning Shift Active (4 AM - 10 AM)';
+                createBtn.disabled = false;
+            } else {
+                warningDiv.style.background = '#f8d7da';
+                warningDiv.style.color = '#721c24';
+                warningDiv.style.border = '1px solid #f5c6cb';
+                warningText.textContent = '❌ Outside ordering hours (Allowed: 4 AM - 10 AM)';
+                createBtn.disabled = true;
+            }
+        }
+
+        // Search User
+        document.getElementById('searchBtn').onclick = async function() {
+            if (!isAuthenticated) return;
+
+            const searchValue = document.getElementById('searchInput').value.trim();
+            if (!searchValue) {
+                alert('Please enter a search value');
+                return;
+            }
+
+            showLoading(true);
+            document.getElementById('userInfoCard').classList.remove('active');
+            document.getElementById('orderForm').classList.remove('active');
+
+            try {
+                const usersRef = collection(db, 'users');
+                const method = document.getElementById('searchMethod').value;
+                const q = query(usersRef, where(method, '==', searchValue));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    alert('User not found');
+                    showLoading(false);
+                    return;
+                }
+
+                selectedUser = querySnapshot.docs[0].data();
+                selectedUser.uid = querySnapshot.docs[0].id;
+
+                // Check existing orders
+                const today = new Date();
+                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+                
+                const ordersRef = collection(db, 'orders');
+                const todayOrdersQuery = query(ordersRef, where('employeeId', '==', selectedUser.employeeId));
+                const todayOrders = await getDocs(todayOrdersQuery);
+                
+                let hasOrderedToday = false;
+                
+                todayOrders.forEach((doc) => {
+                    const orderData = doc.data();
+                    if (orderData.orderDate) {
+                        const orderDate = orderData.orderDate.toDate ? orderData.orderDate.toDate() : new Date(orderData.orderDate);
+                        if (orderDate >= todayStart && orderDate <= todayEnd) {
+                            hasOrderedToday = true;
+                        }
+                    }
+                });
+                
+                if (hasOrderedToday) {
+                    document.getElementById('userInfoContent').innerHTML = `
+                        <div class="info-row"><span class="info-label">Employee ID:</span><span>${selectedUser.employeeId}</span></div>
+                        <div class="info-row"><span class="info-label">Name:</span><span>${selectedUser.name}</span></div>
+                        <div class="info-row"><span class="info-label">Email:</span><span>${selectedUser.email}</span></div>
+                        <div class="info-row"><span class="info-label">Department:</span><span>${selectedUser.department || 'N/A'}</span></div>
+                        <div class="info-row" style="background: #f8d7da; padding: 10px; border-radius: 5px;">
+                            <span class="info-label">Status:</span><span style="color: #721c24;"><strong>❌ ALREADY ORDERED</strong></span>
+                        </div>
+                    `;
+                    document.getElementById('userInfoCard').classList.add('active');
+                    alert('⚠️ This user already ordered today!');
+                } else {
+                    document.getElementById('userInfoContent').innerHTML = `
+                        <div class="info-row"><span class="info-label">Employee ID:</span><span>${selectedUser.employeeId}</span></div>
+                        <div class="info-row"><span class="info-label">Name:</span><span>${selectedUser.name}</span></div>
+                        <div class="info-row"><span class="info-label">Email:</span><span>${selectedUser.email}</span></div>
+                        <div class="info-row"><span class="info-label">Department:</span><span>${selectedUser.department || 'N/A'}</span></div>
+                        <div class="info-row" style="background: #d4edda; padding: 10px; border-radius: 5px;">
+                            <span class="info-label">Status:</span><span style="color: #155724;"><strong>✅ CAN ORDER</strong></span>
+                        </div>
+                    `;
+                    document.getElementById('userInfoCard').classList.add('active');
+                    document.getElementById('orderForm').classList.add('active');
+                    updateTimeWarning();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        // Create Order
+        document.getElementById('createOrderBtn').onclick = async function() {
+            if (isProcessing) {
+                console.log('Already processing, please wait...');
+                return;
+            }
+
+            if (!selectedUser) {
+                alert('Please select a user first');
+                return;
+            }
+
+            // Verify time one last time before submitting
+            if (!isOrderingTime()) {
+                alert('❌ Outside ordering hours!\n\nManual orders can only be placed between 4 AM and 10 AM.');
+                return;
+            }
+
+            // Get selected location
+            const selectedLocation = document.querySelector('input[name="manualLocation"]:checked').value;
+
+            isProcessing = true;
+            showLoading(true);
+            document.getElementById('createOrderBtn').disabled = true;
+
+            try {
+                const orderData = {
+                    userId: selectedUser.uid,
+                    employeeId: selectedUser.employeeId,
+                    name: selectedUser.name,
+                    email: selectedUser.email,
+                    phoneNumber: selectedUser.phoneNumber || '',
+                    role: selectedUser.role,
+                    department: selectedUser.department || '',
+                    orderDate: serverTimestamp(),
+                    orderStatus: 'ordered',
+                    mealSet: 'Normal', // Defaulted to normal for morning shift
+                    location: selectedLocation,
+                    manualEntry: true
+                };
+
+                const orderRef = await addDoc(collection(db, 'orders'), orderData);
+                const createdOrder = await getDoc(orderRef);
+                const orderWithTimestamp = createdOrder.data();
+
+                // Generate QR
+                const qrContainer = document.getElementById('qrcode');
+                while (qrContainer.firstChild) {
+                    qrContainer.removeChild(qrContainer.firstChild);
+                }
+
+                const fullTimestamp = orderWithTimestamp.orderDate?.toDate ? 
+                    orderWithTimestamp.orderDate.toDate().toISOString() : 
+                    new Date().toISOString();
+                
+                const qrDataObj = {
+                    employeeId: orderWithTimestamp.employeeId || '',
+                    orderDate: fullTimestamp,
+                    orderTimestamp: fullTimestamp,
+                    orderStatus: orderWithTimestamp.orderStatus || 'ordered',
+                    mealSet: orderWithTimestamp.mealSet || 'Normal',
+                    location: selectedLocation
+                };
+
+                setTimeout(() => {
+                    new QRCode(qrContainer, {
+                        text: JSON.stringify(qrDataObj),
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }, 100);
+
+                document.getElementById('qrEmployeeId').textContent = selectedUser.employeeId;
+                document.getElementById('qrLocation').textContent = selectedLocation;
+                document.getElementById('qrModal').classList.add('active');
+
+                // Reset
+                selectedUser = null;
+                document.getElementById('searchInput').value = '';
+                document.getElementById('userInfoCard').classList.remove('active');
+                document.getElementById('orderForm').classList.remove('active');
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating order: ' + error.message);
+            } finally {
+                isProcessing = false;
+                showLoading(false);
+                document.getElementById('createOrderBtn').disabled = false;
+            }
+        };
+
+        // Download QR
+        document.getElementById('downloadQR').onclick = function() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL("image/png");
+                link.download = `manual-order-qr-${new Date().getTime()}.png`;
+                link.click();
+            }
+        };
+
+        // Print QR
+        document.getElementById('printQR').onclick = function() {
+            window.print();
+        };
+
+        // Close Modal
+        document.getElementById('closeModal').onclick = function() {
+            document.getElementById('qrModal').classList.remove('active');
+        };
+
+        // Cancel
+        document.getElementById('cancelBtn').onclick = function() {
+            selectedUser = null;
+            document.getElementById('searchInput').value = '';
+            document.getElementById('userInfoCard').classList.remove('active');
+            document.getElementById('orderForm').classList.remove('active');
+        };
+    </script>
+</body>
+</html>

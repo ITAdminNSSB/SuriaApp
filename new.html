@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimated Savings 1/3 to 23/3</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .chart-wrapper {
+            position: relative;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-top: 40px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        .blue { background-color: #4299e1; }
+        .green { background-color: #38a169; }
+        .pink { background-color: #d53f8c; }
+        .orange { background-color: #ed8936; }
+        .purple { background-color: #805ad5; }
+        .savings-summary {
+            margin-top: 30px;
+            background-color: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-left: 5px solid #38a169;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .savings-summary h2 {
+            margin-top: 0;
+            color: #2f855a;
+            font-size: 18px;
+        }
+        .savings-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2f855a;
+            margin: 10px 0;
+        }
+        .savings-details {
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .data-tables {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .data-table {
+            width: 48%;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table, th, td {
+            border: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #edf2f7;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        td {
+            padding: 10px;
+            text-align: right;
+            font-weight: 500;
+        }
+        .highlight {
+            background-color: #f0fff4;
+            color: #2f855a;
+            font-weight: bold;
+        }
+        .warning {
+            background-color: #fff5f5;
+            color: #e53e3e;
+        }
+        .table-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #4a5568;
+            font-weight: bold;
+        }
+        .daily-orders-table {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .daily-orders-table table {
+            min-width: 100%;
+        }
+        .daily-orders-table th, .daily-orders-table td {
+            text-align: center;
+            min-width: 70px;
+        }
+        .daily-orders-table .date-header {
+            font-weight: bold;
+            background-color: #edf2f7;
+        }
+        .daily-orders-table .weekend {
+            background-color: #ebf8ff;
+        }
+        .daily-orders-table .savings-row td {
+            font-weight: bold;
+        }
+        .daily-orders-table .positive-savings {
+            color: #2f855a;
+        }
+        .daily-orders-table .no-orders {
+            background-color: #f7fafc;
+            color: #a0aec0;
+        }
+        .order-totals {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 10;
+            position: absolute;
+            top: -25px;
+        }
+        .total-order {
+            position: absolute;
+            font-size: 12px;
+            color: #4a5568;
+            font-weight: bold;
+            text-align: center;
+            transform: translateX(-50%);
+        }
+        .savings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .weekend-savings {
+            background-color: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-left: 5px solid #4299e1;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .weekend-savings h2 {
+            margin-top: 0;
+            color: #2b6cb0;
+            font-size: 18px;
+        }
+        .weekend-savings .savings-amount {
+            color: #2b6cb0;
+        }
+        .total-savings {
+            background-color: #edf2f7;
+            border: 1px solid #cbd5e0;
+            border-left: 5px solid #4a5568;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .total-savings h2 {
+            margin-top: 0;
+            color: #4a5568;
+            font-size: 18px;
+        }
+        .total-savings .savings-amount {
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Estimated Savings after full implementation of NSSB APP starting from 1/3 to 23/3</h1>
+        
+        <div class="data-tables">
+            <div class="data-table">
+                <div class="table-title">Financial Summary</div>
+                <table id="financialTable">
+                    <tr>
+                        <th>BUDGET (RM)</th>
+                        <td id="budgetValue">RM 40,053.00</td>
+                    </tr>
+                    <tr>
+                        <th>ACTUAL (RM)</th>
+                        <td id="actualValue">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>SAVINGS AMOUNT (RM)</th>
+                        <td id="savingsValue" class="highlight">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>SAVINGS RATE (%)</th>
+                        <td id="savingsRateValue" class="highlight">Calculating...</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-title">Order Summary</div>
+                <table id="orderTable">
+                    <tr>
+                        <th>Number Of Total Ordering (PAX)</th>
+                        <td id="totalPax">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Plan Pax</th>
+                        <td>6500</td>
+                    </tr>
+                    <tr>
+                        <th>Actual Pax Order</th>
+                        <td id="actualPax">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Plan vs Actual Number</th>
+                        <td id="planVsActual" class="warning">Calculating...</td>
+                    </tr>
+                    <tr>
+                        <th>Rate Accuracy Ordering</th>
+                        <td id="accuracyRate">Calculating...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="daily-orders-table">
+            <div class="table-title">Daily Orders (March 2025)</div>
+            <table id="dailyOrdersTable">
+                <thead>
+                    <tr id="dateRow">
+                        <th>Metric</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="estimatedRow">
+                        <th>Estimated</th>
+                    </tr>
+                    <tr id="actualRow">
+                        <th>Actual</th>
+                    </tr>
+                    <tr id="savingsRow" class="savings-row">
+                        <th>Diff</th>
+                    </tr>
+                    <tr id="savingsMYRRow" class="savings-row">
+                        <th>Savings (RM)</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item"><span class="legend-color blue"></span> Estimated Orders</div>
+            <div class="legend-item"><span class="legend-color green"></span> Actual Orders</div>
+            <div class="legend-item"><span class="legend-color pink"></span> Savings (RM)</div>
+            <div class="legend-item"><span class="legend-color orange"></span> Savings (%)</div>
+        </div>
+        
+        <div class="chart-wrapper">
+            <div class="chart-container">
+                <div class="order-totals" id="orderTotals">
+                </div>
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="savings-grid">
+            <div class="savings-summary" id="weekdaySavings">
+                <h2>Weekday Savings Summary</h2>
+                <div class="savings-amount" id="totalWeekdaySavings">Calculating...</div>
+                <div class="savings-details">
+                    <p>Total orders saved on weekdays: <span id="ordersReduced">Calculating...</span></p>
+                    <p>Average daily savings: <span id="avgDailySavings">Calculating...</span></p>
+                </div>
+            </div>
+            
+            <div class="weekend-savings" id="weekendSavings">
+                <h2>Weekend Savings Summary</h2>
+                <div class="savings-amount" id="totalWeekendSavings">Calculating...</div>
+                <div class="savings-details">
+                    <p>Total orders saved on weekends: <span id="weekendOrdersReduced">Calculating...</span></p>
+                    <p>Average daily savings: <span id="avgWeekendSavings">Calculating...</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="total-savings" id="allDaysSavings">
+            <h2>Total Savings Summary (All Days)</h2>
+            <div class="savings-amount" id="totalAllDaysSavings">Calculating...</div>
+            <div class="savings-details">
+                <p>Total orders saved (all days): <span id="allOrdersReduced">Calculating...</span></p>
+                <p>Average daily savings: <span id="avgAllDaysSavings">Calculating...</span></p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>The Ordering as of March 2025</p>
+            <p>Each order costs RM 6.50</p>
+            <p>Estimated daily attendance: 370 (weekdays) / 57 (weekends)</p>
+        </div>
+    </div>
+
+    <script>
+        // Data arrays
+        const dates = ['1/3', '2/3', '3/3', '4/3', '5/3', '6/3', '7/3', '8/3', '9/3', '10/3', '11/3', '12/3', '13/3', '14/3','15/3','16/3','17/3','18/3','19/3','20/3','21/3','22/3','23/3','24/3','25/3','26/3','27/3','28/3','29/3','30/3'];
+        const estimatedOrders = [112,0,360,362,368,367,363,350,0,358,367,367,368,372,279,15,364,361,367,366,369,117,10,330,359,365,363,363,0,0];
+        const actualOrders = [68,0,298,299,301,300,292,225,0,287,265,267,256,173,141,15,283,269,319,269,190,117,7,320,244,253,329,244,0,0];
+        
+        // Calculate total estimated and actual orders
+        const totalEstimatedOrders = estimatedOrders.reduce((sum, val) => sum + val, 0);
+        const totalActualOrders = actualOrders.reduce((sum, val) => sum + val, 0);
+        
+        // Determine which dates are weekdays and weekends
+        const isWeekday = estimatedOrders.map((est, i) => {
+            // Check if it's a weekday with normal orders
+            return est > 0 && !(est <= 112 && (dates[i] === '1/3' || dates[i] === '22/3' || dates[i] === '23/3'));
+        });
+        
+        const isWeekend = estimatedOrders.map((est, i) => {
+            // Check if it's a weekend with orders
+            return est > 0 && (est <= 112 && (dates[i] === '1/3' || dates[i] === '22/3' || dates[i] === '23/3' || 
+            dates[i] === '8/3' || dates[i] === '15/3' || dates[i] === '16/3'));
+        });
+        
+        // Calculate savings
+        const savings = estimatedOrders.map((est, i) => (est - actualOrders[i]) * 6.50);
+        const savingsPercent = estimatedOrders.map((est, i) => est > 0 ? ((est - actualOrders[i]) / est) * 100 : 0)
+            .map(val => val > 0 ? val : 0);
+
+        // Calculate weekday totals
+        const weekdaySavings = savings.filter((_, i) => isWeekday[i]);
+        const totalWeekdaySavings = weekdaySavings.reduce((sum, val) => sum + val, 0);
+        
+        const weekdayOrdersReduced = estimatedOrders
+            .map((est, i) => isWeekday[i] ? est - actualOrders[i] : 0)
+            .reduce((sum, val) => sum + val, 0);
+            
+        const weekdayCount = isWeekday.filter(Boolean).length;
+        const avgDailySavings = totalWeekdaySavings / weekdayCount;
+        
+        // Calculate weekend totals
+        const weekendSavings = savings.filter((_, i) => isWeekend[i]);
+        const totalWeekendSavings = weekendSavings.reduce((sum, val) => sum + val, 0);
+        
+        const weekendOrdersReduced = estimatedOrders
+            .map((est, i) => isWeekend[i] ? est - actualOrders[i] : 0)
+            .reduce((sum, val) => sum + val, 0);
+            
+        const weekendCount = isWeekend.filter(Boolean).length;
+        const avgWeekendSavings = weekendCount > 0 ? totalWeekendSavings / weekendCount : 0;
+        
+        // Calculate total for all days
+        const totalAllDaysSavings = totalWeekdaySavings + totalWeekendSavings;
+        const allOrdersReduced = weekdayOrdersReduced + weekendOrdersReduced;
+        const allDaysCount = weekdayCount + weekendCount;
+        const avgAllDaysSavings = totalAllDaysSavings / allDaysCount;
+        
+        // Calculate financial summary values
+        const totalBudget = 40053.00; // Given
+        const actualCost = totalActualOrders * 6.50;
+        const totalSavings = totalBudget - actualCost;
+        const savingsRate = (totalSavings / totalBudget) * 100;
+        
+        // Calculate order summary values
+        const planPax = 6500; // Given
+        const actualPax = totalActualOrders;
+        const planVsActual = planPax - actualPax;
+        const accuracyRate = (actualPax / planPax) * 100;
+        
+        // Calculate order differences
+        const orderDifferences = estimatedOrders.map((est, i) => est - actualOrders[i]);
+        
+        // Helper function to check if a date is a weekend
+        const isWeekendDay = (i) => {
+            const est = estimatedOrders[i];
+            return est === 0 || (est <= 112 && (dates[i] === '1/3' || dates[i] === '8/3' || dates[i] === '15/3' || 
+            dates[i] === '16/3' || dates[i] === '22/3' || dates[i] === '23/3'));
+        };
+        
+        // Update the table values
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update financial table
+            document.getElementById('actualValue').textContent = 'RM ' + actualCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('savingsValue').textContent = 'RM ' + totalSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('savingsRateValue').textContent = savingsRate.toFixed(2) + '%';
+            
+            // Update order table
+            document.getElementById('totalPax').textContent = totalActualOrders.toLocaleString();
+            document.getElementById('actualPax').textContent = actualPax.toLocaleString();
+            document.getElementById('planVsActual').textContent = planVsActual.toLocaleString();
+            document.getElementById('accuracyRate').textContent = accuracyRate.toFixed(2) + '%';
+            
+            // Update the weekday summary section
+            document.getElementById('totalWeekdaySavings').textContent = 'RM ' + totalWeekdaySavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('ordersReduced').textContent = weekdayOrdersReduced.toLocaleString();
+            document.getElementById('avgDailySavings').textContent = 'RM ' + avgDailySavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            
+            // Update the weekend summary section
+            document.getElementById('totalWeekendSavings').textContent = 'RM ' + totalWeekendSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('weekendOrdersReduced').textContent = weekendOrdersReduced.toLocaleString();
+            document.getElementById('avgWeekendSavings').textContent = 'RM ' + avgWeekendSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            
+            // Update the all days summary section
+            document.getElementById('totalAllDaysSavings').textContent = 'RM ' + totalAllDaysSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('allOrdersReduced').textContent = allOrdersReduced.toLocaleString();
+            document.getElementById('avgAllDaysSavings').textContent = 'RM ' + avgAllDaysSavings.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            
+            // Populate the daily orders table
+            const dateRow = document.getElementById('dateRow');
+            const estimatedRow = document.getElementById('estimatedRow');
+            const actualRow = document.getElementById('actualRow');
+            const savingsRow = document.getElementById('savingsRow');
+            const savingsMYRRow = document.getElementById('savingsMYRRow');
+            
+            // Add date headers
+            dates.forEach((date, i) => {
+                const th = document.createElement('th');
+                th.textContent = date;
+                th.className = 'date-header';
+                if (isWeekendDay(i)) {
+                    th.classList.add('weekend');
+                }
+                dateRow.appendChild(th);
+                
+                // Add estimated orders
+                const estTd = document.createElement('td');
+                estTd.textContent = estimatedOrders[i];
+                if (estimatedOrders[i] === 0) {
+                    estTd.classList.add('no-orders');
+                }
+                if (isWeekendDay(i)) {
+                    estTd.classList.add('weekend');
+                }
+                estimatedRow.appendChild(estTd);
+                
+                // Add actual orders
+                const actTd = document.createElement('td');
+                actTd.textContent = actualOrders[i];
+                if (actualOrders[i] === 0) {
+                    actTd.classList.add('no-orders');
+                }
+                if (isWeekendDay(i)) {
+                    actTd.classList.add('weekend');
+                }
+                actualRow.appendChild(actTd);
+                
+                // Add order differences
+                const diffTd = document.createElement('td');
+                const diff = orderDifferences[i];
+                diffTd.textContent = diff;
+                if (diff > 0) {
+                    diffTd.classList.add('positive-savings');
+                }
+                if (isWeekendDay(i)) {
+                    diffTd.classList.add('weekend');
+                }
+                savingsRow.appendChild(diffTd);
+                
+                // Add savings in MYR
+                const savingsMYRTd = document.createElement('td');
+                const savingMYR = savings[i];
+                savingsMYRTd.textContent = 'RM ' + savingMYR.toFixed(2);
+                if (savingMYR > 0) {
+                    savingsMYRTd.classList.add('positive-savings');
+                }
+                if (isWeekendDay(i)) {
+                    savingsMYRTd.classList.add('weekend');
+                }
+                savingsMYRRow.appendChild(savingsMYRTd);
+            });
+        });
+
+        // Create chart
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Estimated Orders',
+                        data: estimatedOrders,
+                        backgroundColor: '#4299e1',
+                        order: 2
+                    },
+                    {
+                        label: 'Actual Orders',
+                        data: actualOrders,
+                        backgroundColor: '#38a169',
+                        order: 3
+                    },
+                    {
+                        label: 'Savings (RM)',
+                        data: savings,
+                        borderColor: '#d53f8c',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        type: 'line',
+                        yAxisID: 'y1',
+                        order: 1
+                    },
+                    {
+                        label: 'Savings (%)',
+                        data: savingsPercent,
+                        borderColor: '#ed8936',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        type: 'line',
+                        yAxisID: 'y1',
+                        order: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date (March 2025)'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Savings'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.dataset.label === 'Savings (RM)') {
+                                    label += 'RM ' + context.raw.toFixed(2);
+                                } else if (context.dataset.label === 'Savings (%)') {
+                                    label += context.raw.toFixed(2) + '%';
+                                } else {
+                                    label += context.raw;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    onComplete: function() {
+                        positionOrderNumbers();
+                    }
+                }
+            }
+        });
+
+        // Function to add the order totals above the chart's x-axis
+        function positionOrderNumbers() {
+            const chart = myChart;
+            const orderTotals = document.getElementById('orderTotals');
+            
+            // Clear any existing totals
+            orderTotals.innerHTML = '';
+            
+            // Get the chart area dimensions
+            const chartArea = chart.chartArea;
+            const totalWidth = chartArea.right - chartArea.left;
+            const barWidth = totalWidth / dates.length;
+            
+            // Place each total above the corresponding date on the x-axis
+            dates.forEach((date, i) => {
+                // Skip dates with zero values
+                if (actualOrders[i] === 0) return;
+                
+                // Calculate position (percentage of chart width)
+                const position = chartArea.left + barWidth * (i + 0.5);
+                const percentage = (position / chart.width) * 100;
+                
+                const totalEl = document.createElement('div');
+                totalEl.className = 'total-order';
+                totalEl.textContent = `${actualOrders[i]}`;
+                totalEl.style.left = `${percentage}%`;
+                
+                orderTotals.appendChild(totalEl);
+            });
+        }
+
+        // When the window is resized, reposition the order numbers
+        window.addEventListener('resize', function() {
+            setTimeout(positionOrderNumbers, 100);
+        });
+    </script>
+</body>
+</html>

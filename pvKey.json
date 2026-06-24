@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "suria-food-ordering-system",
+  "private_key_id": "831d5a0193cf48668f76473bc70f695a99837d82",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDRx77pUXthio0D\n8lWe1kag5M2aDBQkgh7Wj2Mkg6RKIlmDYeXQkAa502EKHprF9QleGgQxBI5wKG43\n/1bxdffAvDHRQslkfWInTjsSzkjvDarVc/95B7ARg75b0INX+rAA4t6W8dULLRK4\nzUwzyRD+wdmR1B2t6q4tmT10qkyqR5H1solUByFxc+/HLLrSpQVBx6PvNLTdvSA0\nvbWqp2YxZyVS2lxfT4MA0d7/pM+aGaYlrka3Qy5CFIszY3Ah/0+++WljZ2EFa0hx\n90ubQEBFOW5/clL4LeS0lStbz6Vln1qPsJ60UMtsI/86wm7ToqIyAw5p/4prXyzt\nYtUk4ewdAgMBAAECggEATqWuQ1bTBNymxYYC54u56vQcyNYibxWBbjtPlg7sdwat\nvH3lZO26N8yxotOafwDAxFDIpX/pzs65k7Dc7aWmftGPc76wNkZzl/zSVNiVq1na\nZDAa5UsmjUpxAYcI1uEbPxnPDZQYpRn+3N3K5ddJ0djnMq7teZh0OJAs5CI8n9GL\ndybCLlP7QoxiUyngDI29VvUWjdSvd7uNV4p/3/g332hG0ARdLFPYh0JcbUlFd0i9\nyU5LNHiXiErR49Iqc6FozNRt3U1Z27WJzT862v8U7WqJARDI8j2hJBxSO2zKBDiZ\nqbc6GlilKBj89rA9uWO1lQ/KA6hUNAMBNJl3E2p82QKBgQDqSz51pdpjx9TxFgDj\ntfS8izZZul/dx1ighPk9dJ5Zyr8XcvmI1355Vxt3AIo0XxdDwmJrYYbSOw1XkwvO\nESOpxLIDLsWZexpakwW0QhsWK1k9JDcIBwbUj+zSVrsxim0aVi0emdp6G/1gj2Qu\nrP2IZbU1Lk020vTXEkyzeqfZpwKBgQDlNxxFTmD8sXsaHsIn8JjCMaKB6zJEIW0i\nsbUDeCeZZczvl96Fi8Pmjz0L6kocMZaTdjzTszgTwCcqeLpXghMYS3Pcd2gLgRH1\n6AS9mu7G5659IQg3t+Hyzi8LMOR3rhMelpGcIq+A4SShDGEZ5T0wtljRt155ZIk0\nig9Hb5I8mwKBgQDk67QRe4XQ7JWRIfCojUadWmA2d7XnmjlsTcDBXUrDbSgdH0fV\nfsiigovhUHO5DBhNKobDaL00eGJm6NQl+fUgkYFlPrPvbKqpSPHP2K9ij+RXqyTi\nAQuZcS7xrbCljR1hGEZpmeYwXVzKlhBK0te+B7JwTdc/9AsqgUTUMMoEDQKBgH+0\nOaL/bRe8RiqiUmfwKxuejby2bhX5TZWTzpb1PZLAXfJq+YYL/YQZ79gQm2Oj2RGl\nQXRtGGQgnXGTO7Z/eOYDO7TsLeKi8X/A2ctNY5UcBWIfojVw1IjziNBCWDe5m1ti\nZhPIW2GBjmfPvtWvm2zlWwzUjeUyNyM3fBW/uojbAoGAb3PW6CtNHfoxMVNPHMUO\nff29/Jw8UQ4cno9NUE/Mp2Tz1+q+QZDRswfVtaYg9sFWkjOvsVvzgEQWUQtKuziE\n/Xquzb3eablo4X3P9Ot0BP6OllNimnt6EDdi96jdpfAaBvVUQXdBOwoOuwINLwKQ\nzKHJ4ndrE+7gXbwEWbkSZ+8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-vcldc@suria-food-ordering-system.iam.gserviceaccount.com",
+  "client_id": "103556867160323489314",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-vcldc%40suria-food-ordering-system.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

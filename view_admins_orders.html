@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Orders - Canteen Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-         <script type="module" src="auth-guard.js"></script>
+        <script type="module" src="auth-guard.js"></script>
     <style>
         :root {
             --primary-color: #0C0E8B;
@@ -420,11 +420,11 @@
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
 
@@ -443,8 +443,8 @@
 
         function isSameDate(date1, date2) {
             return date1.getFullYear() === date2.getFullYear() &&
-                   date1.getMonth() === date2.getMonth() &&
-                   date1.getDate() === date2.getDate();
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate();
         }
 
         async function getClaimedOrders(selectedDate) {

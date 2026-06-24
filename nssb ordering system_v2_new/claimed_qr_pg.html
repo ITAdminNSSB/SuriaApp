@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Employee ID</title>
+</head>
+<body>
+    <h2>Claim Your Employee ID</h2>
+    <form id="claimForm">
+        <label for="employeeId">Enter your Employee ID:</label>
+        <input type="text" id="employeeId" name="employeeId" required>
+        <button type="submit">Submit</button>
+    </form>
+    <p id="message"></p>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+            authDomain: "test-login2-e4c7f.firebaseapp.com",
+            projectId: "test-login2-e4c7f",
+            storageBucket: "test-login2-e4c7f.appspot.com",
+            messagingSenderId: "698181085162",
+            appId: "1:698181085162:web:3b91954eb1779a05894cd2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+
+        // Handle form submission
+        document.getElementById('claimForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const employeeId = document.getElementById('employeeId').value;
+            const messageEl = document.getElementById('message');
+
+            try {
+                // Add employee ID to Firestore in the "claimed" collection
+                await addDoc(collection(firestore, 'claimed'), {
+                    employeeId: employeeId,
+                    claimDate: new Date().toISOString() // Add current date/time
+                });
+
+                // Display success message and reset form
+                messageEl.textContent = "Claim successful!";
+                messageEl.style.color = "green";
+                document.getElementById('claimForm').reset();
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                messageEl.textContent = "Error saving claim. Please try again.";
+                messageEl.style.color = "red";
+            }
+        });
+    </script>
+</body>
+</html>

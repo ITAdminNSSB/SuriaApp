@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Orders - ADMIN(HR) Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-         <script type="module" src="auth-guard.js"></script>
+        <script type="module" src="auth-guard.js"></script>
     <style>
         :root {
             --primary-color: #0C0E8B;
@@ -389,7 +389,7 @@
                     <th>Department</th>
                     <th>Order Status</th>
                     <th>Order Time</th>
-					 <th>Option</th>
+					<th>Option</th>
                 </tr>
             </thead>
             <tbody>
@@ -424,7 +424,7 @@
     </div>
 
     <script type="module">
-       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { 
     getFirestore, 
     collection, 
@@ -439,11 +439,11 @@ import {
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+    authDomain: "suria-food-ordering-system.firebaseapp.com",
+    projectId: "suria-food-ordering-system",
+    storageBucket: "suria-food-ordering-system.firebasestorage.app",
+    messagingSenderId: "204528329291",
+    appId: "1:204528329291:web:cba270a2968e6d159963ce"
 };
 
 // Initialize Firebase
@@ -461,8 +461,8 @@ const totalsdepart = [...mainCanteenDepartments, ...stampingDepartments];
 
 function isSameDate(date1, date2) {
     return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate();
 }
 
 async function getClaimedOrders(selectedDate) {
@@ -638,13 +638,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stampingBtn').classList.remove('active');
         document.getElementById('mainCanteenBtn').classList.remove('active');
         document.getElementById('totalBtn').classList.remove('active');
-     
         getNightOrders();
     });
     datePicker.addEventListener('change', () => getNightOrders());
-
     // Department filter buttons
-     
     const stampingBtn = document.getElementById('stampingBtn');
     const mainCanteenBtn = document.getElementById('mainCanteenBtn');
     const totalBtn = document.getElementById('totalBtn');
@@ -675,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add legend for claimed orders
     // add legend for clkaimec orders 
-    connt legend 
+    
     const legend = document.createElement('div');
     legend.style.cssText = 'text-align: center; margin: 10px 0; padding: 10px; background-color: var(--white); border-radius: var(--border-radius); box-shadow: var(--box-shadow);';
     legend.innerHTML = '<span style="background-color: #90EE90; padding: 5px 10px; border-radius: 5px;">Green rows indicate claimed orders</span>';

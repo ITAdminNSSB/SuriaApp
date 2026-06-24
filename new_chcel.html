@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        #qr-video {
+            width: 100%;
+            display: block;
+        }
+        
+        #scan-region {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%);
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.3);
+        }
+        
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3367d6;
+        }
+        
+        .controls {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Scanner</h1>
+        <p>Position a QR code in view of your camera</p>
+        
+        <div id="video-container">
+            <video id="qr-video" playsinline></video>
+            <div id="scan-region"></div>
+        </div>
+        
+        <div id="result">
+            <h3>Result:</h3>
+            <p id="result-text"></p>
+        </div>
+        
+        <div class="controls">
+            <button id="start-button">Start Camera</button>
+        </div>
+    </div>
+    
+    <!-- Load jsQR from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('qr-video');
+            const startButton = document.getElementById('start-button');
+            const resultContainer = document.getElementById('result');
+            const resultText = document.getElementById('result-text');
+            
+            let canvasElement;
+            let canvas;
+            let scanning = false;
+            
+            startButton.addEventListener('click', startCamera);
+            
+            function startCamera() {
+                if (scanning) {
+                    stopCamera();
+                    startButton.textContent = 'Start Camera';
+                    scanning = false;
+                    return;
+                }
+                
+                // Check if the browser supports getUserMedia
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: "environment" } 
+                    })
+                    .then(function(stream) {
+                        video.srcObject = stream;
+                        video.setAttribute('playsinline', true); // required for iOS
+                        video.play();
+                        startButton.textContent = 'Stop Camera';
+                        scanning = true;
+                        
+                        // Create canvas for QR processing if it doesn't exist
+                        if (!canvasElement) {
+                            canvasElement = document.createElement('canvas');
+                            canvas = canvasElement.getContext('2d');
+                        }
+                        
+                        requestAnimationFrame(tick);
+                    })
+                    .catch(function(error) {
+                        console.error('Error accessing the camera:', error);
+                        alert('Error accessing the camera: ' + error.message);
+                    });
+                } else {
+                    alert('Sorry, your browser does not support accessing the camera');
+                }
+            }
+            
+            function stopCamera() {
+                if (video.srcObject) {
+                    const tracks = video.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                resultContainer.style.display = 'none';
+            }
+            
+            function tick() {
+                if (!scanning) return;
+                
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvasElement.height = video.videoHeight;
+                    canvasElement.width = video.videoWidth;
+                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                    
+                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    
+                    if (code) {
+                        // QR code detected!
+                        console.log("QR Code detected:", code.data);
+                        resultText.textContent = code.data;
+                        resultContainer.style.display = 'block';
+                        
+                        // Optional: Add a short pause after detection
+                        scanning = false;
+                        setTimeout(() => {
+                            scanning = true;
+                            requestAnimationFrame(tick);
+                        }, 2000);
+                        return;
+                    }
+                }
+                
+                requestAnimationFrame(tick);
+            }
+        });
+    </script>
+</body>
+</html>

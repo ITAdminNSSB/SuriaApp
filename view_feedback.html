@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:root {--primary-color: #0C0E8B;--background-color: #f0f0f0;--card-background: #FFFFFF;--text-secondary: #6B7280;--border-color: #E5E7EB;}
+* {margin: 0;padding: 0;box-sizing: border-box;font-family: 'Helvetica', sans-serif;}
+body {background-color: var(--background-color);padding: 20px;max-width: 600px;margin: 0 auto;}
+.header {text-align: center;padding: 20px;background: var(--primary-color);color: white;border-radius: 15px;margin-bottom: 20px;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);}
+.filter-container {display: flex;gap: 10px;margin-bottom: 20px;}
+.filter-select {flex: 1;padding: 10px;border-radius: 8px;border: 1px solid var(--border-color);background-color: white;font-size: 14px;color: #1F2937;outline: none;cursor: pointer;}
+#loader {text-align: center;padding: 40px;color: var(--text-secondary);font-weight: bold;}
+.feedback-card { background: var(--card-background);border-radius: 12px;padding: 1rem;margin-bottom: 1rem;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+.feedback-header {display: flex;justify-content: space-between;align-items: center;margin-bottom: 0.75rem; }
+.category-tag {background: #EEF2FF;color: var(--primary-color);padding: 0.25rem 0.75rem;border-radius: 999px;font-size: 0.75rem;font-weight: 600;}
+.rating {color: #FBBF24;font-size: 0.875rem;}
+.feedback-content {font-size: 0.9375rem;line-height: 1.5;margin-bottom: 0.75rem;color: #1F2937;}
+.feedback-photo {width: 100%;max-height: 250px;object-fit: contain;border-radius: 8px;margin-bottom: 0.75rem;border: 1px solid var(--border-color);background-color: #f9fafb;}
+.admin-reply-box {background: #f0fdf4;border-left: 4px solid #16a34a;padding: 0.75rem;border-radius: 4px 8px 8px 4px;font-size: 0.85rem;color: #166534;margin-bottom: 0.75rem;}
+.feedback-meta {display: flex;justify-content: space-between;align-items: center;font-size: 0.75rem;color: var(--text-secondary);padding-top: 0.75rem;border-top: 1px solid var(--border-color);}
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Customer Feedback</h2>
+    </div>
+
+    <div class="filter-container">
+        <select id="dayFilter" class="filter-select">
+            <option value="All">All Days</option>
+        </select>
+        
+        <select id="categoryFilter" class="filter-select">
+            <option value="All">All Categories</option>
+            <option value="Food">Food</option>
+            <option value="Service">Service</option>
+            <option value="App">App</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div id="loader">Loading feedback... <i class="fas fa-spinner fa-spin"></i></div>
+    
+    <div id="feedbackContainer"></div>
+
+    <script>
+        // UPDATE THIS TO YOUR NEW DEPLOYED APP SCRIPT URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-f0niqYuw-_F83chJ5tw3XUK2lhLUbOd3BABkVtiM4gkuxMEbn6Q0COna5g31rQgF/exec';
+
+        const container = document.getElementById('feedbackContainer');
+        const loader = document.getElementById('loader');
+        const dayFilter = document.getElementById('dayFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+
+        let allFeedbackData = []; 
+
+        function generateStarRating(rating) {
+            return Array(5).fill(0).map((_, i) => `<i class="fa${i < rating ? 's' : 'r'} fa-star"></i>`).join('');
+        }
+
+        function formatDate(dateString) {
+            const options = { hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleTimeString(undefined, options);
+        }
+
+        async function loadFeedback() {
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    allFeedbackData = result.data; 
+                    
+                    const uniqueDays = [...new Set(allFeedbackData.map(item => item.dayString))];
+                    uniqueDays.forEach(day => {
+                        const option = document.createElement('option');
+                        option.value = day;
+                        option.textContent = day;
+                        dayFilter.appendChild(option);
+                    });
+
+                    renderCards(allFeedbackData);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error("Error loading feedback:", error);
+                loader.innerHTML = '<span style="color: red;">Failed to load data.</span>';
+            }
+        }
+
+        function renderCards(dataToRender) {
+            loader.style.display = 'none';
+            container.innerHTML = ''; 
+            
+            if (dataToRender.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:#6B7280;">No feedback matches these filters.</div>';
+                return;
+            }
+
+            dataToRender.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'feedback-card';
+
+                // ==========================================
+                // PHOTO FETCHER LOGIC
+                // ==========================================
+                let photoHtml = '';
+                let rawPhoto = String(item.photoLink || "").trim();
+
+                // Because Apps Script is now doing the smart extraction, rawPhoto 
+                // is already formatted perfectly as a Google Drive Thumbnail URL.
+                if (rawPhoto !== "" && rawPhoto !== "No Photo" && !rawPhoto.startsWith("Error")) {
+                    photoHtml = `<img src="${rawPhoto}" class="feedback-photo" alt="Feedback Proof" referrerpolicy="no-referrer">`;
+                }
+
+                // ==========================================
+                // ADMIN REPLY LOGIC
+                // ==========================================
+                let adminReplyHtml = '';
+                if (item.adminReply && item.adminReply.trim() !== "") {
+                    adminReplyHtml = `
+                    <div class="admin-reply-box">
+                        <strong><i class="fas fa-reply"></i> Admin Reply:</strong><br>
+                        ${item.adminReply}
+                    </div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="feedback-header">
+                        <span class="category-tag">${item.category || 'General'}</span>
+                        <span class="rating">${generateStarRating(item.rating)}</span>
+                    </div>
+                    
+                    <div class="feedback-content">
+                        "${item.feedback}"
+                    </div>
+                    
+                    ${photoHtml} ${adminReplyHtml} 
+                    
+                    <div class="feedback-meta">
+                        <span><i class="fas fa-user"></i> ${item.email}</span>
+                        <span><i class="far fa-calendar-alt"></i> ${item.dayString} at ${formatDate(item.timestamp)}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleFilterChange() {
+            const selectedDay = dayFilter.value;
+            const selectedCategory = categoryFilter.value;
+
+            const filteredData = allFeedbackData.filter(item => {
+                const matchesDay = selectedDay === 'All' || item.dayString === selectedDay;
+                const matchesCategory = selectedCategory === 'All' || 
+                                        item.category === selectedCategory || 
+                                        (selectedCategory === 'Other' && item.category.startsWith('Other'));
+                
+                return matchesDay && matchesCategory;
+            });
+
+            renderCards(filteredData);
+        }
+
+        dayFilter.addEventListener('change', handleFilterChange);
+        categoryFilter.addEventListener('change', handleFilterChange);
+
+        loadFeedback();
+    </script>
+</body>
+</html>

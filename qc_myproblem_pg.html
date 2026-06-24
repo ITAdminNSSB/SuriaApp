@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Problems - Issue Tracker</title>
-         <script type="module" src="auth-guard.js"></script>
     <style>
         * {
             margin: 0;
@@ -120,12 +119,18 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .btn:hover {
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
-        .btn:active {
+        .btn:active:not(:disabled) {
             transform: translateY(0);
         }
 
@@ -162,7 +167,7 @@
 
         .problem-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: start;
             margin-bottom: 15px;
             flex-wrap: wrap;
@@ -273,16 +278,13 @@
             .header h1 {
                 font-size: 2rem;
             }
-            
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
             .problem-header {
                 flex-direction: column;
                 align-items: start;
             }
-            
             .problem-actions {
                 position: static;
                 margin-top: 15px;
@@ -330,16 +332,15 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn">Add Problem</button>
+                    <button type="submit" class="btn" id="submitBtn">Add Problem</button>
                 </form>
             </div>
 
             <div class="problems-list">
-                <h2>My Problems List</h2>
+                <h2>All Problems List</h2>
                 <div id="problemsList">
                     <div class="empty-state">
-                        <h3>No problems added yet</h3>
-                        <p>Add your first problem using the form above</p>
+                        <h3>Loading problems...</h3>
                     </div>
                 </div>
             </div>
@@ -347,10 +348,12 @@
     </div>
 
     <script>
+        // 1. Google Apps Script Web App URL
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx5xjEau7SzI2wpM2CLOHgPQIyRKuILkMLxNGmKIA18WpGHBC-ZoXXOkVgA87ddh54n/exec";
+
         class ProblemTracker {
             constructor() {
                 this.problems = [];
-                this.currentId = 1;
                 this.init();
             }
 
@@ -364,15 +367,44 @@
                     this.addProblem();
                 });
 
-                this.renderProblems();
+                // Fetch existing problems on load
+                this.fetchProblems();
             }
-//dont forget to controlZ okay 
-            addnotifyProblem() {
-                const form = document.getElementById('problemForm');
-                const formData = new FormData(form);
+
+            // Fetch data from the Google Sheet
+            async fetchProblems() {
+                try {
+                    const response = await fetch(`${WEB_APP_URL}?action=getProblems`);
+                    const data = await response.json();
+                    this.problems = data;
+                    this.renderProblems();
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                    document.getElementById('problemsList').innerHTML = `
+                        <div class="empty-state">
+                            <h3>Error loading problems</h3>
+                            <p>Check your console or ensure your Apps Script is deployed properly.</p>
+                        </div>`;
+                }
+            }
+
+            // Helper to handle API POST requests (bypasses CORS preflight using text/plain)
+            async apiRequest(payload) {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                return await response.json();
+            }
+
+            // Submitting a new problem
+            async addProblem() {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.textContent = 'Adding...';
+                submitBtn.disabled = true;
 
                 const problem = {
-                    id: this.currentId++,
                     name: document.getElementById('problemName').value.trim(),
                     openDate: document.getElementById('openDate').value,
                     details: document.getElementById('problemDetails').value.trim(),
@@ -381,35 +413,45 @@
                     status: document.getElementById('closeDate').value ? 'closed' : 'open'
                 };
 
-                if (!problem.name || !problem.details) {
-                    alert('Please fill in all required fields (Problem Name and Details)');
-                    return;
-                }
-
-                this.problems.unshift(problem); // Add to beginning of array
-                this.renderProblems();
-                form.reset();
-                
-                // Reset open date to today
-                document.getElementById('openDate').value = new Date().toISOString().split('T')[0];
-            }
-
-            closeProblem(id) {
-                const problem = this.problems.find(p => p.id === id);
-                if (problem && problem.status === 'open') {
-                    problem.closeDate = new Date().toISOString().split('T')[0];
-                    problem.status = 'closed';
+                try {
+                    const updatedData = await this.apiRequest({ action: 'addProblem', problem: problem });
+                    this.problems = updatedData;
                     this.renderProblems();
+                    
+                    // Reset Form
+                    document.getElementById('problemForm').reset();
+                    document.getElementById('openDate').value = new Date().toISOString().split('T')[0];
+                } catch (error) {
+                    alert('Error saving problem. Please try again.');
+                    console.error(error);
+                } finally {
+                    submitBtn.textContent = 'Add Problem';
+                    submitBtn.disabled = false;
                 }
             }
 
-            deleteProblem(id) {
+            async closeProblem(id) {
+                try {
+                    const updatedData = await this.apiRequest({ action: 'closeProblem', id: id });
+                    this.problems = updatedData;
+                    this.renderProblems();
+                } catch(error) {
+                    alert("Error closing problem");
+                }
+            }
+
+            async deleteProblem(id) {
                 if (confirm('Are you sure you want to delete this problem?')) {
-                    this.problems = this.problems.filter(p => p.id !== id);
-                    this.renderProblems();
+                    try {
+                        const updatedData = await this.apiRequest({ action: 'deleteProblem', id: id });
+                        this.problems = updatedData;
+                        this.renderProblems();
+                    } catch(error) {
+                        alert("Error deleting problem");
+                    }
                 }
             }
-//dont forgetto cz
+
             renderProblems() {
                 const container = document.getElementById('problemsList');
                 
@@ -425,18 +467,9 @@
 
                 container.innerHTML = this.problems.map(problem => `
                     <div class="problem-item">
-                        <div class="problem-actions">
-                            ${problem.status === 'open' ? 
-                                `<button class="btn-small btn-close" onclick="tracker.closeProblem(${problem.id})">Mark Closed</button>` : 
-                                ''
-                            }
-                            <button class="btn-small btn-delete" onclick="tracker.deleteProblem(${problem.id})">Delete</button>
-                        </div>
                         
-                        <div class="problem-header">
-                            <div class="problem-name">${this.escapeHtml(problem.name)}</div>
-                            <div class="problem-status status-${problem.status}">${problem.status}</div>
-                        </div>
+                        
+                        
                         
                         <div class="problem-details">
                             <strong>Details:</strong> ${this.escapeHtml(problem.details)}
@@ -469,6 +502,7 @@
             }
 
             escapeHtml(text) {
+                if (!text) return '';
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
@@ -488,8 +522,8 @@
                 const start = new Date(startDate);
                 const end = new Date(endDate);
                 const diffTime = Math.abs(end - start);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 *34));
-				const moving = new Date
+                // Corrected the math for milliseconds to days (24 hours instead of 34)
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
                 
                 if (diffDays === 0) return 'Same day';
                 if (diffDays === 1) return '1 day';
@@ -499,14 +533,6 @@
                 return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) > 1 ? 's' : ''}`;
             }
         }
-		const moving = new Date
-		const tracker = new ProblemTracker();
-		if (diffDays === 0)return 'same day';
-		if (diffDays === 1)return 'Same day'
-		if else (difftime === 60)return 'not same day'
-		return `month$ {Math.floor(diffDays/30)> 1 }`
-		
-		
 
         // Initialize the tracker
         const tracker = new ProblemTracker();

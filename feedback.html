@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="auth-guard.js"></script>
     <title>Feedback page</title>
     <style>
         /* General Reset */
@@ -11,6 +11,23 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+             /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #0C0E8B;
+            color: white;
+            position: sticky;
+            top: 20px;
+            border-radius: 15px;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
 
         body {
@@ -63,7 +80,7 @@
             left: -300px;
             width: 300px;
             height: 100vh;
-             background: linear-gradient(135deg, black, #334155);
+            background: linear-gradient(135deg, black, #334155);
             color: white;
             transition: all 0.3s ease;
             z-index: 1000;
@@ -282,7 +299,7 @@
             font-family: Arial, sans-serif;
         }
 
-       
+    
 /* Bottom Navigation */
 .nav-container {
     position: fixed;
@@ -430,7 +447,7 @@
         }
 
         .submit-btn {
-             background: linear-gradient(135deg, black, #334155);
+            background: linear-gradient(135deg, black, #334155);
             color: white;
             padding: 12px 24px;
             border: none;
@@ -447,7 +464,7 @@
 
 		
     </style>
-	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Overlay -->
@@ -462,13 +479,13 @@
             </div>
         </div>
         
-      <div class="user-info">
+    <div class="user-info">
     <p><strong>Welcome back, <span id="nameinfo"></span></strong></p>	  
-  
+
 </div>
 <div class="user-info">
-  <p id="current-date"></p>
-         
+<p id="current-date"></p>
+        
 </div>
     </div>
 
@@ -478,7 +495,7 @@
         <img src="pictures/new.png" alt="App Logo">
     </div>
 
-      <div class="container">
+    <div class="container">
         <div class="feedback-form">
             <h2 style="color: #0C0E8B; margin-bottom: 20px;">Share Your Feedback</h2>
             
@@ -520,24 +537,24 @@
 
     <!-- Bottom Navigation -->
     <div class="nav-container">
-      <a href="home.html" class="nav-item active">
+    <a href="home.html" class="nav-item active">
             <i class="fas fa-home"></i>
             <span>Home</span>
-      </a>
-      <a href="order_pg.html" class="nav-item">
+    </a>
+    <a href="ramadan_code.html" class="nav-item">
             <i class="fas fa-utensils"></i>
             <span>Order</span>
-      </a>
-      <a href="menu_pg.html" class="nav-item">
+    </a>
+    <a href="menu_pg.html" class="nav-item">
             <i class="fas fa-book"></i>
             <span>Menu</span>
-      </a>
-      <a href="profile_pg.html" class="nav-item">
+    </a>
+    <a href="profile_pg.html" class="nav-item">
             <i class="fas fa-user"></i>
             <span>Profile</span>
-      </a>
+    </a>
     </div>
- <!-- Updated Firebase Script -->
+<!-- Updated Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
@@ -546,11 +563,11 @@
         // Firebase configuration
         const firebaseConfig = {
         apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
         // Initialize Firebase
@@ -622,7 +639,7 @@
             }
         });
     </script>
-  
+
 
     <script>
         // Touch handling for sidebar
@@ -669,7 +686,7 @@
             fabMenu.classList.toggle('active');
         }
 
-          function navigateTo(page) {
+        function navigateTo(page) {
         window.location.href = page;
     }
 
@@ -703,11 +720,11 @@
 
         const firebaseConfig = {
         apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -726,7 +743,7 @@
                     
                 `;
             } else {
-               nameinfo.innerHTML = `<p>User info not found</p>`;
+            nameinfo.innerHTML = `<p>User info not found</p>`;
             }
         }
 
@@ -755,7 +772,7 @@
             }
         });
     </script>
-	  	<script>
+	<script>
 		// Add this script at the end of your body section
 document.addEventListener('DOMContentLoaded', function() {
     // Get the current page filename

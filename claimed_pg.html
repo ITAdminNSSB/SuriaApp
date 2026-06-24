@@ -5,323 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Orders - ADMIN(HR) Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-     <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="auth-guard.js"></script>
     <style>
-        :root {
-            --primary-color: #0C0E8B;
-            --secondary-color: #2dd4bf;
-            --background-color: #f4f4f5;
-            --text-color: #27272a;
-            --white: #ffffff;
-            --border-radius: 15px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding-bottom: 100px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: var(--white);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .header .logo1 img {
-            max-height: 50px;
-            object-fit: contain;
-        }
-
-        .filter-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin: 80px 0 30px;
-            background-color: var(--white);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .date-picker input,
-        .department-filter select {
-            padding: 10px;
-            border: 1px solid #e4e4e7;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            min-width: 200px;
-        }
-
-        .date-picker input:focus,
-        .department-filter select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
-        }
-
-        .department-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .dept-filter-btn,
-        .total-btn {
-            background-color: var(--primary-color);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            min-width: 120px;
-        }
-
-        .dept-filter-btn:hover,
-        .total-btn:hover {
-            background-color: #1a1e9c;
-        }
-
-        .dept-filter-btn.active,
-        .total-btn.active {
-            background-color: var(--secondary-color);
-        }
-
-        #fetchOrders {
-            background-color: var(--primary-color);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #fetchOrders:hover {
-            background-color: #1a1e9c;
-        }
-
-        .time-filter-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-            background-color: var(--white);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        .time-filter-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .time-filter-btn {
-            background-color: var(--primary-color);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-
-        .time-filter-btn:hover {
-            background-color: #1a1e9c;
-        }
-
-        .time-filter-btn.active {
-            background-color: var(--secondary-color);
-        }
-
-        .order-table {
-            width: 100%;
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 30px;
-        }
-
-        .order-table th {
-            background-color: var(--primary-color);
-            color: var(--white);
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .order-table td {
-            padding: 15px;
-            border-bottom: 1px solid #e4e4e7;
-        }
-
-        .order-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .order-table tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        .send-info {
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: var(--box-shadow);
-        }
-
-        .send-info h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-
-        .send-info textarea {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #e4e4e7;
-            border-radius: 8px;
-            resize: vertical;
-            min-height: 100px;
-            margin-bottom: 15px;
-        }
-
-        .send-info textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);
-        }
-
-        #sendButton {
-            background-color: var(--secondary-color);
-            color: var(--white);
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-
-        #sendButton:hover {
-            background-color: #1ebfab;
-        }
-
-        .nav-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary-color);
-            padding: 15px 30px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            gap: 35px;
-            width: calc(100% - 40px);
-            max-width: 1200px;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            color: var(--white);
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .nav-item i {
-            font-size: 20px;
-        }
-
-        .nav-item span {
-            font-size: 12px;
-        }
-
-        .total-orders-display {
-            background-color: var(--white);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            box-shadow: var(--box-shadow);
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        @media (max-width: 768px) {
-            .filter-container,
-            .time-filter-container {
-                padding: 15px;
-            }
-
-            .filter-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .date-picker input,
-            .department-filter select,
-            .dept-filter-btn,
-            .total-btn,
-            .time-filter-btn {
-                width: 100%;
-            }
-
-            .department-buttons,
-            .time-filter-buttons {
-                flex-direction: column;
-            }
-
-            .nav-item span {
-                display: none;
-            }
-        }
+:root {--primary-color: #0C0E8B;--secondary-color: #2dd4bf;--background-color: #f4f4f5;--text-color: #27272a;--white: #ffffff;--border-radius: 15px;--box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);}
+* {margin: 0;padding: 0;box-sizing: border-box;}
+body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;background-color: var(--background-color);color: var(--text-color);line-height: 1.6;padding-bottom: 100px;}
+.container {max-width: 1200px;margin: 0 auto;padding: 20px;}
+.header {display: flex;justify-content: center;align-items: center;padding: 15px 20px;background-color: var(--white);box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);position: fixed;top: 0;left: 0;width: 100%;z-index: 1000;}
+.header .logo1 img {max-height: 50px;object-fit: contain;}
+.filter-container {display: flex;flex-direction: column;gap: 15px;margin: 80px 0 30px;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
+.filter-row {display: flex;gap: 15px;align-items: center;}
+.date-picker input,.department-filter select {padding: 10px;border: 1px solid #e4e4e7;border-radius: 8px;font-size: 16px;transition: all 0.3s ease;min-width: 200px;}
+.date-picker input:focus,.department-filter select:focus{outline: none;border-color: var(--primary-color);box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);}
+.department-buttons{display: flex;gap: 15px;flex-wrap: wrap;}
+.dept-filter-btn,.total-btn {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;min-width: 120px;}
+.dept-filter-btn:hover,.total-btn:hover {background-color: #1a1e9c;}
+.dept-filter-btn.active,.total-btn.active {background-color: var(--secondary-color);}
+#fetchOrders {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;display: flex;align-items: center;gap: 10px;}
+#fetchOrders:hover {background-color: #1a1e9c;}
+.time-filter-container {display: flex;justify-content: center;align-items: center;gap: 15px;margin: 20px 0;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
+.time-filter-buttons {display: flex;gap: 15px;flex-wrap: wrap;}
+.time-filter-btn {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;}
+.time-filter-btn:hover {background-color: #1a1e9c;}
+.time-filter-btn.active {background-color: var(--secondary-color);}
+.order-table {width: 100%;background-color: var(--white);border-radius: var(--border-radius);overflow: hidden;box-shadow: var(--box-shadow);margin-bottom: 30px;}
+.order-table th {background-color: var(--primary-color);color: var(--white);padding: 15px;text-align: left;font-weight: 600;}
+.order-table td {padding: 15px;border-bottom: 1px solid #e4e4e7;}
+.order-table tr:last-child td {border-bottom: none;}
+.order-table tr:nth-child(even) {background-color: #f8fafc;}
+.send-info {background-color: var(--white);border-radius: var(--border-radius);padding: 25px;box-shadow: var(--box-shadow);}
+.send-info h3 {color: var(--primary-color);margin-bottom: 15px;}
+.send-info textarea {width: 100%;padding: 15px;border: 1px solid #e4e4e7;border-radius: 8px;resize: vertical;min-height: 100px;margin-bottom: 15px;}
+.send-info textarea:focus {outline: none;border-color: var(--primary-color);box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);}
+#sendButton {background-color: var(--secondary-color);color: var(--white);border: none;padding: 12px 25px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;}
+#sendButton:hover {background-color: #1ebfab;}
+.nav-container {position: fixed;bottom: 20px;left: 50%;transform: translateX(-50%);background: var(--primary-color);padding: 15px 30px;border-radius: 30px;box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);display: flex;align-items: center;justify-content: space-around;gap: 35px;width: calc(100% - 40px);max-width: 1200px;z-index: 1000;}
+.nav-item {color: var(--white);text-decoration: none;display: flex;flex-direction: column;align-items: center;gap: 5px;}
+.nav-item i {font-size: 20px;}
+.nav-item span {font-size: 12px;}
+.total-orders-display {background-color: var(--white);padding: 15px;border-radius: var(--border-radius);margin-bottom: 20px;box-shadow: var(--box-shadow);text-align: center;font-size: 18px;font-weight: bold;color: var(--primary-color);}
+@media (max-width: 768px) {.filter-container,.time-filter-container {padding: 15px;}
+.filter-row {flex-direction: column;align-items: stretch;}
+.date-picker input,.department-filter select,.dept-filter-btn,.total-btn,.time-filter-btn {width: 100%;}
+.department-buttons,.time-filter-buttons {flex-direction: column;}
+.nav-item span {display: none;}}
     </style>
 </head>
 <body>
@@ -338,24 +65,27 @@
                 <div class="department-filter">
                     <select id="departmentFilter">
                         <option value="">All Departments</option>
-                        <option value="MDO">MDO</option>
-                        <option value="SHE">SHE</option>
-                        <option value="TPS">TPS</option>
-                        <option value="IT">IT</option>
-                        <option value="HCD">HCD</option>
+                        <option value="HRA">HRA</option>
                         <option value="FNA">FNA</option>
-                        <option value="MKTG">MKTG</option>
-                        <option value="PURCH">PURCH</option>
-                        <option value="QA">QA</option>
-                        <option value="ENG">ENG</option>
-                        <option value="ME">ME</option>
-                        <option value="PPIC">PPIC</option>
-                        <option value="QC">QC</option>
+                        <option value="MDO">MDO</option>
+                        <option value="BD&Project">BD&Project</option>
+                        <option value="SALES">SALES</option>
+                        <option value="PVD">PVD</option>
+                        <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
+                        <option value="QMS">QMS</option>
+                        <option value="QAQC">QAQC</option>
+                        <option value="PE/LPS">PE/LPS</option>
+                        <option value="MAINTENANCE">MAINTENANCE</option>
                         <option value="PROD">PROD</option>
-                        <option value="ED">ED</option>
-                        <option value="PROD-STAMPING">PROD-STAMPING</option>
-                        <option value="PPIC-STAMPING">PPIC-STAMPING</option>
-						<option value="PPIC-STAMPING-DIEMTCE">PPIC-STAMPING-DIEMTCE</option>
+                        <option value="PPCL">PPCL</option>
+                        <option value="SYNERGY">SYNERGY</option>
+                        <option value="SGTSB">SGTSB</option>
+                    </select>
+                    
+                    <select id="claimStatusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="claimed">Claimed Only</option>
+                        <option value="unclaimed">Unclaimed Only</option>
                     </select>
                 </div>
             </div>
@@ -392,8 +122,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Order data will be dynamically added here -->
-            </tbody>
+                </tbody>
         </table>
 
         <div class="send-info">
@@ -435,14 +164,14 @@
             addDoc 
         } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-        // Firebase configuration
+        // Firebase configuration (Suria)
         const firebaseConfig = {
-            apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
-            authDomain: "test-login2-e4c7f.firebaseapp.com",
-            projectId: "test-login2-e4c7f",
-            storageBucket: "test-login2-e4c7f.appspot.com",
-            messagingSenderId: "698181085162",
-            appId: "1:698181085162:web:3b91954eb1779a05894cd2"
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
 
@@ -454,15 +183,15 @@
         const ordersRef = collection(db, "orders");
         const claimedRef = collection(db, "claimed");
 
-        // Department configurations
-        const stampingDepartments = ['PROD-STAMPING', 'PPIC-STAMPING','PROD-STAMPING-DIEMTCE'];
-        const mainCanteenDepartments = ['IT', 'HCD', 'PROD', 'PPIC', 'QC', 'PURCH', 'MKTG', 'ME', 'ED', 'FNA', 'ENG', 'MDO', 'SHE', 'TPS', 'QA'];
-        const totalsdepart = ['IT', 'HCD', 'PROD', 'PPIC', 'QC', 'PURCH', 'MKTG', 'ME', 'ED', 'FNA', 'ENG', 'MDO', 'SHE', 'TPS', 'QA','PROD-STAMPING', 'PPIC-STAMPING','PROD-STAMPING-DIEMTCE'];
+        // STRICT SURIA DEPARTMENT CONFIGURATIONS
+        const stampingDepartments = []; // Empty if Suria has no stamping, keeps button from breaking
+        const mainCanteenDepartments = ['HRA', 'FNA', 'MDO', 'BD&Project', 'SALES', 'PVD', 'SPECIAL PROJECT', 'QMS', 'QAQC', 'PE/LPS', 'MAINTENANCE', 'PROD', 'PPCL', 'SYNERGY', 'SGTSB'];
+        const totalsdepart = [...mainCanteenDepartments];
 
         function isSameDate(date1, date2) {
             return date1.getFullYear() === date2.getFullYear() &&
-                   date1.getMonth() === date2.getMonth() &&
-                   date1.getDate() === date2.getDate();
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate();
         }
 
         async function getClaimedOrders(selectedDate) {
@@ -489,19 +218,33 @@
             }
         }
 
-        function displayTotalOrders(orders) {
-            // Remove existing total display if present
+        // ADDED: Claimed Diet & Unclaimed Diet Parameters
+        function displayTotalOrders(orders, claimedCount = 0, claimedDietCount = 0, unclaimedDietCount = 0) {
             const existingTotal = document.querySelector('.total-orders-display');
             if (existingTotal) {
                 existingTotal.remove();
             }
 
-            // Create and display new total
+            const total = orders.length;
+            const unclaimedCount = total - claimedCount;
+            // Percentage directly calculated from total vs claimed
+            const percentageClaimed = total > 0 ? ((claimedCount / total) * 100).toFixed(1) : 0;
+
             const totalElement = document.createElement('div');
             totalElement.classList.add('total-orders-display');
             totalElement.innerHTML = `
-                <div>Total Orders: ${orders.length}</div>
-                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                <div style="font-size: 20px; margin-bottom: 15px;">Daily Orders Summary</div>
+                <div style="display: flex; justify-content: center; gap: 30px; font-size: 16px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <div>Total Orders: <span style="color: var(--text-color);">${total}</span></div>
+                    <div>Claimed: <span style="color: #2e7d32;">${claimedCount}</span></div>
+                    <div>Unclaimed: <span style="color: #d32f2f;">${unclaimedCount}</span></div>
+                    <div>Claimed Diet: <span style="color: #2e7d32;">${claimedDietCount}</span></div>
+                    <div>Unclaimed Diet: <span style="color: #d32f2f;">${unclaimedDietCount}</span></div>
+                </div>
+                <div style="font-size: 18px; color: var(--secondary-color);">
+                    Claimed Percentage: ${percentageClaimed}%
+                </div>
+                <div style="font-size: 14px; color: #666; margin-top: 10px; font-weight: normal;">
                     Updated at: ${new Date().toLocaleTimeString()}
                 </div>
             `;
@@ -562,13 +305,17 @@
                     orderTableBody.innerHTML = '';
                     let orderNumber = 1;
 
+                    let claimedCount = 0;
+                    let claimedDietCount = 0;
+                    let unclaimedDietCount = 0;
+
                     if (querySnapshot.empty) {
                         const newRow = orderTableBody.insertRow();
                         const cell = newRow.insertCell(0);
                         cell.colSpan = 6;
                         cell.textContent = "No orders found for the selected criteria";
                         cell.style.textAlign = "center";
-                        displayTotalOrders([]);
+                        displayTotalOrders([], 0, 0, 0);
                         return;
                     }
 
@@ -590,9 +337,11 @@
                     const sortedOrders = Array.from(employeeOrders.values())
                         .sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
 
+                    // Grab the filter value
+                    const claimFilterValue = document.getElementById('claimStatusFilter').value;
+
                     // Display the deduplicated and sorted orders
                     sortedOrders.forEach((orderData) => {
-                        const newRow = orderTableBody.insertRow();
                         const orderTime = orderData.orderDate.toDate();
                         const formattedTime = orderTime.toLocaleTimeString([], {
                             hour: '2-digit',
@@ -604,6 +353,42 @@
                             isSameDate(claimed.timestamp, orderTime)
                         );
 
+                        // BACKGROUND DIET CHECK
+                        let displaySelection = orderData.mealSet || 'Normal';
+                        if (displaySelection === 'A' || displaySelection === 'B') {
+                            displaySelection = 'Normal';
+                        }
+                        if (displaySelection === 'Custom') {
+                            if (orderData.customBroth) displaySelection = 'Extra broth';
+                            else if (orderData.customMoreRice) displaySelection = 'More rice';
+                            else if (orderData.customLessRice) displaySelection = 'Less rice';
+                            else if (orderData.customAllergy) displaySelection = 'Allergy';
+                            else displaySelection = 'Normal';
+                        }
+
+                        const isDiet = displaySelection.toLowerCase().includes('diet');
+
+                        // Increment Diet Counters
+                        if (isDiet) {
+                            if (isClaimed) {
+                                claimedDietCount++;
+                            } else {
+                                unclaimedDietCount++;
+                            }
+                        }
+
+                        // Increment Total Claimed
+                        if (isClaimed) {
+                            claimedCount++;
+                        }
+
+                        // --- APPLY THE FILTER HERE ---
+                        if (claimFilterValue === 'claimed' && !isClaimed) return;   // Skip unclaimed rows
+                        if (claimFilterValue === 'unclaimed' && isClaimed) return;  // Skip claimed rows
+
+                        // Render the row
+                        const newRow = orderTableBody.insertRow();
+                        
                         if (isClaimed) {
                             newRow.style.backgroundColor = '#90EE90';
                         }
@@ -616,8 +401,8 @@
                         newRow.insertCell(5).textContent = formattedTime;
                     });
 
-                    // Display total orders
-                    displayTotalOrders(sortedOrders);
+                    // Display total orders with the separated diet counts
+                    displayTotalOrders(sortedOrders, claimedCount, claimedDietCount, unclaimedDietCount);
                 });
 
                 if (window._currentUnsubscribe) {
@@ -658,6 +443,9 @@
             const datePicker = document.getElementById('datePicker');
             datePicker.value = formatDate(today);
             datePicker.max = formatDate(today);
+            
+            // Link Claimed Status Filter
+            document.getElementById('claimStatusFilter').addEventListener('change', () => getOrdersByFilter());
 
             // Initial orders fetch
             getOrdersByFilter();

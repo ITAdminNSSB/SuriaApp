@@ -473,7 +473,7 @@
 
 		
     </style>
-	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Overlay -->
@@ -488,13 +488,13 @@
             </div>
         </div>
         
-      <div class="user-info">
+    <div class="user-info">
     <p><strong>Welcome back, <span id="nameinfo"></span></strong></p>	  
-  
+
 </div>
 <div class="user-info">
-  <p id="current-date"></p>
-         
+<p id="current-date"></p>
+        
 </div>
     </div>
 
@@ -505,7 +505,7 @@
     </div>
 
     <!-- Main Content -->
-     <!-- New main content -->
+    <!-- New main content -->
     <div class="main-content">
         <div class="search-section">
             <input type="text" class="search-input" placeholder="Search departments..." id="departmentSearch">
@@ -559,24 +559,24 @@
 
     <!-- Bottom Navigation -->
     <div class="nav-container">
-         <a href="home.html" class="nav-item">
+        <a href="home.html" class="nav-item">
             <i class="fas fa-home"></i>
             <span>Home</span>
 		</a>
-		 <a href="profile_pg.html" class="nav-item">
+		<a href="profile_pg.html" class="nav-item">
             <i class="fas fa-user"></i>
             <span>Profile</span>
         </a>
-      
+    
         <button class="plus-button" id="plusButton">
             <i class="fas fa-plus"></i>
         </button>
         
-        <a href="order_pg.html" class="nav-item">
+        <a href="ramadan_code.html" class="nav-item">
             <i class="fas fa-utensils"></i>
             <span>Order</span>
         </a>   
-		 <a href="menu_pg.html" class="nav-item">
+		<a href="menu_pg.html" class="nav-item">
             <i class="fas fa-book"></i>
             <span>Menus</span>
         </a>
@@ -629,7 +629,7 @@
             fabMenu.classList.toggle('active');
         }
 
-          function navigateTo(page) {
+        function navigateTo(page) {
         window.location.href = page;
     }
 
@@ -662,7 +662,7 @@
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
         const firebaseConfig = {
-           apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+        apiKey: "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
             authDomain: "test-login2-e4c7f.firebaseapp.com",
             databaseURL: "https://test-login2-e4c7f-default-rtdb.firebaseio.com",
             projectId: "test-login2-e4c7f",
@@ -687,7 +687,7 @@
                     
                 `;
             } else {
-               nameinfo.innerHTML = `<p>User info not found</p>`;
+            nameinfo.innerHTML = `<p>User info not found</p>`;
             }
         }
 
@@ -715,7 +715,7 @@
             }
         });
     </script>
-	 <script>
+	<script>
         // Search functionality
         document.getElementById('departmentSearch').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();

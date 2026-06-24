@@ -709,12 +709,12 @@
         import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         const firebaseConfig = {
-             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
         // Initialize Firebase
@@ -892,7 +892,7 @@
 
             const newStatus = prompt(`Update status for ${grievance.referenceNumber}:\n\nCurrent: ${grievance.status}\n\nEnter new status (pending/in-progress/resolved):`, grievance.status);
             
-          if (newStatus && ['pending', 'in-progress', 'resolved'].includes(newStatus)) {
+        if (newStatus && ['pending', 'in-progress', 'resolved'].includes(newStatus)) {
             updateGrievanceStatus(id, newStatus);
         } else if (newStatus) {
             alert('Invalid status. Please use: pending, in-progress, or resolved');

@@ -1,6 +1,6 @@
 {
-  "name": "NSSB Ordering System",
-  "short_name": "NSSB ",
+  "name": "SURIA Ordering System",
+  "short_name": "SURIA",
   "description": "My awesome web application",
   "start_url": "/",
   "display": "standalone",

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module" src="auth-guard.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Grievances & Complaints</title>
     <style>
         /* General Reset */
@@ -434,7 +434,7 @@
             display: block;
         }
 
-      
+    
 /* Bottom Navigation */
 .nav-container {
     position: fixed;
@@ -1338,11 +1338,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Firebase configuration
             const firebaseConfig = {
             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-  authDomain: "suria-food-ordering-system.firebaseapp.com",
-  projectId: "suria-food-ordering-system",
-  storageBucket: "suria-food-ordering-system.firebasestorage.app",
-  messagingSenderId: "204528329291",
-  appId: "1:204528329291:web:cba270a2968e6d159963ce"
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
             };
 
             // Initialize Firebase
@@ -1931,7 +1931,7 @@ function setupFormUI() {
             // Get the Web3Forms key and admin email for this issue type
             const web3FormsKey = getWeb3FormsKey(selectedIssueType);
             const adminEmail = getAdminEmail(selectedIssueType);
-          
+        
             console.log(`Issue type selected: ${selectedIssueType}`);
             console.log(`Web3Forms key: ${web3FormsKey}`);
             console.log(`Admin email: ${adminEmail}`);
@@ -2351,7 +2351,7 @@ function resetForm() {
     const form = document.getElementById('grievanceForm');
     if (form) {
         form.reset();
-   
+
         // Reset all selections
         document.querySelectorAll('.issue-type-card.selected').forEach(card => {
             card.classList.remove('selected');

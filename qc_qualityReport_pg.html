@@ -4,701 +4,738 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Quality Report</title>
-         <script type="module" src="auth-guard.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .chart-container {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .chart-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .form-section {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
-        }
-
-        .form-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group-full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        input, textarea, select {
-            padding: 12px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #fafbfc;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .reports-list {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .reports-list h2 {
-            background: #f8f9fa;
-            padding: 20px;
-            margin: 0;
-            color: #333;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .report-item {
-            border-bottom: 1px solid #e9ecef;
-            padding: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .report-item:hover {
-            background: #f8f9fa;
-            transform: translateX(5px);
-        }
-
-        .report-item:last-child {
-            border-bottom: none;
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .report-sebango {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .report-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-close {
-            background: #d1edff;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .rank-1 {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .rank-2 {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .rank-3 {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .report-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .detail-section {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .detail-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .detail-content {
-            color: #666;
-            line-height: 1.4;
-            font-size: 0.95rem;
-        }
-
-        .report-actions {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            border-radius: 15px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-toggle {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-toggle:hover {
-            background: #218838;
-            transform: translateY(-1px);
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #c82333;
-            transform: translateY(-1px);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #888;
-        }
-
-        .chart-placeholder {
-            width: 100%;
-            height: 200px;
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6c757d;
-            font-size: 1.1rem;
-        }
-
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .report-details {
-                grid-template-columns: 1fr;
-            }
-            
-            .report-actions {
-                position: static;
-                margin-top: 15px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #262a3e 0%, #333233 100%); min-height: 100vh; padding: 10px; }
+        .container { max-width: 1400px; margin: 0 auto; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #010a32 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 2rem; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+        .header p { opacity: 0.9; font-size: 0.95rem; }
+        .content { padding: 15px; }
+        .dashboard { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .stat-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); text-align: center; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-number { font-size: 1.8rem; font-weight: bold; color: #667eea; margin-bottom: 3px; }
+        .stat-label { color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-section { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); margin-bottom: 20px; }
+        .form-section h2 { color: #333; margin-bottom: 20px; font-size: 1.4rem; border-bottom: 3px solid #667eea; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .form-section h2::before { content: '📝'; font-size: 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: 600; color: #555; margin-bottom: 6px; font-size: 0.9rem; }
+        input, textarea, select { padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 0.95rem; transition: all 0.3s ease; background: #fafbfc; font-family: inherit; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        textarea { resize: vertical; min-height: 80px; }
+        .section-divider { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #667eea; }
+        .section-title { font-weight: 700; color: #667eea; margin-bottom: 15px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .subsection { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); }
+        .subsection:last-child { margin-bottom: 0; }
+        .subsection-title { font-weight: 600; color: #333; margin-bottom: 12px; font-size: 0.95rem; padding-bottom: 8px; border-bottom: 2px solid #e9ecef; }
+        .radio-group { display: flex; gap: 25px; margin-top: 8px; }
+        .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .radio-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
+        .radio-option label { font-weight: 400; cursor: pointer; margin: 0; }
+        .image-upload-wrapper { margin-top: 20px; }
+        .image-upload-area { border: 2px dashed #667eea; border-radius: 8px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%); display: block; }
+        .image-upload-area:hover { background: linear-gradient(135deg, #f0f3ff 0%, #e7eeff 100%); border-color: #764ba2; transform: translateY(-2px); }
+        .image-upload-area.dragover { background: #e7eeff; border-color: #764ba2; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        #imageInput { display: none; }
+        .upload-text { color: #667eea; font-weight: 600; font-size: 1rem; margin-bottom: 5px; }
+        .upload-hint { color: #999; font-size: 0.85rem; pointer-events: none; }
+        .image-preview-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 15px; }
+        .image-preview { position: relative; width: 100%; aspect-ratio: 1; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); transition: transform 0.2s; }
+        .image-preview:hover { transform: scale(1.05); }
+        .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-image-btn { position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 26px; height: 26px; padding: 0; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
+        .remove-image-btn:hover { background: #c82333; transform: scale(1.1); }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); width: 100%; margin-top: 20px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .reports-list { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); }
+        .reports-list h2 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; margin: 0; color: white; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+        .reports-list h2::before { content: '📊'; font-size: 1.5rem; }
+        .report-item { border-bottom: 1px solid #e9ecef; padding: 20px; transition: all 0.3s ease; background: white; }
+        .report-item:hover { background: #f8f9fa; }
+        .report-item:last-child { border-bottom: none; }
+        .report-item.collapsed .collapsible-content { display: none; }
+        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 15px; flex-wrap: wrap; cursor: pointer; }
+        .report-main-info { flex: 1; min-width: 250px; }
+        .report-sebango { font-size: 1.2rem; font-weight: 700; color: #333; margin-bottom: 5px; }
+        .report-date-by { font-size: 0.85rem; color: #666; }
+        .report-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
+        .status-open { background: #fff3cd; color: #856404; }
+        .status-closed { background: #d4edda; color: #155724; }
+        .status-information { background: #d1ecf1; color: #0c5460; }
+        .collapsible-content { animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 2000px; } }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
+        .detail-section { background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 3px solid #667eea; }
+        .detail-section.full-width { grid-column: 1 / -1; }
+        .detail-title { font-weight: 600; color: #333; margin-bottom: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .detail-content { color: #555; line-height: 1.6; font-size: 0.9rem; word-break: break-word; }
+        .detail-content strong { color: #333; font-weight: 600; }
+        .report-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 12px; }
+        .report-image { width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); cursor: pointer; transition: transform 0.2s; }
+        .report-image:hover { transform: scale(1.05); }
+        .report-image img { width: 100%; height: 100%; object-fit: cover; }
+        .report-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .btn-small { padding: 8px 16px; font-size: 0.85rem; border-radius: 20px; border: none; cursor: pointer; transition: all 0.3s ease; font-weight: 600; flex: 1; min-width: 100px; }
+        .btn-toggle { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); }
+        .btn-toggle:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4); }
+        .btn-delete { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3); }
+        .btn-delete:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); }
+        .btn-expand { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
+        .btn-expand:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .load-more-container { text-align: center; padding: 20px; background: #f8f9fa; }
+        .btn-load-more { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn-load-more:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+        .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+        .empty-state h3 { margin-bottom: 10px; color: #666; font-size: 1.2rem; }
+        .message { padding: 15px; border-radius: 10px; margin-bottom: 15px; font-size: 0.95rem; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .error-message { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .success-message { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); animation: fadeIn 0.3s ease; }
+        .modal.show { display: flex !important; align-items: center; justify-content: center; }
+        .modal-content { position: relative; max-width: 90vw; max-height: 90vh; }
+        .modal-content img { max-width: 100%; max-height: 90vh; border-radius: 10px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); }
+        .modal-close { position: absolute; top: -40px; right: 0; color: white; font-size: 35px; font-weight: bold; cursor: pointer; transition: color 0.2s; }
+        .modal-close:hover { color: #ccc; }
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } .detail-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .header h1 { font-size: 1.5rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .stat-card { padding: 12px; } .stat-number { font-size: 1.4rem; } .form-section { padding: 15px; } .form-row { grid-template-columns: 1fr; } input, textarea, select { font-size: 16px; } .report-header { flex-direction: column; align-items: flex-start; } .report-badges { justify-content: flex-start; } }
+        @media (max-width: 480px) { body { padding: 5px; } .content { padding: 10px; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Daily Quality Report</h1>
-            <p>Quality Control and Defect Management System</p>
+            <p>Quality Control & Defect Management System</p>
         </div>
 
         <div class="content">
             <div class="dashboard">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalReports">0</div>
-                        <div class="stat-label">Total Reports</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="pendingReports">0</div>
-                        <div class="stat-label">Pending</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="closedReports">0</div>
-                        <div class="stat-label">Closed</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="rank1Issues">0</div>
-                        <div class="stat-label">Rank 1 Issues</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalDefects">0</div>
-                        <div class="stat-label">Total Defects</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalScrap">0</div>
-                        <div class="stat-label">Total Scrap</div>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">Daily Report Trend</div>
-                    <canvas id="reportChart" width="400" height="200"></canvas>
+                    <div class="stat-card"><div class="stat-number" id="totalReports">0</div><div class="stat-label">Total</div></div>
+                    <div class="stat-card"><div class="stat-number" id="pendingReports">0</div><div class="stat-label">Open</div></div>
+                    <div class="stat-card"><div class="stat-number" id="closedReports">0</div><div class="stat-label">Closed</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalDefects">0</div><div class="stat-label">Defects</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalScrap">0</div><div class="stat-label">Scrap</div></div>
                 </div>
             </div>
 
             <div class="form-section">
                 <h2>Add New Quality Report</h2>
+                <div id="messageContainer"></div>
                 <form id="reportForm">
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="sebangoNo">Sebango No *</label>
-                            <input type="text" id="sebangoNo" required placeholder="Enter Sebango number">
+                        <div class="form-row">
+                            <div class="form-group"><label for="reportDate">Date *</label><input type="date" id="reportDate" required></div>
+                            <div class="form-group"><label for="reportBy">Report By *</label><input type="text" id="reportBy" required placeholder="Enter name"></div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="quantityDefect">Quantity Defect *</label>
-                            <input type="number" id="quantityDefect" required placeholder="Enter defect quantity" min="0">
+
+                        <div class="form-row">
+                            <div class="form-group"><label for="sebangoNo">Sebango No *</label><input type="text" id="sebangoNo" required placeholder="Enter Sebango No"></div>
+                            <div class="form-group"><label for="occurrenceLine">Occurrence Line *</label><input type="text" id="occurrenceLine" required placeholder="Enter occurrence line"></div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="quantityScrap">Quantity Scrap *</label>
-                            <input type="number" id="quantityScrap" required placeholder="Enter scrap quantity" min="0">
+
+                        <div class="form-row">
+                            <div class="form-group"><label for="quantityDefect">Qty Defect *</label><input type="number" id="quantityDefect" required placeholder="0" min="0"></div>
+                            <div class="form-group"><label for="quantityScrap">Qty Scrap *</label><input type="number" id="quantityScrap" required placeholder="0" min="0"></div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="categoryRank">Category - Rank Issue *</label>
-                            <select id="categoryRank" required>
-                                <option value="">Select Rank Level</option>
-                                <option value="1">Rank 1 (Critical)</option>
-                                <option value="2">Rank 2 (Major)</option>
-                                <option value="3">Rank 3 (Minor)</option>
-                            </select>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="issueCategory">Issue Category *</label>
+                                <select id="issueCategory" required>
+                                    <option value="">Select Category</option><option value="Internal">Internal</option>
+                                    <option value="Customer Complaint">Customer Complaint</option><option value="Supplier">Supplier</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reportStatus">Status (by Leader) *</label>
+                                <select id="reportStatus" required>
+                                    <option value="">Select Status</option><option value="open">Open</option>
+                                    <option value="closed">Closed</option><option value="information">Information</option>
+                                </select>
+                            </div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="reportStatus">Status *</label>
-                            <select id="reportStatus" required>
-                                <option value="">Select Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="close">Close</option>
-                            </select>
+
+                        <div class="form-group"><label for="detailsIssues">Details Issues *</label><textarea id="detailsIssues" required placeholder="Describe quality issues in detail..."></textarea></div>
+
+                        <div class="section-divider">
+                            <div class="section-title">⚙️ Action</div>
+                            <div class="subsection">
+                                <div class="subsection-title">1. Containment Action (Sorting/Segregation/Rework)</div>
+                                <div class="form-row">
+                                    <div class="form-group"><label for="qtyCheck">Qty Check</label><input type="number" id="qtyCheck" placeholder="0" min="0"></div>
+                                    <div class="form-group"><label for="qtyOk">Qty OK</label><input type="number" id="qtyOk" placeholder="0" min="0"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label for="qtyRework">Qty Rework</label><input type="number" id="qtyRework" placeholder="0" min="0"></div>
+                                    <div class="form-group"><label for="qtyNg">Qty NG</label><input type="number" id="qtyNg" placeholder="0" min="0"></div>
+                                </div>
+                                <div class="form-group"><label for="defectPercent">Defect %</label><input type="text" id="defectPercent" readonly placeholder="0%" style="background: #e9ecef; cursor: not-allowed; font-weight: 600; color: #667eea;"></div>
+                            </div>
+
+                            <div class="subsection">
+                                <div class="subsection-title">2. Next Action Required</div>
+                                <div class="form-group"><label for="typeOfAction">Type of Action *</label><textarea id="typeOfAction" required placeholder="Describe the next action required..."></textarea></div>
+                                <div class="form-group"><label for="picName">Person In Charge *</label><input type="text" id="picName" required placeholder="Enter PIC name"></div>
+                                <div class="form-group">
+                                    <label>Action Status *</label>
+                                    <div class="radio-group">
+                                        <div class="radio-option"><input type="radio" id="actionOpen" name="actionStatus" value="open" required><label for="actionOpen">Open</label></div>
+                                        <div class="radio-option"><input type="radio" id="actionClosed" name="actionStatus" value="closed" required><label for="actionClosed">Closed</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="image-upload-wrapper">
+                            <label>📸 Actual Defect Picture/Issue (Please Upload) *</label>
+                            <label class="image-upload-area" id="imageUploadArea" for="imageInput">
+                                <div class="upload-text">Click, drag, or paste images here</div>
+                                <div class="upload-hint">PNG, JPG, GIF, WEBP, BMP up to 5MB (Max 5 images). Use Ctrl+V / Cmd+V to paste screenshots.</div>
+                            </label>
+                            <input type="file" id="imageInput" accept="image/*" multiple>
+                            <div class="image-preview-container" id="imagePreviewContainer"></div>
                         </div>
                     </div>
-                    
-                    <div class="form-grid">
-                        <div class="form-group form-group-full">
-                            <label for="detailsIssues">Details Issues *</label>
-                            <textarea id="detailsIssues" required placeholder="Describe the quality issues in detail..."></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="temporaryAction">Temporary Action *</label>
-                            <textarea id="temporaryAction" required placeholder="Describe immediate temporary actions taken..."></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="newAction">New Action *</label>
-                            <textarea id="newAction" required placeholder="Describe new corrective actions..."></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="actionRequired">Action Required *</label>
-                            <textarea id="actionRequired" required placeholder="Specify actions required for resolution..."></textarea>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn">Add Quality Report</button>
+
+                    <button type="submit" class="btn" id="submitBtn">Add Report</button>
                 </form>
             </div>
 
             <div class="reports-list">
-                <h2>Quality Reports</h2>
+                <h2>Reports</h2>
                 <div id="reportsList">
-                    <div class="empty-state">
-                        <h3>No quality reports added yet</h3>
-                        <p>Add your first quality report using the form above</p>
-                    </div>
+                    <div class="empty-state"><h3>Loading reports...</h3></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        class QualityReportManager {
-            constructor() {
-                this.reports = [];
-                this.currentId = 1;
-                this.chart = null;
-                this.init();
-            }
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" src="" alt="Full size image">
+        </div>
+    </div>
 
-            init() {
-                document.getElementById('reportForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addReport();
-                });
+<script>
+    // --- PASTE YOUR WEB APP URL HERE ---
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjYzWwkp5wQwvZgkk9FdsfmyLpdIBYSaGB0nWIxklMBx5ckdpldQE_TBJ5a3gtS0uGvA/exec";
 
-                this.renderReports();
-                this.updateStats();
-                this.initChart();
-            }
+    class QualityReportManager {
+        constructor() {
+            this.reports = [];
+            this.uploadedImages = [];
+            this.isLoading = false;
+            this.displayedReports = 5;
+            this.reportsPerLoad = 5;
+            this.init();
+        }
 
-            addReport() {
-                const form = document.getElementById('reportForm');
+        async init() {
+            this.setupEventListeners();
+            await this.loadReports();
+            this.updateStats();
+        }
 
-                const report = {
-                    id: this.currentId++,
-                    sebangoNo: document.getElementById('sebangoNo').value.trim(),
-                    detailsIssues: document.getElementById('detailsIssues').value.trim(),
-                    quantityDefect: parseInt(document.getElementById('quantityDefect').value) || 0,
-                    quantityScrap: parseInt(document.getElementById('quantityScrap').value) || 0,
-                    temporaryAction: document.getElementById('temporaryAction').value.trim(),
-                    newAction: document.getElementById('newAction').value.trim(),
-                    actionRequired: document.getElementById('actionRequired').value.trim(),
-                    categoryRank: document.getElementById('categoryRank').value,
-                    status: document.getElementById('reportStatus').value,
-                    createdAt: new Date().toISOString(),
-                    date: new Date().toISOString().split('T')[0]
-                };
+        setupEventListeners() {
+            document.getElementById('reportForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.addReport();
+            });
 
-                // Validation
-                if (!report.sebangoNo || !report.detailsIssues || !report.temporaryAction || 
-                    !report.newAction || !report.actionRequired || !report.categoryRank || !report.status) {
-                    alert('Please fill in all required fields');
-                    return;
+            const qtyCheck = document.getElementById('qtyCheck');
+            const qtyNg = document.getElementById('qtyNg');
+            const defectPercent = document.getElementById('defectPercent');
+
+            const calculateDefectPercent = () => {
+                const check = parseFloat(qtyCheck.value) || 0;
+                const ng = parseFloat(qtyNg.value) || 0;
+                if (check > 0) {
+                    const percent = ((ng / check) * 100).toFixed(2);
+                    defectPercent.value = percent + '%';
+                } else {
+                    defectPercent.value = '0%';
+                }
+            };
+
+            qtyCheck.addEventListener('input', calculateDefectPercent);
+            qtyNg.addEventListener('input', calculateDefectPercent);
+
+            document.getElementById('reportDate').valueAsDate = new Date();
+
+            const uploadArea = document.getElementById('imageUploadArea');
+            const fileInput = document.getElementById('imageInput');
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    this.handleImageSelect(e.target.files);
+                    e.target.value = ''; 
+                }
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'));
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'));
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+                    this.handleImageSelect(e.dataTransfer.files);
+                }
+            });
+
+            document.addEventListener('paste', (e) => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                if (!items) return;
+
+                const pastedFiles = [];
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        pastedFiles.push(items[i].getAsFile());
+                    }
                 }
 
-                this.reports.unshift(report);
-                this.renderReports();
-                this.updateStats();
-                this.updateChart();
-                form.reset();
-            }
-
-            toggleStatus(id) {
-                const report = this.reports.find(r => r.id === id);
-                if (report) {
-                    report.status = report.status === 'pending' ? 'close' : 'pending';
-                    this.renderReports();
-                    this.updateStats();
+                if (pastedFiles.length > 0) {
+                    e.preventDefault(); 
+                    this.handleImageSelect(pastedFiles);
+                    uploadArea.classList.add('dragover');
+                    setTimeout(() => uploadArea.classList.remove('dragover'), 200);
+                    uploadArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-            }
+            });
 
-            deleteReport(id) {
-                if (confirm('Are you sure you want to delete this report?')) {
-                    this.reports = this.reports.filter(r => r.id !== id);
-                    this.renderReports();
-                    this.updateStats();
-                    this.updateChart();
-                }
-            }
+            document.getElementById('imageModal').addEventListener('click', (e) => {
+                if (e.target.id === 'imageModal') this.closeModal();
+            });
 
-            updateStats() {
-                const total = this.reports.length;
-                const pending = this.reports.filter(r => r.status === 'pending').length;
-                const closed = this.reports.filter(r => r.status === 'close').length;
-                const rank1 = this.reports.filter(r => r.categoryRank === '1').length;
-                const totalDefects = this.reports.reduce((sum, r) => sum + r.quantityDefect, 0);
-                const totalScrap = this.reports.reduce((sum, r) => sum + r.quantityScrap, 0);
+            document.querySelector('.modal-close').addEventListener('click', () => this.closeModal());
+        }
 
-                document.getElementById('totalReports').textContent = total;
-                document.getElementById('pendingReports').textContent = pending;
-                document.getElementById('closedReports').textContent = closed;
-                document.getElementById('rank1Issues').textContent = rank1;
-                document.getElementById('totalDefects').textContent = totalDefects;
-                document.getElementById('totalScrap').textContent = totalScrap;
-            }
-
-            initChart() {
-                const canvas = document.getElementById('reportChart');
-                const ctx = canvas.getContext('2d');
-                
-                // Simple chart placeholder
-                ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#667eea';
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Chart will show daily report trends', canvas.width/2, canvas.height/2);
-            }
-
-            updateChart() {
-                // Update chart with new data
-                this.initChart();
-            }
-
-            renderReports() {
-                const container = document.getElementById('reportsList');
-                
-                if (this.reports.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <h3>No quality reports added yet</h3>
-                            <p>Add your first quality report using the form above</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = this.reports.map(report => `
-                    <div class="report-item">
-                        <div class="report-actions">
-                            <button class="btn-small btn-toggle" onclick="manager.toggleStatus(${report.id})">
-                                ${report.status === 'pending' ? 'Mark Close' : 'Mark Pending'}
-                            </button>
-                            <button class="btn-small btn-delete" onclick="manager.deleteReport(${report.id})">Delete</button>
-                        </div>
-                        
-                        <div class="report-header">
-                            <div class="report-sebango">Sebango No: ${this.escapeHtml(report.sebangoNo)}</div>
-                            <div class="report-badges">
-                                <span class="badge status-${report.status}">${report.status}</span>
-                                <span class="badge rank-${report.categoryRank}">Rank ${report.categoryRank}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="report-details">
-                            <div class="detail-section">
-                                <div class="detail-title">Issues Details</div>
-                                <div class="detail-content">${this.escapeHtml(report.detailsIssues)}</div>
-                            </div>
-                            
-                            <div class="detail-section">
-                                <div class="detail-title">Quantities</div>
-                                <div class="detail-content">
-                                    Defects: ${report.quantityDefect}<br>
-                                    Scrap: ${report.quantityScrap}
-                                </div>
-                            </div>
-                            
-                            <div class="detail-section">
-                                <div class="detail-title">Temporary Action</div>
-                                <div class="detail-content">${this.escapeHtml(report.temporaryAction)}</div>
-                            </div>
-                            
-                            <div class="detail-section">
-                                <div class="detail-title">New Action</div>
-                                <div class="detail-content">${this.escapeHtml(report.newAction)}</div>
-                            </div>
-                            
-                            <div class="detail-section">
-                                <div class="detail-title">Action Required</div>
-                                <div class="detail-content">${this.escapeHtml(report.actionRequired)}</div>
-                            </div>
-                            
-                            <div class="detail-section">
-                                <div class="detail-title">Report Info</div>
-                                <div class="detail-content">
-                                    Created: ${this.formatDateTime(report.createdAt)}<br>
-                                    Rank: ${report.categoryRank} (${this.getRankLabel(report.categoryRank)})
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            getRankLabel(rank) {
-                const labels = {
-                    '1': 'Critical',
-                    '2': 'Major', 
-                    '3': 'Minor'
-                };
-                return labels[rank] || 'Unknown';
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            formatDateTime(dateTimeStr) {
-                if (!dateTimeStr) return 'Not set';
-                const date = new Date(dateTimeStr);
-                return date.toLocaleString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+        // NEW HELPER: Formats the raw UTC date string from Google Sheets to clean local time
+        formatDateDisplay(dateStr) {
+            if (!dateStr) return 'N/A';
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleDateString(); // e.g. "4/7/2026"
+            } catch (e) {
+                return dateStr;
             }
         }
 
-        // Initialize the manager
-        const manager = new QualityReportManager();
-    </script>
+        handleImageSelect(files) {
+            const maxSize = 5 * 1024 * 1024;
+            const filesArray = Array.from(files);
+
+            for (let file of filesArray) {
+                if (this.uploadedImages.length >= 5) {
+                    this.showMessage('Maximum 5 images allowed', true);
+                    break;
+                }
+
+                if (!file.type.match(/image.*/)) {
+                    this.showMessage(`${file.name || 'Pasted file'} is not an image file`, true);
+                    continue;
+                }
+
+                if (file.size > maxSize) {
+                    this.showMessage(`${file.name || 'Pasted image'} exceeds 5MB limit`, true);
+                    continue;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.uploadedImages.push({
+                        data: e.target.result,
+                        name: file.name || `pasted_image_${Date.now()}.png`, 
+                        file: file
+                    });
+                    this.renderImagePreviews();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        renderImagePreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = this.uploadedImages.map((img, idx) => `
+                <div class="image-preview">
+                    <img src="${img.data}" alt="Preview">
+                    <button type="button" class="remove-image-btn" onclick="manager.removeImage(${idx})">×</button>
+                </div>
+            `).join('');
+        }
+
+        removeImage(index) {
+            this.uploadedImages.splice(index, 1);
+            this.renderImagePreviews();
+        }
+
+        showMessage(message, isError = false) {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isError ? 'error-message' : 'success-message'}`;
+            messageDiv.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(messageDiv);
+            setTimeout(() => messageDiv.remove(), 4000);
+        }
+
+        async addReport() {
+            if (this.isLoading) return;
+            if (APPS_SCRIPT_URL === "YOUR_WEB_APP_URL_HERE" || !APPS_SCRIPT_URL.includes("script.google.com")) {
+                this.showMessage('Please insert your Apps Script URL in the code.', true);
+                return;
+            }
+
+            const form = document.getElementById('reportForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Uploading to Google Sheets...';
+                this.isLoading = true;
+
+                const actionStatus = document.querySelector('input[name="actionStatus"]:checked');
+                
+                if (!document.getElementById('reportDate').value || 
+                    !document.getElementById('reportBy').value.trim() || 
+                    !document.getElementById('sebangoNo').value.trim() || 
+                    !document.getElementById('occurrenceLine').value.trim() || 
+                    !document.getElementById('issueCategory').value || 
+                    !document.getElementById('reportStatus').value || 
+                    !document.getElementById('detailsIssues').value.trim() || 
+                    !document.getElementById('typeOfAction').value.trim() || 
+                    !document.getElementById('picName').value.trim() || 
+                    !actionStatus) {
+                    this.showMessage('Please fill all required fields', true);
+                    return;
+                }
+
+                if (this.uploadedImages.length === 0) {
+                    this.showMessage('Please upload at least one image', true);
+                    return;
+                }
+
+                const report = {
+                    action: 'add',
+                    id: 'QC-' + Date.now(),
+                    reportDate: document.getElementById('reportDate').value,
+                    reportBy: document.getElementById('reportBy').value.trim(),
+                    sebangoNo: document.getElementById('sebangoNo').value.trim(),
+                    occurrenceLine: document.getElementById('occurrenceLine').value.trim(),
+                    issueCategory: document.getElementById('issueCategory').value,
+                    quantityDefect: parseInt(document.getElementById('quantityDefect').value) || 0,
+                    quantityScrap: parseInt(document.getElementById('quantityScrap').value) || 0,
+                    status: document.getElementById('reportStatus').value,
+                    detailsIssues: document.getElementById('detailsIssues').value.trim(),
+                    containmentAction: {
+                        qtyCheck: parseInt(document.getElementById('qtyCheck').value) || 0,
+                        qtyOk: parseInt(document.getElementById('qtyOk').value) || 0,
+                        qtyRework: parseInt(document.getElementById('qtyRework').value) || 0,
+                        qtyNg: parseInt(document.getElementById('qtyNg').value) || 0,
+                        defectPercent: document.getElementById('defectPercent').value
+                    },
+                    nextAction: {
+                        typeOfAction: document.getElementById('typeOfAction').value.trim(),
+                        pic: document.getElementById('picName').value.trim(),
+                        actionStatus: actionStatus.value
+                    },
+                    images: this.uploadedImages.map(img => ({
+                        data: img.data,
+                        name: img.name
+                    })),
+                    createdAt: new Date().toLocaleString()
+                };
+
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(report)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.showMessage('Report added to Google Sheets successfully!');
+                    form.reset();
+                    document.getElementById('reportDate').valueAsDate = new Date();
+                    this.uploadedImages = [];
+                    document.getElementById('imagePreviewContainer').innerHTML = '';
+                    await this.loadReports(); 
+                    document.querySelector('.reports-list').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    this.showMessage('Error: ' + result.message, true);
+                }
+
+            } catch (error) {
+                console.error('Error adding report:', error);
+                this.showMessage('Network error: ' + error.message, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Report';
+                this.isLoading = false;
+            }
+        }
+
+        async loadReports() {
+            const container = document.getElementById('reportsList');
+            
+            if (APPS_SCRIPT_URL === "YOUR_WEB_APP_URL_HERE" || !APPS_SCRIPT_URL.includes("script.google.com")) {
+                container.innerHTML = '<div class="empty-state"><h3>⚠️ Configuration Needed</h3><p>Please paste your new Apps Script URL at the bottom of the code (line 214).</p></div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(APPS_SCRIPT_URL);
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.reports = result.data;
+                    this.renderReports();
+                    this.updateStats();
+                } else {
+                    this.showMessage('Failed to load reports from Sheets', true);
+                    container.innerHTML = `<div class="empty-state"><h3>⚠️ Backend Error</h3><p>${this.escape(result.message || 'Could not read from Google Sheets.')}</p></div>`;
+                }
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                container.innerHTML = '<div class="empty-state"><h3>⚠️ Connection Failed</h3><p>Could not connect to Google Sheets. Please check your APPS_SCRIPT_URL.</p></div>';
+            }
+        }
+
+        toggleReportExpand(firebaseId) {
+            const reportElement = document.querySelector(`[data-report-id="${firebaseId}"]`);
+            if (reportElement) {
+                reportElement.classList.toggle('collapsed');
+                const btn = reportElement.querySelector('.btn-expand');
+                if (btn) {
+                    btn.textContent = reportElement.classList.contains('collapsed') ? 'Show More' : 'Show Less';
+                }
+            }
+        }
+
+        async toggleStatus(id) {
+            const report = this.reports.find(r => r.firebaseId === id);
+            if (!report) return;
+
+            const statusOrder = ['open', 'closed', 'information'];
+            const currentIndex = statusOrder.indexOf(report.status);
+            const newStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
+            
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'toggleStatus', id: id, newStatus: newStatus })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    report.status = newStatus;
+                    this.renderReports();
+                    this.updateStats();
+                } else {
+                    this.showMessage('Error updating status in Sheets', true);
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                this.showMessage('Error updating status', true);
+            }
+        }
+
+        async deleteReport(id) {
+            if (!confirm('Are you sure you want to delete this report from Google Sheets?')) return;
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'delete', id: id })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.reports = this.reports.filter(r => r.firebaseId !== id);
+                    this.renderReports();
+                    this.updateStats();
+                    this.showMessage('Report deleted successfully');
+                } else {
+                    this.showMessage('Error deleting from Sheets', true);
+                }
+            } catch (error) {
+                console.error('Error deleting report:', error);
+                this.showMessage('Network error while deleting', true);
+            }
+        }
+
+        loadMoreReports() {
+            this.displayedReports += this.reportsPerLoad;
+            this.renderReports();
+        }
+
+        updateStats() {
+            document.getElementById('totalReports').textContent = this.reports.length;
+            document.getElementById('pendingReports').textContent = this.reports.filter(r => r.status === 'open').length;
+            document.getElementById('closedReports').textContent = this.reports.filter(r => r.status === 'closed').length;
+            document.getElementById('totalDefects').textContent = this.reports.reduce((sum, r) => sum + (parseInt(r.quantityDefect) || 0), 0);
+            document.getElementById('totalScrap').textContent = this.reports.reduce((sum, r) => sum + (parseInt(r.quantityScrap) || 0), 0);
+        }
+
+        renderReports() {
+            const container = document.getElementById('reportsList');
+            
+            if (this.reports.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>📭 No reports yet</h3><p>Add your first quality report above</p></div>';
+                return;
+            }
+
+            const reportsToShow = this.reports.slice(0, this.displayedReports);
+            const hasMore = this.reports.length > this.displayedReports;
+
+            container.innerHTML = reportsToShow.map(report => `
+                <div class="report-item collapsed" data-report-id="${report.firebaseId}">
+                    <div class="report-header" onclick="manager.toggleReportExpand('${report.firebaseId}')">
+                        <div class="report-main-info">
+                            <div class="report-sebango">🔧 ${this.escape(report.sebangoNo)}</div>
+                            <div class="report-date-by">
+                                📅 ${this.formatDateDisplay(report.reportDate)} | 👤 ${this.escape(report.reportBy || 'N/A')} | 🏭 ${this.escape(report.occurrenceLine || 'N/A')}
+                            </div>
+                        </div>
+                        <div class="report-badges">
+                            <span class="badge status-${report.status}">${report.status}</span>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-content">
+                        <div class="detail-grid">
+                            <div class="detail-section">
+                                <div class="detail-title">🔧 Sebango No</div>
+                                <div class="detail-content">${this.escape(report.sebangoNo)}</div>
+                            </div>
+                            <div class="detail-section">
+                                <div class="detail-title">📑 Issue Category</div>
+                                <div class="detail-content">${this.escape(report.issueCategory)}</div>
+                            </div>
+                            <div class="detail-section">
+                                <div class="detail-title">🏭 Occurrence Line</div>
+                                <div class="detail-content">${this.escape(report.occurrenceLine || 'N/A')}</div>
+                            </div>
+                            <div class="detail-section full-width">
+                                <div class="detail-title">📋 Issue Details</div>
+                                <div class="detail-content">${this.escape(report.detailsIssues)}</div>
+                            </div>
+                            <div class="detail-section">
+                                <div class="detail-title">📊 Quantities</div>
+                                <div class="detail-content">
+                                    <strong>Defects:</strong> ${report.quantityDefect}<br>
+                                    <strong>Scrap:</strong> ${report.quantityScrap}
+                                </div>
+                            </div>
+
+                            ${report.containmentAction ? `
+                                <div class="detail-section">
+                                    <div class="detail-title">⚙️ Containment Action</div>
+                                    <div class="detail-content">
+                                        <strong>Check:</strong> ${report.containmentAction.qtyCheck}<br>
+                                        <strong>OK:</strong> ${report.containmentAction.qtyOk}<br>
+                                        <strong>Rework:</strong> ${report.containmentAction.qtyRework}<br>
+                                        <strong>NG:</strong> ${report.containmentAction.qtyNg}<br>
+                                        <strong>Defect %:</strong> ${report.containmentAction.defectPercent}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${report.nextAction ? `
+                                <div class="detail-section full-width">
+                                    <div class="detail-title">🎯 Next Action Required</div>
+                                    <div class="detail-content">
+                                        <strong>Action:</strong> ${this.escape(report.nextAction.typeOfAction)}<br>
+                                        <strong>PIC:</strong> ${this.escape(report.nextAction.pic)}<br>
+                                        <strong>Status:</strong> <span class="badge status-${report.nextAction.actionStatus}">${report.nextAction.actionStatus}</span>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${report.images && report.images.length > 0 ? `
+                                <div class="detail-section full-width">
+                                    <div class="detail-title">📸 Actual Defect Pictures (${report.images.length})</div>
+                                    <div class="report-images">
+                                        ${report.images.map((img, idx) => {
+                                            // FIX 2: Used Google Drive Thumbnail API to guarantee image rendering
+                                            let displayUrl = img.url;
+                                            const idMatch = img.url.match(/id=([^&]+)/);
+                                            if (idMatch && idMatch[1]) {
+                                                displayUrl = 'https://drive.google.com/thumbnail?id=' + idMatch[1] + '&sz=w800';
+                                            }
+                                            return `
+                                            <div class="report-image" onclick="manager.openModal('${displayUrl}')">
+                                                <img src="${displayUrl}" alt="Defect ${idx + 1}" loading="lazy">
+                                            </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                        </div>
+
+                        <div class="report-actions">
+                            <button class="btn-small btn-expand" onclick="manager.toggleReportExpand('${report.firebaseId}')">Show Less</button>
+                            <button class="btn-small btn-toggle" onclick="manager.toggleStatus('${report.firebaseId}')">Toggle Status</button>
+                            <button class="btn-small btn-delete" onclick="manager.deleteReport('${report.firebaseId}')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            if (hasMore) {
+                container.innerHTML += `
+                    <div class="load-more-container">
+                        <button class="btn-load-more" onclick="manager.loadMoreReports()">
+                            Load More Reports (${this.reports.length - this.displayedReports} remaining)
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        escape(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        openModal(imageSrc) {
+            document.getElementById('modalImage').src = imageSrc;
+            document.getElementById('imageModal').classList.add('show');
+        }
+
+        closeModal() {
+            document.getElementById('imageModal').classList.remove('show');
+        }
+    }
+
+    const manager = new QualityReportManager();
+    window.manager = manager;
+</script>
 </body>
 </html>

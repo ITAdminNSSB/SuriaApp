@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Feedback</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #0C0E8B;
+            --background-color: #f0f0f0;
+            --card-background: #FFFFFF;
+            --text-primary: #1F2937;
+            --border-color: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Helvetica', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .form-container {
+            background: var(--card-background);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Ensures header corners match container */
+            margin-top: 20px;
+        }
+
+        /* Fixed Header Styling */
+        .header {
+            background-color: var(--primary-color);
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white; /* Overriding global h2 if necessary */
+        }
+
+        form {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"], 
+        input[type="email"], 
+        select, 
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            background: #fafafa;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        #statusMessage {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .success { 
+            color: #065f46; 
+            background-color: #d1fae5;
+            border: 1px solid #a7f3d0;
+        }
+        .error { 
+            color: #991b1b; 
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+        }
+
+        #otherCategoryDiv {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <div class="header">
+            <h2>We Value Your Feedback</h2>
+        </div>
+        
+        <form id="feedbackForm">
+            <div class="form-group">
+                <label for="userEmail">Email</label>
+                <input type="email" id="userEmail" name="userEmail" required placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="" disabled selected>Select a category...</option>
+                    <option value="Food">Food</option>
+                    <option value="Service">Service</option>
+                    <option value="App">App</option>
+                    <option value="Other">Other</option>
+                </select>
+                
+                <div id="otherCategoryDiv">
+                    <input type="text" id="otherCategory" name="otherCategory" placeholder="Please specify...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Rating (1-5)</label>
+                <select id="rating" name="rating" required>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Terrible</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="photoFile">Attach Photo (Optional)</label>
+                <input type="file" id="photoFile" accept="image/*" capture="environment">
+            </div>
+
+            <div class="form-group">
+                <label for="feedback">Your Feedback</label>
+                <textarea id="feedback" name="feedback" required placeholder="Tell us what you think..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Submit Feedback</button>
+            <div id="statusMessage"></div>
+        </form>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-f0niqYuw-_F83chJ5tw3XUK2lhLUbOd3BABkVtiM4gkuxMEbn6Q0COna5g31rQgF/exec';
+
+        const form = document.getElementById('feedbackForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const photoInput = document.getElementById('photoFile');
+        
+        const categorySelect = document.getElementById('category');
+        const otherCategoryDiv = document.getElementById('otherCategoryDiv');
+        const otherCategoryInput = document.getElementById('otherCategory');
+
+        categorySelect.addEventListener('change', function() {
+            if (this.value === 'Other') {
+                otherCategoryDiv.style.display = 'block';
+                otherCategoryInput.required = true;
+            } else {
+                otherCategoryDiv.style.display = 'none';
+                otherCategoryInput.required = false;
+                otherCategoryInput.value = ''; 
+            }
+        });
+
+        function getCompressedBase64Image(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) {
+                    resolve(""); 
+                    return;
+                }
+                let reader = new FileReader();
+                reader.onload = function(event) {
+                    let img = new Image();
+                    img.onload = function() {
+                        let canvas = document.createElement("canvas");
+                        let maxSize = 800; 
+                        let scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+                        let base64 = canvas.toDataURL("image/jpeg", 0.7).split(',')[1];
+                        resolve(base64);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            submitBtn.textContent = 'Uploading... (Please wait)';
+            submitBtn.disabled = true;
+            statusMessage.style.display = 'none';
+            statusMessage.className = ''; 
+
+            try {
+                const urlEncodedData = new URLSearchParams();
+                const formData = new FormData(form);
+                for (const pair of formData.entries()) {
+                    urlEncodedData.append(pair[0], pair[1]);
+                }
+
+                if (urlEncodedData.get('category') === 'Other') {
+                    const specificDetail = urlEncodedData.get('otherCategory');
+                    urlEncodedData.set('category', 'Other - ' + specificDetail);
+                }
+                urlEncodedData.delete('otherCategory');
+
+                const file = photoInput.files[0];
+                const base64Image = await getCompressedBase64Image(file);
+                if (base64Image) {
+                    urlEncodedData.append('photoData', base64Image);
+                }
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: urlEncodedData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                });
+
+                if (response.ok) {
+                    statusMessage.textContent = 'Thank you! Your feedback has been submitted.';
+                    statusMessage.classList.add('success');
+                    form.reset(); 
+                    otherCategoryDiv.style.display = 'none'; 
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                statusMessage.textContent = 'Oops! Something went wrong. Please try again.';
+                statusMessage.classList.add('error');
+            } finally {
+                submitBtn.textContent = 'Submit Feedback';
+                submitBtn.disabled = false;
+                statusMessage.style.display = 'block';
+                
+                if(statusMessage.classList.contains('success')){
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

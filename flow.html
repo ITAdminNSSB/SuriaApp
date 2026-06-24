@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Performance Dashboard | 27/3/2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --secondary-color: #50e3c2;
+            --background-light: #f4f4f4;
+            --text-dark: #333333;
+            --card-background: #ffffff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .dashboard-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .dashboard-date {
+            font-size: 16px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .card-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            font-weight: 500;
+            color: #666;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .chart-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        .performance-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .positive {
+            color: #2ecc71;
+        }
+        .negative {
+            color: #e74c3c;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .kpi-card {
+            background-color: var(--card-background);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+        }
+        .kpi-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        @media (max-width: 1024px) {
+            .dashboard-grid, .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h1>Order Performance Dashboard</h1>
+            </div>
+            <div class="dashboard-date">27/3/2025</div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Attendance</div>
+                <div class="kpi-value">364</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Orders</div>
+                <div class="kpi-value">334</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">total non claimed </div>
+                <div class="kpi-value">19</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-title">Attendance Breakdown</div>
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Morning</span>
+                    <span class="metric-value">252</span>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Night</span>
+                    <span class="metric-value">112</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Order Distribution</div>
+                <div class="chart-container">
+                    <canvas id="orderChart"></canvas>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Morning Orders</span>
+                    <span class="metric-value">224</span>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Night Orders</span>
+                    <span class="metric-value">110</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Order Status</div>
+                <div class="chart-container">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Claimed Orders</span>
+                    <span class="metric-value">329</span>
+                </div>
+                <div class="card-metric">
+                    <span class="metric-label">Not Claimed</span>
+                    <span class="metric-value">19</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attendance Chart
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Morning', 'Night'],
+                datasets: [{
+                    data: [252, 112],
+                    backgroundColor: ['#0078d4', '#50e3c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Order Distribution Chart
+        const orderCtx = document.getElementById('orderChart').getContext('2d');
+        new Chart(orderCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Morning', 'Night'],
+                datasets: [{
+                    data: [224, 110],
+                    backgroundColor: ['#0078d4', '#50e3c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Order Status Chart
+        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        new Chart(orderStatusCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Claimed', 'Not Claimed'],
+                datasets: [{
+                    data: [206, 24],
+                    backgroundColor: ['#0078d4', '#50e3c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

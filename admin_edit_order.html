@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Admin — Meal Set Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700&display=swap');
+:root {--bg: #0a0a0f;--surface: #12121a;--border: #1e1e2e;--accent: #6366f1;--accent2: #a78bfa;--danger: #f43f5e;--success: #10b981;--warning: #f59e0b;--text: #e2e8f0;--muted: #475569;}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {font-family: 'Sora', sans-serif;background: var(--bg);color: var(--text);min-height: 100vh;display: flex;align-items: center;justify-content: center;}
+#lockScreen {width: 100%;max-width: 380px;padding: 20px;text-align: center;}
+.lock-icon {width: 72px;height: 72px;background: linear-gradient(135deg, var(--accent), var(--accent2));border-radius: 20px;display: flex;align-items: center;justify-content: center;font-size: 30px;margin: 0 auto 24px;box-shadow: 0 0 40px rgba(99,102,241,0.3);}
+.lock-title {font-family: 'JetBrains Mono', monospace;font-size: 1.1rem;font-weight: 700;letter-spacing: 3px;text-transform: uppercase;color: var(--accent2);margin-bottom: 6px;}
+.lock-subtitle {color: var(--muted);font-size: 0.85rem;margin-bottom: 36px;}
+.pin-display {display: flex;justify-content: center;gap: 14px;margin-bottom: 28px;}
+.pin-dot {width: 14px;height: 14px;border-radius: 50%;border: 2px solid var(--muted);background: transparent;transition: all 0.2s ease;}
+.pin-dot.filled {background: var(--accent);border-color: var(--accent);box-shadow: 0 0 10px rgba(99,102,241,0.6);}
+.pin-dot.error {background: var(--danger);border-color: var(--danger);animation: shake 0.4s ease;}
+@keyframes shake {0%, 100% { transform: translateX(0); }20%       { transform: translateX(-6px); }40%       { transform: translateX(6px); }60%       { transform: translateX(-4px); }80%       { transform: translateX(4px); }}
+.numpad {display: grid;grid-template-columns: repeat(3, 1fr);gap: 12px;max-width: 280px;margin: 0 auto 20px}
+.num-btn {background: var(--surface);border: 1px solid var(--border);border-radius: 14px;color: var(--text);font-family: 'Sora', sans-serif;font-size: 1.3rem;font-weight: 600;padding: 18px;cursor: pointer;transition: all 0.15s ease;user-select: none;}
+.num-btn:hover  { background: var(--border); border-color: var(--accent); }
+.num-btn:active { transform: scale(0.93); }
+.num-btn.del {font-size: 1rem;color: var(--muted);}
+.num-btn.del:hover { color: var(--danger); border-color: var(--danger); }
+.error-msg {color: var(--danger);font-size: 0.8rem;font-family: 'JetBrains Mono', monospace;letter-spacing: 1px;min-height: 20px;transition: opacity 0.3s;}
+#adminPanel {display: none;width: 100%;max-width: 700px;padding: 20px;}
+.panel-header {display: flex;align-items: center;justify-content: space-between;margin-bottom: 28px;padding-bottom: 16px;border-bottom: 1px solid var(--border);}
+.panel-title {font-family: 'JetBrains Mono', monospace;font-size: 1rem;font-weight: 700;color: var(--accent2);letter-spacing: 2px;text-transform: uppercase;}
+.lock-btn {background: transparent;border: 1px solid var(--border);color: var(--muted);padding: 8px 14px;border-radius: 8px;cursor: pointer;font-size: 0.8rem;font-family: 'Sora', sans-serif;transition: all 0.2s;}
+.lock-btn:hover { border-color: var(--danger); color: var(--danger); }
+.filter-row {display: flex;gap: 10px;margin-bottom: 20px;align-items: center;flex-wrap: wrap;}
+.date-input {background: var(--surface);border: 1px solid var(--border);border-radius: 10px;color: var(--text);padding: 10px 14px;font-family: 'Sora', sans-serif;font-size: 0.9rem;flex: 1;min-width: 160px;outline: none;transition: border-color 0.2s;}
+.date-input:focus { border-color: var(--accent); }
+.filter-btn {background: linear-gradient(135deg, var(--accent), var(--accent2));border: none;border-radius: 10px;color: white;padding: 10px 20px;font-family: 'Sora', sans-serif;font-size: 0.9rem;font-weight: 600;cursor: pointer;transition: opacity 0.2s;white-space: nowrap;}
+.filter-btn:hover { opacity: 0.85; }
+.stats-bar {display: flex;gap: 12px;margin-bottom: 20px;flex-wrap: wrap;}
+.stat-chip {background: var(--surface);border: 1px solid var(--border);border-radius: 8px;padding: 8px 14px;font-size: 0.8rem;font-family: 'JetBrains Mono', monospace;}
+.stat-chip span { color: var(--accent2); font-weight: 700; }
+.orders-list { display: flex; flex-direction: column; gap: 10px; max-height: 65vh; overflow-y: auto; padding-right: 4px; }
+.orders-list::-webkit-scrollbar { width: 4px; }
+.orders-list::-webkit-scrollbar-track { background: var(--surface); }
+.orders-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.order-card {background: var(--surface);border: 1px solid var(--border);border-radius: 14px;padding: 16px;display: flex;align-items: center;gap: 14px;transition: border-color 0.2s;}
+.order-card:hover { border-color: var(--accent); }
+.order-card.missing { border-left: 3px solid var(--danger); }
+.order-card.saving  { opacity: 0.6; pointer-events: none; }
+.order-info { flex: 1; min-width: 0; }
+.order-name {font-weight: 600;font-size: 0.95rem;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+.order-meta {color: var(--muted);font-size: 0.75rem;font-family: 'JetBrains Mono', monospace;margin-top: 3px;}
+.meal-badge {padding: 4px 12px;border-radius: 20px;font-size: 0.75rem;font-weight: 700;font-family: 'JetBrains Mono', monospace;white-space: nowrap;}
+.meal-badge.set-a   { background: #d1fae5; color: #065f46; }
+.meal-badge.set-b   { background: #fef3c7; color: #92400e; }
+.meal-badge.missing { background: rgba(244,63,94,0.15); color: var(--danger); border: 1px solid rgba(244,63,94,0.3); }
+.meal-selector {display: flex;gap: 6px;}
+.set-btn {padding: 7px 14px;border-radius: 8px;border: 1px solid var(--border);background: transparent;color: var(--muted);font-family: 'JetBrains Mono', monospace;font-size: 0.8rem;font-weight: 700;cursor: pointer;transition: all 0.15s ease;}
+.set-btn:hover         { border-color: var(--accent); color: var(--text); }
+.set-btn.active-a      { background: #d1fae5; color: #065f46; border-color: #065f46; }
+.set-btn.active-b      { background: #fef3c7; color: #92400e; border-color: #92400e; }
+.save-btn {background: linear-gradient(135deg, var(--accent), var(--accent2));border: none;border-radius: 8px;color: white;padding: 8px 14px;font-size: 0.8rem;font-weight: 700;font-family: 'Sora', sans-serif;cursor: pointer;transition: opacity 0.2s;white-space: nowrap;}
+.save-btn:hover    { opacity: 0.85; }
+.save-btn.saved    { background: var(--success); }
+.save-btn.saved::before { content: '✓ '; }
+.empty-state {text-align: center;padding: 48px 20px;color: var(--muted);font-size: 0.9rem;}
+.empty-state i { font-size: 2.5rem; margin-bottom: 12px; display: block; color: var(--border); }
+.loading-state {text-align: center;padding: 48px;color: var(--muted);}
+.spinner {width: 32px; height: 32px;border: 3px solid var(--border);border-top-color: var(--accent);border-radius: 50%;animation: spin 0.8s linear infinite;margin: 0 auto 12px;}
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast {position: fixed;bottom: 30px;left: 50%;transform: translateX(-50%) translateY(80px);background: var(--surface);border: 1px solid var(--border);border-radius: 12px;padding: 12px 22px;font-size: 0.85rem;font-weight: 600;transition: transform 0.3s ease;z-index: 9999;white-space: nowrap;}
+.toast.show   { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error   { border-color: var(--danger);  color: var(--danger);  }
+.toggle-row {display: flex;align-items: center;gap: 10px;margin-bottom: 16px;}
+.toggle-label {font-size: 0.85rem;color: var(--muted);cursor: pointer;user-select: none;}
+.toggle {width: 36px; height: 20px;background: var(--border);border-radius: 20px;position: relative;cursor: pointer;transition: background 0.2s;}
+.toggle.on { background: var(--accent); }
+.toggle::after {content: '';position: absolute;width: 14px; height: 14px;background: white;border-radius: 50%;top: 3px; left: 3px;transition: left 0.2s;}
+.toggle.on::after { left: 19px; }
+    </style>
+</head>
+<body>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lockScreen">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">Admin Access</div>
+    <div class="lock-subtitle">Enter passcode to continue</div>
+
+    <div class="pin-display" id="pinDisplay">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+    </div>
+
+    <div class="numpad">
+        <button class="num-btn" onclick="pressNum('1')">1</button>
+        <button class="num-btn" onclick="pressNum('2')">2</button>
+        <button class="num-btn" onclick="pressNum('3')">3</button>
+        <button class="num-btn" onclick="pressNum('4')">4</button>
+        <button class="num-btn" onclick="pressNum('5')">5</button>
+        <button class="num-btn" onclick="pressNum('6')">6</button>
+        <button class="num-btn" onclick="pressNum('7')">7</button>
+        <button class="num-btn" onclick="pressNum('8')">8</button>
+        <button class="num-btn" onclick="pressNum('9')">9</button>
+        <button class="num-btn" onclick="clearPin()" style="grid-column:1">CLR</button>
+        <button class="num-btn" onclick="pressNum('0')">0</button>
+        <button class="num-btn del" onclick="deletePin()"><i class="fas fa-backspace"></i></button>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel">
+    <div class="panel-header">
+        <div class="panel-title">⚙ Meal Set Editor</div>
+        <button class="lock-btn" onclick="lockPanel()"><i class="fas fa-lock"></i> Lock</button>
+    </div>
+
+    <div class="filter-row">
+        <input type="date" class="date-input" id="dateFilter">
+        <button class="filter-btn" onclick="loadOrders()"><i class="fas fa-search"></i> Load Orders</button>
+    </div>
+
+    <div class="stats-bar" id="statsBar"></div>
+
+    <div class="toggle-row">
+        <div class="toggle" id="missingToggle" onclick="toggleMissingOnly()"></div>
+        <label class="toggle-label" onclick="toggleMissingOnly()">Show only missing meal set</label>
+    </div>
+
+    <div class="orders-list" id="ordersList">
+        <div class="empty-state">
+            <i class="fas fa-calendar-alt"></i>
+            Select a date and click Load Orders
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc, Timestamp }
+        from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey:            "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain:        "suria-food-ordering-system.firebaseapp.com",
+        projectId:         "suria-food-ordering-system",
+        storageBucket:     "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId:             "1:204528329291:web:cba270a2968e6d159963ce"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    // ── Change this to whatever passcode you want ──
+    const PASSCODE = '1234';
+
+    let pin         = '';
+    let allOrders   = [];
+    let showMissing = false;
+
+    // ── PIN logic ──
+    window.pressNum = function(n) {
+        if (pin.length >= 4) return;
+        pin += n;
+        updateDots();
+        if (pin.length === 4) setTimeout(checkPin, 150);
+    };
+
+    window.deletePin = function() {
+        pin = pin.slice(0, -1);
+        updateDots();
+    };
+
+    window.clearPin = function() {
+        pin = '';
+        updateDots();
+        document.getElementById('errorMsg').textContent = '';
+    };
+
+    function updateDots() {
+        for (let i = 0; i < 4; i++) {
+            const d = document.getElementById(`dot${i}`);
+            d.classList.toggle('filled', i < pin.length);
+            d.classList.remove('error');
+        }
+    }
+
+    function checkPin() {
+        if (pin === PASSCODE) {
+            document.getElementById('lockScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            // Default to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateFilter').value = today;
+            loadOrders();
+        } else {
+            for (let i = 0; i < 4; i++) document.getElementById(`dot${i}`).classList.add('error');
+            document.getElementById('errorMsg').textContent = 'Incorrect passcode';
+            setTimeout(() => { pin = ''; updateDots(); document.getElementById('errorMsg').textContent = ''; }, 1200);
+        }
+    }
+
+    window.lockPanel = function() {
+        pin = '';
+        updateDots();
+        document.getElementById('errorMsg').textContent = '';
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('lockScreen').style.display = 'block';
+        allOrders = [];
+        document.getElementById('ordersList').innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-calendar-alt"></i>
+                Select a date and click Load Orders
+            </div>`;
+        document.getElementById('statsBar').innerHTML = '';
+    };
+
+    // ── Load orders ──
+    window.loadOrders = async function() {
+        const dateVal = document.getElementById('dateFilter').value;
+        if (!dateVal) { showToast('Please select a date', 'error'); return; }
+
+        const list = document.getElementById('ordersList');
+        list.innerHTML = `<div class="loading-state"><div class="spinner"></div>Loading orders...</div>`;
+        document.getElementById('statsBar').innerHTML = '';
+
+        try {
+            const start = new Date(dateVal); start.setHours(0, 0, 0, 0);
+            const end   = new Date(dateVal); end.setHours(23, 59, 59, 999);
+
+            const q    = query(collection(db, 'orders'),
+            where('orderDate', '>=', Timestamp.fromDate(start)),
+            where('orderDate', '<=', Timestamp.fromDate(end)));
+            const snap = await getDocs(q);
+
+            allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            allOrders.sort((a, b) => {
+                const ta = a.orderDate?.toDate?.() ?? new Date(0);
+                const tb = b.orderDate?.toDate?.() ?? new Date(0);
+                return ta - tb;
+            });
+
+            renderStats();
+            renderOrders();
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i>Error loading orders</div>`;
+        }
+    };
+
+    function renderStats() {
+        const total   = allOrders.length;
+        const missing = allOrders.filter(o => !o.mealSet || !['A','B'].includes(o.mealSet)).length;
+        const setA    = allOrders.filter(o => o.mealSet === 'A').length;
+        const setB    = allOrders.filter(o => o.mealSet === 'B').length;
+
+        document.getElementById('statsBar').innerHTML = `
+            <div class="stat-chip">Total <span>${total}</span></div>
+            <div class="stat-chip">Set A <span>${setA}</span></div>
+            <div class="stat-chip">Set B <span>${setB}</span></div>
+            <div class="stat-chip">Missing <span style="color:var(--danger)">${missing}</span></div>
+        `;
+    }
+
+    function renderOrders() {
+        const list = document.getElementById('ordersList');
+        const toShow = showMissing
+            ? allOrders.filter(o => !o.mealSet || !['A','B'].includes(o.mealSet))
+            : allOrders;
+
+        if (toShow.length === 0) {
+            list.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle" style="color:var(--success)"></i>${showMissing ? 'No missing meal sets!' : 'No orders found'}</div>`;
+            return;
+        }
+
+        list.innerHTML = toShow.map(order => {
+            const hasMeal  = order.mealSet && ['A','B'].includes(order.mealSet);
+            const badgeClass = order.mealSet === 'A' ? 'set-a' : order.mealSet === 'B' ? 'set-b' : 'missing';
+            const badgeText  = hasMeal ? `Set ${order.mealSet}` : '— missing';
+            const time       = order.orderDate?.toDate?.()
+                ? order.orderDate.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                : 'N/A';
+
+            return `
+            <div class="order-card ${hasMeal ? '' : 'missing'}" id="card-${order.id}">
+                <div class="order-info">
+                    <div class="order-name">${order.name || 'Unknown'}</div>
+                    <div class="order-meta">ID: ${order.employeeId || '—'} &nbsp;·&nbsp; ${order.department || '—'} &nbsp;·&nbsp; ${time}</div>
+                </div>
+                <span class="meal-badge ${badgeClass}">${badgeText}</span>
+                <div class="meal-selector">
+                    <button class="set-btn ${order.mealSet === 'A' ? 'active-a' : ''}" onclick="selectMeal('${order.id}', 'A')">A</button>
+                    <button class="set-btn ${order.mealSet === 'B' ? 'active-b' : ''}" onclick="selectMeal('${order.id}', 'B')">B</button>
+                </div>
+                <button class="save-btn" id="save-${order.id}" onclick="saveMeal('${order.id}')">Save</button>
+            </div>`;
+        }).join('');
+    }
+
+    // Track pending changes
+    const pendingChanges = {};
+
+    window.selectMeal = function(orderId, set) {
+        pendingChanges[orderId] = set;
+
+        // Update button highlight
+        const card = document.getElementById(`card-${orderId}`);
+        card.querySelectorAll('.set-btn').forEach(b => {
+            b.classList.remove('active-a', 'active-b');
+        });
+        const btns = card.querySelectorAll('.set-btn');
+        btns[0].classList.toggle('active-a', set === 'A');
+        btns[1].classList.toggle('active-b', set === 'B');
+    };
+
+    window.saveMeal = async function(orderId) {
+        const newSet = pendingChanges[orderId];
+        if (!newSet) { showToast('Select A or B first', 'error'); return; }
+
+        const card    = document.getElementById(`card-${orderId}`);
+        const saveBtn = document.getElementById(`save-${orderId}`);
+        card.classList.add('saving');
+        saveBtn.textContent = '...';
+
+        try {
+            await updateDoc(doc(db, 'orders', orderId), { mealSet: newSet });
+
+            // Update local cache
+            const idx = allOrders.findIndex(o => o.id === orderId);
+            if (idx > -1) allOrders[idx].mealSet = newSet;
+
+            saveBtn.classList.add('saved');
+            saveBtn.textContent = 'Saved';
+            card.classList.remove('missing');
+
+            // Update badge
+            const badge = card.querySelector('.meal-badge');
+            badge.className = `meal-badge ${newSet === 'A' ? 'set-a' : 'set-b'}`;
+            badge.textContent = `Set ${newSet}`;
+
+            renderStats();
+            showToast(`Meal set updated to Set ${newSet}`, 'success');
+            delete pendingChanges[orderId];
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to save — check connection', 'error');
+            saveBtn.textContent = 'Save';
+        } finally {
+            card.classList.remove('saving');
+        }
+    };
+
+    window.toggleMissingOnly = function() {
+        showMissing = !showMissing;
+        document.getElementById('missingToggle').classList.toggle('on', showMissing);
+        renderOrders();
+    };
+
+    function showToast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast ${type} show`;
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+</script>
+</body>
+</html>
