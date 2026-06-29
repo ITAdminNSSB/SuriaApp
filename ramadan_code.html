@@ -109,6 +109,7 @@
         </div>
     </div>
 
+    <!-- MAIN ORDER PROMPT -->
     <div class="container" id="mainOrderContainer">
         <div class="order-section">
             <p class="order-question" data-translate="OrderQuestion">Do you want to order food today?</p>
@@ -121,6 +122,22 @@
         </div>
     </div>
 
+    <!-- NEW SCREEN: DIET OR REGULAR CHOICE (ONLY FOR FIT USERS) -->
+    <div class="customization-container" id="dietChoiceScreen" style="display:none; text-align: center;">
+        <h2 style="color:#0C0E8B; margin-bottom: 20px;">Choose Your Menu</h2>
+        <p style="color:#666; margin-bottom: 25px;">You are registered in the FIT Program. What would you like to order today?</p>
+        <div class="customization-actions">
+            <!-- Diet Option triggers Location screen next -->
+            <button id="btnChooseDiet" class="btn-primary" style="background: linear-gradient(135deg, #dc3545, #f86b7d); box-shadow: 0 4px 15px rgba(220,53,69,0.3);">Diet Menu (FIT Program)</button>
+            
+            <!-- Regular Option directs to standard customization page -->
+            <button id="btnChooseRegular" class="btn-primary">Regular Menu</button>
+            
+            <button id="btnBackToMainFromDiet" class="btn-secondary" style="margin-top:15px; border:none;">⬅ Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- CUSTOMIZATION SCREEN -->
     <div class="customization-container" id="customizationScreen" style="display:none;">
         <h2 data-translate="rateAndCustomize">Rate &amp; Customize</h2>
         <p data-translate="giveFeedback">Give feedback and adjust preferences for today.</p>
@@ -179,6 +196,7 @@
         </div>
     </div>
 
+    <!-- LOCATION SCREEN (USED FOR BOTH DIET AND REGULAR) -->
     <div class="customization-container" id="locationScreen" style="display:none;">
         <h2>Delivery Location</h2>
         <p>Please select your delivery location for today.</p>
@@ -261,6 +279,9 @@
         const app  = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db   = getFirestore(app);
+
+        // Track which flow we are currently in ('regular' or 'diet')
+        window.orderFlowType = 'regular';
 
         // ── Auth Guard Logic ──────────────────────────────────────────────────
         auth.onAuthStateChanged(async (user) => {
@@ -508,30 +529,27 @@
             const od = JSON.parse(raw);
             if (od.userId !== userId) return;
 
-            // --- NEW LOGIC: Verify order status with Firestore ---
+            // Verify order status with Firestore
             try {
                 if (od.id) {
                     const orderSnap = await getDoc(doc(db, "orders", od.id));
                     
-                    // If the order was deleted OR marked as cancelled in the database
                     if (!orderSnap.exists() || orderSnap.data().orderStatus === "cancelled" || orderSnap.data().orderStatus === "canceled") {
-                        clearStoredOrderData(userId); // Clear the outdated cache
-                        return; // Stop restoring, leave the normal order screen visible
+                        clearStoredOrderData(userId); 
+                        return; 
                     }
                     
-                    // Update local cache with latest status just in case it changed
                     od.orderStatus = orderSnap.data().orderStatus;
                     localStorage.setItem(`orderData_${userId}`, JSON.stringify(od));
                 }
             } catch (error) {
                 console.error("Error verifying order status with Firebase:", error);
-                // If offline, it will safely skip this and fall back to the cached QR code
             }
-            // -----------------------------------------------------
 
-            // Hide ordering screens and show the Thank You / QR screen
             document.getElementById('mainOrderContainer').style.display  = 'none';
             document.getElementById('customizationScreen').style.display = 'none';
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'none';
             thankYouMessage.style.display = 'block';
             deactivateSubmitButton();
 
@@ -591,9 +609,8 @@
             }
         }
 
-        // ── DIET order: instant YES → DIET QR (red border) ───────────────────
+        // ── DIET order processing ─────────────────────────────────────────────
         async function processDietOrder(userID, userData) {
-            // CHECK 3: Time validation before Diet submission
             const timeStatus = await isOrderingTime();
             if (!timeStatus.isValid) {
                 alert("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
@@ -608,7 +625,8 @@
                     orderDate:        serverTimestamp(),
                     userId:           userID,
                     orderStatus:      "ordered",
-                    mealSet:          "DIET",      // strictly DIET
+                    mealSet:          "DIET",      
+                    location:         window.selectedLocation, // ADDED: captures the location for DIET too
                     yesterdayRating:  null,
                     yesterdayComment: null
                 };
@@ -619,6 +637,8 @@
 
                 document.getElementById('mainOrderContainer').style.display  = 'none';
                 document.getElementById('customizationScreen').style.display = 'none';
+                document.getElementById('dietChoiceScreen').style.display = 'none';
+                document.getElementById('locationScreen').style.display = 'none';
                 thankYouMessage.style.display = 'block';
 
                 generateQRCode(orderWithTs, true);
@@ -635,9 +655,8 @@
             }
         }
 
-        // ── Normal order ──────────────────────────────────────────────────────
+        // ── Normal order processing ───────────────────────────────────────────
         async function processOrder(userID) {
-            // CHECK 4: Time validation before Normal submission
             const timeStatus = await isOrderingTime();
             if (!timeStatus.isValid) {
                 alert("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
@@ -674,14 +693,13 @@
                     } catch (e) { console.error("Error sending feedback:", e); }
                 }
 
-                // SUBMIT ALL ORDER DATA TO FIREBASE (INCLUDING LOCATION)
                 const orderDetails = {
                     ...userData,
                     orderDate:        serverTimestamp(),
                     userId:           userID,
                     orderStatus:      "ordered",
                     mealSet:          customChoice,
-                    location:         window.selectedLocation, // ADDED: Stores Pekan Subang or Subang Kristal
+                    location:         window.selectedLocation,
                     yesterdayRating:  window.ratingIsRequired ? window.selectedRating : null,
                     yesterdayComment: (window.ratingIsRequired === true && finalComment.length > 0) ? finalComment : null
                 };
@@ -705,31 +723,12 @@
                 loadingSpinner.style.display = 'none';
             }
         }
-        
-        // ── Cycle Start Calculation ─────────────────────────────────────────────
-        async function getMostRecentCycleStart() {
-            const now = await getCurrentServerTime(); // Using secure server time
-            const currentDay = now.getDay();
-            const currentHour = now.getHours();
-
-            const lastFriday = new Date(now);
-            let daysToSubtract = (currentDay + 2) % 7;
-
-            // If it's Friday but before 3 PM, look back to the previous Friday
-            if (currentDay === 5 && currentHour < 15) {
-                daysToSubtract = 7;
-            }
-
-            lastFriday.setDate(now.getDate() - daysToSubtract);
-            lastFriday.setHours(15, 0, 0, 0);
-            return lastFriday;
-        }
 
         // ── YES button handler ────────────────────────────────────────────────
         window.handleYesClick = async function () {
             const user = auth.currentUser;
             if (!user) { alert("Please log in to continue"); return; }
-            // CHECK 1: YES Button click validation
+            
             const timeStatus = await isOrderingTime();
             if (!timeStatus.isValid) {
                 displayTimeMessage("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
@@ -744,43 +743,69 @@
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
+                    window.currentUserData = userData; // Cache for the fork in the road
                     
-                    // 1. Get the exact timestamp for the current week's cycle
-                    const cycleStart = await getMostRecentCycleStart();
-
-                    // 2. Query: Must match ID AND be registered after the cycle start
                     const fitSnap  = await getDocs(query(
                         collection(db, "fit_program_users"),
-                        where("employeeId", "==", userData.employeeId),
-                        where("registeredAt", ">=", Timestamp.fromDate(cycleStart))
+                        where("employeeId", "==", userData.employeeId)
                     ));
 
-                    if (!fitSnap.empty) {
-                        overlay.style.display        = 'none';
-                        loadingSpinner.style.display = 'none';
-                        await processDietOrder(user.uid, userData);
-                        return;
+                    let isDietUser = false;
+                    fitSnap.forEach(d => {
+                        if (d.data().registeredAt) {
+                            isDietUser = true;
+                        }
+                    });
+
+                    document.getElementById('mainOrderContainer').style.display = 'none';
+
+                    // FORK IN THE ROAD: 
+                    if (isDietUser) {
+                        // User is in FIT program, ask which menu they want
+                        document.getElementById('dietChoiceScreen').style.display = 'block';
+                    } else {
+                        // Regular user, go straight to standard customization
+                        window.orderFlowType = 'regular'; // Explicitly set
+                        document.getElementById('customizationScreen').style.display = 'block';
+                        await setupRatingSection(user.uid);
                     }
                 }
             } catch (err) {
                 console.error("Error checking diet status:", err);
             } finally {
-                if (overlay.style.display === 'block') {
-                    overlay.style.display        = 'none';
-                    loadingSpinner.style.display = 'none';
-                }
+                overlay.style.display        = 'none';
+                loadingSpinner.style.display = 'none';
             }
-
-            document.getElementById('mainOrderContainer').style.display  = 'none';
-            document.getElementById('customizationScreen').style.display = 'block';
-            await setupRatingSection(user.uid);
         };
+
+        // ── New FIT Choice Listeners ──────────────────────────────────────────
+        document.getElementById('btnChooseDiet').addEventListener('click', () => {
+            window.orderFlowType = 'diet';
+            // Adjust the back button text dynamically so it makes sense contextually
+            document.getElementById('backToCustomization').textContent = '⬅ Back to Menu Choice';
+            
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'block'; // Proceed to location!
+        });
+
+        document.getElementById('btnChooseRegular').addEventListener('click', async () => {
+            window.orderFlowType = 'regular';
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            document.getElementById('customizationScreen').style.display = 'block';
+            const user = auth.currentUser;
+            await setupRatingSection(user.uid);
+        });
+        
+        document.getElementById('btnBackToMainFromDiet').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            document.getElementById('mainOrderContainer').style.display = 'block';
+        });
 
         // ── NO button handler ─────────────────────────────────────────────────
         window.handleNoClick = async function () {
             const user = auth.currentUser;
             if (!user) { alert("Please log in to continue"); return; }
-            // CHECK 2: NO Button click validation
             const timeStatus = await isOrderingTime();
             if (!timeStatus.isValid) {
                 displayTimeMessage("'No Eating' submission is only available between 4 AM - 10 AM or 4 PM - 9 PM.");
@@ -835,8 +860,6 @@
         });
 
         // ── MULTI-STEP NAVIGATION LOGIC ───────────────────────────────────────
-
-        // 1. Move from Customization to Location
         document.getElementById('nextToLocation').addEventListener('click', (e) => {
             e.preventDefault();
 
@@ -850,35 +873,48 @@
                 return;
             }
 
-            // Save customization locally before transitioning screens
+            window.orderFlowType = 'regular';
+            // Set regular text for the back button on location screen
+            document.getElementById('backToCustomization').textContent = '⬅ Back to Customization';
+
             window.customBroth    = document.getElementById('extraBroth').checked;
             window.customMoreRice = document.getElementById('moreRice').checked;
             window.customLessRice = document.getElementById('lessRice').checked;
             window.customAllergy  = isAllergyChecked;
             window.selectedRating = currentRating;
 
-            // Transition UI
             document.getElementById('customizationScreen').style.display = 'none';
             document.getElementById('locationScreen').style.display = 'block';
         });
 
-        // 2. Move Back from Location to Customization
+        // Handles backing out from the shared Location Screen
         document.getElementById('backToCustomization').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('locationScreen').style.display = 'none';
-            document.getElementById('customizationScreen').style.display = 'block';
+            
+            // Route dynamically based on which flow we're in
+            if (window.orderFlowType === 'diet') {
+                document.getElementById('dietChoiceScreen').style.display = 'block';
+            } else {
+                document.getElementById('customizationScreen').style.display = 'block';
+            }
         });
 
-        // 3. Final Confirm & Submit from Location Screen
-        document.getElementById('finalSubmitOrder').addEventListener('click', (e) => {
+        // Final Confirm Submit from Location Screen handles both flows
+        document.getElementById('finalSubmitOrder').addEventListener('click', async (e) => {
             e.preventDefault();
-            
-            // Get the selected radio button for location
             const selectedLocation = document.querySelector('input[name="deliveryLocation"]:checked').value;
             window.selectedLocation = selectedLocation;
 
             document.getElementById('locationScreen').style.display = 'none';
-            processOrder(auth.currentUser.uid);
+            
+            // Execute the corresponding submission process based on flow type
+            if (window.orderFlowType === 'diet') {
+                const user = auth.currentUser;
+                await processDietOrder(user.uid, window.currentUserData);
+            } else {
+                processOrder(auth.currentUser.uid);
+            }
         });
 
         // ── Plus button / floating menu ───────────────────────────────────────
