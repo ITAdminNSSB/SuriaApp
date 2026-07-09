@@ -43,6 +43,13 @@
         }
 
         /* --- NAVIGATION --- */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -64,6 +71,12 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             background: #f8fafc;
+        }
+
+        .header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         /* --- HEADER SECTION --- */
@@ -95,10 +108,11 @@
             font-size: 2.2rem;
             font-weight: 800;
             margin-bottom: 10px;
+            letter-spacing: 0.5px;
         }
 
         .header-card p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             letter-spacing: 1px;
@@ -126,6 +140,7 @@
 
         .stat-box:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
         }
 
         .stat-box h2 {
@@ -279,44 +294,46 @@
 
 <div class="container">
 
-    <!-- Back Navigation -->
-    <a href="home.html" class="back-btn">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
+    <div class="header">
+        <a href="home.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> <span data-translate="home">Home</span>
+        </a>
+        <h2 data-translate="gembaLeaderboard">Leaderboard</h2>
+    </div>
 
     <!-- Main Header -->
     <div class="header-card">
-        <h1>🏭 SURIA Gemba Walk</h1>
-        <p>Live Leaderboard Rankings</p>
+        <h1 data-translate="gembaWalk">🏭 Gemba Walk</h1>
+        <p data-translate="latestUpdatesTitle">Live Rankings</p>
     </div>
 
     <!-- Personal & Company Stats Grid -->
     <div class="stats-grid">
         <div class="stat-box highlight">
             <h2 id="myRank">-</h2>
-            <p>My Rank</p>
+            <p data-translate="myRank">My Rank</p>
         </div>
         <div class="stat-box">
             <h2 id="myPoints">0</h2>
-            <p>My Points</p>
+            <p data-translate="myPoints">My Points</p>
         </div>
         <div class="stat-box">
             <h2 id="totalPoints">0</h2>
-            <p>Company Total</p>
+            <p data-translate="companyTotal">Company Total</p>
         </div>
     </div>
 
     <!-- Leaderboard List -->
     <div class="leaderboard-card">
         <div class="leaderboard-title">
-            <span>🚀 Top Participants</span>
+            <span data-translate="topParticipants">🚀 Top Participants</span>
             <i class="fas fa-crown" style="color: var(--gold);"></i>
         </div>
 
         <div id="leaderboard-list">
             <div class="loading pulse-text">
                 <i class="fas fa-circle-notch fa-spin" style="margin-right: 8px; font-size: 20px;"></i><br><br>
-                Syncing live data...
+                <span data-translate="loadingText">Syncing live data...</span>
             </div>
         </div>
     </div>
@@ -326,35 +343,63 @@
 <!-- Firebase Script Logic -->
 <script type="module">
     import { db, auth } from './firebaseConfig.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
     import { collection, query, orderBy, onSnapshot, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
+    import { initializeWithDetection } from './languageTranslator.js';
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeWithDetection();
+    });
+    
     const leaderboardList = document.getElementById("leaderboard-list");
     const totalPointsElement = document.getElementById("totalPoints");
     const myPointsElement = document.getElementById("myPoints");
     const myRankElement = document.getElementById("myRank");
 
+    let currentUserId = null;
+    let latestSnapshotData = null; // Store data to re-render if auth resolves later
+
+    // Listen for Auth State
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            // Re-evaluate personal stats once user is known
+            if (latestSnapshotData) {
+                updatePersonalStats(latestSnapshotData);
+            }
+        }
+    });
+
     const q = query(collection(db, "gemba_points"), orderBy("totalPoints", "desc"));
 
+    // Function to update user specific boxes
+    function updatePersonalStats(snapshotDocs) {
+        if (!currentUserId) return;
+
+        let rank = 1;
+        for (const docSnap of snapshotDocs) {
+            if (docSnap.id === currentUserId) {
+                myRankElement.innerText = "#" + rank;
+                myPointsElement.textContent = docSnap.data().totalPoints || 0;
+                return;
+            }
+            rank++;
+        }
+    }
+
     onSnapshot(q, async (snapshot) => {
+        latestSnapshotData = snapshot.docs; // Cache for auth listener
+        
         let html = '';
         let rank = 1;
-        let myRank = null;
         let totalCompanyPoints = 0;
 
+        // Process data
         for (const docSnap of snapshot.docs) {
             const pointsData = docSnap.data();
-
-            // Filter out users with 0 or less points
-            if ((pointsData.totalPoints || 0) <= 0) {
-                continue;
-            }
-
-            // Check for current user's rank
-            if (auth.currentUser && docSnap.id === auth.currentUser.uid) {
-                myRank = rank;
-            }
-
-            // Fetch User Details
+            
+            // Note: In a production app with 1000+ users, making a getDoc call in a loop inside onSnapshot can be slow. 
+            // For a company event size, this is perfectly fine.
             const userDoc = await getDoc(doc(db, "users", docSnap.id));
             const user = userDoc.exists() ? userDoc.data() : {};
 
@@ -372,6 +417,7 @@
             if (rank === 1) rowClass = "top1";
             else if (rank === 2) rowClass = "top2";
             else if (rank === 3) rowClass = "top3";
+            if (currentUserId && docSnap.id === currentUserId) rowClass += " highlight"; // Optional self-highlight
 
             // Generate HTML Row
             html += `
@@ -379,8 +425,8 @@
                 <div class="left">
                     <div class="rank">${medal}</div>
                     <div class="user-info">
-                        <div class="user-name">${user.name || docSnap.id}</div>
-                        <div class="user-dept">${user.department || 'SURIA Team'}</div>
+                        <div class="user-name">${user.name || "NSSB Participant"}</div>
+                        <div class="user-dept">${user.department || 'NSSB Team'}</div>
                     </div>
                 </div>
                 <div class="points">${pointsData.totalPoints || 0} pts</div>
@@ -391,17 +437,13 @@
         }
 
         // Handle Empty State
-        if (html === '') {
+        if (snapshot.empty) {
             leaderboardList.innerHTML = `
                 <div class="loading">
-                    <i class="fas fa-clipboard-list" style="font-size: 32px; margin-bottom: 15px; display:block; opacity: 0.5;"></i>
-                    No participants yet. Be the first to score!
+                    <i class="fas fa-industry" style="font-size: 32px; margin-bottom: 15px; display:block; opacity: 0.3; color: var(--primary);"></i>
+                    No participants yet. Be the first to start the Gemba Walk!
                 </div>
             `;
-            // Reset totals if no one has points
-            totalPointsElement.textContent = '0';
-            myPointsElement.textContent = '0';
-            myRankElement.innerText = '-';
             return;
         }
 
@@ -409,21 +451,8 @@
         leaderboardList.innerHTML = html;
         totalPointsElement.textContent = totalCompanyPoints.toLocaleString();
 
-        // Update Current User Stats
-        if (myRank) {
-            myRankElement.innerText = "#" + myRank;
-        } else {
-            myRankElement.innerText = "-";
-        }
-
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-            const myDoc = snapshot.docs.find(doc => doc.id === currentUser.uid);
-            if (myDoc) {
-                const myData = myDoc.data();
-                myPointsElement.textContent = myData.totalPoints || 0;
-            }
-        }
+        // Update Personal UI if Auth resolved
+        updatePersonalStats(snapshot.docs);
     });
 </script>
 
