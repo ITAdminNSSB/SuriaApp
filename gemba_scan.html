@@ -2,34 +2,262 @@
 <html>
   <head>
     <title>SURIA Gemba Walk Scanner</title>
-
     <meta charset="UTF-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <meta 
+      name="viewport" 
+      content="width=device-width, initial-scale=1.0" 
+    />
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
 
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
       body {
-        font-family: Arial, sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
         padding: 20px;
-        background: #f8fafc;
+        padding-bottom: 80px;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      /* --- Header --- */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+      }
+
+      .back-btn {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        padding: 10px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .back-btn:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
       }
 
       h2 {
-        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      #adminAccessBtn {
+        color: #cbd5e1;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 10px;
+        transition: color 0.2s;
+      }
+
+      #adminAccessBtn:hover {
+        color: #94a3b8;
+      }
+
+      /* --- Status Info Card --- */
+      .status-card {
+        background: linear-gradient(135deg, #059669, #10b981);
+        border-radius: 20px;
+        padding: 20px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .status-card::after {
+        content: "";
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .status-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        z-index: 2;
+      }
+
+      .status-item span {
+        font-size: 12px;
+        font-weight: 500;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .status-item strong {
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .timer-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .timer-badge.ready {
+        background: white;
+        color: #059669;
+      }
+
+      .timer-badge.locked {
+        background: #ef4444;
+        color: white;
+      }
+
+      /* --- Scanner Area --- */
+      .scanner-wrapper {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       #reader {
         width: 100%;
-        max-width: 500px;
-        margin: auto;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 2px solid #f1f5f9;
       }
 
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        width: 100%;
+      }
+
+      .action-btn {
+        flex: 1;
+        padding: 10px 15px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid transparent;
+      }
+
+      .btn-switch {
+        background: #f8fafc;
+        color: #475569;
+        border-color: #e2e8f0;
+      }
+
+      .btn-switch:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      .btn-report {
+        background: #fef2f2;
+        color: #ef4444;
+        border-color: #fecaca;
+      }
+
+      .btn-report:hover {
+        background: #fee2e2;
+      }
+
+      /* --- Rules Card --- */
+      .rules-card {
+        background: #fff8f1;
+        border: 1px solid #fed7aa;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.05);
+      }
+
+      .rules-card h3 {
+        color: #c2410c;
+        font-size: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .rules-card ul {
+        list-style: none;
+      }
+
+      .rules-card li {
+        position: relative;
+        padding-left: 20px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: #78350f;
+        line-height: 1.5;
+        font-weight: 500;
+      }
+
+      .rules-card li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #f97316;
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      /* --- Custom Modals --- */
       .popup-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
         display: none;
         justify-content: center;
         align-items: center;
@@ -39,41 +267,92 @@
       .popup-card {
         background: white;
         width: 90%;
-        max-width: 340px;
-        border-radius: 20px;
-        padding: 25px;
+        max-width: 350px;
+        border-radius: 24px;
+        padding: 30px 25px;
         text-align: center;
-        animation: popupShow 0.25s ease;
+        animation: popupShow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       }
 
       .popup-icon {
-        font-size: 60px;
+        font-size: 55px;
         margin-bottom: 15px;
       }
-
       .popup-card h3 {
-        margin-bottom: 10px;
+        color: #0f172a;
+        font-size: 20px;
+        margin-bottom: 8px;
       }
-
       .popup-card p {
-        color: #475569;
-        line-height: 1.5;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        white-space: pre-line;
       }
 
       .popup-card button {
-        margin-top: 20px;
         width: 100%;
         border: none;
-        background: #0f172a;
+        background: #3b82f6;
         color: white;
-        padding: 12px;
-        border-radius: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 15px;
         cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .popup-card button:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+      }
+
+      /* Forms in Modal */
+      .form-group {
+        text-align: left;
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+      }
+      .form-group select,
+      .form-group textarea,
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        font-size: 14px;
+        font-family: inherit;
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .modal-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .btn-cancel {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+      }
+      .btn-cancel:hover {
+        background: #e2e8f0 !important;
+        transform: none !important;
       }
 
       @keyframes popupShow {
         from {
-          transform: scale(0.8);
+          transform: scale(0.9);
           opacity: 0;
         }
         to {
@@ -81,35 +360,70 @@
           opacity: 1;
         }
       }
-
-      .back-btn {
-        margin-bottom: 20px;
-        background: white;
-        border: none;
-        padding: 12px 18px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      }
-
-      .back-btn:hover {
-        background: #f1f5f9;
-      }
     </style>
   </head>
 
   <body>
-    <button class="back-btn" onclick="window.location.href = 'home.html'">
-      ← Back
-    </button>
-    <h2>🏭 SURIA Gemba Walk Scanner</h2>
-
-    <div style="text-align: center; margin-bottom: 15px">
-      <button id="switchCameraBtn" class="back-btn">📷 Switch Camera</button>
+    <div class="header">
+      <button class="back-btn" onclick="window.location.href = 'home.html'">
+        <i class="fas fa-arrow-left"></i>
+        <span data-translate="home">Home</span>
+      </button>
+      <h2 data-translate="gembaWalk">Gemba Walk</h2>
+      <i
+        class="fas fa-user-shield"
+        id="adminAccessBtn"
+        title="Admin Access"
+      ></i>
     </div>
 
-    <div id="reader"></div>
+    <div class="status-card">
+      <div class="status-item">
+        <span data-translate="lastCheckpoint">Last Checkpoint</span>
+        <strong id="display-last-cp">0</strong>
+      </div>
+      <div class="status-item" style="align-items: flex-end">
+        <span data-translate="nextScan">Next Scan</span>
+        <div id="timer-badge" class="timer-badge ready">
+          <i class="fas fa-check-circle"></i>
+          <span data-translate="ready">Ready</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scanner-wrapper">
+      <div id="reader"></div>
+      <div class="action-buttons">
+        <button id="switchCameraBtn" class="action-btn btn-switch">
+          <i class="fas fa-sync-alt"></i>
+          <span data-translate="switchCamera">Switch Camera</span>
+        </button>
+        <button id="reportIssueBtn" class="action-btn btn-report">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span data-translate="reportIssue">Report Issue</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="rules-card">
+      <h3>
+        <i class="fas fa-exclamation-triangle"></i>
+        <span data-translate="participationRules">Participation Rules</span>
+      </h3>
+      <ul>
+        <li data-translate="rule1">
+          Participate during break time, before shift or after shift.
+        </li>
+        <li data-translate="rule2">
+          Do not participate during active working hours.
+        </li>
+        <li data-translate="rule3">Follow all safety requirements.</li>
+        <li data-translate="rule4">
+          Complete all 6 checkpoints in the same day to earn 50 points.
+        </li>
+      </ul>
+    </div>
+
     <div id="popup" class="popup-overlay">
       <div class="popup-card">
         <div id="popupIcon" class="popup-icon">✅</div>
@@ -119,16 +433,80 @@
       </div>
     </div>
 
+    <div id="reportModal" class="popup-overlay">
+      <div class="popup-card" style="padding-top: 25px">
+        <h3
+          style="margin-bottom: 20px; color: #ef4444"
+          data-translate="reportIssue"
+        >
+          <i class="fas fa-exclamation-circle"></i> Report Issue
+        </h3>
+        <div class="form-group">
+          <label data-translate="issueTypeLabel">Issue Type</label>
+          <select id="issueType">
+            <option value="Damaged QR" data-translate="optDamagedQR">
+              Damaged QR Code
+            </option>
+            <option value="Blocked Route" data-translate="optBlockedRoute">
+              Blocked Route / Area
+            </option>
+            <option value="App Issue" data-translate="optSystemIssue">
+              System / App Issue
+            </option>
+            <option value="Other" data-translate="optOther">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-translate="feedbackDescription">Details</label>
+          <textarea
+            id="issueDetails"
+            data-translate-placeholder="feedbackPlaceholder"
+            placeholder="Please describe the issue..."
+            required
+          ></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button
+            class="btn-cancel"
+            onclick="closeReportModal()"
+            data-translate="cancelBtn"
+          >
+            Cancel
+          </button>
+          <button
+            id="submitReportBtn"
+            style="background: #ef4444"
+            data-translate="submitBtn"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="adminModal" class="popup-overlay">
+      <div class="popup-card">
+        <h3 style="margin-bottom: 20px">
+          <i class="fas fa-lock"></i> FIT Executive Access
+        </h3>
+        <div class="form-group">
+          <input
+            type="password"
+            id="adminPinInput"
+            placeholder="Enter PIN"
+            style="text-align: center; font-size: 20px; letter-spacing: 5px"
+          />
+        </div>
+        <div class="modal-buttons">
+          <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+          <button id="submitPinBtn" style="background: #10b981">Verify</button>
+        </div>
+      </div>
+    </div>
+
     <script type="module">
       import { auth, db } from "./firebaseConfig.js";
       import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          window.location.href = "login.html";
-        }
-      });
-
       import {
         doc,
         getDoc,
@@ -139,23 +517,121 @@
         getDocs,
         query,
         where,
+        onSnapshot,
       } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
+      // Translation imports
+      import { initializeWithDetection } from "./languageTranslator.js";
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeWithDetection();
+      });
+
+      // Global Variables
       let cameras = [];
-
       let currentCameraIndex = 0;
-
       let html5QrCode;
-
       let scanLocked = false;
+      let nextScanAvailableAt = null;
+      let timerInterval = null;
+
+      // Authentication Check
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "login_pg.html";
+        } else {
+          listenToGembaPoints(user.uid);
+        }
+      });
+
+      // Live Listener for User Data (Timer & Checkpoints)
+      function listenToGembaPoints(userId) {
+        const userRef = doc(db, "gemba_points", userId);
+
+        onSnapshot(userRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+
+            let currentStep = data.currentRouteStep || 1;
+            const completedRoutes = data.completedRoutes || 0;
+
+            if (data.updatedAt) {
+              const lastUpdate = data.updatedAt.toDate().toDateString();
+              const today = new Date().toDateString();
+              if (lastUpdate !== today && currentStep !== 1) {
+                currentStep = 1;
+              }
+            }
+
+            let lastStep =
+              completedRoutes === 0 && currentStep === 1
+                ? "-"
+                : currentStep === 1
+                  ? 6
+                  : currentStep - 1;
+            document.getElementById("display-last-cp").innerText = lastStep;
+
+            if (data.updatedAt) {
+              const lastScanTime = data.updatedAt.toDate();
+              const lastScanDateStr = lastScanTime.toDateString();
+              const todayStr = new Date().toDateString();
+
+              let cooldownTime = 0;
+
+              // Apply cooldown ONLY if the scan was done today
+              if (lastScanDateStr === todayStr) {
+                if (currentStep === 2) {
+                  cooldownTime = 30000; // CP 1 ➔ CP 2 (30 seconds)
+                } else if (currentStep === 3) {
+                  cooldownTime = 30000; // CP 2 ➔ CP 3 (30 seconds)
+                } else if (currentStep === 4) {
+                  cooldownTime = 30000; // CP 3 ➔ CP 4 (30 seconds)
+                } else if (currentStep === 5) {
+                  cooldownTime = 30000; // CP 4 ➔ CP 5 (30 seconds)
+                } else if (currentStep === 6) {
+                  cooldownTime = 30000; // CP 5 ➔ CP 6 (30 seconds)
+                } else if (currentStep === 1) {
+                  cooldownTime = 0; // Route completed! No timer needed. Ready immediately.
+                }
+              }
+
+              nextScanAvailableAt = new Date(
+                lastScanTime.getTime() + cooldownTime,
+              );
+              startCooldownTimer();
+            }
+          }
+        });
+      }
+
+      function startCooldownTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+          const now = new Date();
+          const diff = nextScanAvailableAt - now;
+          const badge = document.getElementById("timer-badge");
+
+          if (diff <= 0) {
+            clearInterval(timerInterval);
+            scanLocked = false;
+            badge.className = "timer-badge ready";
+            badge.innerHTML = `<i class="fas fa-check-circle"></i> <span data-translate="ready">Ready</span>`;
+          } else {
+            scanLocked = true;
+            badge.className = "timer-badge locked";
+
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+            badge.innerHTML = `<i class="fas fa-lock"></i> ${timeStr}`;
+          }
+        }, 1000);
+      }
 
       function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371000;
-
         const dLat = ((lat2 - lat1) * Math.PI) / 180;
-
         const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
         const a =
           Math.sin(dLat / 2) * Math.sin(dLat / 2) +
           Math.cos((lat1 * Math.PI) / 180) *
@@ -168,37 +644,147 @@
         return R * c;
       }
 
+      // Standard Popup
       function showPopup(icon, title, message) {
         document.getElementById("popupIcon").innerHTML = icon;
         document.getElementById("popupTitle").innerHTML = title;
         document.getElementById("popupMessage").innerHTML = message;
-
         document.getElementById("popup").style.display = "flex";
       }
 
-      function closePopup() {
+      window.closePopup = () => {
         document.getElementById("popup").style.display = "none";
+      };
+
+      // Schedule Validation Logic
+      function isAllowedScanTime(stickerNo) {
+        const now = new Date();
+        const day = now.getDay(); 
+        // Sunday = 0, Monday = 1, Tuesday = 2, Wednesday = 3,
+        // Thursday = 4, Friday = 5, Saturday = 6
+
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        const schedules = {
+          "1": [], // Mezzanine & Level 1
+          "2": [], // Shopfloor & Ground Floor
+        };
+
+        // Monday - Thursday
+        if (day >= 1 && day <= 4) {
+          schedules["1"] = [
+            [615, 630], // 10:15 AM - 10:30 AM
+            [740, 785], // 12:20 PM - 1:05 PM
+            [945, 960], // 3:45 PM - 4:00 PM
+          ];
+
+          schedules["2"] = [
+            [615, 630], // 10:15 AM - 10:30 AM
+            [760, 805], // 12:40 PM - 1:25 PM
+            [945, 960], // 3:45 PM - 4:00 PM
+          ];
+        }
+
+        // Friday
+        else if (day === 5) {
+          schedules["1"] = [
+            [615, 630], // 10:15 AM - 10:30 AM
+            [750, 870], // 12:30 PM - 2:30 PM
+            [960, 975], // 4:00 PM - 4:15 PM
+          ];
+
+          schedules["2"] = [
+            [615, 630], // 10:15 AM - 10:30 AM
+            [750, 870], // 12:30 PM - 2:30 PM
+            [960, 975], // 4:00 PM - 4:15 PM
+          ];
+        }
+
+        // Saturday
+        else if (day === 6) {
+          schedules["1"] = [
+            [615, 630], // 10:15 AM - 10:30 AM
+            [780, 825], // 1:00 PM - 1:45 PM
+            [945, 960], // 3:45 PM - 4:00 PM
+          ];
+
+          schedules["2"] = [
+            [615, 630], // 10:15 AM - 10:30 AM
+            [780, 825], // 1:00 PM - 1:45 PM
+            [945, 960], // 3:45 PM - 4:00 PM
+          ];
+        }
+
+        // Sunday not allowed
+        else {
+          return false;
+        }
+
+        const groupTimes = schedules[stickerNo];
+        if (!groupTimes) return false;
+        return groupTimes.some(([start, end]) => {
+          return currentMinutes >= start && currentMinutes <= end;
+        });
       }
 
-      window.closePopup = closePopup;
-
+      // Process Scan Checkpoint
       async function processCheckpoint(checkpointId) {
         if (scanLocked) {
+          const diff = nextScanAvailableAt - new Date();
+          if (diff > 0) {
+            const sec = Math.ceil(diff / 1000);
+            showPopup(
+              "⏳",
+              "Please Wait",
+              `Please avoid running! Wait ${sec} more seconds before scanning the next checkpoint.`,
+            );
+          }
           return;
         }
 
         scanLocked = true;
-
-        setTimeout(() => {
+        
+        /*setTimeout(() => {
           scanLocked = false;
-        }, 3000);
+        }, 3000);*/
 
         try {
           const user = auth.currentUser;
-
           if (!user) {
             alert("User not logged in");
+            return;
+          }
 
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (!userDoc.exists()) {
+            showPopup(
+              "❌",
+              "Profile Not Found",
+              "Unable to load user profile.",
+            );
+            scanLocked = false;
+            return;
+          }
+
+          const userData = userDoc.data();
+
+          if (!userData.stickerNo) {
+            showPopup(
+              "⚠️",
+              "Sticker Required",
+              "Please update your Sticker Number in Profile Settings.",
+            );
+            scanLocked = false;
+            return;
+          }
+
+          if (!isAllowedScanTime(userData.stickerNo)) {
+            showPopup(
+              "⏰",
+              "Outside Scan Hours",
+              `Your group (${userData.stickerNo}) is not allowed to scan at this time.\nPlease follow your designated break times.`,
+            );
+            scanLocked = false;
             return;
           }
 
@@ -208,21 +794,21 @@
           );
 
           const checkpointSnap = await getDocs(checkpointQuery);
-
           if (checkpointSnap.empty) {
-            showPopup("❌", "Invalid QR", "This QR code is not registered.");
-
+            showPopup(
+              "❌", 
+              "Invalid QR", 
+              "This QR code is not registered.",
+            );
+            scanLocked = false;
             return;
           }
 
           const checkpointDoc = checkpointSnap.docs[0];
-
           const checkpoint = checkpointDoc.data();
-
           const pointsRef = doc(db, "gemba_points", user.uid);
 
           const pointsSnap = await getDoc(pointsRef);
-
           if (!pointsSnap.exists()) {
             await setDoc(pointsRef, {
               totalPoints: 0,
@@ -244,7 +830,6 @@
           const distance = calculateDistance(
             currentPosition.coords.latitude,
             currentPosition.coords.longitude,
-
             checkpoint.lat,
             checkpoint.lng,
           );
@@ -252,88 +837,91 @@
           if (distance > checkpoint.radius) {
             showPopup(
               "📍",
-              "Outside Checkpoint Radius",
-              `
-              Distance: ${distance.toFixed(1)}m
-
-              Allowed: ${checkpoint.radius}m
-              `,
+              "Outside Radius Area",
+              `Distance: ${distance.toFixed(1)}m\nAllowed: ${checkpoint.radius}m\nPlease get closer to the checkpoint.`,
             );
-
+            scanLocked = false;
             return;
           }
 
           const freshSnap = await getDoc(pointsRef);
-
           const data = freshSnap.data() || {};
 
-          const expectedStep = data.currentRouteStep || 1;
+          let expectedStep = data.currentRouteStep || 1;
+          let lastCp = data.lastCheckpoint || "";
 
-          /*
-ANTI DUPLICATE
-*/
+          /* ANTI DUPLICATE */
 
-          if (checkpoint.id === data.lastCheckpoint) {
+          if (data.updatedAt) {
+            const lastScanDate = data.updatedAt.toDate().toDateString();
+            const todayDate = new Date().toDateString();
+            if (lastScanDate !== todayDate && expectedStep !== 1) {
+              expectedStep = 1;
+              lastCp = "";
+            }
+          }
+
+          if (checkpoint.id === lastCp) {
             showPopup(
               "⚠️",
               "Already Scanned",
-              "Please proceed to the next checkpoint.",
+              "You have already scanned this checkpoint. Please proceed to the next one.",
             );
-
+            scanLocked = false;
             return;
           }
 
-          /*
-ROUTE VALIDATION
-*/
+          /* ROUTE VALIDATION */
 
           if (checkpoint.routeOrder !== expectedStep) {
-            showPopup(
-              "🚫",
-              "Wrong Sequence",
-              `Please scan CP${String(expectedStep).padStart(3, "0")}`,
-            );
-
+            if (
+              expectedStep === 1 &&
+              data.updatedAt &&
+              data.updatedAt.toDate().toDateString() !==
+                new Date().toDateString()
+            ) {
+              showPopup(
+                "🔄",
+                "Progress Reset",
+                "Your incomplete route from yesterday has been reset. Please start again from Checkpoint 1 for today.",
+              );
+            } else {
+              showPopup(
+                "🚫",
+                "Wrong Sequence",
+                `Please scan Checkpoint ${String(expectedStep).padStart(2, "0")} first.`,
+              );
+            }
+            scanLocked = false;
             return;
           }
 
           let totalPoints = data.totalPoints || 0;
-
           let completedRoutes = data.completedRoutes || 0;
-
-          totalPoints += checkpoint.points || 20;
-
           let nextStep = expectedStep + 1;
-
           let routeCompleted = false;
+          let earnedPointsText = "";
 
           /*
 LAST CHECKPOINT?
 */
-
-          const totalCheckpoints = 6;
-
-          if (checkpoint.routeOrder === totalCheckpoints) {
+          if (checkpoint.routeOrder === 6) {
             routeCompleted = true;
-
             completedRoutes++;
-
-            totalPoints += 100;
-
+            totalPoints += 50;
             nextStep = 1;
+            earnedPointsText = `🎉 Congratulations! You have completed the route.\n\n+50 Points Received!`;
+          } else {
+            earnedPointsText = `Keep walking! Complete all 6 checkpoints today to earn 50 points.`;
           }
 
           await setDoc(
             pointsRef,
             {
               totalPoints: totalPoints,
-
               completedRoutes: completedRoutes,
-
               currentRouteStep: nextStep,
-
               lastCheckpoint: checkpoint.id,
-
               updatedAt: serverTimestamp(),
             },
             {
@@ -343,50 +931,30 @@ LAST CHECKPOINT?
 
           await addDoc(collection(db, "gemba_scans"), {
             userId: user.uid,
-
             checkpointId: checkpoint.id,
-
             checkpointName: checkpoint.name,
-
-            points: checkpoint.points || 20,
-
+            points: routeCompleted ? 50 : 0,
             distance: Number(distance.toFixed(1)),
-
             routeCompleted: routeCompleted,
-
             latitude: checkpoint.lat,
-
             longitude: checkpoint.lng,
-
             scanTime: serverTimestamp(),
           });
+
           showPopup(
-            "🏆",
-            checkpoint.name,
-            `
-              +${checkpoint.points || 20} Points
-
-              Total Points:
-              ${totalPoints}
-
-              ${routeCompleted ? "🏆 Route Completed! +100 Bonus" : ""}
-              `,
+            "✅",
+            `CP ${checkpoint.routeOrder}/6 : ${checkpoint.name}`,
+            `${earnedPointsText}\n\nTotal Accumulated Points: ${totalPoints}`,
           );
-
-          if (navigator.vibrate) {
-            navigator.vibrate(200);
-          }
-
-          setTimeout(() => {
-            closePopup();
-          }, 2000);
+          if (navigator.vibrate) navigator.vibrate(200);
         } catch (error) {
           console.error(error);
-
           showPopup("❌", "Scan Error", error.message);
+          scanLocked = false;
         }
       }
 
+      // Camera Logic
       async function onScanSuccess(decodedText) {
         await processCheckpoint(decodedText.trim());
       }
@@ -396,26 +964,19 @@ LAST CHECKPOINT?
       Html5Qrcode.getCameras()
         .then(async (devices) => {
           cameras = devices;
-
-          if (!devices.length) {
-            showPopup("📷", "No Camera", "Camera not detected.");
-
-            return;
-          }
-
           const backCameraIndex = devices.findIndex((d) =>
             d.label.toLowerCase().includes("back"),
           );
+          if (backCameraIndex >= 0) currentCameraIndex = backCameraIndex;
 
-          if (backCameraIndex >= 0) {
-            currentCameraIndex = backCameraIndex;
+          if (!devices.length) {
+            showPopup("📷", "No Camera", "No camera detected on your device.");
+            return;
           }
-
           await startCamera(currentCameraIndex);
         })
         .catch((error) => {
           console.error(error);
-
           showPopup("📷", "Camera Error", error.message);
         });
 
@@ -438,24 +999,103 @@ LAST CHECKPOINT?
         .getElementById("switchCameraBtn")
         .addEventListener("click", async () => {
           if (cameras.length < 2) {
-            showPopup("📷", "Only One Camera", "No secondary camera found.");
+            showPopup("📷", "Camera Swap", "No secondary camera found.");
+            return;
+          }
+          currentCameraIndex++;
+          if (currentCameraIndex >= cameras.length) currentCameraIndex = 0;
+          await startCamera(currentCameraIndex);
+        });
 
+        // ----------------------------------------------------
+      // REPORT ISSUE LOGIC
+      // ----------------------------------------------------
+      const reportModal = document.getElementById("reportModal");
+      const adminModal = document.getElementById("adminModal");
+
+      document
+        .getElementById("reportIssueBtn")
+        .addEventListener("click", () => {
+          reportModal.style.display = "flex";
+        });
+
+      window.closeReportModal = () => {
+        reportModal.style.display = "none";
+        document.getElementById("issueDetails").value = "";
+      };
+
+      document
+        .getElementById("submitReportBtn")
+        .addEventListener("click", async () => {
+          const type = document.getElementById("issueType").value;
+          const details = document.getElementById("issueDetails").value.trim();
+          const btn = document.getElementById("submitReportBtn");
+
+          if (!details) {
+            alert("Please provide the details of the issue.");
             return;
           }
 
-          currentCameraIndex++;
+          btn.disabled = true;
+          btn.innerHTML = "Submitting...";
 
-          if (currentCameraIndex >= cameras.length) {
-            currentCameraIndex = 0;
+          try {
+            const user = auth.currentUser;
+            let userName = "Unknown User";
+
+            if (user) {
+              const userDoc = await getDoc(doc(db, "users", user.uid));
+              if (userDoc.exists()) userName = userDoc.data().name;
+            }
+
+            await addDoc(collection(db, "gemba_issues"), {
+              userId: user ? user.uid : "GUEST",
+              userName: userName,
+              issueType: type,
+              details: details,
+              status: "Pending",
+              reportedAt: serverTimestamp(),
+            });
+
+            closeReportModal();
+            showPopup(
+              "✅",
+              "Report Submitted",
+              "Thank you. The FIT Executive team has received your report.",
+            );
+          } catch (e) {
+            console.error("Error submitting report:", e);
+            alert("Failed to submit report. Try again later.");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = "Submit";
           }
+        });
 
-          await startCamera(currentCameraIndex);
+        // ----------------------------------------------------
+        // ADMIN ACCESS LOGIC (FIT EXECUTIVE)
+        // ----------------------------------------------------
+        document
+          .getElementById("adminAccessBtn")
+          .addEventListener("click", () => {
+            adminModal.style.display = "flex";
+          });
 
-          showPopup("📷", "Camera Changed", cameras[currentCameraIndex].label);
+        window.closeAdminModal = () => {
+          adminModal.style.display = "none";
+          document.getElementById("adminPinInput").value = "";
+        };
 
-          setTimeout(() => {
-            closePopup();
-          }, 1200);
+        document.getElementById("submitPinBtn").addEventListener("click", () => {
+          const pin = document.getElementById("adminPinInput").value;
+
+          // Default PIN is set to 9999
+          if (pin === "9999") {
+            window.location.href = "gemba_issues.html";
+          } else {
+            alert("Incorrect PIN.");
+            document.getElementById("adminPinInput").value = "";
+          }
         });
     </script>
   </body>
