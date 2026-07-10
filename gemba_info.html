@@ -29,7 +29,6 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-
         body {
             min-height: 100vh;
             background: var(--bg-gradient);
@@ -37,13 +36,11 @@
             line-height: 1.6;
             padding-bottom: 40px;
         }
-
         .container {
             max-width: 1200px;
             margin: auto;
             padding: 40px 20px;
         }
-
         /* --- TYPOGRAPHY --- */
         h2 {
             font-size: 2.2rem;
@@ -63,7 +60,6 @@
             margin: 10px auto 0;
             border-radius: 2px;
         }
-
         /* --- NAVIGATION --- */
         .back-btn {
             position: fixed;
@@ -80,13 +76,12 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
-
         .back-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             background: #fff;
+            color: var(--primary-dark);
         }
-
         /* --- HERO SECTION --- */
         .hero {
             background: var(--hero-gradient);
@@ -99,27 +94,23 @@
             position: relative;
             overflow: hidden;
         }
-
         .hero h1 {
             font-size: clamp(2.5rem, 5vw, 4.5rem);
             font-weight: 800;
             margin-bottom: 15px;
             letter-spacing: -1px;
         }
-
         .hero p {
             font-size: 1.25rem;
             color: rgba(255, 255, 255, 0.9);
             margin-bottom: 30px;
         }
-
         .hero-stats {
             display: flex;
             justify-content: center;
             gap: 20px;
             flex-wrap: wrap;
         }
-
         .stat-box {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
@@ -129,7 +120,6 @@
             font-size: 1.1rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-
         /* --- GLASS CARDS --- */
         .glass-card {
             background: rgba(255, 255, 255, 0.8);
@@ -140,24 +130,20 @@
             box-shadow: var(--card-shadow);
             transition: all 0.3s ease;
         }
-
         .glass-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
         }
-
         /* --- GRID LAYOUTS --- */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
         }
-
-        /* --- RULES SECTION --- */
+        /* --- RULES & TABLES SECTION --- */
         .rules-list {
             list-style: none;
         }
-        
         .rules-list li {
             display: flex;
             align-items: center;
@@ -165,12 +151,42 @@
             font-size: 1.1rem;
             font-weight: 500;
         }
-        
         .rules-list li span {
             margin-right: 15px;
             font-size: 1.3rem;
         }
-
+        .schedule-table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+            background: white;
+        }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        .schedule-table th {
+            background: #f8fafc;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+        .schedule-table td strong {
+            color: var(--primary-dark);
+            font-size: 1.05rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .schedule-table td small {
+            color: var(--text-light);
+        }
         /* --- REWARDS & IMAGES --- */
         .img-placeholder {
             width: 100%;
@@ -182,13 +198,11 @@
             margin-bottom: 20px;
             overflow: hidden; /* Ensures image stays within rounded corners */
         }
-        
         .img-placeholder img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
         .reward-card h3 {
             text-align: center;
             color: var(--secondary);
@@ -209,14 +223,12 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.02);
             width: 100%;
         }
-
         /* --- MAP CONTAINER --- */
         .map-container {
             text-align: center;
             margin-bottom: 40px;
             width: 100%;
         }
-
         .map-container img {
             width: 100%;
             max-width: 1000px;
@@ -225,7 +237,15 @@
             box-shadow: var(--card-shadow);
             border: 6px solid #ffffff;
         }
-
+        /* --- SCORING HIGHLIGHT --- */
+        .score-highlight {
+            background: var(--primary-dark);
+            color: white;
+            text-align: center;
+            grid-column: 1 / -1;
+            font-size: 1.5rem;
+            padding: 40px;
+        }
         /* --- DYNAMIC LEADERBOARD STYLES --- */
         .user-row {
             display: flex;
@@ -238,15 +258,14 @@
             border: 1px solid #e2e8f0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             animation: slideUp 0.5s ease backwards;
+            /*box-shadow: 0 2px 8px rgba(0,0,0,0.02);*/
         }
-
         .user-row:hover {
             transform: scale(1.01) translateX(5px);
             background: #ffffff;
             box-shadow: 0 10px 20px rgba(0,0,0,0.04);
             border-color: #cbd5e1;
         }
-
         .user-row.top1 { 
             border-left: 5px solid var(--gold); 
             background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, #ffffff 100%);
@@ -262,9 +281,11 @@
             border-left: 5px solid var(--bronze); 
             background: linear-gradient(90deg, rgba(217, 119, 6, 0.1) 0%, #ffffff 100%);
         }
-
-        .left { display: flex; align-items: center; gap: 20px; }
-
+        .left { 
+            display: flex;
+            align-items: center;
+            gap: 20px; 
+        }
         .rank {
             width: 48px;
             height: 48px;
@@ -314,17 +335,16 @@
             transition: 0.3s;
             border: 1px solid rgba(255,255,255,0.5);
         }
-
         .accordion:hover {
             background: #fff;
+            border-color: var(--primary);
         }
-
         .accordion.active {
             background: var(--primary);
             color: #fff;
             border-radius: 12px 12px 0 0;
+            border-color: var(--primary);
         }
-
         .content {
             max-height: 0;
             overflow: hidden;
@@ -334,14 +354,12 @@
             padding: 0 20px;
             margin-bottom: 10px;
         }
-
         .content.show {
             padding: 20px;
             max-height: 200px;
             border: 1px solid rgba(255,255,255,0.5);
             border-top: none;
         }
-
         /* --- FOOTER --- */
         footer {
             text-align: center;
@@ -350,7 +368,6 @@
             font-weight: 500;
             margin-top: 20px;
         }
-
         /* --- SCORING HIGHLIGHT --- */
         .score-highlight {
             background: var(--primary-dark);
@@ -385,88 +402,145 @@
     </a>
 
     <section class="hero">
-        <h1>🏭 Gemba Walk Challenge</h1>
-        <p>Explore your facility. Scan checkpoints. Earn points. Win the rewards.</p>
+        <h1 data-translate="gembaWalk">🏭 Gemba Walk Challenge</h1>
+        <p data-translate="exploreFacility">Explore your facility. Scan checkpoints. Earn points. Win the rewards.</p>
         <div class="hero-stats">
-            <div class="stat-box">📍 6 Checkpoints</div>
-            <div class="stat-box">🏆 220 pts / Route</div>
-            <div class="stat-box">⏱️ Daily Resets</div>
+            <div class="stat-box">📍 6 <span data-translate="checkpoints">Checkpoints</span></div>
+            <div class="stat-box">🏆 50 <span data-translate="pointsPerRoute">pts / Route</span></div>
+            <div class="stat-box">⏱️ <span data-translate="dailyResets">Daily Resets</span></div>
         </div>
     </section>
 
     <div class="container">
         
-        <h2>How It Works</h2>
+        <h2 data-translate="howItWorks">How It Works</h2>
         <div class="grid">
             <div class="glass-card" style="text-align: center;">
                 <div style="font-size: 3rem; margin-bottom: 10px;">📱</div>
-                <h3>1. Scan QR</h3>
-                <p style="color: var(--text-light); margin-top: 10px;">Find and scan the codes at designated checkpoints.</p>
+                <h3 data-translate="scanQr">1. Scan QR</h3>
+                <p style="color: var(--text-light); margin-top: 10px;" data-translate="scanQrDesc">Find and scan the codes at designated checkpoints.</p>
             </div>
             <div class="glass-card" style="text-align: center;">
                 <div style="font-size: 3rem; margin-bottom: 10px;">🗺️</div>
-                <h3>2. Follow Route</h3>
-                <p style="color: var(--text-light); margin-top: 10px;">Proceed in the correct numerical order.</p>
+                <h3 data-translate="followRoute">2. Follow Route</h3>
+                <p style="color: var(--text-light); margin-top: 10px;" data-translate="followRouteDesc">Proceed in the correct numerical order.</p>
             </div>
             <div class="glass-card" style="text-align: center;">
                 <div style="font-size: 3rem; margin-bottom: 10px;">⚡</div>
-                <h3>3. Earn Points</h3>
-                <p style="color: var(--text-light); margin-top: 10px;">Collect points for every successful scan.</p>
+                <h3 data-translate="completeDaily">3. Complete Daily</h3>
+                <p style="color: var(--text-light); margin-top: 10px;" data-translate="completeDailyDesc">Finish all 6 checkpoints before midnight to secure your points.</p>
             </div>
             <div class="glass-card" style="text-align: center;">
                 <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
-                <h3>4. Climb Rank</h3>
-                <p style="color: var(--text-light); margin-top: 10px;">Top the monthly leaderboard to win prizes.</p>
+                <h3 data-translate="climbRank">4. Climb Rank</h3>
+                <p style="color: var(--text-light); margin-top: 10px;" data-translate="climbRankDesc">Top the monthly leaderboard to win prizes.</p>
             </div>
         </div>
 
-        <h2>📋 Program Rules</h2>
+        <h2 data-translate="programRules">📋 Program Rules</h2>
         <div class="glass-card">
             <ul class="rules-list">
-                <li><span>✅</span> Scan checkpoints in exact sequence (1 through 6).</li>
-                <li><span>✅</span> Each individual checkpoint awards 20 points.</li>
-                <li><span>✅</span> Earn a massive 100 bonus points after completing the full route.</li>
-                <li><span>❌</span> Out-of-sequence scans will be rejected by the system.</li>
-                <li><span>❌</span> GPS validation is required (You must be physically present).</li>
+                <li data-translate="rule1"><span>✅</span> Participate during break time, before shift or after shift only.</li>
+                <li data-translate="rule2"><span>✅</span> Complete all 6 checkpoints in the correct sequence on the same day to earn 50 points.</li>
+                <li data-translate="rule3"><span>✅</span> Follow all safety requirements while walking the routes.</li>
+                <li data-translate="rule4"><span>❌</span> Do not participate during active working hours.</li>
+                <li data-translate="rule5"><span>❌</span> Incomplete routes will reset at midnight (points will not be awarded).</li>
             </ul>
         </div>
 
-        <h2>Route Journey</h2>
+        <h2 data-translate="permittedHours">⏱️ Permitted Scanning Hours</h2>
+        <div class="glass-card">
+            <p style="color: var(--text-light); margin-bottom: 15px; font-weight: 500;" data-translate="permittedHoursDesc">
+                Scanning is strictly allowed only during your designated break times based on your assigned Sticker Group. 
+                <i>*Night shift follows the exact same break duration logic (AM to PM).</i>
+            </p>
+            
+            <div class="schedule-table-wrapper">
+                <table class="schedule-table">
+                    <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Area</th>
+                        <th>Morning</th>
+                        <th>Lunch</th>
+                        <th>Evening</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td rowspan="2"><strong>Monday - Thursday</strong></td>
+                        <td><strong>Mezzanine & Level 1</strong></td>
+                        <td rowspan="2">10:15 AM - 10:30 AM</td>
+                        <td>12:20 PM - 1:05 PM</td>
+                        <td rowspan="2">3:45 PM - 4:00 PM</td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>Shopfloor & Ground Floor</strong></td>
+                        <td>12:40 PM - 1:25 PM</td>
+                    </tr>
+
+                    <tr>
+                        <td rowspan="2"><strong>Friday</strong></td>
+                        <td><strong>Mezzanine & Level 1</strong></td>
+                        <td rowspan="2">10:15 AM - 10:30 AM</td>
+                        <td rowspan="2">12:30 PM - 2:30 PM</td>
+                        <td rowspan="2">4:00 PM - 4:15 PM</td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>Shopfloor & Ground Floor</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>Saturday</strong></td>
+                        <td><strong>All</strong></td>
+                        <td>10:15 AM - 10:30 AM</td>
+                        <td>1:00 PM - 1:45 PM</td>
+                        <td>3:45 PM - 4:00 PM</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
+        <h2 data-translate="routeJourney">Route Journey</h2>
+
         <div class="map-container">
-            <img src="pictures/routes.png" alt="Facility Top View Route Map">
+            <img src="pictures/routes_scm.png" alt="Facility Top View Route Map">
         </div>
 
         <div class="grid" id="route-container">
             </div>
 
-        <h2>Rewards & Scoring</h2>
+        <h2 data-translate="rewardsScoring">Rewards & Scoring</h2>
         <div class="grid">
-            <div class="glass-card"><h3>📍 Checkpoint 1 <span style="float:right; color:var(--primary);">+20 pts</span></h3></div>
-            <div class="glass-card"><h3>📍 Checkpoint 2 <span style="float:right; color:var(--primary);">+20 pts</span></h3></div>
-            <div class="glass-card"><h3>📍 Checkpoint 3 <span style="float:right; color:var(--primary);">+20 pts</span></h3></div>
-            <div class="glass-card"><h3>📍 Checkpoint 4 <span style="float:right; color:var(--primary);">+20 pts</span></h3></div>
-            <div class="glass-card"><h3>📍 Checkpoint 5 <span style="float:right; color:var(--primary);">+20 pts</span></h3></div>
-            <div class="glass-card"><h3>📍 Checkpoint 6 <span style="float:right; color:var(--primary);">+20 pts</span></h3></div>
+            <div class="glass-card"><h3>📍 Checkpoint 1 <span style="float:right; color:var(--text-light); font-size: 0.9rem;" data-translate="progressSaved">Progress Saved</span></h3></div>
+            <div class="glass-card"><h3>📍 Checkpoint 2 <span style="float:right; color:var(--text-light); font-size: 0.9rem;" data-translate="progressSaved">Progress Saved</span></h3></div>
+            <div class="glass-card"><h3>📍 Checkpoint 3 <span style="float:right; color:var(--text-light); font-size: 0.9rem;" data-translate="progressSaved">Progress Saved</span></h3></div>
+            <div class="glass-card"><h3>📍 Checkpoint 4 <span style="float:right; color:var(--text-light); font-size: 0.9rem;" data-translate="progressSaved">Progress Saved</span></h3></div>
+            <div class="glass-card"><h3>📍 Checkpoint 5 <span style="float:right; color:var(--text-light); font-size: 0.9rem;" data-translate="progressSaved">Progress Saved</span></h3></div>
+            <div class="glass-card"><h3>📍 Checkpoint 6 <span style="float:right; color:var(--primary); font-size: 1.1rem;">+50 pts</span></h3></div>
             <div class="glass-card score-highlight">
-                <h3>⭐ Route Completion Bonus = 100 pts</h3>
-                <p style="margin-top: 10px; font-weight: normal;">Total Potential Route Value = 220 pts</p>
+                <h3 data-translate="dailyCompletion">⭐ Daily Route Completion = 50 pts</h3>
+                <p style="margin-top: 12px; font-weight: 500; font-size: 1.05rem; opacity: 0.9;" data-translate="dailyCompletionDesc">You must scan all 6 checkpoints in the correct sequence on the same day to earn the 50 points. Incomplete routes reset at midnight.</p>
             </div>
         </div>
 
-        <h2>Programme Rewards</h2>
+        <h2 data-translate="programmeRewards">Programme Rewards</h2>
         <div class="grid">
             <div class="glass-card reward-card">
                 <div class="img-placeholder" style="background: linear-gradient(135deg, #fcd34d, #f59e0b);">
                     <img src="pictures/Winner1.svg" alt="Champion Reward">
                 </div>
-                <h3>🥇 Champion</h3>
+                <h3 data-translate="champion">🥇 Champion</h3>
             </div>
             <div class="glass-card reward-card">
                 <div class="img-placeholder" style="background: linear-gradient(135deg, #e2e8f0, #94a3b8);">
                     <img src="pictures/Winner1.svg" alt="Champion Reward">
                 </div>
-                <h3>🥈 Runner-Up</h3>
+                <h3 data-translate="runnerUp">🥈 Runner-Up</h3>
             </div>
             <div class="glass-card reward-card">
                 <div class="img-placeholder" style="background: linear-gradient(135deg, #fdba74, #ea580c);">
@@ -475,17 +549,18 @@
                 <h3>🥉 3rd Place</h3>
             </div>
         </div>
+        
         <!-- DISCLAIMER ADDED HERE -->
         <p class="disclaimer">
             <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 5px;"></i> 
-            <strong>Disclaimer:</strong> Winners are free to choose any brand of watch they prefer. The images shown are for illustration purposes only.
+            <strong data-translate="disclaimer">Disclaimer:</strong> <span data-translate="disclaimerDesc">Winners are free to choose any brand of watch they prefer. The images shown are for illustration purposes only.</span>
         </p>
-        <h2>Live Leaderboard</h2>
+        <h2 data-translate="liveLeaderboard">Live Leaderboard</h2>
         <div class="glass-card">
             <div id="live-leaderboard-list">
                 <div class="loading pulse-text">
                     <i class="fas fa-circle-notch fa-spin" style="margin-right: 8px; font-size: 20px;"></i><br><br>
-                    Syncing live data...
+                    <span data-translate="syncingData">Syncing live data...</span>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 20px;">
@@ -493,27 +568,34 @@
             </div>
         </div>
 
-        <h2>Frequently Asked Questions</h2>
+        <h2 data-translate="faqTitle">Frequently Asked Questions</h2>
         
         <div class="accordion" onclick="toggle(this)">
-            What is a Gemba Walk? <span class="icon">+</span>
+            <span data-translate="faq1Q">What is a Gemba Walk?</span> <span class="icon">+</span>
         </div>
         <div class="content">
-            <p>A Gemba Walk is a management tool used to observe actual work processes, engage with employees, gain knowledge about the work process, and explore opportunities for continuous improvement.</p>
+            <p data-translate="faq1A">A Gemba Walk is a management tool used to observe actual work processes, engage with employees, gain knowledge about the work process, and explore opportunities for continuous improvement.</p>
         </div>
         
         <div class="accordion" onclick="toggle(this)">
-            How are winners selected? <span class="icon">+</span>
+            <span data-translate="faq2Q">How are winners selected?</span> <span class="icon">+</span>
         </div>
         <div class="content">
-            <p>Winners are selected at the end of the event based on the highest accumulated points on the leaderboard. Ties are broken by whoever completed their routes the fastest.</p>
+            <p data-translate="faq2A">Winners are selected at the end of the event based on the highest accumulated points on the leaderboard. Ties are broken by whoever completed their routes the fastest.</p>
         </div>
 
         <div class="accordion" onclick="toggle(this)">
-            What happens if I scan a checkpoint out of order? <span class="icon">+</span>
+            <span data-translate="faq3Q">What happens if I scan a checkpoint out of order?</span> <span class="icon">+</span>
         </div>
         <div class="content">
-            <p>The system will reject the scan and notify you to proceed to the correct previous checkpoint. You will not lose points, but you cannot progress until the sequence is corrected.</p>
+            <p data-translate="faq3A">The system will reject the scan and notify you to proceed to the correct previous checkpoint. You will not lose points, but you cannot progress until the sequence is corrected.</p>
+        </div>
+
+        <div class="accordion" onclick="toggle(this)">
+            <span data-translate="faq4Q">Can I continue my progress tomorrow?</span> <span class="icon">+</span>
+        </div>
+        <div class="content">
+            <p data-translate="faq4A">No. You must complete all 6 checkpoints within the same day. Any incomplete progress will reset automatically at midnight.</p>
         </div>
 
     </div>
@@ -522,22 +604,38 @@
         <p>© 2026 Gemba Walk Program | Namicoh Group. All rights reserved.</p>
     </footer>
 
-    <script>
+    <script type="module">
+        import { initializeWithDetection, translateElement } from './languageTranslator.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeWithDetection();
+        });
+
         // --- Populate Route Journey ---
         const routeContainer = document.getElementById('route-container');
-        const locations = ['Warehouse Entry', 'Assembly Line A', 'Quality Testing', 'Packaging Station', 'Loading Dock', 'Break Room'];
-        
+        const locations = ['Main Lobby SCM', 'Main Entrance', 'Waste Area', 'Parking Area', 'Smoking Area', 'Guard House'];
+        const images = ['Checkpoint1.jpeg', 'Checkpoint2.jpeg', 'Checkpoint3.jpeg', 'Checkpoint4.jpeg', 'Checkpoint5.jpeg', 'Checkpoint6.jpeg'];
+        const descriptions = [
+            'Located at the Main Lobby SCM beside meeting rooms.',
+            'At the lamp post in front of the Main Entrance.',
+            'Near the Waste Area at the back of the factory.',
+            'At the parking lot near the main gate.',
+            'Located on the wall of the Smoking Area.',
+            'Located on the wall of the Guard House.'
+        ];
+
         for(let i = 0; i < 6; i++) {
             const card = document.createElement('div');
             card.className = 'glass-card';
             // Added Image tag for each checkpoint & changed 'Station' to 'Checkpoint'
             card.innerHTML = `
-                <img src="checkpoint_${i + 1}.jpg" alt="Checkpoint ${i + 1} Image" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: #e2e8f0;">
+                <img src="pictures/${images[i]}" alt="Checkpoint ${i + 1} Image" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: #e2e8f0;">
                 <div style="color: var(--primary); font-weight: 800; font-size: 1.5rem; margin-bottom: 10px;">Checkpoint ${i + 1}</div>
                 <h3 style="margin-bottom: 5px;">${locations[i]}</h3>
                 <p style="color: var(--text-light); font-size: 0.9rem;">Scan required to proceed.</p>
             `;
             routeContainer.appendChild(card);
+            translateElement(card);
         }
 
         // --- FAQ Accordion Logic ---
@@ -552,84 +650,48 @@
                     allContents[index].classList.remove('show');
                 }
             });
-
             const content = el.nextElementSibling;
             const icon = el.querySelector('.icon');
-            
             el.classList.toggle('active');
             content.classList.toggle('show');
-            
-            if (el.classList.contains('active')) {
-                icon.innerText = '−';
-            } else {
-                icon.innerText = '+';
-            }
+            icon.innerText = el.classList.contains('active') ? '−' : '+';
         }
+        window.toggle = toggle;
     </script>
 
     <script type="module">
         import { db } from './firebaseConfig.js';
         import { collection, query, orderBy, limit, onSnapshot, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { translateElement } from './languageTranslator.js';
 
         const leaderboardList = document.getElementById("live-leaderboard-list");
-
-        // Fetch top 5 for the info page
         const q = query(collection(db, "gemba_points"), orderBy("totalPoints", "desc"), limit(5));
 
         onSnapshot(q, async (snapshot) => {
             let html = '';
             let rank = 1;
-
             for (const docSnap of snapshot.docs) {
                 const pointsData = docSnap.data();
-                if ((pointsData.totalPoints || 0) <= 0) {
-                        continue;
-                    }
-                // Fetch User Details
                 const userDoc = await getDoc(doc(db, "users", docSnap.id));
                 const user = userDoc.exists() ? userDoc.data() : {};
-
-                // Medal Logic
-                let medal = '';
-                if (rank === 1) medal = '🥇';
-                else if (rank === 2) medal = '🥈';
-                else if (rank === 3) medal = '🥉';
-                else medal = rank;
-
-                // Row Class Logic
-                let rowClass = "";
-                if (rank === 1) rowClass = "top1";
-                else if (rank === 2) rowClass = "top2";
-                else if (rank === 3) rowClass = "top3";
-
-                // Generate HTML Row
+                let medal = rank <= 3 ? ['🥇', '🥈', '🥉'][rank-1] : rank;
+                let rowClass = rank <= 3 ? `top${rank}` : "";
+                
                 html += `
                 <div class="user-row ${rowClass}">
                     <div class="left">
                         <div class="rank">${medal}</div>
                         <div class="user-info">
                             <div class="user-name">${user.name || docSnap.id}</div>
-                            <div class="user-dept">${user.department || 'SURIA Team'}</div>
+                            <div class="user-dept">${user.department || 'SCMSB Team'}</div>
                         </div>
                     </div>
                     <div class="points">${pointsData.totalPoints || 0} pts</div>
-                </div>
-                `;
-                
+                </div>`;
                 rank++;
             }
-
-            if (html === '') { // 🟢 Tukar dari snapshot.empty ke html === ''
-                leaderboardList.innerHTML = `
-                    <div class="loading">
-                        <i class="fas fa-clipboard-list" style="font-size: 32px; margin-bottom: 15px; display:block; opacity: 0.5;"></i>
-                        No participants yet. Be the first to scan!
-                    </div>
-                `;
-                return;
-            }
-
-            leaderboardList.innerHTML = html;
+            leaderboardList.innerHTML = html || '<div class="loading" data-translate="noParticipants">No participants yet.</div>';
+            translateElement(leaderboardList);
         });
     </script>
 </body>
