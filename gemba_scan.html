@@ -656,44 +656,28 @@
         document.getElementById("popup").style.display = "none";
       };
 
-      // Schedule Validation Logic
-      function isAllowedScanTime(stickerNo) {
+      // SURIA-wide break-time validation (no sticker group required)
+      function isAllowedScanTime() {
         const now = new Date();
-        const day = now.getDay(); 
+        const day = now.getDay();
         // Sunday = 0, Monday = 1, Tuesday = 2, Wednesday = 3,
         // Thursday = 4, Friday = 5, Saturday = 6
 
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-        const schedules = {
-          "1": [], // Mezzanine & Level 1
-          "2": [], // Shopfloor & Ground Floor
-        };
+        let allowedTimes = [];
 
         // Monday - Thursday
         if (day >= 1 && day <= 4) {
-          schedules["1"] = [
+          allowedTimes = [
             [615, 630], // 10:15 AM - 10:30 AM
-            [740, 785], // 12:20 PM - 1:05 PM
-            [945, 960], // 3:45 PM - 4:00 PM
-          ];
-
-          schedules["2"] = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [760, 805], // 12:40 PM - 1:25 PM
+            [740, 805], // 12:20 PM - 1:25 PM
             [945, 960], // 3:45 PM - 4:00 PM
           ];
         }
 
         // Friday
         else if (day === 5) {
-          schedules["1"] = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [750, 870], // 12:30 PM - 2:30 PM
-            [960, 975], // 4:00 PM - 4:15 PM
-          ];
-
-          schedules["2"] = [
+          allowedTimes = [
             [615, 630], // 10:15 AM - 10:30 AM
             [750, 870], // 12:30 PM - 2:30 PM
             [960, 975], // 4:00 PM - 4:15 PM
@@ -702,13 +686,7 @@
 
         // Saturday
         else if (day === 6) {
-          schedules["1"] = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [780, 825], // 1:00 PM - 1:45 PM
-            [945, 960], // 3:45 PM - 4:00 PM
-          ];
-
-          schedules["2"] = [
+          allowedTimes = [
             [615, 630], // 10:15 AM - 10:30 AM
             [780, 825], // 1:00 PM - 1:45 PM
             [945, 960], // 3:45 PM - 4:00 PM
@@ -720,9 +698,7 @@
           return false;
         }
 
-        const groupTimes = schedules[stickerNo];
-        if (!groupTimes) return false;
-        return groupTimes.some(([start, end]) => {
+        return allowedTimes.some(([start, end]) => {
           return currentMinutes >= start && currentMinutes <= end;
         });
       }
@@ -755,34 +731,11 @@
             return;
           }
 
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (!userDoc.exists()) {
-            showPopup(
-              "❌",
-              "Profile Not Found",
-              "Unable to load user profile.",
-            );
-            scanLocked = false;
-            return;
-          }
-
-          const userData = userDoc.data();
-
-          if (!userData.stickerNo) {
-            showPopup(
-              "⚠️",
-              "Sticker Required",
-              "Please update your Sticker Number in Profile Settings.",
-            );
-            scanLocked = false;
-            return;
-          }
-
-          if (!isAllowedScanTime(userData.stickerNo)) {
+          if (!isAllowedScanTime()) {
             showPopup(
               "⏰",
               "Outside Scan Hours",
-              `Your group (${userData.stickerNo}) is not allowed to scan at this time.\nPlease follow your designated break times.`,
+              "Scanning is only available during the designated SURIA break times.",
             );
             scanLocked = false;
             return;
