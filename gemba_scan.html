@@ -656,44 +656,40 @@
         document.getElementById("popup").style.display = "none";
       };
 
-      // Schedule Validation Logic
-      function isAllowedScanTime(stickerNo) {
+      const WORK_SECTION_SCHEDULES = {
+        "Mezzanine & Level 1": {
+          mondayToThursdayLunch: [740, 785], // 12:20 PM - 1:05 PM
+        },
+        "Shopfloor & Ground Floor": {
+          mondayToThursdayLunch: [760, 805], // 12:40 PM - 1:25 PM
+        },
+      };
+
+      // Validate against the break schedule for the user's saved work section.
+      function isAllowedScanTime(workSection) {
         const now = new Date();
-        const day = now.getDay(); 
+        const day = now.getDay();
         // Sunday = 0, Monday = 1, Tuesday = 2, Wednesday = 3,
         // Thursday = 4, Friday = 5, Saturday = 6
 
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        let allowedTimes = [];
 
-        const schedules = {
-          "1": [], // Mezzanine & Level 1
-          "2": [], // Shopfloor & Ground Floor
-        };
+        const sectionSchedule = WORK_SECTION_SCHEDULES[workSection];
+        if (!sectionSchedule) return false;
 
         // Monday - Thursday
         if (day >= 1 && day <= 4) {
-          schedules["1"] = [
+          allowedTimes = [
             [615, 630], // 10:15 AM - 10:30 AM
-            [740, 785], // 12:20 PM - 1:05 PM
-            [945, 960], // 3:45 PM - 4:00 PM
-          ];
-
-          schedules["2"] = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [760, 805], // 12:40 PM - 1:25 PM
+            sectionSchedule.mondayToThursdayLunch,
             [945, 960], // 3:45 PM - 4:00 PM
           ];
         }
 
         // Friday
         else if (day === 5) {
-          schedules["1"] = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [750, 870], // 12:30 PM - 2:30 PM
-            [960, 975], // 4:00 PM - 4:15 PM
-          ];
-
-          schedules["2"] = [
+          allowedTimes = [
             [615, 630], // 10:15 AM - 10:30 AM
             [750, 870], // 12:30 PM - 2:30 PM
             [960, 975], // 4:00 PM - 4:15 PM
@@ -702,13 +698,7 @@
 
         // Saturday
         else if (day === 6) {
-          schedules["1"] = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [780, 825], // 1:00 PM - 1:45 PM
-            [945, 960], // 3:45 PM - 4:00 PM
-          ];
-
-          schedules["2"] = [
+          allowedTimes = [
             [615, 630], // 10:15 AM - 10:30 AM
             [780, 825], // 1:00 PM - 1:45 PM
             [945, 960], // 3:45 PM - 4:00 PM
@@ -720,9 +710,7 @@
           return false;
         }
 
-        const groupTimes = schedules[stickerNo];
-        if (!groupTimes) return false;
-        return groupTimes.some(([start, end]) => {
+        return allowedTimes.some(([start, end]) => {
           return currentMinutes >= start && currentMinutes <= end;
         });
       }
@@ -752,6 +740,7 @@
           const user = auth.currentUser;
           if (!user) {
             alert("User not logged in");
+            scanLocked = false;
             return;
           }
 
@@ -760,29 +749,30 @@
             showPopup(
               "❌",
               "Profile Not Found",
-              "Unable to load user profile.",
+              "Unable to load your profile.",
             );
             scanLocked = false;
             return;
           }
 
           const userData = userDoc.data();
+          const workSection = userData.workSection;
 
-          if (!userData.stickerNo) {
+          if (!WORK_SECTION_SCHEDULES[workSection]) {
             showPopup(
               "⚠️",
-              "Sticker Required",
-              "Please update your Sticker Number in Profile Settings.",
+              "Work Section Required",
+              "Please select your Work Section in Profile Settings before scanning.",
             );
             scanLocked = false;
             return;
           }
 
-          if (!isAllowedScanTime(userData.stickerNo)) {
+          if (!isAllowedScanTime(workSection)) {
             showPopup(
               "⏰",
               "Outside Scan Hours",
-              `Your group (${userData.stickerNo}) is not allowed to scan at this time.\nPlease follow your designated break times.`,
+              `Scanning is not available for ${workSection} at this time. Please follow your designated break schedule.`,
             );
             scanLocked = false;
             return;

@@ -484,7 +484,8 @@
             margin-right: 10px;
         }
 
-        .detail-item input {
+        .detail-item input,
+        .detail-item select {
             background: transparent;
             border: none;
             border-bottom: 1px solid #666;
@@ -495,9 +496,14 @@
             margin-left: 10px;
         }
 
-        .detail-item input:focus {
+        .detail-item input:focus,
+        .detail-item select:focus {
             outline: none;
             border-bottom-color: #0C0E8B;
+        }
+
+        .detail-item select {
+            cursor: pointer;
         }
 
         .save-btn {
@@ -654,7 +660,7 @@
     document.getElementById('current-date').innerText = currentDate;
 		
 
-        const plusButton = document.getElementById('plusButton');
+        
         const floatingMenu = document.getElementById('floatingMenu');
 
         plusButton.addEventListener('click', () => {
@@ -695,6 +701,11 @@
         const saveButton = document.getElementById('saveButton');
         const feedbackMessage = document.getElementById('feedbackMessage');
 
+        const WORK_SECTIONS = [
+            'Mezzanine & Level 1',
+            'Shopfloor & Ground Floor'
+        ];
+
         // Function to show feedback message
         function showFeedback(message, isSuccess) {
             feedbackMessage.textContent = message;
@@ -708,6 +719,10 @@
 
         // Function to create input fields
         function createInputFields(userInfo = {}) {
+            const workSectionOptions = WORK_SECTIONS.map(section => `
+                <option value="${section}" ${userInfo.workSection === section ? 'selected' : ''}>${section}</option>
+            `).join('');
+
             return `
                 <div class="detail-item">
                     <i class="fas fa-user"></i>
@@ -729,6 +744,13 @@
                     <i class="fas fa-building"></i>
                     <input type="text" id="department" value="${userInfo.department || ''}" placeholder="Department">
                 </div>
+                <div class="detail-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <select id="workSection" aria-label="Work Section" required>
+                        <option value="">Select Work Section</option>
+                        ${workSectionOptions}
+                    </select>
+                </div>
             `;
         }
 
@@ -740,8 +762,14 @@
                     lastName: document.getElementById('lastName').value.trim(),
                     phone: document.getElementById('phone').value.trim(),
                     employeeId: document.getElementById('employeeId').value.trim(),
-                    department: document.getElementById('department').value.trim()
+                    department: document.getElementById('department').value.trim(),
+                    workSection: document.getElementById('workSection').value
                 };
+
+                if (!WORK_SECTIONS.includes(updatedData.workSection)) {
+                    showFeedback('Please select your work section', false);
+                    return;
+                }
 
                 // Validate that at least some fields are filled
                 if (!Object.values(updatedData).some(value => value)) {
