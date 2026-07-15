@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaizen Admin Dashboard · SURIA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8edf5 100%);
+      min-height: 100vh; 
+      padding: 0; 
+      margin: 0; 
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: linear-gradient(135deg, #0b2a4a, #1a3f62);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(11, 42, 74, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+    }
+    .back-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+    }
+    .back-button:hover { background: rgba(255, 255, 255, 0.2); transform: translateX(-3px); }
+    .nav-title { color: white; font-size: 1.1rem; font-weight: 600; }
+    .nav-badge {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-export-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-export-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    /* Page Content */
+    .page-content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0b2a4a;
+    }
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .stat-card.pending .number { color: #f59e0b; }
+    .stat-card.approved .number { color: #10b981; }
+    .stat-card.rejected .number { color: #ef4444; }
+    .stat-card.total .number { color: #0b2a4a; }
+
+    /* Chart Section */
+    .chart-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .chart-header h3 {
+      font-size: 1.1rem;
+      color: #0b2a4a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chart-header h3 i { color: #0b2a4a; }
+    .chart-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chart-controls select {
+      padding: 8px 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      background: #f8fafc;
+    }
+    .chart-controls select:focus {
+      outline: none;
+      border-color: #0b2a4a;
+    }
+
+    /* Bar Chart */
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      height: 250px;
+      padding: 10px 0;
+      overflow-x: auto;
+      min-height: 270px;
+      position: relative;
+    }
+    .bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 45px;
+      max-width: 70px;
+    }
+    .bar {
+      width: 100%;
+      max-width: 50px;
+      border-radius: 6px 6px 0 0;
+      transition: height 0.6s ease;
+      position: relative;
+      min-height: 4px;
+      cursor: pointer;
+    }
+    .bar:hover {
+      opacity: 0.8;
+      transform: scaleY(1.02);
+      transform-origin: bottom;
+    }
+    .bar-label {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 8px;
+      text-align: center;
+      font-weight: 600;
+      word-break: break-word;
+      max-width: 60px;
+      line-height: 1.2;
+    }
+    .bar-value {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #0b2a4a;
+      margin-bottom: 4px;
+    }
+    .bar-tooltip {
+      display: none;
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0b2a4a;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .bar:hover .bar-tooltip {
+      display: block;
+    }
+
+    /* Filters */
+    .filters-section {
+      background: white;
+      padding: 20px 24px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+    .filters-section select,
+    .filters-section input {
+      padding: 10px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      background: #f8fafc;
+      min-width: 150px;
+      transition: all 0.3s ease;
+    }
+    .filters-section select:focus,
+    .filters-section input:focus {
+      outline: none;
+      border-color: #0b2a4a;
+      box-shadow: 0 0 0 3px rgba(11, 42, 74, 0.1);
+    }
+    .filter-label {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.85rem;
+    }
+    .filter-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-btn-primary {
+      background: #0b2a4a;
+      color: white;
+    }
+    .filter-btn-primary:hover { background: #1a3f62; transform: translateY(-2px); }
+    .filter-btn-secondary {
+      background: #e2e8f0;
+      color: #64748b;
+    }
+    .filter-btn-secondary:hover { background: #cbd5e1; transform: translateY(-2px); }
+
+    /* Submission Cards */
+    .submissions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 24px;
+    }
+    .submission-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+      border-left: 4px solid #e2e8f0;
+    }
+    .submission-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    .submission-card.pending { border-left-color: #f59e0b; }
+    .submission-card.approved { border-left-color: #10b981; }
+    .submission-card.rejected { border-left-color: #ef4444; }
+
+    .submission-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+    .submission-user h4 {
+      font-size: 1rem;
+      color: #0b2a4a;
+    }
+    .submission-user .sub-details {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .submission-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .submission-status.pending { background: #fef3c7; color: #92400e; }
+    .submission-status.approved { background: #d1fae5; color: #065f46; }
+    .submission-status.rejected { background: #fee2e2; color: #991b1b; }
+
+    .submission-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .submission-images img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+    }
+    .submission-images .image-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #64748b;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .submission-issue {
+      font-size: 0.9rem;
+      color: #1e293b;
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .submission-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .submission-actions button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .submission-actions button:hover { transform: translateY(-2px); }
+    .btn-approve {
+      background: #10b981;
+      color: white;
+    }
+    .btn-approve:hover { background: #059669; }
+    .btn-reject {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-reject:hover { background: #dc2626; }
+    .btn-view {
+      background: #0b2a4a;
+      color: white;
+    }
+    .btn-view:hover { background: #1a3f62; }
+
+    /* Star Rating */
+    .star-rating {
+      display: flex;
+      gap: 4px;
+      margin: 8px 0;
+    }
+    .star-rating i {
+      color: #d1d5db;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .star-rating i.active {
+      color: #f59e0b;
+    }
+    .star-rating i:hover {
+      transform: scale(1.2);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-content h2 { color: #0b2a4a; margin-bottom: 20px; }
+    .modal-content .close-btn {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #64748b;
+    }
+    .modal-content .close-btn:hover { color: #0b2a4a; }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .modal-actions button {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-actions button:hover { transform: translateY(-2px); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .submissions-grid { grid-template-columns: 1fr; }
+      .filters-section select,
+      .filters-section input { min-width: 100%; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .submission-images { grid-template-columns: 1fr; }
+      .modal-actions { flex-direction: column; }
+      .modal-actions button { width: 100%; justify-content: center; }
+      .chart-container { height: 180px; gap: 10px; }
+      .bar-wrapper { min-width: 35px; max-width: 50px; }
+      .bar { max-width: 35px; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .modal-content { padding: 24px; }
+      .chart-header { flex-direction: column; align-items: stretch; }
+      .chart-controls { flex-direction: column; }
+      .chart-container { height: 150px; gap: 8px; }
+      .bar-wrapper { min-width: 28px; max-width: 40px; }
+      .bar { max-width: 28px; }
+    }
+
+    /* Loading */
+    .loading-spinner {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #0b2a4a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-container {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: #64748b;
+    }
+    .no-results i { font-size: 3rem; margin-bottom: 16px; color: #cbd5e1; }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      z-index: 2000;
+      animation: slideUp 0.3s ease;
+      display: none;
+    }
+    .toast.success { background: #10b981; }
+    .toast.error { background: #ef4444; }
+    .toast.info { background: #0b2a4a; }
+
+    /* Color palette for bars */
+    .bar-color-1 { background: linear-gradient(180deg, #0b2a4a, #1a3f62); }
+    .bar-color-2 { background: linear-gradient(180deg, #10b981, #059669); }
+    .bar-color-3 { background: linear-gradient(180deg, #f59e0b, #d97706); }
+    .bar-color-4 { background: linear-gradient(180deg, #ef4444, #dc2626); }
+    .bar-color-5 { background: linear-gradient(180deg, #8b5cf6, #7c3aed); }
+    .bar-color-6 { background: linear-gradient(180deg, #ec4899, #db2777); }
+    .bar-color-7 { background: linear-gradient(180deg, #14b8a6, #0d9488); }
+    .bar-color-8 { background: linear-gradient(180deg, #f97316, #ea580c); }
+    .bar-color-9 { background: linear-gradient(180deg, #6366f1, #4f46e5); }
+    .bar-color-10 { background: linear-gradient(180deg, #22c55e, #16a34a); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <button class="back-button" onclick="window.location.href='main_menu_pg.html'">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="nav-title">Kaizen Admin Dashboard</div>
+    <div class="nav-badge">
+      <i class="fas fa-chart-line"></i> Evaluation Panel
+    </div>
+    <button class="nav-export-btn" onclick="exportToExcel()">
+      <i class="fas fa-file-excel"></i> Export to Excel
+    </button>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <div class="page-content">
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card total">
+        <div class="number" id="totalSubmissions">0</div>
+        <div class="label">Total Submissions</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="number" id="pendingSubmissions">0</div>
+        <div class="label">Pending Review</div>
+      </div>
+      <div class="stat-card approved">
+        <div class="number" id="approvedSubmissions">0</div>
+        <div class="label">Approved</div>
+      </div>
+      <div class="stat-card rejected">
+        <div class="number" id="rejectedSubmissions">0</div>
+        <div class="label">Rejected</div>
+      </div>
+    </div>
+
+    <!-- Chart Section - Department Submissions -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <h3><i class="fas fa-building"></i> Submissions by Department</h3>
+        <div class="chart-controls">
+          <select id="chartFilterStatus" onchange="renderChart()">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <select id="chartFilterMonth" onchange="renderChart()">
+            <option value="all">All Months</option>
+          </select>
+        </div>
+      </div>
+      <div id="chartContainer" class="chart-container">
+        <!-- Bars will be rendered here -->
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#94a3b8;">
+        <i class="fas fa-arrow-up"></i> Hover on bars to see details
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <span class="filter-label"><i class="fas fa-filter"></i> Filters:</span>
+      <select id="filterDepartment">
+        <option value="">All Departments</option>
+        <option value="HRA">HRA</option>
+        <option value="FNA">FNA</option>
+        <option value="MDO">MDO</option>
+        <option value="BD&Project">BD&Project</option>
+        <option value="SALES">SALES</option>
+        <option value="PVD">PVD</option>
+        <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
+        <option value="QMS">QMS</option>
+        <option value="QAQC">QAQC</option>
+        <option value="PE/LPS">PE/LPS</option>
+        <option value="MAINTENANCE">MAINTENANCE</option>
+        <option value="PROD">PROD</option>
+        <option value="PPCL">PPCL</option>
+        <option value="SYNERGY">SYNERGY</option>
+        <option value="SGTSB">SGTSB</option>
+      </select>
+      <select id="filterStatus">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <input type="month" id="filterMonth">
+      <button onclick="applyFilters()" class="filter-btn filter-btn-primary">
+        <i class="fas fa-search"></i> Apply
+      </button>
+      <button onclick="resetFilters()" class="filter-btn filter-btn-secondary">
+        <i class="fas fa-undo"></i> Reset
+      </button>
+    </div>
+
+    <!-- Submissions -->
+    <div id="submissionsContainer">
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p style="margin-top:16px;color:#64748b;">Loading submissions...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evaluation Modal -->
+  <div class="modal-overlay" id="evaluationModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      <h2><i class="fas fa-clipboard-check"></i> Evaluate Submission</h2>
+      <div id="modalBody">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+      authDomain: "suria-food-ordering-system.firebaseapp.com",
+      projectId: "suria-food-ordering-system",
+      storageBucket: "suria-food-ordering-system.firebasestorage.app",
+      messagingSenderId: "204528329291",
+      appId: "1:204528329291:web:cba270a2968e6d159963ce"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const COLLECTION_NAME = 'kaizen_submissions';
+    let allSubmissions = [];
+    let currentUser = null;
+    let currentModalId = null;
+    let currentRating = 0;
+
+    // Auth check
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadSubmissions();
+      } else {
+        window.location.replace("login_pg.html");
+      }
+    });
+
+    // Toast notification
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    // Load submissions with real-time updates
+    function loadSubmissions() {
+      const q = query(collection(db, COLLECTION_NAME), orderBy('submittedDate', 'desc'));
+      
+      onSnapshot(q, (snapshot) => {
+        allSubmissions = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          allSubmissions.push({
+            id: doc.id,
+            ...data,
+            status: data.kaizenStatus || 'pending',
+            rating: data.rating || 0
+          });
+        });
+        updateStats();
+        populateMonthFilter();
+        renderChart();
+        applyFilters();
+      }, (error) => {
+        console.error('Error loading submissions:', error);
+        document.getElementById('submissionsContainer').innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>Error loading submissions. Please try again.</p>
+          </div>
+        `;
+      });
+    }
+
+    // Populate month filter options
+    function populateMonthFilter() {
+      const months = new Set();
+      allSubmissions.forEach(sub => {
+        if (sub.submittedDate) {
+          const date = new Date(sub.submittedDate);
+          const yearMonth = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+          months.add(yearMonth);
+        }
+      });
+
+      const select = document.getElementById('chartFilterMonth');
+      const currentValue = select.value;
+      select.innerHTML = '<option value="all">All Months</option>';
+      const sortedMonths = Array.from(months).sort();
+      sortedMonths.forEach(month => {
+        const option = document.createElement('option');
+        option.value = month;
+        const [year, monthNum] = month.split('-');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        option.textContent = `${monthNames[parseInt(monthNum) - 1]} ${year}`;
+        select.appendChild(option);
+      });
+      if (currentValue) select.value = currentValue;
+    }
+
+    // Render bar chart
+    function renderChart() {
+      const statusFilter = document.getElementById('chartFilterStatus').value;
+      const monthFilter = document.getElementById('chartFilterMonth').value;
+
+      let filtered = allSubmissions;
+
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(s => {
+          if (statusFilter === 'pending') return s.status === 'pending' || s.status === 'Incomplete';
+          if (statusFilter === 'approved') return s.status === 'approved' || s.status === 'Complete';
+          if (statusFilter === 'rejected') return s.status === 'rejected';
+          return true;
+        });
+      }
+
+      if (monthFilter !== 'all') {
+        filtered = filtered.filter(s => {
+          if (!s.submittedDate) return false;
+          const date = new Date(s.submittedDate);
+          const yearMonth = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+          return yearMonth === monthFilter;
+        });
+      }
+
+      // Group by department
+      const deptCount = {};
+      filtered.forEach(sub => {
+        const dept = sub.department || 'Unknown';
+        deptCount[dept] = (deptCount[dept] || 0) + 1;
+      });
+
+      // Sort by count descending
+      const sortedDepts = Object.entries(deptCount).sort((a, b) => b[1] - a[1]);
+      const maxCount = sortedDepts.length > 0 ? Math.max(...sortedDepts.map(d => d[1])) : 0;
+
+      const container = document.getElementById('chartContainer');
+      
+      if (sortedDepts.length === 0) {
+        container.innerHTML = `
+          <div style="width:100%;text-align:center;color:#94a3b8;padding:40px 0;">
+            <i class="fas fa-chart-bar" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
+            No submissions to display
+          </div>
+        `;
+        return;
+      }
+
+      const colors = ['bar-color-1', 'bar-color-2', 'bar-color-3', 'bar-color-4', 'bar-color-5', 
+                      'bar-color-6', 'bar-color-7', 'bar-color-8', 'bar-color-9', 'bar-color-10'];
+
+      container.innerHTML = sortedDepts.map(([dept, count], index) => {
+        const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+        const height = Math.max(percentage, 5);
+        const colorClass = colors[index % colors.length];
+        
+        return `
+          <div class="bar-wrapper">
+            <div class="bar-value">${count}</div>
+            <div class="bar ${colorClass}" style="height: ${height}%; min-height: 10px;">
+              <span class="bar-tooltip">${dept}: ${count} submission${count > 1 ? 's' : ''}</span>
+            </div>
+            <div class="bar-label">${dept}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update statistics
+    function updateStats() {
+      const total = allSubmissions.length;
+      const pending = allSubmissions.filter(s => s.status === 'pending' || s.status === 'Incomplete').length;
+      const approved = allSubmissions.filter(s => s.status === 'approved' || s.status === 'Complete').length;
+      const rejected = allSubmissions.filter(s => s.status === 'rejected').length;
+
+      document.getElementById('totalSubmissions').textContent = total;
+      document.getElementById('pendingSubmissions').textContent = pending;
+      document.getElementById('approvedSubmissions').textContent = approved;
+      document.getElementById('rejectedSubmissions').textContent = rejected;
+    }
+
+    // Apply filters
+    window.applyFilters = function() {
+      const dept = document.getElementById('filterDepartment').value;
+      const status = document.getElementById('filterStatus').value;
+      const month = document.getElementById('filterMonth').value;
+
+      let filtered = allSubmissions;
+
+      if (dept) {
+        filtered = filtered.filter(s => s.department === dept);
+      }
+
+      if (status) {
+        filtered = filtered.filter(s => {
+          if (status === 'pending') return s.status === 'pending' || s.status === 'Incomplete';
+          if (status === 'approved') return s.status === 'approved' || s.status === 'Complete';
+          if (status === 'rejected') return s.status === 'rejected';
+          return true;
+        });
+      }
+
+      if (month) {
+        filtered = filtered.filter(s => {
+          if (!s.submittedDate) return false;
+          const date = new Date(s.submittedDate);
+          const yearMonth = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+          return yearMonth === month;
+        });
+      }
+
+      renderSubmissions(filtered);
+    };
+
+    window.resetFilters = function() {
+      document.getElementById('filterDepartment').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterMonth').value = '';
+      applyFilters();
+    };
+
+    // Render submissions
+    function renderSubmissions(submissions) {
+      const container = document.getElementById('submissionsContainer');
+
+      if (submissions.length === 0) {
+        container.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-inbox"></i>
+            <p>No submissions found</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="submissions-grid">
+          ${submissions.map(sub => `
+            <div class="submission-card ${getStatusClass(sub.status)}">
+              <div class="submission-header">
+                <div class="submission-user">
+                  <h4>${sub.fullName || 'Unknown'}</h4>
+                  <div class="sub-details">
+                    <i class="fas fa-id-badge"></i> ${sub.staffId || 'N/A'} &nbsp;|&nbsp;
+                    <i class="fas fa-building"></i> ${sub.department || 'N/A'}
+                  </div>
+                  <div class="sub-details" style="font-size:0.7rem;color:#94a3b8;margin-top:4px;">
+                    <i class="fas fa-calendar"></i> ${formatDate(sub.submittedDate)}
+                  </div>
+                </div>
+                <span class="submission-status ${getStatusClass(sub.status)}">
+                  ${getStatusLabel(sub.status)}
+                </span>
+              </div>
+
+              <div class="submission-issue">
+                <strong>Issue:</strong> ${sub.issueDetails || 'No description provided'}
+              </div>
+
+              ${sub.beforeImages || sub.afterImages ? `
+                <div class="submission-images">
+                  <div>
+                    <img src="${sub.beforeImages ? sub.beforeImages.split('\n')[0] : ''}" 
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22200%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2214%22 font-family=%22Inter%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                    <div class="image-label">📷 Before</div>
+                  </div>
+                  <div>
+                    <img src="${sub.afterImages ? sub.afterImages.split('\n')[0] : ''}" 
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22200%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2214%22 font-family=%22Inter%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                    <div class="image-label">✅ After</div>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${sub.rating > 0 ? `
+                <div class="star-rating">
+                  ${[1,2,3,4,5].map(star => `
+                    <i class="fas fa-star ${star <= sub.rating ? 'active' : ''}"></i>
+                  `).join('')}
+                  <span style="font-size:0.8rem;color:#64748b;margin-left:8px;">(${sub.rating}/5)</span>
+                </div>
+              ` : '<div style="font-size:0.8rem;color:#94a3b8;margin:8px 0;">⭐ No rating yet</div>'}
+
+              <div class="submission-actions">
+                <button onclick="openEvaluation('${sub.id}')" class="btn-view">
+                  <i class="fas fa-clipboard-check"></i> Evaluate
+                </button>
+                ${sub.status !== 'approved' && sub.status !== 'Complete' ? `
+                  <button onclick="approveSubmission('${sub.id}')" class="btn-approve">
+                    <i class="fas fa-check"></i> Approve
+                  </button>
+                ` : ''}
+                ${sub.status !== 'rejected' ? `
+                  <button onclick="rejectSubmission('${sub.id}')" class="btn-reject">
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Helper functions
+    function getStatusClass(status) {
+      if (status === 'approved' || status === 'Complete') return 'approved';
+      if (status === 'rejected') return 'rejected';
+      return 'pending';
+    }
+
+    function getStatusLabel(status) {
+      if (status === 'approved' || status === 'Complete') return '✅ Approved';
+      if (status === 'rejected') return '❌ Rejected';
+      return '⏳ Pending';
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch {
+        return dateString;
+      }
+    }
+
+    // Approve submission
+    window.approveSubmission = async function(id) {
+      if (!confirm('Are you sure you want to approve this submission?')) return;
+      try {
+        await updateDoc(doc(db, COLLECTION_NAME, id), {
+          kaizenStatus: 'approved',
+          status: 'approved',
+          evaluatedBy: currentUser?.uid || 'unknown',
+          evaluatedAt: new Date().toISOString()
+        });
+        showToast('✅ Submission approved successfully!', 'success');
+      } catch (error) {
+        console.error('Error approving:', error);
+        showToast('Error approving submission. Please try again.', 'error');
+      }
+    };
+
+    // Reject submission
+    window.rejectSubmission = async function(id) {
+      if (!confirm('Are you sure you want to reject this submission?')) return;
+      try {
+        await updateDoc(doc(db, COLLECTION_NAME, id), {
+          kaizenStatus: 'rejected',
+          status: 'rejected',
+          evaluatedBy: currentUser?.uid || 'unknown',
+          evaluatedAt: new Date().toISOString()
+        });
+        showToast('❌ Submission rejected.', 'info');
+      } catch (error) {
+        console.error('Error rejecting:', error);
+        showToast('Error rejecting submission. Please try again.', 'error');
+      }
+    };
+
+    // Open evaluation modal
+    window.openEvaluation = function(id) {
+      const sub = allSubmissions.find(s => s.id === id);
+      if (!sub) return;
+
+      currentModalId = id;
+      currentRating = sub.rating || 0;
+
+      const modal = document.getElementById('evaluationModal');
+      const body = document.getElementById('modalBody');
+
+      body.innerHTML = `
+        <div style="margin-bottom:20px;">
+          <p><strong>👤 Name:</strong> ${sub.fullName || 'N/A'}</p>
+          <p><strong>🆔 Staff ID:</strong> ${sub.staffId || 'N/A'}</p>
+          <p><strong>🏢 Department:</strong> ${sub.department || 'N/A'}</p>
+          <p><strong>📅 Submitted:</strong> ${formatDate(sub.submittedDate)}</p>
+          <p><strong>📋 Status:</strong> <span class="submission-status ${getStatusClass(sub.status)}">${getStatusLabel(sub.status)}</span></p>
+        </div>
+
+        <div style="margin:16px 0;padding:12px;background:#f8fafc;border-radius:10px;">
+          <strong>📝 Issue Details:</strong>
+          <p style="margin-top:6px;">${sub.issueDetails || 'No description'}</p>
+        </div>
+
+        ${sub.beforeImages || sub.afterImages ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;">
+            <div>
+              <img src="${sub.beforeImages ? sub.beforeImages.split('\n')[0] : ''}" 
+                   style="width:100%;height:150px;object-fit:cover;border-radius:10px;border:2px solid #e2e8f0;"
+                   onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22150%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22200%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2214%22 font-family=%22Inter%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+              <p style="text-align:center;font-size:0.8rem;color:#64748b;margin-top:4px;">📷 Before</p>
+            </div>
+            <div>
+              <img src="${sub.afterImages ? sub.afterImages.split('\n')[0] : ''}" 
+                   style="width:100%;height:150px;object-fit:cover;border-radius:10px;border:2px solid #e2e8f0;"
+                   onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22150%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22200%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2214%22 font-family=%22Inter%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+              <p style="text-align:center;font-size:0.8rem;color:#64748b;margin-top:4px;">✅ After</p>
+            </div>
+          </div>
+        ` : ''}
+
+        <div style="margin:16px 0;">
+          <label style="font-weight:600;display:block;margin-bottom:8px;">⭐ Rate this Kaizen (1-5):</label>
+          <div class="star-rating" id="modalRating" style="font-size:2rem;">
+            ${[1,2,3,4,5].map(star => `
+              <i class="fas fa-star" data-star="${star}" onclick="setRating(${star})" 
+                 style="cursor:pointer;${star <= currentRating ? 'color:#f59e0b;' : 'color:#d1d5db;'}">
+              </i>
+            `).join('')}
+          </div>
+          <p style="font-size:0.85rem;color:#64748b;margin-top:4px;">Selected rating: <span id="ratingDisplay">${currentRating}</span> / 5</p>
+        </div>
+
+        <div class="modal-actions">
+          <button onclick="saveRating()" style="background:#0b2a4a;color:white;">
+            <i class="fas fa-save"></i> Save Rating
+          </button>
+          ${sub.status !== 'approved' && sub.status !== 'Complete' ? `
+            <button onclick="approveWithRating()" style="background:#10b981;color:white;">
+              <i class="fas fa-check"></i> Approve & Save Rating
+            </button>
+          ` : ''}
+          ${sub.status !== 'rejected' ? `
+            <button onclick="rejectSubmission('${sub.id}')" style="background:#ef4444;color:white;">
+              <i class="fas fa-times"></i> Reject
+            </button>
+          ` : ''}
+          <button onclick="closeModal()" style="background:#e2e8f0;color:#64748b;">
+            Close
+          </button>
+        </div>
+      `;
+
+      modal.classList.add('active');
+    };
+
+    // Set rating
+    window.setRating = function(star) {
+      currentRating = star;
+      const stars = document.querySelectorAll('#modalRating i');
+      stars.forEach((el, index) => {
+        if (index < star) {
+          el.style.color = '#f59e0b';
+        } else {
+          el.style.color = '#d1d5db';
+        }
+      });
+      document.getElementById('ratingDisplay').textContent = star;
+    };
+
+    // Save rating only
+    window.saveRating = async function() {
+      if (!currentModalId) return;
+      if (currentRating === 0) {
+        if (!confirm('Rating is 0. Continue without rating?')) return;
+      }
+
+      try {
+        await updateDoc(doc(db, COLLECTION_NAME, currentModalId), {
+          rating: currentRating,
+          evaluatedBy: currentUser?.uid || 'unknown',
+          evaluatedAt: new Date().toISOString()
+        });
+        showToast(`⭐ Rating saved: ${currentRating}/5 stars!`, 'success');
+        closeModal();
+      } catch (error) {
+        console.error('Error saving rating:', error);
+        showToast('Error saving rating. Please try again.', 'error');
+      }
+    };
+
+    // Approve with rating
+    window.approveWithRating = async function() {
+      if (!currentModalId) return;
+      
+      if (currentRating === 0) {
+        if (!confirm('Rating is 0. Continue without rating?')) return;
+      }
+
+      if (!confirm(`Approve this submission with ${currentRating}/5 stars?`)) return;
+
+      try {
+        await updateDoc(doc(db, COLLECTION_NAME, currentModalId), {
+          kaizenStatus: 'approved',
+          status: 'approved',
+          rating: currentRating,
+          evaluatedBy: currentUser?.uid || 'unknown',
+          evaluatedAt: new Date().toISOString()
+        });
+        showToast(`✅ Approved with ${currentRating}/5 stars!`, 'success');
+        closeModal();
+      } catch (error) {
+        console.error('Error approving:', error);
+        showToast('Error approving submission. Please try again.', 'error');
+      }
+    };
+
+    // Close modal
+    window.closeModal = function() {
+      document.getElementById('evaluationModal').classList.remove('active');
+      currentModalId = null;
+      currentRating = 0;
+    };
+
+    // Close modal on overlay click
+    document.getElementById('evaluationModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Export to Excel
+    window.exportToExcel = function() {
+      if (allSubmissions.length === 0) {
+        showToast('No data to export!', 'error');
+        return;
+      }
+
+      // Prepare data for export
+      const headers = [
+        'Full Name', 
+        'Staff ID', 
+        'Department', 
+        'Issue Details', 
+        'Status', 
+        'Rating', 
+        'Submitted Date',
+        'Evaluated By',
+        'Evaluated At'
+      ];
+
+      const rows = allSubmissions.map(sub => [
+        sub.fullName || 'N/A',
+        sub.staffId || 'N/A',
+        sub.department || 'N/A',
+        sub.issueDetails || 'N/A',
+        getStatusLabel(sub.status),
+        sub.rating || 0,
+        formatDate(sub.submittedDate),
+        sub.evaluatedBy || 'N/A',
+        sub.evaluatedAt ? formatDate(sub.evaluatedAt) : 'N/A'
+      ]);
+
+      // Create CSV
+      let csv = headers.join(',') + '\n';
+      rows.forEach(row => {
+        const escapedRow = row.map(cell => {
+          if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"'))) {
+            return `"${cell.replace(/"/g, '""')}"`;
+          }
+          return cell;
+        });
+        csv += escapedRow.join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `kaizen_submissions_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast(`📊 Exported ${allSubmissions.length} submissions to Excel!`, 'success');
+    };
+
+    console.log('✅ Kaizen Admin Dashboard loaded successfully!');
+  </script>
+</body>
+</html>

@@ -11,10 +11,6 @@
     .back-button { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 5px 10px; display: flex; align-items: center; transition: all 0.3s ease; }
     .back-button:hover { background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
     .nav-title { color: white; font-size: 1.1rem; font-weight: 600; }
-    .nav-lang-buttons { display: flex; gap: 6px; margin-left: auto; }
-    .nav-lang-buttons button { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: 600; transition: all 0.3s ease; }
-    .nav-lang-buttons button:hover { background: rgba(255, 255, 255, 0.2); color: white; }
-    .nav-lang-buttons button.active { background: rgba(255, 255, 255, 0.25); color: white; border-color: rgba(255, 255, 255, 0.3); }
     .page-content { padding: 20px; }
     .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); overflow: hidden; }
     .header { background: #0b2a4a; color: white; padding: 30px; text-align: center; }
@@ -59,31 +55,20 @@
     .progress-fill { height: 100%; background: #0b2a4a; transition: width 0.3s ease; }
     .form-section { margin: 40px 0 30px 0; }
     .form-section:first-child { margin-top: 0; }
-    @media (max-width: 768px) { .content { padding: 30px 20px; } .button-group { flex-direction: column; } .btn { width: 100%; } .grid-2 { grid-template-columns: 1fr; } .nav-lang-buttons { margin-left: 0; width: 100%; justify-content: center; margin-top: 8px; } }
+    @media (max-width: 768px) { .content { padding: 30px 20px; } .button-group { flex-direction: column; } .btn { width: 100%; } .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="top-nav">
     <button class="back-button" onclick="window.location.href='home.html'">←</button>
-    <div class="nav-title" id="navTitle">Kaizen Improvement Form</div>
-    <div class="nav-lang-buttons">
-      <button data-lang="en" class="lang-btn active" onclick="changeLanguage('en')">EN</button>
-      <button data-lang="ms" class="lang-btn" onclick="changeLanguage('ms')">MS</button>
-      <button data-lang="ne" class="lang-btn" onclick="changeLanguage('ne')">ने</button>
-    </div>
+    <div class="nav-title">Kaizen Improvement Form</div>
   </div>
 
   <div class="page-content">
     <div class="container">
       <div class="header">
-        <h1 id="headerTitle">KAIZEN · SUBMISSION</h1>
+        <h1>KAIZEN · SUBMISSION</h1>
       </div>
-
-      <div class="map-container">
-            <div style="text-align: center;">
-  <img src="pictures/new.png" alt="SCM" style="width: 250px; height: auto;">
-    </div>
-        </div>
 
       <div class="content">
         <div id="errorContainer"></div>
@@ -91,60 +76,61 @@
         <form id="kaizenForm">
           <!-- Personal Info -->
           <div class="form-section">
-            <h2 class="section-title" id="personalInfoTitle">Personal Information</h2>
+            <h2 class="section-title">Personal Information</h2>
             <div class="section-divider"></div>
           </div>
           <div class="grid-2">
             <div class="form-group">
-              <label id="fullNameLabel">Full Name <span class="required">*</span></label>
-              <input type="text" id="fullName" disabled required>
+              <label>Full Name <span class="required">*</span></label>
+              <input type="text" id="fullName" required>
             </div>
             <div class="form-group">
-              <label id="staffIdLabel">STAFF ID <span class="required">*</span></label>
-              <input type="text" id="staffId" disabled required>
+              <label>STAFF ID <span class="required">*</span></label>
+              <input type="text" id="staffId" required>
             </div>
           </div>
           <div class="form-group">
-            <label id="departmentLabel">Department <span class="required">*</span></label>
-            <input type="text" id="department" disabled required>
+            <label>Department <span class="required">*</span></label>
+            <input type="text" id="department" required>
           </div>
 
           <!-- KAIZEN SECTION -->
           <div class="form-section">
-            <h2 class="section-title" id="kaizenDetailsTitle">Kaizen Details</h2>
+            <h2 class="section-title">Kaizen Details</h2>
             <div class="section-divider"></div>
           </div>
 
           <div class="form-group">
-            <label id="collaboratorLabel">Collaborator (if applicable)</label>
+            <label>Collaborator (if applicable)</label>
             <input type="text" id="collaborator" placeholder="Name of collaborator (optional)">
           </div>
 
           <div class="form-group">
-            <label id="issueDetailsLabel">Describe your issue details <span class="required">*</span></label>
+            <label>Describe your issue details <span class="required">*</span></label>
             <textarea id="issueDetails" required placeholder="Describe the problem/opportunity for improvement..."></textarea>
           </div>
 
+          <!-- Optional: Image upload (not required for testing) -->
           <div class="grid-2">
             <div class="form-group">
-              <label id="beforeLabel">Upload image BEFORE <span class="required">*</span></label>
+              <label>Upload image BEFORE <span class="optional">(optional for testing)</span></label>
               <div class="file-upload-wrapper">
                 <div class="file-upload" id="beforeUpload" onclick="document.getElementById('beforeInput').click()">
                   <div class="file-upload-icon">📷</div>
-                  <div class="file-upload-text" id="beforeText">Browse before image</div>
-                  <div class="file-upload-hint" id="dragHint">Click or drag image</div>
+                  <div class="file-upload-text">Browse before image</div>
+                  <div class="file-upload-hint">Click or drag image (optional)</div>
                 </div>
                 <input type="file" id="beforeInput" accept="image/*" multiple>
                 <div id="beforePreviewContainer" class="file-preview-container"></div>
               </div>
             </div>
             <div class="form-group">
-              <label id="afterLabel">Upload image AFTER <span class="required">*</span></label>
+              <label>Upload image AFTER <span class="optional">(optional for testing)</span></label>
               <div class="file-upload-wrapper">
                 <div class="file-upload" id="afterUpload" onclick="document.getElementById('afterInput').click()">
                   <div class="file-upload-icon">✅</div>
-                  <div class="file-upload-text" id="afterText">Browse after image</div>
-                  <div class="file-upload-hint" id="dragHint2">Click or drag image</div>
+                  <div class="file-upload-text">Browse after image</div>
+                  <div class="file-upload-hint">Click or drag image (optional)</div>
                 </div>
                 <input type="file" id="afterInput" accept="image/*" multiple>
                 <div id="afterPreviewContainer" class="file-preview-container"></div>
@@ -153,11 +139,11 @@
           </div>
 
           <div class="form-group">
-            <label id="statusLabel">Kaizen Status <span class="required">*</span></label>
+            <label>Kaizen Status <span class="required">*</span></label>
             <select id="kaizenStatus" required>
-              <option value="" id="selectStatus">Select status</option>
-              <option value="Complete" id="statusComplete">Complete</option>
-              <option value="Incomplete" id="statusIncomplete">Incomplete</option>
+              <option value="">Select status</option>
+              <option value="Complete">Complete</option>
+              <option value="Incomplete">Incomplete</option>
             </select>
           </div>
 
@@ -169,161 +155,39 @@
     </div>
   </div>
 
-  <script>
-    // Translations
-    const translations = {
-      en: {
-        navTitle: 'Kaizen Improvement Form',
-        headerTitle: 'KAIZEN · SUBMISSION',
-        personalInfoTitle: 'Personal Information',
-        fullNameLabel: 'Full Name',
-        staffIdLabel: 'STAFF ID',
-        departmentLabel: 'Department',
-        kaizenDetailsTitle: 'Kaizen Details',
-        collaboratorLabel: 'Collaborator (if applicable)',
-        issueDetailsLabel: 'Describe your issue details',
-        beforeLabel: 'Upload image BEFORE',
-        beforeText: 'Browse before image',
-        afterLabel: 'Upload image AFTER',
-        afterText: 'Browse after image',
-        dragHint: 'Click or drag image',
-        statusLabel: 'Kaizen Status',
-        selectStatus: 'Select status',
-        statusComplete: 'Complete',
-        statusIncomplete: 'Incomplete',
-        submitBtn: 'Submit Kaizen',
-        errorBefore: 'Please upload at least one BEFORE image.',
-        errorAfter: 'Please upload at least one AFTER image.',
-        errorStatus: 'Please select Kaizen status.',
-        successTitle: '✅ Kaizen submitted!',
-        successDesc: 'Your improvement form has been recorded.',
-        uploading: 'Uploading',
-        submitting: 'Submitting...'
-      },
-      ms: {
-        navTitle: 'Borang Penambahbaikan Kaizen',
-        headerTitle: 'KAIZEN · PENYERAHAN',
-        personalInfoTitle: 'Maklumat Peribadi',
-        fullNameLabel: 'Nama Penuh',
-        staffIdLabel: 'ID PEKERJA',
-        departmentLabel: 'Jabatan',
-        kaizenDetailsTitle: 'Butiran Kaizen',
-        collaboratorLabel: 'Rakan Kolaborator (jika ada)',
-        issueDetailsLabel: 'Terangkan butiran isu anda',
-        beforeLabel: 'Muat naik gambar SEBELUM',
-        beforeText: 'Pilih gambar sebelum',
-        afterLabel: 'Muat naik gambar SELEPAS',
-        afterText: 'Pilih gambar selepas',
-        dragHint: 'Klik atau seret gambar',
-        statusLabel: 'Status Kaizen',
-        selectStatus: 'Pilih status',
-        statusComplete: 'Selesai',
-        statusIncomplete: 'Tidak Selesai',
-        submitBtn: 'Hantar Kaizen',
-        errorBefore: 'Sila muat naik sekurang-kurangnya satu gambar SEBELUM.',
-        errorAfter: 'Sila muat naik sekurang-kurangnya satu gambar SELEPAS.',
-        errorStatus: 'Sila pilih status Kaizen.',
-        successTitle: '✅ Kaizen berjaya dihantar!',
-        successDesc: 'Borang penambahbaikan anda telah direkodkan.',
-        uploading: 'Memuat naik',
-        submitting: 'Menghantar...'
-      },
-      ne: {
-        navTitle: 'काइजेन सुधार फारम',
-        headerTitle: 'काइजेन · पेशी',
-        personalInfoTitle: 'व्यक्तिगत जानकारी',
-        fullNameLabel: 'पूरा नाम',
-        staffIdLabel: 'कर्मचारी आईडी',
-        departmentLabel: 'विभाग',
-        kaizenDetailsTitle: 'काइजेन विवरणहरू',
-        collaboratorLabel: 'सहयोगी (यदि लागू भएमा)',
-        issueDetailsLabel: 'आफ्नो समस्या विवरण वर्णन गर्नुहोस्',
-        beforeLabel: 'पहिलेको तस्वीर अपलोड गर्नुहोस्',
-        beforeText: 'पहिलेको तस्वीर छनौट गर्नुहोस्',
-        afterLabel: 'पछिको तस्वीर अपलोड गर्नुहोस्',
-        afterText: 'पछिको तस्वीर छनौट गर्नुहोस्',
-        dragHint: 'क्लिक गर्नुहोस् वा तस्वीर तान्नुहोस्',
-        statusLabel: 'काइजेन स्थिति',
-        selectStatus: 'स्थिति चयन गर्नुहोस्',
-        statusComplete: 'पूरा भयो',
-        statusIncomplete: 'अपूर्ण',
-        submitBtn: 'काइजेन पेश गर्नुहोस्',
-        errorBefore: 'कृपया कम्तिमा एक पहिलेको तस्वीर अपलोड गर्नुहोस्।',
-        errorAfter: 'कृपया कम्तिमा एक पछिको तस्वीर अपलोड गर्नुहोस्।',
-        errorStatus: 'कृपया काइजेन स्थिति चयन गर्नुहोस्।',
-        successTitle: '✅ काइजेन सफलतापूर्वक पेश गरियो!',
-        successDesc: 'तपाईंको सुधार फारम रेकर्ड गरिएको छ।',
-        uploading: 'अपलोड गर्दै',
-        submitting: 'पेश गर्दै...'
-      }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+      authDomain: "suria-food-ordering-system.firebaseapp.com",
+      projectId: "suria-food-ordering-system",
+      storageBucket: "suria-food-ordering-system.firebasestorage.app",
+      messagingSenderId: "204528329291",
+      appId: "1:204528329291:web:cba270a2968e6d159963ce"
     };
 
-    // Get current language
-    let currentLang = localStorage.getItem('kaizenLang') || 'en';
-
-    // Function to change language
-    function changeLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('kaizenLang', lang);
-      
-      // Update all text elements
-      document.getElementById('navTitle').textContent = translations[lang].navTitle;
-      document.getElementById('headerTitle').textContent = translations[lang].headerTitle;
-      document.getElementById('personalInfoTitle').textContent = translations[lang].personalInfoTitle;
-      document.getElementById('fullNameLabel').innerHTML = translations[lang].fullNameLabel + ' <span class="required">*</span>';
-      document.getElementById('staffIdLabel').innerHTML = translations[lang].staffIdLabel + ' <span class="required">*</span>';
-      document.getElementById('departmentLabel').innerHTML = translations[lang].departmentLabel + ' <span class="required">*</span>';
-      document.getElementById('kaizenDetailsTitle').textContent = translations[lang].kaizenDetailsTitle;
-      document.getElementById('collaboratorLabel').textContent = translations[lang].collaboratorLabel;
-      document.getElementById('issueDetailsLabel').innerHTML = translations[lang].issueDetailsLabel + ' <span class="required">*</span>';
-      document.getElementById('beforeLabel').innerHTML = translations[lang].beforeLabel + ' <span class="required">*</span>';
-      document.getElementById('beforeText').textContent = translations[lang].beforeText;
-      document.getElementById('afterLabel').innerHTML = translations[lang].afterLabel + ' <span class="required">*</span>';
-      document.getElementById('afterText').textContent = translations[lang].afterText;
-      document.getElementById('dragHint').textContent = translations[lang].dragHint;
-      document.getElementById('dragHint2').textContent = translations[lang].dragHint;
-      document.getElementById('statusLabel').innerHTML = translations[lang].statusLabel + ' <span class="required">*</span>';
-      document.getElementById('selectStatus').textContent = translations[lang].selectStatus;
-      document.getElementById('statusComplete').textContent = translations[lang].statusComplete;
-      document.getElementById('statusIncomplete').textContent = translations[lang].statusIncomplete;
-      document.getElementById('submitBtn').textContent = translations[lang].submitBtn;
-
-      // Update active button
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-lang') === lang) {
-          btn.classList.add('active');
-        }
-      });
-    }
-
-    // Initialize with saved language
-    changeLanguage(currentLang);
-  </script>
-
-  <script type="module">
-    // Firebase imports
-    import { auth, db, storage } from './firebaseConfig.js';
-    import { collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
     const COLLECTION_NAME = 'kaizen_submissions';
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwOfvQGDyq5DnZxsNNtpeGIvUXkcS2LKadtpdlGZvM80BX2xMeRr6gfFOjKD0RcnRuqig/exec'; 
 
     let beforeFiles = [];
     let afterFiles = [];
     let currentUser = null;
 
-    // Get current language for error messages
-    function getCurrentLang() {
-      return localStorage.getItem('kaizenLang') || 'en';
-    }
-
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
         await loadUserData(user.uid);
+      } else {
+        // Redirect to login if not authenticated
+        window.location.replace("login_pg.html");
       }
     });
 
@@ -332,51 +196,18 @@
         const userDoc = await getDoc(doc(db, 'users', uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          
-          // Auto-fill Full Name
           const fullName = data.name && data.lastName ? `${data.name} ${data.lastName}`.trim() : data.name || '';
-          if (fullName) {
-            document.getElementById('fullName').value = fullName;
-            document.getElementById('fullName').disabled = false;
-          }
-          
-          // Auto-fill Staff ID
-          if (data.employeeId) {
-            document.getElementById('staffId').value = data.employeeId;
-            document.getElementById('staffId').disabled = false;
-          }
-          
-          // Auto-fill Department
-          if (data.department) {
-            document.getElementById('department').value = data.department.toUpperCase();
-            document.getElementById('department').disabled = false;
-          }
+          if (fullName) document.getElementById('fullName').value = fullName;
+          if (data.employeeId) document.getElementById('staffId').value = data.employeeId;
+          if (data.department) document.getElementById('department').value = data.department.toUpperCase();
         }
-      } catch (err) { 
-        console.error('Load user err:', err); 
-        // Enable fields even if loading fails so user can type manually
-        document.getElementById('fullName').disabled = false;
-        document.getElementById('staffId').disabled = false;
-        document.getElementById('department').disabled = false;
-      }
+      } catch (err) { console.error('Load user err:', err); }
     }
 
-    // ----- file handling helpers -----
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
+    // File handling helpers (simplified for testing)
     function handleFileSelection(files, targetArray, displayFn, updateBtnFn) {
       const newFiles = Array.from(files);
-      const valid = [];
-      const invalid = [];
-      newFiles.forEach(f => {
-        if (f.size > MAX_FILE_SIZE) invalid.push(f.name);
-        else {
-          const exists = targetArray.some(ex => ex.name === f.name && ex.size === f.size);
-          if (!exists) valid.push(f);
-        }
-      });
-      if (invalid.length) showError(`File(s) exceed 5MB: ${invalid.join(', ')}`);
-      targetArray.push(...valid);
+      targetArray.push(...newFiles);
       displayFn();
       updateBtnFn();
     }
@@ -391,11 +222,6 @@
         reader.onload = (e) => img.src = e.target.result;
         reader.readAsDataURL(file);
         div.appendChild(img);
-      } else {
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'file-preview-file';
-        iconDiv.innerHTML = `<div class="file-preview-file-icon">📄</div>`;
-        div.appendChild(iconDiv);
       }
       const nameDiv = document.createElement('div');
       nameDiv.className = 'file-preview-name';
@@ -415,58 +241,44 @@
       c.innerHTML = '';
       beforeFiles.forEach((f, i) => c.appendChild(createPreviewItem(f, i, removeBefore)));
     }
+
     function displayAfter() {
       const c = document.getElementById('afterPreviewContainer');
       c.innerHTML = '';
       afterFiles.forEach((f, i) => c.appendChild(createPreviewItem(f, i, removeAfter)));
     }
+
     function removeBefore(idx) { beforeFiles.splice(idx,1); displayBefore(); updateBeforeBtn(); }
     function removeAfter(idx) { afterFiles.splice(idx,1); displayAfter(); updateAfterBtn(); }
 
     function updateBeforeBtn() {
       const el = document.getElementById('beforeUpload');
-      const lang = getCurrentLang();
       if (beforeFiles.length) {
         el.innerHTML = `<div class="file-upload-icon">✅</div><div class="file-upload-text">${beforeFiles.length} file(s)</div><div class="file-upload-hint">Click to add more</div>`;
       } else {
-        el.innerHTML = `<div class="file-upload-icon">📷</div><div class="file-upload-text">${translations[lang].beforeText}</div><div class="file-upload-hint">${translations[lang].dragHint}</div>`;
-      }
-    }
-    function updateAfterBtn() {
-      const el = document.getElementById('afterUpload');
-      const lang = getCurrentLang();
-      if (afterFiles.length) {
-        el.innerHTML = `<div class="file-upload-icon">✅</div><div class="file-upload-text">${afterFiles.length} file(s)</div><div class="file-upload-hint">Click to add more</div>`;
-      } else {
-        el.innerHTML = `<div class="file-upload-icon">✅</div><div class="file-upload-text">${translations[lang].afterText}</div><div class="file-upload-hint">${translations[lang].dragHint}</div>`;
+        el.innerHTML = `<div class="file-upload-icon">📷</div><div class="file-upload-text">Browse before image</div><div class="file-upload-hint">Click or drag image (optional)</div>`;
       }
     }
 
-    // attach events
+    function updateAfterBtn() {
+      const el = document.getElementById('afterUpload');
+      if (afterFiles.length) {
+        el.innerHTML = `<div class="file-upload-icon">✅</div><div class="file-upload-text">${afterFiles.length} file(s)</div><div class="file-upload-hint">Click to add more</div>`;
+      } else {
+        el.innerHTML = `<div class="file-upload-icon">✅</div><div class="file-upload-text">Browse after image</div><div class="file-upload-hint">Click or drag image (optional)</div>`;
+      }
+    }
+
+    // Attach events
     document.getElementById('beforeInput').addEventListener('change', function(e) {
       handleFileSelection(e.target.files, beforeFiles, displayBefore, updateBeforeBtn);
       this.value = null;
     });
+
     document.getElementById('afterInput').addEventListener('change', function(e) {
       handleFileSelection(e.target.files, afterFiles, displayAfter, updateAfterBtn);
       this.value = null;
     });
-
-    // drag-drop
-    function setupDrop(zoneId, targetArr, displayFn, updateFn) {
-      const zone = document.getElementById(zoneId);
-      if (!zone) return;
-      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.style.borderColor = '#0b2a4a'; zone.style.background = '#edf2f7'; });
-      zone.addEventListener('dragleave', () => { zone.style.borderColor = '#cbd5e0'; zone.style.background = '#f8fafc'; });
-      zone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        zone.style.borderColor = '#cbd5e0';
-        zone.style.background = '#f8fafc';
-        handleFileSelection(e.dataTransfer.files, targetArr, displayFn, updateFn);
-      });
-    }
-    setupDrop('beforeUpload', beforeFiles, displayBefore, updateBeforeBtn);
-    setupDrop('afterUpload', afterFiles, displayAfter, updateAfterBtn);
 
     // UI feedback
     function showError(msg) {
@@ -475,105 +287,69 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => c.innerHTML = '', 6000);
     }
+
     function showSuccess() {
-      const lang = getCurrentLang();
       const c = document.getElementById('errorContainer');
-      c.innerHTML = `<div class="success"><h3>${translations[lang].successTitle}</h3><p>${translations[lang].successDesc}</p></div>`;
+      c.innerHTML = `<div class="success"><h3>✅ Kaizen submitted!</h3><p>Your improvement form has been recorded.</p></div>`;
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => c.innerHTML = '', 6000);
     }
-    function showProgress(msg, pct) {
-      const c = document.getElementById('errorContainer');
-      c.innerHTML = `<div class="upload-progress">${msg}<div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div></div>`;
-    }
 
-    async function uploadFiles(files, folder) {
-      const urls = [];
-      const lang = getCurrentLang();
-      for (let i=0; i<files.length; i++) {
-        const f = files[i];
-        showProgress(`${translations[lang].uploading} ${i+1}/${files.length} ...`, ((i/files.length)*100));
-        const ts = Date.now();
-        const path = `${folder}/${ts}_${f.name}`;
-        const refSt = ref(storage, path);
-        await uploadBytes(refSt, f);
-        const url = await getDownloadURL(refSt);
-        urls.push(url);
-      }
-      return urls;
-    }
-
-    async function sendToSheets(data) {
-      try {
-        const payload = { ...data };
-        delete payload.createdAt;
-        delete payload.updatedAt;
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
-        });
-        return true;
-      } catch(e) { console.warn('Sheets error:', e); return false; }
-    }
-
+    // Submit form
     document.getElementById('kaizenForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
       const orig = btn.textContent;
-      const lang = getCurrentLang();
       btn.disabled = true;
-      btn.textContent = translations[lang].submitting;
+      btn.textContent = 'Submitting...';
 
       try {
-        // validate
-        if (beforeFiles.length === 0) { showError(translations[lang].errorBefore); btn.disabled=false; btn.textContent=orig; return; }
-        if (afterFiles.length === 0) { showError(translations[lang].errorAfter); btn.disabled=false; btn.textContent=orig; return; }
-
-        const status = document.getElementById('kaizenStatus').value;
-        if (!status) { showError(translations[lang].errorStatus); btn.disabled=false; btn.textContent=orig; return; }
-
-        // upload
-        const beforeUrls = await uploadFiles(beforeFiles, 'kaizen-before');
-        const afterUrls = await uploadFiles(afterFiles, 'kaizen-after');
-
+        // Get form data
         const formData = {
           fullName: document.getElementById('fullName').value.trim(),
           staffId: document.getElementById('staffId').value.trim(),
           department: document.getElementById('department').value.trim(),
           collaborator: document.getElementById('collaborator').value.trim() || '',
           issueDetails: document.getElementById('issueDetails').value.trim(),
-          beforeImages: beforeUrls.join('\n'),
-          afterImages: afterUrls.join('\n'),
-          kaizenStatus: status,
+          kaizenStatus: document.getElementById('kaizenStatus').value,
           submittedBy: currentUser?.uid || 'unknown',
           submittedByEmail: currentUser?.email || 'unknown',
           submittedDate: new Date().toISOString(),
+          status: 'pending', // Initial status
+          rating: 0,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         };
 
-        // Firestore
-        let docId = 'KAIZEN-' + Date.now();
-        try {
-          const refDoc = await addDoc(collection(db, COLLECTION_NAME), formData);
-          docId = refDoc.id;
-        } catch(dbErr) { console.warn('Firestore save issue:', dbErr); }
+        // Validate required fields
+        if (!formData.fullName) { showError('Please enter your full name.'); btn.disabled=false; btn.textContent=orig; return; }
+        if (!formData.staffId) { showError('Please enter your staff ID.'); btn.disabled=false; btn.textContent=orig; return; }
+        if (!formData.department) { showError('Please enter your department.'); btn.disabled=false; btn.textContent=orig; return; }
+        if (!formData.issueDetails) { showError('Please describe your issue details.'); btn.disabled=false; btn.textContent=orig; return; }
+        if (!formData.kaizenStatus) { showError('Please select Kaizen status.'); btn.disabled=false; btn.textContent=orig; return; }
 
-        // Sheets
-        const sheetPayload = { ...formData, submissionId: docId, submittedDate: new Date().toLocaleString() };
-        await sendToSheets(sheetPayload);
+        // Save to Firestore
+        const docRef = await addDoc(collection(db, COLLECTION_NAME), formData);
+        console.log('✅ Submission saved with ID:', docRef.id);
 
         showSuccess();
-        // reset
+        
+        // Reset form
         document.getElementById('kaizenForm').reset();
-        beforeFiles = []; afterFiles = [];
+        beforeFiles = [];
+        afterFiles = [];
         document.getElementById('beforePreviewContainer').innerHTML = '';
         document.getElementById('afterPreviewContainer').innerHTML = '';
-        updateBeforeBtn(); updateAfterBtn();
-      } catch(err) {
-        console.error(err);
+        updateBeforeBtn();
+        updateAfterBtn();
+
+        // Reload user data
+        if (currentUser) {
+          await loadUserData(currentUser.uid);
+        }
+
+      } catch (err) {
+        console.error('Error submitting:', err);
         showError('Submission failed: ' + err.message);
       } finally {
         btn.disabled = false;
