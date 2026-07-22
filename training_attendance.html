@@ -30,9 +30,14 @@
         .btn-submit:hover { transform: translateY(-2px); background: #059669; }
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .success, .error { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600; display: none; }
+        .success, .error, .info { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600; display: none; }
         .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .training-time { font-size: 0.85rem; color: #6c757d; margin-left: 5px; }
+        .no-training-msg { text-align: center; padding: 20px; color: #6c757d; font-size: 1.1rem; }
+        .debug-info { background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.85rem; color: #6c757d; margin-top: 10px; display: none; }
         
         @media (max-width: 768px) { .form-wrapper { padding: 25px; } .grid-2 { grid-template-columns: 1fr; } }
     </style>
@@ -45,9 +50,10 @@
 
     <div class="container">
         <div class="form-wrapper">
-            <h2 class="header-title">Confirm Attendance</h2>
+            <h2 class="header-title">Check In to Training</h2>
             
-            <div id="successMsg" class="success">✅ Attendance recorded to Database and Sheets!</div>
+            <div id="infoMsg" class="info">ℹ️ Only today's training sessions are shown below.</div>
+            <div id="successMsg" class="success">✅ Successfully checked in!</div>
             <div id="errorMsg" class="error"></div>
 
             <form id="attendanceForm">
@@ -87,36 +93,35 @@
 
                     <div class="form-group">
                         <label>Date <span class="required">*</span></label>
-                        <!-- Locked Date Field: It auto-fills based on the training selected -->
-                        <input type="date" id="trainingDate" required readonly style="background: #e2e8f0; cursor: not-allowed;" title="Select a training session to auto-fill the date">
+                        <input type="date" id="trainingDate" required readonly style="background: #e2e8f0; cursor: not-allowed;">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Select Training Session <span class="required">*</span></label>
                     <select id="trainingName" required>
-                        <option value="">Loading schedules...</option>
-                        <!-- Options will be populated automatically from Firebase -->
+                        <option value="">Loading today's sessions...</option>
                     </select>
                 </div>
 
                 <button type="submit" class="btn-submit" id="submitBtn"><i class="fas fa-check-circle"></i> Check In</button>
             </form>
+            
+            <div id="debugInfo" class="debug-info">
+                <strong>Debug Info:</strong><br>
+                <span id="debugMessage">Loading...</span>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase Logic -->
     <script type="module">
         import { auth, db } from './firebaseConfig.js';
         import { collection, addDoc, getDocs, query, orderBy, where, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-        //IF U WANT TO UPDATE AND HAVE A SHEETS THEN UNCOMMENT THIS AND PUT UR URL (MAKE SURE TO UNCOMMENT THE BOTTOM ONE ALSO)
-        // IMPORTANT: Webhook URL for Google Sheets
-        //const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_NEW_WEBHOOK_URL_HERE/exec';
-
         let currentUser = null;
         let userProfile = { fullName: '', staffId: '', department: '' };
+        let todaysTrainings = [];
 
         // 1. Auto-fill user data
         onAuthStateChanged(auth, async (user) => {
@@ -134,110 +139,186 @@
                         if (userProfile.staffId) document.getElementById('staffId').value = userProfile.staffId;
                         if (userProfile.department) document.getElementById('department').value = userProfile.department;
                     }
-                    // Fetch trainings after user is confirmed
-                    loadTrainings();
+                    // Load today's trainings
+                    await loadTodaysTrainings();
                 } catch (error) {
                     console.error('Error loading user data:', error);
+                    document.getElementById('debugMessage').textContent = `User data error: ${error.message}`;
+                    document.getElementById('debugInfo').style.display = 'block';
                 }
             } else {
                 window.location.replace("login_pg.html"); 
             }
         });
 
-        // 2. Fetch trainings from database to populate dropdown
-        async function loadTrainings() {
+        // 2. Fetch ONLY today's trainings
+        async function loadTodaysTrainings() {
             const selectElement = document.getElementById('trainingName');
+            const dateField = document.getElementById('trainingDate');
+            const debugMsg = document.getElementById('debugMessage');
+            
             try {
-                // Get all trainings sorted by date
-                const q = query(collection(db, 'trainings'), orderBy("dateString", "asc"));
+                // Get today's date in YYYY-MM-DD format
+                const today = new Date();
+                const todayString = today.getFullYear() + '-' + 
+                                  String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                                  String(today.getDate()).padStart(2, '0');
+                
+                debugMsg.textContent = `Today's date: ${todayString}`;
+                document.getElementById('debugInfo').style.display = 'block';
+                
+                // Set the date field to today
+                dateField.value = todayString;
+
+                // First, let's try to get ALL trainings to see what's in the database
+                const allTrainingsQuery = query(collection(db, 'trainings'), orderBy("dateString", "asc"));
+                const allSnap = await getDocs(allTrainingsQuery);
+                
+                let allTrainingsList = [];
+                allSnap.forEach(doc => {
+                    allTrainingsList.push({ id: doc.id, ...doc.data() });
+                });
+                
+                debugMsg.textContent += ` | Total trainings in DB: ${allTrainingsList.length}`;
+                
+                // Show all trainings in debug
+                if (allTrainingsList.length > 0) {
+                    const dates = allTrainingsList.map(t => t.dateString).join(', ');
+                    debugMsg.textContent += ` | Dates found: ${dates}`;
+                } else {
+                    debugMsg.textContent += ` | No trainings found in database at all!`;
+                }
+
+                // Now query specifically for today's trainings
+                const q = query(
+                    collection(db, 'trainings'), 
+                    where("dateString", "==", todayString),
+                    orderBy("startTime", "asc")
+                );
                 const snap = await getDocs(q);
                 
-                selectElement.innerHTML = '<option value="">Select a session...</option>';
+                selectElement.innerHTML = '';
                 
                 if (snap.empty) {
-                    selectElement.innerHTML = '<option value="">No training sessions available</option>';
+                    selectElement.innerHTML = '<option value="">No training sessions available today</option>';
+                    // Show a message to the user
+                    const infoMsg = document.getElementById('infoMsg');
+                    infoMsg.textContent = `ℹ️ No training sessions scheduled for today (${todayString}). Please check the calendar for upcoming sessions.`;
+                    infoMsg.style.display = 'block';
+                    document.getElementById('submitBtn').disabled = true;
+                    
+                    debugMsg.textContent += ` | No trainings found for today`;
                     return;
                 }
 
-                // Add each training as an option
+                // Store trainings for later use
+                todaysTrainings = [];
                 snap.forEach(doc => {
                     const t = doc.data();
-                    const niceDate = new Date(t.dateString).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                    // Store the raw date and name inside the option as data attributes so we can grab them later
-                    selectElement.innerHTML += `<option value="${doc.id}" data-name="${t.name}" data-date="${t.dateString}">${t.name} (${niceDate})</option>`;
+                    const trainingData = { id: doc.id, ...t };
+                    todaysTrainings.push(trainingData);
+                    
+                    const timeDisplay = t.startTime && t.endTime ? `${t.startTime} - ${t.endTime}` : 'TBD';
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.setAttribute('data-date', t.dateString);
+                    option.textContent = `${t.name} (${timeDisplay})`;
+                    selectElement.appendChild(option);
                 });
+
+                debugMsg.textContent += ` | Found ${todaysTrainings.length} training(s) for today`;
+                
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('infoMsg').style.display = 'none';
+
             } catch (error) {
                 console.error("Error loading trainings:", error);
-                selectElement.innerHTML = '<option value="">Error loading schedules</option>';
+                selectElement.innerHTML = '<option value="">Error loading sessions</option>';
+                
+                const errorMsg = document.getElementById('errorMsg');
+                errorMsg.textContent = `Failed to load trainings: ${error.message}`;
+                errorMsg.style.display = 'block';
+                
+                debugMsg.textContent += ` | ERROR: ${error.message}`;
+                document.getElementById('debugInfo').style.display = 'block';
             }
         }
 
-        // 3. Auto-fill the Date field when a Training is selected
-        document.getElementById('trainingName').addEventListener('change', function(e) {
-            const selectedOption = e.target.options[e.target.selectedIndex];
-            const dateField = document.getElementById('trainingDate');
-            
-            if (selectedOption.value) {
-                // Grab the date from the data attribute and put it in the locked date box
-                dateField.value = selectedOption.getAttribute('data-date');
-            } else {
-                dateField.value = "";
-            }
-        });
-
-        // 4. Handle Submission
+        // 3. Handle Submission
         document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
             const successMsg = document.getElementById('successMsg');
             const errorMsg = document.getElementById('errorMsg');
+            const infoMsg = document.getElementById('infoMsg');
             
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Database...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
+            infoMsg.style.display = 'none';
 
             try {
                 const selectElement = document.getElementById('trainingName');
                 const selectedOption = selectElement.options[selectElement.selectedIndex];
                 
+                if (!selectedOption.value) {
+                    throw new Error("Please select a valid training session.");
+                }
+                
                 const trainingId = selectedOption.value;
-                const trainingName = selectedOption.getAttribute('data-name');
                 const trainingDate = document.getElementById('trainingDate').value;
+                
+                // Find the selected training data
+                const selectedTraining = todaysTrainings.find(t => t.id === trainingId);
+                if (!selectedTraining) {
+                    throw new Error("Training session not found. Please refresh and try again.");
+                }
 
-                // --- SECURITY CHECK: Enforce the 1 Session Per Day Rule ---
+                // --- SECURITY CHECK: Prevent duplicate check-ins ---
                 const qCheck = query(
                     collection(db, 'training_attendance'), 
                     where("userId", "==", currentUser.uid),
-                    where("trainingDate", "==", trainingDate)
+                    where("trainingId", "==", trainingId)
                 );
                 const snapCheck = await getDocs(qCheck);
 
                 if (!snapCheck.empty) {
-                    // Check if they are trying to join the exact same training, or a different one on the same day
-                    const existingRecord = snapCheck.docs[0].data();
-                    if (existingRecord.trainingId === trainingId) {
-                        throw new Error("You have already checked in for this specific training session.");
-                    } else {
-                        throw new Error("You have already joined a different training on this date. Maximum 1 session per day.");
-                    }
+                    throw new Error("You have already checked in for this training session.");
                 }
-                // --- END SECURITY CHECK ---
+
+                // --- SECURITY CHECK: Check capacity ---
+                const qCapacity = query(
+                    collection(db, 'training_attendance'),
+                    where("trainingId", "==", trainingId)
+                );
+                const snapCapacity = await getDocs(qCapacity);
+                const currentAttendees = snapCapacity.size;
+                const maxSeats = parseInt(selectedTraining.seatLimit) || 0;
+
+                if (maxSeats > 0 && currentAttendees >= maxSeats) {
+                    throw new Error(`This training session is full. (${maxSeats}/${maxSeats} capacity)`);
+                }
 
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recording...';
 
                 const formData = {
-                    type: "TrainingAttendance",
-                    trainingId: trainingId,
-                    trainingName: trainingName,
-                    trainingDate: trainingDate,
-                    fullName: document.getElementById('fullName').value,
-                    staffId: document.getElementById('staffId').value,
-                    department: document.getElementById('department').value,
-                    userId: currentUser.uid,
-                    submittedDate: new Date().toLocaleString()
-                };
+    type: "TrainingAttendance",
+    trainingId: trainingId,
+    trainingName: selectedTraining.name,
+    trainingDate: trainingDate,
+    startTime: selectedTraining.startTime || 'TBD',
+    endTime: selectedTraining.endTime || 'TBD',
+    durationMinutes: selectedTraining.durationMinutes || 0, // Store duration
+    location: selectedTraining.where || selectedTraining.location || '', // Store location
+    category: selectedTraining.category || '', // Store category
+    fullName: document.getElementById('fullName').value,
+    staffId: document.getElementById('staffId').value,
+    department: document.getElementById('department').value,
+    userId: currentUser.uid,
+    submittedDate: new Date().toLocaleString()
+};
 
                 // Save to Firebase
                 const docRef = await addDoc(collection(db, 'training_attendance'), {
@@ -245,18 +326,9 @@
                     timestamp: serverTimestamp()
                 });
 
-                //IF U WANT TO UPDATE AND HAVE A SHEETS THEN UNCOMMENT THIS AND PUT UR URL (MAKE SURE TO UNCOMMENT THE TOP ONE ALSO)
-                // Send to Google Sheets
-                // if(!GOOGLE_SCRIPT_URL.includes("YOUR_NEW_WEBHOOK")) {
-                //     await fetch(GOOGLE_SCRIPT_URL, {
-                //         method: "POST",
-                //         mode: "no-cors",
-                //         headers: { "Content-Type": "text/plain;charset=utf-8" },
-                //         body: JSON.stringify({...formData, docId: docRef.id})
-                //     });
-                // }
-
                 successMsg.style.display = 'block';
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Checked In!';
+                
                 setTimeout(() => {
                     window.location.href = 'home.html';
                 }, 2000);
