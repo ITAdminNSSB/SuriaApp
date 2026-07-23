@@ -13,8 +13,11 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 .nav-left { display: flex; align-items: center; gap: 15px; }
 .back-button { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 5px 10px; transition: all 0.3s ease; }
 .nav-title { color: white; font-size: 1.1rem; font-weight: 600; }
+.nav-right { display: flex; gap: 10px; align-items: center; }
 .edit-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
 .edit-btn:hover { background: rgba(255,255,255,0.2); }
+.edit-btn.records-btn { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); }
+.edit-btn.records-btn:hover { background: rgba(16, 185, 129, 0.35); }
 .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
 .calendar-wrapper { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 20px; overflow-x: auto; }
 .calendar-inner { min-width: 900px; }
@@ -30,11 +33,13 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 .day-number { align-self: center; font-weight: 700; color: #334155; margin-bottom: 10px; font-size: 1.1rem; }
 .event-card {background: #f8fafc;border-left: 4px solid #3b82f6;padding: 10px;border-radius: 8px;width: 100%;margin-bottom: 8px;box-shadow: 0 2px 4px rgba(0,0,0,0.02);animation: fadeIn 0.3s ease;}
 .event-title { font-weight: 700; color: #1e293b; font-size: 0.85rem; margin-bottom: 6px; line-height: 1.3; }
+.event-category { font-size: 0.7rem; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+.event-category i { font-size: 0.6rem; }
 .btn-mini-view {width: 100%;padding: 8px;border-radius: 6px;font-weight: 600;font-size: 0.8rem;cursor: pointer;border: none;display: flex;align-items: center;justify-content: center;gap: 5px;margin-top: 10px;transition: all 0.2s;background: #3b82f6; color: white;}
 .btn-mini-view:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(59,130,246,0.2); }
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); padding: 20px;}
 .modal-overlay.active { display: flex; }
-.modal-content { background: white; width: 100%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease;}
+.modal-content { background: white; width: 100%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease; max-height: 90vh; overflow-y: auto; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
 .modal-header h3 { color: #1a1d3a; font-size: 1.3rem; }
 .close-modal { background: none; border: none; font-size: 1.5rem; color: #94a3b8; cursor: pointer; transition: color 0.2s; }
@@ -43,17 +48,26 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 .details-body p i { width: 20px; text-align: center; color: #3b82f6; font-size: 1.1rem;}
 .btn-back { flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; color: #475569; cursor: pointer; font-weight: 700; transition: all 0.2s; }
 .btn-back:hover { background: #f1f5f9; border-color: #cbd5e0; }
-.btn-join { background: #10b981; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-.btn-join:hover { background: #059669; transform: translateY(-2px); }
 .btn-joined { background: #e2e8f0; color: #10b981; cursor: not-allowed; border: 1px solid #cbd5e0; }
 .btn-conflict { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; border: 1px dashed #cbd5e0; }
 .modal-action-btn { width: 100%; height: 100%; border-radius: 8px; font-weight: 700; padding: 12px; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; font-weight: 600; color: #334155; margin-bottom: 8px; font-size: 0.9rem; }
-.form-group input { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 1rem; transition: all 0.2s; }
-.form-group input:focus { outline: none; border-color: #1a1d3a; }
+.form-group input, .form-group select { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 1rem; transition: all 0.2s; background: white; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #1a1d3a; }
+.form-group .checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+.form-group .checkbox-group label { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 0.9rem; cursor: pointer; color: #334155; }
+.form-group .checkbox-group input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
 .btn-save { width: 100%; background: #1a1d3a; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
 .btn-save:hover { background: #2a2e5a; }
+.hidden { display: none; }
+.sub-category-section { 
+    background: #f8fafc; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-top: 5px;
+    border-left: 3px solid #3b82f6;
+}
 @media (max-width: 768px) {
 .calendar-inner { min-width: 100%; }
 .calendar-wrapper { padding: 10px; }
@@ -63,9 +77,16 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 .day-number { font-size: 0.85rem; margin-bottom: 4px; }
 .event-card { padding: 5px; border-left-width: 3px; }
 .event-title { font-size: 0.65rem; line-height: 1.1; margin-bottom: 4px; }
+.event-category { font-size: 0.55rem; }
 .event-detail { font-size: 0.6rem; }
 .btn-mini-view { font-size: 0.65rem; padding: 4px; margin-top: 5px; }
-.btn-mini-view i { font-size: 0.65rem; }}
+.btn-mini-view i { font-size: 0.65rem; }
+.modal-content { padding: 20px; }
+.form-group .checkbox-group { gap: 10px; }
+.nav-right { gap: 5px; }
+.edit-btn { font-size: 0.7rem; padding: 5px 10px; }
+.edit-btn i { font-size: 0.8rem; }
+}
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -76,7 +97,14 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
             <button class="back-button" onclick="window.location.href='home.html'"><i class="fas fa-arrow-left"></i></button>
             <div class="nav-title">Training Calendar</div>
         </div>
-        <button class="edit-btn" onclick="openPasswordModal()"><i class="fas fa-pen"></i> Add Training</button>
+        <div class="nav-right">
+            <button class="edit-btn records-btn" onclick="openRecordsModal()">
+                <i class="fas fa-chart-bar"></i> View Records
+            </button>
+            <button class="edit-btn" onclick="openAddTrainingModal()">
+                <i class="fas fa-pen"></i> Add Training
+            </button>
+        </div>
     </div>
 
     <div class="container">
@@ -110,7 +138,7 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                 <label>Please enter the admin password:</label>
                 <input type="password" id="adminPasswordInput" placeholder="Enter password...">
             </div>
-            <button class="btn-save" onclick="checkPassword()">Verify</button>
+            <button class="btn-save" id="passwordVerifyBtn" onclick="handlePasswordVerification()">Verify</button>
         </div>
     </div>
 
@@ -121,16 +149,18 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                 <button class="close-modal" onclick="closeDetailsModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="details-body">
-                <h4 id="detailName" style="font-size: 1.3rem; color: #1e293b; margin-bottom: 20px; line-height: 1.3;"></h4>
+                <h4 id="detailName" style="font-size: 1.3rem; color: #1e293b; margin-bottom: 10px; line-height: 1.3;"></h4>
+                <p><strong><i class="fas fa-tag"></i> Category:</strong> <span id="detailCategory"></span></p>
                 <p><strong><i class="far fa-calendar-alt"></i> Date:</strong> <span id="detailDate"></span></p>
                 <p><strong><i class="far fa-clock"></i> Time:</strong> <span id="detailTime"></span></p>
+                <p><strong><i class="fas fa-hourglass-half"></i> Duration:</strong> <span id="detailDuration"></span></p>
                 <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> <span id="detailWhere"></span></p>
                 <p><strong><i class="fas fa-user-tie"></i> PIC:</strong> <span id="detailPic"></span></p>
-                <p><strong><i class="fas fa-users"></i> Available Slots:</strong> <span id="detailSeats"></span></p>
+                <p><strong><i class="fas fa-users"></i> Capacity:</strong> <span id="detailSeats"></span></p>
             </div>
             <div style="display: flex; gap: 15px; margin-top: 30px;">
                 <button class="btn-back" onclick="closeDetailsModal()"><i class="fas fa-arrow-left"></i> Back</button>
-                <div id="detailJoinContainer" style="flex: 1;"></div>
+                <div id="detailStatusContainer" style="flex: 1;"></div>
             </div>
         </div>
     </div>
@@ -146,13 +176,61 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                     <label>Training Name</label>
                     <input type="text" id="tName" required placeholder="e.g. Fire Safety Refresher">
                 </div>
+                
+                <!-- Category Selection -->
+                <div class="form-group">
+                    <label>Category <span class="required" style="color: #e53e3e;">*</span></label>
+                    <select id="tCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="Internal">Internal</option>
+                        <option value="External">External</option>
+                        <option value="Supplier's Program (Perodua)">Supplier's Program (Perodua)</option>
+                    </select>
+                </div>
+
+                <!-- Sub-category for Internal -->
+                <div id="internalSubCategory" class="sub-category-section hidden">
+                    <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 8px; font-size: 0.9rem;">Internal Type:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="radio" name="internalType" value="Upskill Thursday"> Upskill Thursday
+                        </label>
+                        <label>
+                            <input type="radio" name="internalType" value="OJT"> OJT
+                        </label>
+                        <label>
+                            <input type="radio" name="internalType" value="Inhouse-Internal Trainer"> Inhouse-Internal Trainer
+                        </label>
+                        <label>
+                            <input type="radio" name="internalType" value="Seminar"> Seminar
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sub-category for External -->
+                <div id="externalSubCategory" class="sub-category-section hidden">
+                    <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 8px; font-size: 0.9rem;">External Type:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="radio" name="externalType" value="Inhouse External Trainer"> Inhouse External Trainer
+                        </label>
+                        <label>
+                            <input type="radio" name="externalType" value="External Premise"> External Premise
+                        </label>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Date</label>
                     <input type="date" id="tDate" required>
                 </div>
                 <div class="form-group">
-                    <label>Time</label>
-                    <input type="time" id="tTime" required>
+                    <label>Start Time</label>
+                    <input type="time" id="tStartTime" required>
+                </div>
+                <div class="form-group">
+                    <label>End Time</label>
+                    <input type="time" id="tEndTime" required>
                 </div>
                 <div class="form-group">
                     <label>Location (Where)</label>
@@ -176,16 +254,12 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
         import { collection, addDoc, getDocs, query, orderBy, where, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-        //If u want to use appscript just update the link, dont forget to put in the bottom as well
-        // IMPORTANT: Webhook URL for Google Sheets
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_NEW_WEBHOOK_URL_HERE/exec';
-
         let currentDate = new Date();
         let eventsData = [];
-        let userAttendances = [];
-        
+        let attendanceData = [];
         let currentUser = null;
         let userProfile = { fullName: '', staffId: '', department: '' };
+        let passwordAction = 'add'; // 'add' or 'records'
 
         // 1. Auth & User Data Load
         onAuthStateChanged(auth, async (user) => {
@@ -209,97 +283,219 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
         });
 
         // 2. Modal Controls
-        window.openPasswordModal = function() {
+        // Open password modal for Add Training
+        window.openAddTrainingModal = function() {
+            passwordAction = 'add';
             document.getElementById('adminPasswordInput').value = ''; 
             document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('adminPasswordInput').focus();
+        };
+
+        // Open password modal for View Records
+        window.openRecordsModal = function() {
+            passwordAction = 'records';
+            document.getElementById('adminPasswordInput').value = ''; 
+            document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('adminPasswordInput').focus();
         };
 
         window.closePasswordModal = function() {
             document.getElementById('passwordModal').classList.remove('active');
         };
 
-        window.checkPassword = function() {
+        window.handlePasswordVerification = function() {
             const pwd = document.getElementById('adminPasswordInput').value;
             if (pwd === "suriaadmin") {
                 closePasswordModal();
-                document.getElementById('adminModal').classList.add('active');
+                if (passwordAction === 'records') {
+                    // Redirect to records page
+                    window.location.href = 'training_record.html';
+                } else {
+                    // Open admin form for adding training
+                    document.getElementById('adminModal').classList.add('active');
+                    resetCategoryFields();
+                }
             } else {
                 alert("Incorrect password.");
+                document.getElementById('adminPasswordInput').value = '';
+                document.getElementById('adminPasswordInput').focus();
             }
         };
 
         document.getElementById('adminPasswordInput').addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                checkPassword();
+                handlePasswordVerification();
             }
         });
 
         window.closeAdminModal = function() {
             document.getElementById('adminModal').classList.remove('active');
             document.getElementById('addTrainingForm').reset();
+            resetCategoryFields();
         };
 
         window.closeDetailsModal = function() {
             document.getElementById('detailsModal').classList.remove('active');
         };
 
-        // NEW: Changed to async to fetch live seat data
-        window.openDetailsModal = async function(id, name, dateStr, timeStr, location, pic, seatLimit) {
+        // 3. Category Dropdown Logic
+        function resetCategoryFields() {
+            document.getElementById('internalSubCategory').classList.add('hidden');
+            document.getElementById('externalSubCategory').classList.add('hidden');
+            // Uncheck all radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+        }
+
+        document.getElementById('tCategory').addEventListener('change', function() {
+            const selected = this.value;
+            resetCategoryFields();
+            
+            if (selected === 'Internal') {
+                document.getElementById('internalSubCategory').classList.remove('hidden');
+            } else if (selected === 'External') {
+                document.getElementById('externalSubCategory').classList.remove('hidden');
+            }
+            // Perodua: No sub-category shown
+        });
+
+        // 4. Get Category Value
+        function getCategoryValue() {
+            const category = document.getElementById('tCategory').value;
+            
+            if (category === "Supplier's Program (Perodua)") {
+                return 'Supplier\'s Program (Perodua)';
+            } else if (category === 'Internal') {
+                const selected = document.querySelector('input[name="internalType"]:checked');
+                return selected ? `Internal (${selected.value})` : '';
+            } else if (category === 'External') {
+                const selected = document.querySelector('input[name="externalType"]:checked');
+                return selected ? `External (${selected.value})` : '';
+            }
+            return '';
+        }
+
+        // 5. Validate Category Selection
+        function validateCategory() {
+            const category = document.getElementById('tCategory').value;
+            
+            if (!category) {
+                alert('Please select a category.');
+                return false;
+            }
+            
+            if (category === 'Internal') {
+                const selected = document.querySelector('input[name="internalType"]:checked');
+                if (!selected) {
+                    alert('Please select an Internal type.');
+                    return false;
+                }
+            } else if (category === 'External') {
+                const selected = document.querySelector('input[name="externalType"]:checked');
+                if (!selected) {
+                    alert('Please select an External type.');
+                    return false;
+                }
+            }
+            // Perodua: No sub-category needed
+            return true;
+        }
+
+        // 6. Calculate Duration in Minutes (for reporting)
+        function calculateDurationInMinutes(startTime, endTime) {
+            if (!startTime || !endTime) return 0;
+            const start = new Date(`2000-01-01T${startTime}`);
+            const end = new Date(`2000-01-01T${endTime}`);
+            const diffMs = end - start;
+            return Math.max(0, diffMs / (1000 * 60)); // Return minutes
+        }
+
+        // 7. Format Duration for Display
+        function formatDuration(startTime, endTime) {
+            if (!startTime || !endTime) return 'N/A';
+            const start = new Date(`2000-01-01T${startTime}`);
+            const end = new Date(`2000-01-01T${endTime}`);
+            const diffMs = end - start;
+            
+            if (diffMs <= 0) return 'N/A';
+            
+            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            let parts = [];
+            if (diffHrs > 0) parts.push(`${diffHrs}h`);
+            if (diffMins > 0) parts.push(`${diffMins}m`);
+            if (parts.length === 0) return '0m';
+            
+            return parts.join(' ');
+        }
+
+        // 8. Open Details Modal
+        window.openDetailsModal = async function(id, name, dateStr, startTime, endTime, location, pic, seatLimit, category) {
             document.getElementById('detailName').innerText = name;
+            
+            // Category
+            document.getElementById('detailCategory').innerText = category || 'Not specified';
+            
             const niceDate = new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             document.getElementById('detailDate').innerText = niceDate;
-            document.getElementById('detailTime').innerText = timeStr;
+            
+            // Display start and end time
+            const timeDisplay = `${startTime} - ${endTime}`;
+            document.getElementById('detailTime').innerText = timeDisplay;
+            
+            // Calculate and display duration
+            document.getElementById('detailDuration').innerText = formatDuration(startTime, endTime);
+            
             document.getElementById('detailWhere').innerText = location;
             document.getElementById('detailPic').innerText = pic;
 
-            // Show loading states immediately
+            // Show loading for capacity
             document.getElementById('detailSeats').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-            const joinContainer = document.getElementById('detailJoinContainer');
-            joinContainer.innerHTML = `<button class="modal-action-btn" disabled><i class="fas fa-spinner fa-spin"></i> Loading...</button>`;
+            const statusContainer = document.getElementById('detailStatusContainer');
+            statusContainer.innerHTML = `<button class="modal-action-btn" disabled><i class="fas fa-spinner fa-spin"></i> Loading...</button>`;
 
             document.getElementById('detailsModal').classList.add('active');
 
             try {
-                // Fetch the live registration count for this specific training
-                const qReg = query(collection(db, 'training_registrations'), where("trainingId", "==", id));
-                const snapReg = await getDocs(qReg);
-                const currentRegistrations = snapReg.size;
+                // Count attendance for this specific training
+                const qAtt = query(collection(db, 'training_attendance'), where("trainingId", "==", id));
+                const snapAtt = await getDocs(qAtt);
+                const currentAttendees = snapAtt.size;
                 
-                // Fallback to 0 if a very old training record doesn't have a limit saved
-                const maxSeats = parseInt(seatLimit) || 0; 
-                const availableSlots = maxSeats > 0 ? (maxSeats - currentRegistrations) : 0;
+                const maxSeats = parseInt(seatLimit) || 0;
+                const availableSlots = maxSeats > 0 ? (maxSeats - currentAttendees) : 0;
 
-                // Update the UI text for available slots
+                // Update capacity display
                 if (maxSeats > 0) {
-                    const color = availableSlots > 0 ? '#10b981' : '#ef4444'; // Green if open, Red if full
-                    document.getElementById('detailSeats').innerHTML = `<span style="color: ${color}; font-weight: bold;">${availableSlots}</span> / ${maxSeats}`;
+                    const color = availableSlots > 0 ? '#10b981' : '#ef4444';
+                    document.getElementById('detailSeats').innerHTML = `<span style="color: ${color}; font-weight: bold;">${currentAttendees}</span> / ${maxSeats} (${availableSlots} slots available)`;
                 } else {
-                    document.getElementById('detailSeats').innerText = "Unlimited";
+                    document.getElementById('detailSeats').innerText = `${currentAttendees} attendees (Unlimited capacity)`;
                 }
 
-                // Determine user status
-                const hasJoinedThisExactTraining = userAttendances.some(a => a.trainingId === id);
-                const hasJoinedAnyTrainingOnThisDate = userAttendances.some(a => a.trainingDate === dateStr);
+                // Check if user has already checked in
+                const hasCheckedIn = attendanceData.some(a => a.trainingId === id);
                 
-                if (hasJoinedThisExactTraining) {
-                    joinContainer.innerHTML = `<button class="modal-action-btn btn-joined" disabled><i class="fas fa-check-circle"></i> Joined</button>`;
-                } else if (hasJoinedAnyTrainingOnThisDate) {
-                    joinContainer.innerHTML = `<button class="modal-action-btn btn-conflict" disabled><i class="fas fa-ban"></i> Max 1/Day</button>`;
-                } else if (maxSeats > 0 && availableSlots <= 0) {
-                    // NEW: Lock the button if it is full
-                    joinContainer.innerHTML = `<button class="modal-action-btn btn-conflict" disabled><i class="fas fa-times-circle"></i> Session Full</button>`;
+                if (hasCheckedIn) {
+                    statusContainer.innerHTML = `<button class="modal-action-btn btn-joined" disabled><i class="fas fa-check-circle"></i> ✅ Checked In</button>`;
+                } else if (maxSeats > 0 && currentAttendees >= maxSeats) {
+                    statusContainer.innerHTML = `<button class="modal-action-btn btn-conflict" disabled><i class="fas fa-times-circle"></i> Session Full</button>`;
                 } else {
-                    joinContainer.innerHTML = `<button class="modal-action-btn btn-join" id="modal-join-btn" onclick="joinTraining('${id}', '${name.replace(/'/g, "\\'")}', '${dateStr}', ${seatLimit || 0})"><i class="fas fa-sign-in-alt"></i> Join</button>`;
+                    statusContainer.innerHTML = `
+                        <button class="modal-action-btn btn-conflict" disabled style="background: #f1f5f9; color: #64748b;">
+                            <i class="fas fa-info-circle"></i> Please check in via Attendance page
+                        </button>
+                    `;
                 }
             } catch (error) {
-                console.error("Error fetching live seats:", error);
+                console.error("Error fetching attendance:", error);
                 document.getElementById('detailSeats').innerText = "Error loading";
-                joinContainer.innerHTML = `<button class="modal-action-btn btn-conflict" disabled>Error</button>`;
+                statusContainer.innerHTML = `<button class="modal-action-btn btn-conflict" disabled>Error loading status</button>`;
             }
         };
 
-        // 3. Fetch Core Data (Trainings + User's Joined History)
+        // 9. Fetch Core Data
         async function fetchTrainingsAndAttendance() {
             try {
                 const qTrainings = query(collection(db, 'trainings'), orderBy("dateString", "asc"));
@@ -307,10 +503,12 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                 eventsData = [];
                 snapTrainings.forEach(doc => eventsData.push({ id: doc.id, ...doc.data() }));
                 
-                const qAttendance = query(collection(db, 'training_registrations'), where("userId", "==", currentUser.uid));
-                const snapAttendance = await getDocs(qAttendance);
-                userAttendances = [];
-                snapAttendance.forEach(doc => userAttendances.push(doc.data()));
+                if (currentUser) {
+                    const qAttendance = query(collection(db, 'training_attendance'), where("userId", "==", currentUser.uid));
+                    const snapAttendance = await getDocs(qAttendance);
+                    attendanceData = [];
+                    snapAttendance.forEach(doc => attendanceData.push(doc.data()));
+                }
 
                 renderCalendar();
             } catch (error) {
@@ -319,169 +517,124 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
             }
         }
 
-        // 4. Render Full Calendar
-        window.renderCalendar = function() {
-            currentDate.setDate(1);
-            const monthDays = document.getElementById("calendarDays");
-            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-            const firstDayIndex = currentDate.getDay();
-            
-            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const currentMonthName = months[currentDate.getMonth()];
-            const currentYearNum = currentDate.getFullYear();
-            
-            document.getElementById("monthDisplay").innerText = `${currentMonthName} ${currentYearNum}`;
-            
-            let days = "";
-            let currentMonthEvents = [];
+// 10. Render Calendar
+window.renderCalendar = function() {
+    currentDate.setDate(1);
+    const monthDays = document.getElementById("calendarDays");
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    const firstDayIndex = currentDate.getDay();
+    
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonthName = months[currentDate.getMonth()];
+    const currentYearNum = currentDate.getFullYear();
+    
+    document.getElementById("monthDisplay").innerText = `${currentMonthName} ${currentYearNum}`;
+    
+    let days = "";
+    let currentMonthEvents = [];
 
-            const activeMonthFormat = `${currentYearNum}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    const activeMonthFormat = `${currentYearNum}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
-            eventsData.forEach(event => {
-                if (event.dateString && event.dateString.startsWith(activeMonthFormat)) {
-                    currentMonthEvents.push(event);
-                }
+    eventsData.forEach(event => {
+        if (event.dateString && event.dateString.startsWith(activeMonthFormat)) {
+            currentMonthEvents.push(event);
+        }
+    });
+
+    for (let x = firstDayIndex; x > 0; x--) {
+        days += `<div class="day empty"></div>`;
+    }
+
+    for (let i = 1; i <= lastDay; i++) {
+        const isToday = i === new Date().getDate() && currentDate.getMonth() === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear();
+        const dayStringStr = `${activeMonthFormat}-${String(i).padStart(2, '0')}`;
+        const daysEvents = currentMonthEvents.filter(e => e.dateString === dayStringStr);
+
+        let classNames = "day";
+        if (isToday) classNames += " today";
+
+        let cellContent = `<div class="day-number">${i}</div>`;
+
+        if (daysEvents.length > 0) {
+            daysEvents.forEach(evt => {
+                const timeDisplay = evt.startTime && evt.endTime ? `${evt.startTime} - ${evt.endTime}` : 'TBD';
+                const categoryDisplay = evt.category ? `<div class="event-category"><i class="fas fa-tag"></i> ${evt.category}</div>` : '';
+                
+                // Escape any special characters in the event data for safe HTML embedding
+                const safeName = evt.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeWhere = (evt.where || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safePic = (evt.pic || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeCategory = (evt.category || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                cellContent += `
+                    <div class="event-card">
+                        ${categoryDisplay}
+                        <div class="event-title">${evt.name}</div>
+                        <div class="event-detail" style="margin-bottom: 8px;"><i class="far fa-clock"></i> ${timeDisplay}</div>
+                        <button class="btn-mini-view" onclick="openDetailsModal('${evt.id}', '${safeName}', '${evt.dateString}', '${evt.startTime || 'TBD'}', '${evt.endTime || 'TBD'}', '${safeWhere}', '${safePic}', ${evt.seatLimit || 0}, '${safeCategory}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </div>
+                `;
             });
+        }
 
-            for (let x = firstDayIndex; x > 0; x--) {
-                days += `<div class="day empty"></div>`;
-            }
-
-            for (let i = 1; i <= lastDay; i++) {
-                const isToday = i === new Date().getDate() && currentDate.getMonth() === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear();
-                const dayStringStr = `${activeMonthFormat}-${String(i).padStart(2, '0')}`;
-                const daysEvents = currentMonthEvents.filter(e => e.dateString === dayStringStr);
-
-                let classNames = "day";
-                if (isToday) classNames += " today";
-
-                let cellContent = `<div class="day-number">${i}</div>`;
-
-                if (daysEvents.length > 0) {
-                    daysEvents.forEach(evt => {
-                        // NEW: Added evt.seatLimit to the onclick parameters
-                        cellContent += `
-                            <div class="event-card">
-                                <div class="event-title">${evt.name}</div>
-                                <div class="event-detail" style="margin-bottom: 8px;"><i class="far fa-clock"></i> ${evt.timeString || 'TBD'}</div>
-                                <button class="btn-mini-view" onclick="openDetailsModal('${evt.id}', '${evt.name.replace(/'/g, "\\'")}', '${evt.dateString}', '${evt.timeString || 'TBD'}', '${evt.where.replace(/'/g, "\\'")}', '${evt.pic.replace(/'/g, "\\'")}', ${evt.seatLimit || 0})">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                            </div>
-                        `;
-                    });
-                }
-
-                days += `<div class="${classNames}">${cellContent}</div>`;
-            }
-            monthDays.innerHTML = days;
-        };
+        days += `<div class="${classNames}">${cellContent}</div>`;
+    }
+    monthDays.innerHTML = days;
+};
 
         window.changeMonth = function(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
             renderCalendar();
         };
 
-        // 5. User Clicking "Join" Logic (Fired from inside the Modal)
-        // NEW: Added seatLimit parameter
-        window.joinTraining = async function(trainingId, trainingName, trainingDate, seatLimit) {
-            const btn = document.getElementById('modal-join-btn');
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking Seats...`;
-            btn.disabled = true;
-
-            try {
-                // --- THE LAST SECOND RACE-CONDITION CHECK ---
-                const maxSeats = parseInt(seatLimit) || 0;
-                
-                if (maxSeats > 0) {
-                    // Do a lightning-fast count of the database right now
-                    const qReg = query(collection(db, 'training_registrations'), where("trainingId", "==", trainingId));
-                    const snapReg = await getDocs(qReg);
-                    
-                    if (snapReg.size >= maxSeats) {
-                        // If it is full, abort everything!
-                        alert("We're sorry! Someone just took the very last seat a second ago.");
-                        closeDetailsModal();
-                        renderCalendar(); // Refresh the calendar so they see it is now full
-                        return; // This stops the code from running the save process below
-                    }
-                }
-                // --------------------------------------------
-
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Joining...`;
-
-                const formData = {
-                    type: "TrainingRegistration",
-                    trainingId: trainingId,
-                    trainingName: trainingName,
-                    trainingDate: trainingDate,
-                    userId: currentUser.uid,
-                    fullName: userProfile.fullName,
-                    staffId: userProfile.staffId,
-                    department: userProfile.department,
-                    submittedDate: new Date().toLocaleString()
-                };
-
-                const docRef = await addDoc(collection(db, 'training_registrations'), {
-                    ...formData,
-                    timestamp: serverTimestamp()
-                });
-
-                userAttendances.push({
-                    trainingId: trainingId,
-                    trainingDate: trainingDate
-                });
-
-                //if u want to use appscript as well just put the link inside it, dont forget to put in the top as well
-                if(!GOOGLE_SCRIPT_URL.includes("YOUR_NEW_WEBHOOK")) {
-                    fetch(GOOGLE_SCRIPT_URL, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({...formData, docId: docRef.id})
-                    }).catch(err => console.error("Sheets error:", err));
-                }
-
-                btn.innerHTML = `<i class="fas fa-check-circle"></i> Success!`;
-                btn.className = "modal-action-btn btn-joined";
-                
-                setTimeout(() => {
-                    closeDetailsModal();
-                    renderCalendar(); 
-                }, 1500);
-
-            } catch (error) {
-                console.error("Error joining training:", error);
-                alert("Failed to join training. Please check your connection.");
-                btn.innerHTML = originalHtml;
-                btn.disabled = false;
-            }
-        };
-
-        // 6. Admin Add New Training Form
+        // 11. Admin Add New Training Form
         document.getElementById('addTrainingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Validate category first
+            if (!validateCategory()) {
+                return;
+            }
+            
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.disabled = true;
             saveBtn.textContent = 'Saving...';
 
             try {
-                // NEW: Added seatLimit parameter grabbed from the HTML input
+                const startTime = document.getElementById('tStartTime').value;
+                const endTime = document.getElementById('tEndTime').value;
+                const category = getCategoryValue();
+
+                // Validate that end time is after start time
+                if (startTime && endTime && startTime >= endTime) {
+                    alert('End time must be after start time!');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save Training';
+                    return;
+                }
+
+                // Calculate duration in minutes for reporting
+                const durationMinutes = calculateDurationInMinutes(startTime, endTime);
+
                 const newEvent = {
                     name: document.getElementById('tName').value.trim(),
+                    category: category,
                     dateString: document.getElementById('tDate').value,
-                    timeString: document.getElementById('tTime').value,
+                    startTime: startTime,
+                    endTime: endTime,
+                    durationMinutes: durationMinutes, // For reporting
                     where: document.getElementById('tWhere').value.trim(),
                     pic: document.getElementById('tPic').value.trim(),
-                    seatLimit: parseInt(document.getElementById('tSeats').value), 
+                    seatLimit: parseInt(document.getElementById('tSeats').value),
                     createdAt: serverTimestamp()
                 };
 
                 await addDoc(collection(db, 'trainings'), newEvent);
                 alert("Training scheduled successfully!");
                 closeAdminModal();
-                fetchTrainingsAndAttendance(); 
+                fetchTrainingsAndAttendance();
 
             } catch (error) {
                 console.error("Error saving training:", error);
@@ -491,6 +644,8 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                 saveBtn.textContent = 'Save Training';
             }
         });
+
+        console.log('✅ Training Calendar loaded successfully!');
     </script>
 </body>
 </html>
