@@ -142,44 +142,47 @@
       border-radius: 10px;
       font-size: 0.85rem;
       background: #f8fafc;
+      cursor: pointer;
     }
     .chart-controls select:focus {
       outline: none;
       border-color: #0b2a4a;
     }
 
-    /* Bar Chart */
+    /* Bar Chart - Fixed Height */
     .chart-container {
       display: flex;
       align-items: flex-end;
-      gap: 16px;
-      height: 250px;
-      padding: 10px 0;
+      justify-content: center;
+      gap: 20px;
+      height: 280px;
+      padding: 10px 0 5px 0;
       overflow-x: auto;
-      min-height: 270px;
+      min-height: 300px;
       position: relative;
     }
     .bar-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      flex: 1;
-      min-width: 45px;
-      max-width: 70px;
+      flex: 0 1 80px;
+      min-width: 60px;
+      max-width: 80px;
+      height: 100%;
+      justify-content: flex-end;
     }
     .bar {
-      width: 100%;
-      max-width: 50px;
+      width: 70%;
+      max-width: 45px;
       border-radius: 6px 6px 0 0;
       transition: height 0.6s ease;
       position: relative;
-      min-height: 4px;
+      min-height: 8px;
       cursor: pointer;
     }
     .bar:hover {
-      opacity: 0.8;
-      transform: scaleY(1.02);
-      transform-origin: bottom;
+      opacity: 0.85;
+      transform: scaleX(1.05);
     }
     .bar-label {
       font-size: 0.7rem;
@@ -188,28 +191,31 @@
       text-align: center;
       font-weight: 600;
       word-break: break-word;
-      max-width: 60px;
+      max-width: 70px;
       line-height: 1.2;
+      min-height: 32px;
     }
     .bar-value {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: #0b2a4a;
       margin-bottom: 4px;
+      min-height: 22px;
     }
     .bar-tooltip {
       display: none;
       position: absolute;
-      top: -30px;
+      top: -32px;
       left: 50%;
       transform: translateX(-50%);
       background: #0b2a4a;
       color: white;
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 6px;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       white-space: nowrap;
       z-index: 10;
+      font-weight: 500;
     }
     .bar:hover .bar-tooltip {
       display: block;
@@ -470,18 +476,21 @@
       .submission-images { grid-template-columns: 1fr; }
       .modal-actions { flex-direction: column; }
       .modal-actions button { width: 100%; justify-content: center; }
-      .chart-container { height: 180px; gap: 10px; }
-      .bar-wrapper { min-width: 35px; max-width: 50px; }
-      .bar { max-width: 35px; }
+      .chart-container { height: 200px; gap: 12px; }
+      .bar-wrapper { min-width: 45px; flex: 0 1 50px; }
+      .bar { max-width: 30px; }
+      .bar-label { font-size: 0.6rem; max-width: 50px; min-height: 28px; }
+      .bar-value { font-size: 0.75rem; }
     }
     @media (max-width: 480px) {
       .stats-grid { grid-template-columns: 1fr; }
       .modal-content { padding: 24px; }
       .chart-header { flex-direction: column; align-items: stretch; }
       .chart-controls { flex-direction: column; }
-      .chart-container { height: 150px; gap: 8px; }
-      .bar-wrapper { min-width: 28px; max-width: 40px; }
-      .bar { max-width: 28px; }
+      .chart-container { height: 170px; gap: 8px; }
+      .bar-wrapper { min-width: 35px; flex: 0 1 40px; }
+      .bar { max-width: 25px; }
+      .bar-label { font-size: 0.55rem; max-width: 40px; min-height: 24px; }
     }
 
     /* Loading */
@@ -549,12 +558,16 @@
     </button>
     <div class="nav-title">Kaizen Admin Dashboard</div>
     <div class="nav-badge">
+      
       <i class="fas fa-chart-line"></i> Evaluation Panel
     </div>
     <button class="nav-export-btn" onclick="exportToExcel()">
       <i class="fas fa-file-excel"></i> Export to Excel
     </button>
   </div>
+  <div style="text-align: center;">
+        <img src="pictures/logo_suria.png" alt="SCM" style="width: 400px; height: auto;">
+      </div>
 
   <!-- Toast Notification -->
   <div id="toast" class="toast"></div>
@@ -585,13 +598,13 @@
       <div class="chart-header">
         <h3><i class="fas fa-building"></i> Submissions by Department</h3>
         <div class="chart-controls">
-          <select id="chartFilterStatus" onchange="renderChart()">
+          <select id="chartFilterStatus">
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select id="chartFilterMonth" onchange="renderChart()">
+          <select id="chartFilterMonth">
             <option value="all">All Months</option>
           </select>
         </div>
@@ -599,7 +612,7 @@
       <div id="chartContainer" class="chart-container">
         <!-- Bars will be rendered here -->
       </div>
-      <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#94a3b8;">
+      <div style="text-align:center;margin-top:8px;font-size:0.8rem;color:#94a3b8;">
         <i class="fas fa-arrow-up"></i> Hover on bars to see details
       </div>
     </div>
@@ -714,10 +727,22 @@
         allSubmissions = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
+          
+          // FIX: Always set status as 'pending' unless admin has explicitly approved/rejected
+          // The user's "Complete/Incomplete" is stored in kaizenStatus, but admin status is separate
+          let adminStatus = 'pending';
+          
+          // Only use 'approved' or 'rejected' if admin explicitly set it
+          if (data.adminStatus === 'approved') {
+            adminStatus = 'approved';
+          } else if (data.adminStatus === 'rejected') {
+            adminStatus = 'rejected';
+          }
+          
           allSubmissions.push({
             id: doc.id,
             ...data,
-            status: data.kaizenStatus || 'pending',
+            status: adminStatus, // This is the admin status (pending/approved/rejected)
             rating: data.rating || 0
           });
         });
@@ -759,7 +784,7 @@
         option.textContent = `${monthNames[parseInt(monthNum) - 1]} ${year}`;
         select.appendChild(option);
       });
-      if (currentValue) select.value = currentValue;
+      if (currentValue && currentValue !== 'all') select.value = currentValue;
     }
 
     // Render bar chart
@@ -769,15 +794,17 @@
 
       let filtered = allSubmissions;
 
+      // Apply status filter
       if (statusFilter !== 'all') {
         filtered = filtered.filter(s => {
-          if (statusFilter === 'pending') return s.status === 'pending' || s.status === 'Incomplete';
-          if (statusFilter === 'approved') return s.status === 'approved' || s.status === 'Complete';
+          if (statusFilter === 'pending') return s.status === 'pending';
+          if (statusFilter === 'approved') return s.status === 'approved';
           if (statusFilter === 'rejected') return s.status === 'rejected';
           return true;
         });
       }
 
+      // Apply month filter
       if (monthFilter !== 'all') {
         filtered = filtered.filter(s => {
           if (!s.submittedDate) return false;
@@ -794,8 +821,8 @@
         deptCount[dept] = (deptCount[dept] || 0) + 1;
       });
 
-      // Sort by count descending
-      const sortedDepts = Object.entries(deptCount).sort((a, b) => b[1] - a[1]);
+      // Sort alphabetically by department name for consistent display
+      const sortedDepts = Object.entries(deptCount).sort((a, b) => a[0].localeCompare(b[0]));
       const maxCount = sortedDepts.length > 0 ? Math.max(...sortedDepts.map(d => d[1])) : 0;
 
       const container = document.getElementById('chartContainer');
@@ -813,9 +840,11 @@
       const colors = ['bar-color-1', 'bar-color-2', 'bar-color-3', 'bar-color-4', 'bar-color-5', 
                       'bar-color-6', 'bar-color-7', 'bar-color-8', 'bar-color-9', 'bar-color-10'];
 
+      const maxHeightPercent = 65;
+
       container.innerHTML = sortedDepts.map(([dept, count], index) => {
-        const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
-        const height = Math.max(percentage, 5);
+        let percentage = maxCount > 0 ? (count / maxCount) * maxHeightPercent : 0;
+        const height = Math.max(percentage, 8);
         const colorClass = colors[index % colors.length];
         
         return `
@@ -833,8 +862,8 @@
     // Update statistics
     function updateStats() {
       const total = allSubmissions.length;
-      const pending = allSubmissions.filter(s => s.status === 'pending' || s.status === 'Incomplete').length;
-      const approved = allSubmissions.filter(s => s.status === 'approved' || s.status === 'Complete').length;
+      const pending = allSubmissions.filter(s => s.status === 'pending').length;
+      const approved = allSubmissions.filter(s => s.status === 'approved').length;
       const rejected = allSubmissions.filter(s => s.status === 'rejected').length;
 
       document.getElementById('totalSubmissions').textContent = total;
@@ -857,8 +886,8 @@
 
       if (status) {
         filtered = filtered.filter(s => {
-          if (status === 'pending') return s.status === 'pending' || s.status === 'Incomplete';
-          if (status === 'approved') return s.status === 'approved' || s.status === 'Complete';
+          if (status === 'pending') return s.status === 'pending';
+          if (status === 'approved') return s.status === 'approved';
           if (status === 'rejected') return s.status === 'rejected';
           return true;
         });
@@ -882,6 +911,14 @@
       document.getElementById('filterMonth').value = '';
       applyFilters();
     };
+
+    // Chart filter listeners
+    document.getElementById('chartFilterStatus').addEventListener('change', function() {
+      renderChart();
+    });
+    document.getElementById('chartFilterMonth').addEventListener('change', function() {
+      renderChart();
+    });
 
     // Render submissions
     function renderSubmissions(submissions) {
@@ -910,6 +947,9 @@
                   </div>
                   <div class="sub-details" style="font-size:0.7rem;color:#94a3b8;margin-top:4px;">
                     <i class="fas fa-calendar"></i> ${formatDate(sub.submittedDate)}
+                  </div>
+                  <div class="sub-details" style="font-size:0.7rem;color:#94a3b8;margin-top:2px;">
+                    <i class="fas fa-tag"></i> User Status: ${sub.kaizenStatus || 'N/A'}
                   </div>
                 </div>
                 <span class="submission-status ${getStatusClass(sub.status)}">
@@ -949,7 +989,7 @@
                 <button onclick="openEvaluation('${sub.id}')" class="btn-view">
                   <i class="fas fa-clipboard-check"></i> Evaluate
                 </button>
-                ${sub.status !== 'approved' && sub.status !== 'Complete' ? `
+                ${sub.status !== 'approved' ? `
                   <button onclick="approveSubmission('${sub.id}')" class="btn-approve">
                     <i class="fas fa-check"></i> Approve
                   </button>
@@ -968,13 +1008,13 @@
 
     // Helper functions
     function getStatusClass(status) {
-      if (status === 'approved' || status === 'Complete') return 'approved';
+      if (status === 'approved') return 'approved';
       if (status === 'rejected') return 'rejected';
       return 'pending';
     }
 
     function getStatusLabel(status) {
-      if (status === 'approved' || status === 'Complete') return '✅ Approved';
+      if (status === 'approved') return '✅ Approved';
       if (status === 'rejected') return '❌ Rejected';
       return '⏳ Pending';
     }
@@ -1000,8 +1040,8 @@
       if (!confirm('Are you sure you want to approve this submission?')) return;
       try {
         await updateDoc(doc(db, COLLECTION_NAME, id), {
+          adminStatus: 'approved',
           kaizenStatus: 'approved',
-          status: 'approved',
           evaluatedBy: currentUser?.uid || 'unknown',
           evaluatedAt: new Date().toISOString()
         });
@@ -1017,8 +1057,8 @@
       if (!confirm('Are you sure you want to reject this submission?')) return;
       try {
         await updateDoc(doc(db, COLLECTION_NAME, id), {
+          adminStatus: 'rejected',
           kaizenStatus: 'rejected',
-          status: 'rejected',
           evaluatedBy: currentUser?.uid || 'unknown',
           evaluatedAt: new Date().toISOString()
         });
@@ -1046,7 +1086,8 @@
           <p><strong>🆔 Staff ID:</strong> ${sub.staffId || 'N/A'}</p>
           <p><strong>🏢 Department:</strong> ${sub.department || 'N/A'}</p>
           <p><strong>📅 Submitted:</strong> ${formatDate(sub.submittedDate)}</p>
-          <p><strong>📋 Status:</strong> <span class="submission-status ${getStatusClass(sub.status)}">${getStatusLabel(sub.status)}</span></p>
+          <p><strong>📋 User Status:</strong> ${sub.kaizenStatus || 'N/A'}</p>
+          <p><strong>📋 Admin Status:</strong> <span class="submission-status ${getStatusClass(sub.status)}">${getStatusLabel(sub.status)}</span></p>
         </div>
 
         <div style="margin:16px 0;padding:12px;background:#f8fafc;border-radius:10px;">
@@ -1087,7 +1128,7 @@
           <button onclick="saveRating()" style="background:#0b2a4a;color:white;">
             <i class="fas fa-save"></i> Save Rating
           </button>
-          ${sub.status !== 'approved' && sub.status !== 'Complete' ? `
+          ${sub.status !== 'approved' ? `
             <button onclick="approveWithRating()" style="background:#10b981;color:white;">
               <i class="fas fa-check"></i> Approve & Save Rating
             </button>
@@ -1153,8 +1194,8 @@
 
       try {
         await updateDoc(doc(db, COLLECTION_NAME, currentModalId), {
+          adminStatus: 'approved',
           kaizenStatus: 'approved',
-          status: 'approved',
           rating: currentRating,
           evaluatedBy: currentUser?.uid || 'unknown',
           evaluatedAt: new Date().toISOString()
@@ -1192,7 +1233,8 @@
         'Staff ID', 
         'Department', 
         'Issue Details', 
-        'Status', 
+        'User Status',
+        'Admin Status', 
         'Rating', 
         'Submitted Date',
         'Evaluated By',
@@ -1204,6 +1246,7 @@
         sub.staffId || 'N/A',
         sub.department || 'N/A',
         sub.issueDetails || 'N/A',
+        sub.kaizenStatus || 'N/A',
         getStatusLabel(sub.status),
         sub.rating || 0,
         formatDate(sub.submittedDate),

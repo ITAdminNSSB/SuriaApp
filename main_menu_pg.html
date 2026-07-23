@@ -7,45 +7,316 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>MAIN MENU PAGE</title>
     <style>
-* {margin: 0;padding: 0;box-sizing: border-box;}
-body {font-family: 'San Francisco', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;background: linear-gradient(115deg, black, #334155);color: #ffffff;min-height: 100vh;display: flex;flex-direction: column;align-items: center;justify-content: flex-start;padding: 0;overflow-x: hidden;}
-.container {max-width: 1200px;width: 100%;min-height: 100vh;display: flex;flex-direction: column;align-items: center;justify-content: center;padding: 40px 20px;position: relative;}
-h1 {font-size: 2.2rem;margin-bottom: 40px;background: linear-gradient(45deg, #ffffff, #cccccc);-webkit-background-clip: text;background-clip: text;-webkit-text-fill-color: transparent;text-shadow: 0 2px 4px rgba(0,0,0,0.3);font-weight: 700;letter-spacing: -0.5px;text-align: center;}
-.language-buttons {display: flex;justify-content: center;gap: 12px;margin-bottom: 30px;flex-wrap: wrap;}
-.language-buttons button {background-color: #132029;color: white;border: none;padding: 10px 18px;border-radius: 8px;cursor: pointer;font-size: 15px;font-weight: 600;display: flex;align-items: center;gap: 6px;transition: all 0.3s ease;}
-.language-buttons button.active {background-color: #24006c;}
-.language-buttons button:hover {background-color: #0f0257;}
-.language-buttons i {font-size: 18px;}
-.buttons-container {display: grid;grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));gap: 20px;padding: 20px;width: 100%;max-width: 1200px;margin: 0 auto;}
-.department-btn {display: flex;flex-direction: column;align-items: center;justify-content: center;padding: 25px 15px;border-radius: 12px;text-decoration: none;color: white;font-weight: 600;font-size: 18px;text-align: center;transition: all 0.3s ease;box-shadow: 0 4px 8px rgba(0,0,0,0.1);min-height: 120px;position: relative;overflow: hidden;border: 1px solid rgba(255, 255, 255, 0.1);}
-.department-btn::before {content: '';position: absolute;top: 0;left: -100%;width: 100%;height: 100%;background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);transition: left 0.3s ease;}
-.department-btn:hover::before {left: 100%;}
-.department-btn:hover {transform: translateY(-5px);box-shadow: 0 6px 12px rgba(0,0,0,0.15);border-color: rgba(255,255,255,0.2);}
-.department-btn:active {transform: translateY(0);box-shadow: 0 4px 8px rgba(0,0,0,0.1);animation: buttonPress 0.1s ease;}
-@keyframes buttonPress {0% { transform: scale(1); }50% { transform: scale(0.98); }100% { transform: scale(1); }}
-.button-icon {font-size: 36px;margin-bottom: 12px;display: inline-block;transition: transform 0.3s ease;}
-.department-btn:hover .button-icon {transform: scale(1.1);}
-.button-text {display: block;margin-top: 8px;}
-.ripple {position: absolute;border-radius: 50%;background: rgba(255, 255, 255, 0.3);transform: scale(0);animation: ripple-animation 0.6s linear;pointer-events: none;}
-@keyframes ripple-animation {to { transform: scale(4); opacity: 0; }}
-.loading {position: relative;pointer-events: none;}
-.loading::after {content: '';position: absolute;top: 50%;left: 50%;width: 20px;height: 20px;margin: -10px 0 0 -10px;border: 2px solid rgba(255,255,255,0.3);border-top: 2px solid #ffffff;border-radius: 50%;animation: spin 1s linear infinite;}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.food-ordering {background: linear-gradient(135deg, #FF7B54, #FFB26B);}
-.production {background: linear-gradient(135deg, #4E9F3D, #95CD41);}
-.quality-control {background: linear-gradient(135deg, #00A8CC, #0C7B93);}
-.hr-department {background: linear-gradient(135deg, #9C51B6, #D862BC);}
-.eng-department {background: linear-gradient(135deg, #4b49b8, #7375d2);}
-@media (max-width: 768px) {.buttons-container {grid-template-columns: 1fr 1fr;}}
-@media (max-width: 480px) {h1 { font-size: 1.8rem; margin-bottom: 30px; }
-.buttons-container {grid-template-columns: 1fr;}
-.department-btn {padding: 20px 10px;font-size: 16px;}
-.button-icon {font-size: 30px;}}
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {font-family: 'San Francisco', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;background: linear-gradient(115deg, black, #334155);color: #ffffff;min-height: 100vh;display: flex;flex-direction: column;align-items: center;justify-content: flex-start;padding: 0;overflow-x: hidden;}
+        .container {max-width: 1200px;width: 100%;min-height: 100vh;display: flex;flex-direction: column;align-items: center;justify-content: center;padding: 40px 20px;position: relative;}
+        h1 {font-size: 2.2rem;margin-bottom: 40px;background: linear-gradient(45deg, #ffffff, #cccccc);-webkit-background-clip: text;background-clip: text;-webkit-text-fill-color: transparent;text-shadow: 0 2px 4px rgba(0,0,0,0.3);font-weight: 700;letter-spacing: -0.5px;text-align: center;}
+        
+        .language-buttons {display: flex;justify-content: center;gap: 12px;margin-bottom: 30px;flex-wrap: wrap;}
+        .language-buttons button {background-color: #132029;color: white;border: none;padding: 10px 18px;border-radius: 8px;cursor: pointer;font-size: 15px;font-weight: 600;display: flex;align-items: center;gap: 6px;transition: all 0.3s ease;}
+        .language-buttons button.active {background-color: #24006c;}
+        .language-buttons button:hover {background-color: #0f0257;}
+        .language-buttons i {font-size: 18px;}
+        
+        .buttons-container {display: grid;grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));gap: 20px;padding: 20px;width: 100%;max-width: 1200px;margin: 0 auto;}
+        
+        .department-btn {display: flex;flex-direction: column;align-items: center;justify-content: center;padding: 25px 15px;border-radius: 12px;text-decoration: none;color: white;font-weight: 600;font-size: 18px;text-align: center;transition: all 0.3s ease;box-shadow: 0 4px 8px rgba(0,0,0,0.1);min-height: 120px;position: relative;overflow: hidden;border: 1px solid rgba(255, 255, 255, 0.1);}
+        .department-btn::before {content: '';position: absolute;top: 0;left: -100%;width: 100%;height: 100%;background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);transition: left 0.3s ease;}
+        .department-btn:hover::before {left: 100%;}
+        .department-btn:hover {transform: translateY(-5px);box-shadow: 0 6px 12px rgba(0,0,0,0.15);border-color: rgba(255,255,255,0.2);}
+        .department-btn:active {transform: translateY(0);box-shadow: 0 4px 8px rgba(0,0,0,0.1);animation: buttonPress 0.1s ease;}
+        
+        @keyframes buttonPress {0% { transform: scale(1); }50% { transform: scale(0.98); }100% { transform: scale(1); }}
+        
+        .button-icon {font-size: 36px;margin-bottom: 12px;display: inline-block;transition: transform 0.3s ease;}
+        .department-btn:hover .button-icon {transform: scale(1.1);}
+        .button-text {display: block;margin-top: 8px;}
+        
+        .ripple {position: absolute;border-radius: 50%;background: rgba(255, 255, 255, 0.3);transform: scale(0);animation: ripple-animation 0.6s linear;pointer-events: none;}
+        @keyframes ripple-animation {to { transform: scale(4); opacity: 0; }}
+        
+        .loading {position: relative;pointer-events: none;}
+        .loading::after {content: '';position: absolute;top: 50%;left: 50%;width: 20px;height: 20px;margin: -10px 0 0 -10px;border: 2px solid rgba(255,255,255,0.3);border-top: 2px solid #ffffff;border-radius: 50%;animation: spin 1s linear infinite;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .food-ordering {background: linear-gradient(135deg, #FF7B54, #FFB26B);}
+        .production {background: linear-gradient(135deg, #4E9F3D, #95CD41);}
+        .quality-control {background: linear-gradient(135deg, #00A8CC, #0C7B93);}
+        .hr-department {background: linear-gradient(135deg, #9C51B6, #D862BC);}
+        .eng-department {background: linear-gradient(135deg, #4b49b8, #7375d2);}
+        .kaizen-admin {background: linear-gradient(135deg, #0b2a4a, #1a3f62);}
+
+        @media (max-width: 768px) {.buttons-container {grid-template-columns: 1fr 1fr;}}
+        @media (max-width: 480px) {h1 { font-size: 1.8rem; margin-bottom: 30px; }
+        .buttons-container {grid-template-columns: 1fr;}
+        .department-btn {padding: 20px 10px;font-size: 16px;}
+        .button-icon {font-size: 30px;}}
+
+        /* ===== PASSWORD MODAL STYLES ===== */
+        .modal-overlay-pin {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 999999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay-pin.active {
+            display: flex;
+        }
+
+        .modal-box-pin {
+            background: #1e293b;
+            padding: 35px 30px 30px;
+            border-radius: 24px;
+            width: 380px;
+            max-width: 92%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-box-pin .lock-icon {
+            font-size: 48px;
+            color: #60a5fa;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .modal-box-pin h2 {
+            font-size: 22px;
+            color: #ffffff;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .modal-box-pin p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* PIN Input Container */
+        .pin-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .pin-box {
+            width: 46px;
+            height: 56px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            background: #0f172a;
+            outline: none;
+            transition: all 0.25s ease;
+            caret-color: #60a5fa;
+            color: #ffffff;
+        }
+
+        .pin-box:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+            background: #1e293b;
+        }
+
+        .pin-box.correct {
+            border-color: #34d399;
+            background: #064e3b;
+            box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.2);
+        }
+
+        .pin-box.wrong {
+            border-color: #f87171;
+            background: #7f1d1d;
+            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+
+        /* Error Message */
+        .error-msg-pin {
+            color: #f87171;
+            font-size: 13px;
+            font-weight: 500;
+            min-height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .error-msg-pin.hidden {
+            display: none;
+        }
+
+        /* Modal Buttons */
+        .modal-actions-pin {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .btn-pin {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 140px;
+        }
+
+        .btn-pin-cancel {
+            background: #334155;
+            color: #94a3b8;
+        }
+
+        .btn-pin-cancel:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+
+        .btn-pin-verify {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-pin-verify:hover:not(:disabled) {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-pin-verify:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Numpad for Mobile */
+        .numpad-pin {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .numpad-pin button {
+            padding: 14px;
+            font-size: 20px;
+            font-weight: 600;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            background: #0f172a;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            color: #ffffff;
+        }
+
+        .numpad-pin button:active {
+            background: #3b82f6;
+            color: white;
+            transform: scale(0.93);
+            border-color: #3b82f6;
+        }
+
+        .numpad-pin button.clear-btn {
+            color: #f87171;
+        }
+
+        .numpad-pin button.back-btn {
+            color: #fbbf24;
+        }
+
+        @media (max-width: 480px) {
+            .numpad-pin {
+                display: grid;
+            }
+            .pin-box {
+                width: 40px;
+                height: 48px;
+                font-size: 22px;
+            }
+            .modal-box-pin {
+                padding: 25px 20px 20px;
+            }
+            .modal-box-pin h2 {
+                font-size: 18px;
+            }
+            .btn-pin {
+                padding: 10px 16px;
+                font-size: 13px;
+                max-width: 100px;
+            }
+        }
+
+        /* Success animation */
+        .checkmark {
+            display: none;
+            font-size: 50px;
+            color: #34d399;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .checkmark.show {
+            display: block;
+        }
+
+        .modal-box-pin .pin-title-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 data-translate="MainMenu">MAIN MENU</h1>0
+        <h1 data-translate="MainMenu">MAIN MENU</h1>
         
         <div class="language-buttons">
             <button data-lang="en" class="selectlanguage active">
@@ -57,7 +328,6 @@ h1 {font-size: 2.2rem;margin-bottom: 40px;background: linear-gradient(45deg, #ff
             <button data-lang="bn" class="selectlanguage">
                 <i class="fas fa-globe"></i> বাংলা
             </button>
-            
         </div>
 
         <div class="buttons-container">
@@ -77,12 +347,71 @@ h1 {font-size: 2.2rem;margin-bottom: 40px;background: linear-gradient(45deg, #ff
                 <span class="button-icon">👥</span>
                 <span class="button-text" data-translate="HumanResourcesDepartment">Human Resources Department</span>
             </a>
-            <a href="kaizen_admin.html" class="department-btn" style="background: linear-gradient(135deg, #0b2a4a, #1a3f62);">
+
+            <!-- ===== KAIZEN ADMIN - PASSWORD PROTECTED ===== -->
+            <a href="#" class="department-btn kaizen-admin" id="kaizenAdminLink">
                 <span class="button-icon">📋</span>
                 <span class="button-text" data-translate="KaizenAdmin">Kaizen Admin</span>
             </a>
+            <!-- ===== END KAIZEN ADMIN ===== -->
+             <a href="Ky_Admin.html" class="department-btn hr-department">
+                <span class="button-icon">📊</span>
+                <span class="button-text" data-translate="KY Evaluation">KY Evaluation</span>
+            </a>
         </div>
     </div>
+
+    <!-- ========================================================== -->
+    <!-- ===== PASSWORD MODAL ===== -->
+    <!-- ========================================================== -->
+    <div class="modal-overlay-pin" id="passwordModal">
+        <div class="modal-box-pin">
+            <div class="pin-title-area">
+                <span class="lock-icon">🔐</span>
+                <h2>Kaizen Admin Access</h2>
+                <p>Enter your 6-digit PIN to continue</p>
+            </div>
+
+            <!-- 6 PIN Boxes -->
+            <div class="pin-container" id="pinContainer">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autofocus>
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            </div>
+
+            <!-- Success Checkmark -->
+            <div class="checkmark" id="checkmark">✅</div>
+
+            <!-- Error Message -->
+            <div class="error-msg-pin hidden" id="errorMsg">❌ Invalid PIN. Please try again.</div>
+
+            <!-- Numpad for Mobile -->
+            <div class="numpad-pin" id="numpad">
+                <button data-num="1">1</button>
+                <button data-num="2">2</button>
+                <button data-num="3">3</button>
+                <button data-num="4">4</button>
+                <button data-num="5">5</button>
+                <button data-num="6">6</button>
+                <button data-num="7">7</button>
+                <button data-num="8">8</button>
+                <button data-num="9">9</button>
+                <button data-num="clear" class="clear-btn">⌫</button>
+                <button data-num="0">0</button>
+                <button data-num="back" class="back-btn">←</button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-actions-pin">
+                <button class="btn-pin btn-pin-cancel" id="cancelBtn">Cancel</button>
+                <button class="btn-pin btn-pin-verify" id="verifyBtn" disabled>Verify</button>
+            </div>
+        </div>
+    </div>
+    <!-- ===== END PASSWORD MODAL ===== -->
 
     <script type="module">
         import { initializeWithDetection, changeLanguage } from './translation.js';
@@ -107,8 +436,8 @@ h1 {font-size: 2.2rem;margin-bottom: 40px;background: linear-gradient(45deg, #ff
             });
         });
 
-        // Ripple effect and delayed navigation for department buttons
-        const deptButtons = document.querySelectorAll('.department-btn');
+        // Ripple effect and delayed navigation for department buttons (EXCEPT Kaizen Admin)
+        const deptButtons = document.querySelectorAll('.department-btn:not(#kaizenAdminLink)');
         deptButtons.forEach(button => {
             button.addEventListener('click', event => {
                 event.preventDefault(); // Stop immediate navigation to allow animation
@@ -144,6 +473,248 @@ h1 {font-size: 2.2rem;margin-bottom: 40px;background: linear-gradient(45deg, #ff
             button.addEventListener('touchstart', () => button.style.transform = 'scale(0.98)');
             button.addEventListener('touchend', () => button.style.transform = 'scale(1)');
         });
+
+        // ==========================================================
+        // ===== PASSWORD SCRIPT FOR KAIZEN ADMIN =====
+        // ==========================================================
+        
+        // ===== CONFIGURATION =====
+        const CORRECT_PIN = "123456"; // ← CHANGE THIS TO YOUR DESIRED 6-DIGIT PIN
+
+        // ===== DOM ELEMENTS =====
+        const kaizenLink = document.getElementById('kaizenAdminLink');
+        const modal = document.getElementById('passwordModal');
+        const pinInputs = document.querySelectorAll('.pin-box');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const checkmark = document.getElementById('checkmark');
+        const numpad = document.getElementById('numpad');
+        let targetUrl = null;
+
+        // ===== OPEN MODAL =====
+        kaizenLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            targetUrl = this.href;
+            modal.classList.add('active');
+            resetModal();
+            setTimeout(() => pinInputs[0].focus(), 100);
+        });
+
+        // ===== CLOSE MODAL =====
+        function closeModal() {
+            modal.classList.remove('active');
+            resetModal();
+        }
+
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Close on overlay click
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // ===== PIN INPUT HANDLING =====
+        pinInputs.forEach((input, index) => {
+            // Auto-advance on input
+            input.addEventListener('input', function(e) {
+                const val = this.value.replace(/[^0-9]/g, '');
+                this.value = val.slice(0, 1);
+
+                if (val.length === 1 && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+
+                updateVerifyButton();
+                hideError();
+            });
+
+            // Backspace: go to previous input
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+
+            // Paste support
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
+
+                pinInputs.forEach((inp, i) => {
+                    inp.value = digits[i] || '';
+                });
+
+                if (digits.length < 6) {
+                    pinInputs[digits.length]?.focus();
+                } else {
+                    pinInputs[5].focus();
+                }
+
+                updateVerifyButton();
+                hideError();
+            });
+
+            // Allow number input only
+            input.addEventListener('keydown', function(e) {
+                if (!/^[0-9]$/.test(e.key) &&
+                    e.key !== 'Backspace' &&
+                    e.key !== 'Tab' &&
+                    e.key !== 'ArrowLeft' &&
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Delete' &&
+                    !e.ctrlKey &&
+                    !e.metaKey) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // ===== NUMPAD SUPPORT (Mobile) =====
+        numpad.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const num = this.dataset.num;
+
+                if (num === 'clear') {
+                    // Clear all
+                    pinInputs.forEach(inp => inp.value = '');
+                    pinInputs[0].focus();
+                    updateVerifyButton();
+                    hideError();
+                    return;
+                }
+
+                if (num === 'back') {
+                    // Backspace
+                    for (let i = pinInputs.length - 1; i >= 0; i--) {
+                        if (pinInputs[i].value !== '') {
+                            pinInputs[i].value = '';
+                            pinInputs[i].focus();
+                            break;
+                        } else if (i === 0) {
+                            pinInputs[0].focus();
+                        }
+                    }
+                    updateVerifyButton();
+                    hideError();
+                    return;
+                }
+
+                // Find first empty input
+                let filled = false;
+                for (let i = 0; i < pinInputs.length; i++) {
+                    if (pinInputs[i].value === '') {
+                        pinInputs[i].value = num;
+                        if (i < pinInputs.length - 1) {
+                            pinInputs[i + 1].focus();
+                        }
+                        filled = true;
+                        break;
+                    }
+                }
+
+                // If all filled, replace last digit
+                if (!filled) {
+                    pinInputs[pinInputs.length - 1].value = num;
+                }
+
+                updateVerifyButton();
+                hideError();
+            });
+        });
+
+        // ===== UPDATE VERIFY BUTTON =====
+        function updateVerifyButton() {
+            const allFilled = Array.from(pinInputs).every(inp => inp.value !== '');
+            verifyBtn.disabled = !allFilled;
+        }
+
+        // ===== HIDE ERROR =====
+        function hideError() {
+            errorMsg.classList.add('hidden');
+            pinInputs.forEach(inp => inp.classList.remove('wrong'));
+        }
+
+        // ===== SHOW ERROR =====
+        function showError() {
+            errorMsg.classList.remove('hidden');
+            pinInputs.forEach(inp => {
+                inp.classList.add('wrong');
+                inp.value = '';
+            });
+            pinInputs[0].focus();
+            updateVerifyButton();
+
+            setTimeout(() => {
+                pinInputs.forEach(inp => inp.classList.remove('wrong'));
+            }, 1500);
+        }
+
+        // ===== RESET MODAL =====
+        function resetModal() {
+            pinInputs.forEach(inp => {
+                inp.value = '';
+                inp.classList.remove('wrong', 'correct');
+            });
+            errorMsg.classList.add('hidden');
+            checkmark.classList.remove('show');
+            verifyBtn.disabled = true;
+            targetUrl = null;
+        }
+
+        // ===== VERIFY PIN =====
+        function verifyPin() {
+            const entered = Array.from(pinInputs).map(inp => inp.value).join('');
+
+            if (entered === CORRECT_PIN) {
+                // Success!
+                pinInputs.forEach(inp => inp.classList.add('correct'));
+                errorMsg.classList.add('hidden');
+                checkmark.classList.add('show');
+
+                setTimeout(() => {
+                    closeModal();
+                    if (targetUrl && targetUrl !== '#') {
+                        window.location.href = targetUrl;
+                    } else {
+                        window.location.href = 'kaizen_admin.html';
+                    }
+                }, 600);
+            } else {
+                // Wrong PIN
+                showError();
+                setTimeout(() => {
+                    pinInputs.forEach(inp => inp.value = '');
+                    pinInputs[0].focus();
+                    updateVerifyButton();
+                }, 300);
+            }
+        }
+
+        verifyBtn.addEventListener('click', verifyPin);
+
+        // Enter key on last input triggers verify
+        pinInputs[pinInputs.length - 1].addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !verifyBtn.disabled) {
+                verifyPin();
+            }
+        });
+
+        // Auto-focus on modal open
+        const observer = new MutationObserver(() => {
+            if (modal.classList.contains('active')) {
+                setTimeout(() => pinInputs[0].focus(), 100);
+            }
+        });
+        observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
     </script>
 </body>
 </html>

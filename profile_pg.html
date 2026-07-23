@@ -34,18 +34,239 @@ body {font-family: 'Helvetica', sans-serif;background-color: #f0f0f0;overflow-x:
 .training-item h4 {color: #fff;font-size: 15px;font-weight: bold;}
 .training-item p {color: #ddd;font-size: 13px;display: flex;align-items: center;gap: 8px;}
 .training-item p i {color: #10b981; width: 14px; text-align: center;}
-.ky-stats-card {background-color: #333;padding: 20px;border-radius: 10px;margin: 20px;color: #fff;}
-.stats-header {font-size: 18px;font-weight: bold;margin-bottom: 20px;color: #fff;display: flex;align-items: center;gap: 10px;}
-.stats-header i {color: #0C0E8B;font-size: 24px;}
-.stats-content {display: flex;flex-direction: column;gap: 15px;}
-.stat-row {display: flex;justify-content: space-between;align-items: center;background-color: #444;padding: 15px;border-radius: 8px;}
-.stat-label {font-size: 14px;color: #ddd;}
-.stat-value {font-size: 28px;font-weight: bold;padding: 8px 16px;border-radius: 8px;min-width: 80px;text-align: center;}
+
+/* ===== NEW KY STATS CARD ===== */
+.ky-stats-card {
+    background: linear-gradient(135deg, #303031, #303031);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.stats-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.stats-header i {color: #10b981;font-size: 24px;}
+
+/* Month Filter */
+.month-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.05);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    flex-wrap: wrap;
+}
+.month-filter label {
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+.month-filter select {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.1);
+    color: #e2e8f0;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 120px;
+}
+.month-filter select:focus {
+    outline: none;
+    border-color: #10b981;
+}
+.month-filter select option {
+    background: #1a1f35;
+    color: #e2e8f0;
+}
+
+/* Status Summary Cards */
+.status-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 10px 0 15px 0;
+}
+.status-summary-item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s ease;
+    cursor: default;
+}
+.status-summary-item:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
+}
+.status-summary-item .count {
+    font-size: 22px;
+    font-weight: 700;
+}
+.status-summary-item .label {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-summary-item .count.pending { color: #f59e0b; }
+.status-summary-item .count.open { color: #3b82f6; }
+.status-summary-item .count.close { color: #10b981; }
+.status-summary-item .count.total { color: #94a3b8; }
+
+/* KY Status Badge List */
+.ky-badge-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.ky-badge-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.05);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.ky-badge-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.ky-badge-item .dot.open { background: #3b82f6; }
+.ky-badge-item .dot.close { background: #10b981; }
+.ky-badge-item .dot.pending { background: #f59e0b; }
+.ky-badge-item .badge-title {
+    color: #94a3b8;
+    font-size: 9px;
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ky-badge-item .badge-status {
+    font-size: 8px;
+    font-weight: 600;
+}
+.ky-badge-item .badge-status.open { color: #3b82f6; }
+.ky-badge-item .badge-status.close { color: #10b981; }
+.ky-badge-item .badge-status.pending { color: #f59e0b; }
+
+/* Stat Row */
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.stat-label {font-size: 14px;color: #94a3b8;}
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 8px;
+    min-width: 80px;
+    text-align: center;
+}
 .stat-value.red {background-color: #ef4444;color: white;animation: pulse-red 2s infinite;}
-.stat-value.green {background-color: #22c55e;color: white;}
+.stat-value.green {background-color: #10b981;color: white;}
+.stat-value.yellow {background-color: #f59e0b;color: white;}
+.stat-value.blue {background-color: #3b82f6;color: white;}
 @keyframes pulse-red {0%, 100% { opacity: 1; }50% { opacity: 0.7; }}
-.stat-info {font-size: 12px;color: #999;margin-top: 10px;padding: 10px;background-color: #444;border-radius: 6px;text-align: center;}
-.loading-stats {text-align: center;padding: 20px;color: #999;}
+
+.stat-info {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.stat-info .highlight {
+    color: #f59e0b;
+    font-weight: 600;
+}
+.stat-info .achieved {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Kaizen Stats Card */
+.kaizen-stats-card {
+    background: linear-gradient(135deg, #303031, #303031);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.kaizen-badge-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.kaizen-badge-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.05);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.kaizen-badge-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.kaizen-badge-item .dot.pending { background: #f59e0b; }
+.kaizen-badge-item .dot.approved { background: #10b981; }
+.kaizen-badge-item .dot.rejected { background: #ef4444; }
+.kaizen-badge-item .badge-title {
+    color: #94a3b8;
+    font-size: 9px;
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.kaizen-badge-item .badge-status {
+    font-size: 8px;
+    font-weight: 600;
+}
+.kaizen-badge-item .badge-status.pending { color: #f59e0b; }
+.kaizen-badge-item .badge-status.approved { color: #10b981; }
+.kaizen-badge-item .badge-status.rejected { color: #ef4444; }
+
+.loading-stats {text-align: center;padding: 20px;color: #94a3b8;}
 .nav-container {position: fixed;bottom: 0;left: 0;width: 100%;background: white;padding: 15px 20px 20px;display: flex;justify-content: space-between;box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);z-index: 90;border-top-left-radius: 20px;border-top-right-radius: 20px;}
 .nav-item {display: flex;flex-direction: column;align-items: center;text-decoration: none;color: #94a3b8;transition: all 0.3s ease;cursor: pointer;flex: 1;position: relative;padding: 8px 0;}
 .nav-item.active {color: #334155;}
@@ -57,6 +278,35 @@ body {font-family: 'Helvetica', sans-serif;background-color: #f0f0f0;overflow-x:
 .overlay {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.5);opacity: 0;visibility: hidden;transition: all 0.3s ease;z-index: 999;}
 .overlay.active {opacity: 1;visibility: visible;}
 a {text-decoration: none;}
+.view-all-link {
+    display: block;
+    text-align: center;
+    color: #10b981;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    transition: all 0.3s ease;
+}
+.view-all-link:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+}
+.empty-state i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -87,14 +337,28 @@ a {text-decoration: none;}
         <div class="profile-pic"></div>
     </div>
 
+    <!-- ===== NEW KY SUBMISSION CARD ===== -->
     <div class="ky-stats-card">
         <div class="stats-header">
-            <i class="fas fa-chart-line"></i>
-            <span>Monthly KY Submission</span>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>KY Submission Tracker</span>
         </div>
         <div id="kyStatsContent" class="stats-content">
             <div class="loading-stats">
-                <i class="fas fa-spinner fa-spin"></i> Loading statistics...
+                <i class="fas fa-spinner fa-spin"></i> Loading KY submissions...
+            </div>
+        </div>
+    </div>
+
+    <!-- Kaizen Submission Card -->
+    <div class="kaizen-stats-card">
+        <div class="stats-header">
+            <i class="fas fa-tasks"></i>
+            <span>Monthly Kaizen Submission</span>
+        </div>
+        <div id="kaizenStatsContent" class="stats-content">
+            <div class="loading-stats">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
             </div>
         </div>
     </div>
@@ -212,7 +476,6 @@ a {text-decoration: none;}
             collection, query, where, getDocs 
         } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-        // Maintained Suria configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
             authDomain: "suria-food-ordering-system.firebaseapp.com",
@@ -229,15 +492,13 @@ a {text-decoration: none;}
         const userDetails = document.querySelector('#userDetails');
         const nameinfo = document.querySelector('#nameinfo');
 
-        // Real-time update for user info
+        // ===== USER INFO =====
         async function getUserInfoRealtime(userID) {
             const userDocRef = doc(db, "users", userID);
             onSnapshot(userDocRef, (doc) => {
                 if (doc.exists()) {
                     const userInfo = doc.data();
-                    
                     nameinfo.innerHTML = `<div class="detail-item"><i class="fas fa-user"></i> <span>${userInfo.name}</span></div>`;
-                    
                     userDetails.innerHTML = `
                         <div class="detail-item"><i class="fas fa-user"></i> <span>${userInfo.name || "N/A"}</span></div>
                         <div class="detail-item"><i class="fas fa-user-friends"></i> <span>${userInfo.lastName || "N/A"}</span></div>
@@ -250,209 +511,664 @@ a {text-decoration: none;}
             });
         }
 
-        // Function to get KY submissions count for current month
-        async function getKYSubmissionsCount(userId) {
+        // ===== NEW KY SUBMISSION FUNCTIONS =====
+        async function getKYSubmissionsByMonth(userId) {
             try {
                 const q = query(
-                    collection(db, "she-kikenYochi"),
+                    collection(db, "ky_submission"),
                     where("submittedBy", "==", userId)
                 );
 
                 const querySnapshot = await getDocs(q);
+                const submissions = [];
                 
-                const now = new Date();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-                
-                let monthCount = 0;
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     let submissionDate = null;
                     
-                    if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-                        submissionDate = data.createdAt.toDate();
-                    } else if (data.submittedDate) {
+                    if (data.submittedDate) {
                         submissionDate = new Date(data.submittedDate);
+                    } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                        submissionDate = data.createdAt.toDate();
                     }
                     
-                    if (submissionDate && !isNaN(submissionDate.getTime())) {
-                        const subMonth = submissionDate.getMonth();
-                        const subYear = submissionDate.getFullYear();
-                        
-                        if (subMonth === currentMonth && subYear === currentYear) {
-                            monthCount++;
-                        }
-                    }
+                    // Determine display status
+                    let displayStatus = data.kyStatus || 'Open';
+                    
+                    submissions.push({
+                        id: doc.id,
+                        ...data,
+                        submissionDate: submissionDate,
+                        displayStatus: displayStatus
+                    });
                 });
-                return monthCount;
+                
+                return submissions;
             } catch (error) {
                 console.error("Error getting KY submissions:", error);
-                return 0;
+                return [];
             }
         }
 
-        // Function to display KY stats initially
         async function displayKYStats(userId) {
-            const kyStatsContent = document.getElementById('kyStatsContent');
+            const container = document.getElementById('kyStatsContent');
             
             try {
-                const count = await getKYSubmissionsCount(userId);
-                const colorClass = count < 2 ? 'red' : 'green';
-                const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+                const submissions = await getKYSubmissionsByMonth(userId);
                 
-                kyStatsContent.innerHTML = `
-                    <div class="stat-row">
-                        <div><div class="stat-label">${monthName}</div></div>
-                        <div class="stat-value ${colorClass}">${count}/2</div>
+                if (submissions.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No KY submissions yet.</p>
+                            <a href="kyform.html" style="color: #10b981; text-decoration: none; font-weight: 600; display: inline-block; margin-top: 8px;">
+                                Submit your first KY →
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group submissions by month
+                const monthlyData = {};
+                submissions.forEach(sub => {
+                    if (sub.submissionDate && !isNaN(sub.submissionDate.getTime())) {
+                        const monthKey = sub.submissionDate.getFullYear() + '-' + 
+                                       String(sub.submissionDate.getMonth() + 1).padStart(2, '0');
+                        if (!monthlyData[monthKey]) {
+                            monthlyData[monthKey] = [];
+                        }
+                        monthlyData[monthKey].push(sub);
+                    }
+                });
+
+                // Get sorted months (most recent first)
+                const sortedMonths = Object.keys(monthlyData).sort().reverse();
+                const selectedMonth = sortedMonths[0];
+
+                // Month names
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const [year, monthNum] = selectedMonth ? selectedMonth.split('-') : ['', ''];
+                const monthLabel = selectedMonth ? monthNames[parseInt(monthNum) - 1] + ' ' + year : 'N/A';
+                
+                // Get submissions for selected month
+                const selectedSubmissions = monthlyData[selectedMonth] || [];
+                const totalCount = selectedSubmissions.length;
+                
+                // Count statuses
+                const openCount = selectedSubmissions.filter(s => s.displayStatus === 'Open' || s.displayStatus === 'open').length;
+                const closeCount = selectedSubmissions.filter(s => s.displayStatus === 'Close' || s.displayStatus === 'close').length;
+                const pendingCount = selectedSubmissions.filter(s => s.displayStatus === 'Pending' || s.displayStatus === 'pending').length;
+                
+                // Color based on count
+                let colorClass = 'red';
+                if (totalCount >= 2) colorClass = 'green';
+                else if (totalCount >= 1) colorClass = 'yellow';
+
+                // Build status summary
+                let statusSummary = `
+                    <div class="status-summary">
+                        <div class="status-summary-item">
+                            <div class="count total">${totalCount}</div>
+                            <div class="label">📋 Total</div>
+                        </div>
+                        <div class="status-summary-item">
+                            <div class="count open">${openCount}</div>
+                            <div class="label">🔵 Open</div>
+                        </div>
+                        <div class="status-summary-item">
+                            <div class="count close">${closeCount}</div>
+                            <div class="label">✅ Close</div>
+                        </div>
                     </div>
+                `;
+
+                // Build badge list (max 5 items)
+                let badgeList = '';
+                if (selectedSubmissions.length > 0) {
+                    const recentSubmissions = selectedSubmissions.slice(0, 5);
+                    badgeList = `
+                        <div class="ky-badge-list">
+                            ${recentSubmissions.map(sub => {
+                                const statusColor = sub.displayStatus === 'Close' || sub.displayStatus === 'close' ? 'close' : 
+                                                   sub.displayStatus === 'Pending' || sub.displayStatus === 'pending' ? 'pending' : 'open';
+                                const statusText = sub.displayStatus.charAt(0).toUpperCase() + sub.displayStatus.slice(1);
+                                const title = sub.description ? sub.description.substring(0, 20) + (sub.description.length > 20 ? '...' : '') : 'No description';
+                                return `
+                                    <span class="ky-badge-item">
+                                        <span class="dot ${statusColor}"></span>
+                                        <span class="badge-title">${title}</span>
+                                        <span class="badge-status ${statusColor}">${statusText}</span>
+                                    </span>
+                                `;
+                            }).join('')}
+                            ${selectedSubmissions.length > 5 ? `<span class="ky-badge-item" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.1);">+${selectedSubmissions.length - 5} more</span>` : ''}
+                        </div>
+                    `;
+                }
+
+                // Build month filter
+                let filterHTML = `
+                    <div class="month-filter">
+                        <label><i class="fas fa-calendar-alt"></i> Month:</label>
+                        <select id="kyMonthFilter" onchange="changeKYMonth(this.value)">
+                            ${sortedMonths.map(monthKey => {
+                                const [y, mn] = monthKey.split('-');
+                                const label = monthNames[parseInt(mn) - 1] + ' ' + y;
+                                const count = monthlyData[monthKey].length;
+                                return `<option value="${monthKey}" ${monthKey === selectedMonth ? 'selected' : ''}>
+                                    ${label} (${count})
+                                </option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                `;
+
+                // Determine if target achieved
+                const achievedText = totalCount >= 2 ? 
+                    `<span class="achieved">✅ Target achieved! (${totalCount}/2)</span>` : 
+                    `<span class="highlight">⚠️ Need ${2 - totalCount} more submission(s) to meet target</span>`;
+
+                container.innerHTML = `
+                    ${filterHTML}
+                    <div class="stat-row">
+                        <div><div class="stat-label">${monthLabel}</div></div>
+                        <div class="stat-value ${colorClass}">${totalCount}/2</div>
+                    </div>
+                    ${statusSummary}
+                    ${badgeList}
+                    <div class="stat-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Minimum required: 2 KY submissions per month
+                        <br>
+                        ${achievedText}
+                    </div>
+                `;
+
+                // Store data for filter changes
+                window._kyData = { monthlyData, sortedMonths, selectedMonth };
+
+            } catch (error) {
+                console.error("Error displaying KY stats:", error);
+                container.innerHTML = `
+                    <div class="stat-row">
+                        <div class="stat-label">Error loading KY data</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Global function for KY month filter change
+        window.changeKYMonth = function(monthKey) {
+            const container = document.getElementById('kyStatsContent');
+            const data = window._kyData;
+            
+            if (!data) return;
+            
+            const { monthlyData, sortedMonths } = data;
+            const selectedSubmissions = monthlyData[monthKey] || [];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const totalCount = selectedSubmissions.length;
+            const openCount = selectedSubmissions.filter(s => s.displayStatus === 'Open' || s.displayStatus === 'open').length;
+            const closeCount = selectedSubmissions.filter(s => s.displayStatus === 'Close' || s.displayStatus === 'close').length;
+            const pendingCount = selectedSubmissions.filter(s => s.displayStatus === 'Pending' || s.displayStatus === 'pending').length;
+            
+            let colorClass = 'red';
+            if (totalCount >= 2) colorClass = 'green';
+            else if (totalCount >= 1) colorClass = 'yellow';
+            
+            const [year, monthNum] = monthKey.split('-');
+            const monthLabel = monthNames[parseInt(monthNum) - 1] + ' ' + year;
+
+            // Status summary
+            let statusSummary = `
+                <div class="status-summary">
+                    <div class="status-summary-item">
+                        <div class="count total">${totalCount}</div>
+                        <div class="label">📋 Total</div>
+                    </div>
+                    <div class="status-summary-item">
+                        <div class="count open">${openCount}</div>
+                        <div class="label">🔵 Open</div>
+                    </div>
+                    <div class="status-summary-item">
+                        <div class="count close">${closeCount}</div>
+                        <div class="label">✅ Close</div>
+                    </div>
+                </div>
+            `;
+
+            // Badge list
+            let badgeList = '';
+            if (selectedSubmissions.length > 0) {
+                const recentSubmissions = selectedSubmissions.slice(0, 5);
+                badgeList = `
+                    <div class="ky-badge-list">
+                        ${recentSubmissions.map(sub => {
+                            const statusColor = sub.displayStatus === 'Close' || sub.displayStatus === 'close' ? 'close' : 
+                                               sub.displayStatus === 'Pending' || sub.displayStatus === 'pending' ? 'pending' : 'open';
+                            const statusText = sub.displayStatus.charAt(0).toUpperCase() + sub.displayStatus.slice(1);
+                            const title = sub.description ? sub.description.substring(0, 20) + (sub.description.length > 20 ? '...' : '') : 'No description';
+                            return `
+                                <span class="ky-badge-item">
+                                    <span class="dot ${statusColor}"></span>
+                                    <span class="badge-title">${title}</span>
+                                    <span class="badge-status ${statusColor}">${statusText}</span>
+                                </span>
+                            `;
+                        }).join('')}
+                        ${selectedSubmissions.length > 5 ? `<span class="ky-badge-item" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.1);">+${selectedSubmissions.length - 5} more</span>` : ''}
+                    </div>
+                `;
+            }
+
+            const achievedText = totalCount >= 2 ? 
+                `<span class="achieved">✅ Target achieved! (${totalCount}/2)</span>` : 
+                `<span class="highlight">⚠️ Need ${2 - totalCount} more submission(s) to meet target</span>`;
+            
+            container.innerHTML = `
+                <div class="month-filter">
+                    <label><i class="fas fa-calendar-alt"></i> Month:</label>
+                    <select id="kyMonthFilter" onchange="changeKYMonth(this.value)">
+                        ${sortedMonths.map(m => {
+                            const [y, mn] = m.split('-');
+                            const label = monthNames[parseInt(mn) - 1] + ' ' + y;
+                            const count = monthlyData[m].length;
+                            return `<option value="${m}" ${m === monthKey ? 'selected' : ''}>
+                                ${label} (${count})
+                            </option>`;
+                        }).join('')}
+                    </select>
+                </div>
+                <div class="stat-row">
+                    <div><div class="stat-label">${monthLabel}</div></div>
+                    <div class="stat-value ${colorClass}">${totalCount}/2</div>
+                </div>
+                ${statusSummary}
+                ${badgeList}
+                <div class="stat-info">
+                    <i class="fas fa-info-circle"></i> 
+                    Minimum required: 2 KY submissions per month
+                    <br>
+                    ${achievedText}
+                </div>
+            `;
+        };
+
+        // ===== KAIZEN SUBMISSION FUNCTIONS =====
+        async function getKaizenSubmissions(userId) {
+            try {
+                const q = query(
+                    collection(db, "kaizen_submissions"),
+                    where("submittedBy", "==", userId)
+                );
+
+                const querySnapshot = await getDocs(q);
+                const submissions = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    let submissionDate = null;
+                    
+                    if (data.submittedDate) {
+                        submissionDate = new Date(data.submittedDate);
+                    } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                        submissionDate = data.createdAt.toDate();
+                    }
+                    
+                    let displayStatus = 'pending';
+                    if (data.adminStatus === 'approved') {
+                        displayStatus = 'approved';
+                    } else if (data.adminStatus === 'rejected') {
+                        displayStatus = 'rejected';
+                    }
+                    
+                    submissions.push({
+                        id: doc.id,
+                        ...data,
+                        submissionDate: submissionDate,
+                        displayStatus: displayStatus
+                    });
+                });
+                
+                return submissions;
+            } catch (error) {
+                console.error("Error getting Kaizen submissions:", error);
+                return [];
+            }
+        }
+
+        async function displayKaizenStats(userId) {
+            const container = document.getElementById('kaizenStatsContent');
+            
+            try {
+                const submissions = await getKaizenSubmissions(userId);
+                
+                if (submissions.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No Kaizen submissions yet.</p>
+                            <a href="kaizenform.html" style="color: #10b981; text-decoration: none; font-weight: 600; display: inline-block; margin-top: 8px;">
+                                Submit your first Kaizen →
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const monthlyData = {};
+                submissions.forEach(sub => {
+                    if (sub.submissionDate && !isNaN(sub.submissionDate.getTime())) {
+                        const monthKey = sub.submissionDate.getFullYear() + '-' + 
+                                       String(sub.submissionDate.getMonth() + 1).padStart(2, '0');
+                        if (!monthlyData[monthKey]) {
+                            monthlyData[monthKey] = [];
+                        }
+                        monthlyData[monthKey].push(sub);
+                    }
+                });
+
+                const sortedMonths = Object.keys(monthlyData).sort().reverse();
+                const selectedMonth = sortedMonths[0];
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                
+                const selectedSubmissions = monthlyData[selectedMonth] || [];
+                const totalCount = selectedSubmissions.length;
+                const pendingCount = selectedSubmissions.filter(s => s.displayStatus === 'pending').length;
+                const approvedCount = selectedSubmissions.filter(s => s.displayStatus === 'approved').length;
+                const rejectedCount = selectedSubmissions.filter(s => s.displayStatus === 'rejected').length;
+                
+                let colorClass = 'red';
+                if (totalCount >= 2) colorClass = 'green';
+                else if (totalCount >= 1) colorClass = 'yellow';
+                
+                const [year, monthNum] = selectedMonth ? selectedMonth.split('-') : ['', ''];
+                const monthLabel = selectedMonth ? monthNames[parseInt(monthNum) - 1] + ' ' + year : 'N/A';
+
+                let statusSummary = `
+                    <div class="status-summary">
+                        <div class="status-summary-item">
+                            <div class="count pending">${pendingCount}</div>
+                            <div class="label">⏳ Pending</div>
+                        </div>
+                        <div class="status-summary-item">
+                            <div class="count approved">${approvedCount}</div>
+                            <div class="label">✅ Approved</div>
+                        </div>
+                        <div class="status-summary-item">
+                            <div class="count rejected">${rejectedCount}</div>
+                            <div class="label">❌ Rejected</div>
+                        </div>
+                    </div>
+                `;
+
+                let badgeList = '';
+                if (selectedSubmissions.length > 0) {
+                    const recentSubmissions = selectedSubmissions.slice(0, 5);
+                    badgeList = `
+                        <div class="kaizen-badge-list">
+                            ${recentSubmissions.map(sub => {
+                                const statusColor = sub.displayStatus;
+                                const statusText = sub.displayStatus.charAt(0).toUpperCase() + sub.displayStatus.slice(1);
+                                const title = sub.issueDetails ? sub.issueDetails.substring(0, 20) + (sub.issueDetails.length > 20 ? '...' : '') : 'No title';
+                                return `
+                                    <span class="kaizen-badge-item">
+                                        <span class="dot ${statusColor}"></span>
+                                        <span class="badge-title">${title}</span>
+                                        <span class="badge-status ${statusColor}">${statusText}</span>
+                                    </span>
+                                `;
+                            }).join('')}
+                            ${selectedSubmissions.length > 5 ? `<span class="kaizen-badge-item" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.1);">+${selectedSubmissions.length - 5} more</span>` : ''}
+                        </div>
+                    `;
+                }
+
+                let filterHTML = `
+                    <div class="month-filter">
+                        <label><i class="fas fa-calendar-alt"></i> Month:</label>
+                        <select id="kaizenMonthFilter" onchange="changeKaizenMonth(this.value)">
+                            ${sortedMonths.map(monthKey => {
+                                const [y, mn] = monthKey.split('-');
+                                const label = monthNames[parseInt(mn) - 1] + ' ' + y;
+                                const count = monthlyData[monthKey].length;
+                                return `<option value="${monthKey}" ${monthKey === selectedMonth ? 'selected' : ''}>
+                                    ${label} (${count})
+                                </option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                `;
+
+                container.innerHTML = `
+                    ${filterHTML}
+                    <div class="stat-row">
+                        <div><div class="stat-label">${monthLabel}</div></div>
+                        <div class="stat-value ${colorClass}">${totalCount}/2</div>
+                    </div>
+                    ${statusSummary}
+                    ${badgeList}
                     <div class="stat-info">
                         <i class="fas fa-info-circle"></i> Minimum required: 2 submissions per month
                     </div>
                 `;
+
+                window._kaizenData = { monthlyData, sortedMonths, selectedMonth };
+
             } catch (error) {
-                kyStatsContent.innerHTML = `
+                console.error("Error displaying Kaizen stats:", error);
+                container.innerHTML = `
                     <div class="stat-row">
-                        <div class="stat-label">Error loading statistics</div>
+                        <div class="stat-label">Error loading Kaizen data</div>
                     </div>
                 `;
             }
         }
 
-        // Updated Function: Monthly Filter + Checked-in Status
-        // Updated Function: Real-Time Listener + Shows All Upcoming Trainings
-function displayJoinedTrainings(userId) {
-    const container = document.getElementById('joinedTrainingsContent');
-    
-    try {
-        // 1. Listen to the master Trainings list for accurate times in real-time
-        onSnapshot(collection(db, 'trainings'), (trainingsSnap) => {
-            const timeDictionary = {};
-            trainingsSnap.forEach(doc => {
-                timeDictionary[doc.id] = doc.data().timeString || 'TBD'; 
-            });
+        // Global function for Kaizen month filter
+        window.changeKaizenMonth = function(monthKey) {
+            const container = document.getElementById('kaizenStatsContent');
+            const data = window._kaizenData;
+            
+            if (!data) return;
+            
+            const { monthlyData, sortedMonths } = data;
+            const selectedSubmissions = monthlyData[monthKey] || [];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const totalCount = selectedSubmissions.length;
+            const pendingCount = selectedSubmissions.filter(s => s.displayStatus === 'pending').length;
+            const approvedCount = selectedSubmissions.filter(s => s.displayStatus === 'approved').length;
+            const rejectedCount = selectedSubmissions.filter(s => s.displayStatus === 'rejected').length;
+            
+            let colorClass = 'red';
+            if (totalCount >= 2) colorClass = 'green';
+            else if (totalCount >= 1) colorClass = 'yellow';
+            
+            const [year, monthNum] = monthKey.split('-');
+            const monthLabel = monthNames[parseInt(monthNum) - 1] + ' ' + year;
 
-            // 2. Listen to actual check-in attendances in real-time
-            const qAtt = query(collection(db, "training_attendance"), where("userId", "==", userId));
-            onSnapshot(qAtt, (snapAtt) => {
-                const attendedIds = [];
-                snapAtt.forEach(doc => attendedIds.push(doc.data().trainingId));
+            let statusSummary = `
+                <div class="status-summary">
+                    <div class="status-summary-item">
+                        <div class="count pending">${pendingCount}</div>
+                        <div class="label">⏳ Pending</div>
+                    </div>
+                    <div class="status-summary-item">
+                        <div class="count approved">${approvedCount}</div>
+                        <div class="label">✅ Approved</div>
+                    </div>
+                    <div class="status-summary-item">
+                        <div class="count rejected">${rejectedCount}</div>
+                        <div class="label">❌ Rejected</div>
+                    </div>
+                </div>
+            `;
 
-                // 3. Listen to user's registered list in real-time
-                const qReg = query(collection(db, "training_registrations"), where("userId", "==", userId));
-                onSnapshot(qReg, (snap) => {
-                    let trainings = [];
-                    
-                    // Get today's date and set it to midnight to ensure accurate day tracking
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0); 
-                    const currentMonth = today.getMonth();
-                    const currentYear = today.getFullYear();
+            let badgeList = '';
+            if (selectedSubmissions.length > 0) {
+                const recentSubmissions = selectedSubmissions.slice(0, 5);
+                badgeList = `
+                    <div class="kaizen-badge-list">
+                        ${recentSubmissions.map(sub => {
+                            const statusColor = sub.displayStatus;
+                            const statusText = sub.displayStatus.charAt(0).toUpperCase() + sub.displayStatus.slice(1);
+                            const title = sub.issueDetails ? sub.issueDetails.substring(0, 20) + (sub.issueDetails.length > 20 ? '...' : '') : 'No title';
+                            return `
+                                <span class="kaizen-badge-item">
+                                    <span class="dot ${statusColor}"></span>
+                                    <span class="badge-title">${title}</span>
+                                    <span class="badge-status ${statusColor}">${statusText}</span>
+                                </span>
+                            `;
+                        }).join('')}
+                        ${selectedSubmissions.length > 5 ? `<span class="kaizen-badge-item" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.1);">+${selectedSubmissions.length - 5} more</span>` : ''}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="month-filter">
+                    <label><i class="fas fa-calendar-alt"></i> Month:</label>
+                    <select id="kaizenMonthFilter" onchange="changeKaizenMonth(this.value)">
+                        ${sortedMonths.map(m => {
+                            const [y, mn] = m.split('-');
+                            const label = monthNames[parseInt(mn) - 1] + ' ' + y;
+                            const count = monthlyData[m].length;
+                            return `<option value="${m}" ${m === monthKey ? 'selected' : ''}>
+                                ${label} (${count})
+                            </option>`;
+                        }).join('')}
+                    </select>
+                </div>
+                <div class="stat-row">
+                    <div><div class="stat-label">${monthLabel}</div></div>
+                    <div class="stat-value ${colorClass}">${totalCount}/2</div>
+                </div>
+                ${statusSummary}
+                ${badgeList}
+                <div class="stat-info">
+                    <i class="fas fa-info-circle"></i> Minimum required: 2 submissions per month
+                </div>
+            `;
+        };
 
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        const tDate = new Date(data.trainingDate);
-                        
-                        // FIX: Include trainings from this month OR any future upcoming date
-                        if (tDate >= today || (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear)) {
-                            trainings.push(data);
-                        }
+        // ===== TRAININGS =====
+        function displayJoinedTrainings(userId) {
+            const container = document.getElementById('joinedTrainingsContent');
+            
+            try {
+                onSnapshot(collection(db, 'trainings'), (trainingsSnap) => {
+                    const timeDictionary = {};
+                    trainingsSnap.forEach(doc => {
+                        timeDictionary[doc.id] = doc.data().timeString || 'TBD'; 
                     });
 
-                    if (trainings.length === 0) {
-                        container.innerHTML = `<div class="detail-item" style="justify-content: center; color: #999;">No upcoming trainings scheduled.</div>`;
-                        return;
-                    }
+                    const qAtt = query(collection(db, "training_attendance"), where("userId", "==", userId));
+                    onSnapshot(qAtt, (snapAtt) => {
+                        const attendedIds = [];
+                        snapAtt.forEach(doc => attendedIds.push(doc.data().trainingId));
 
-                    // Sort by date (earliest to latest)
-                    trainings.sort((a, b) => new Date(a.trainingDate) - new Date(b.trainingDate));
+                        const qReg = query(collection(db, "training_registrations"), where("userId", "==", userId));
+                        onSnapshot(qReg, (snap) => {
+                            let trainings = [];
+                            
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0); 
+                            const currentMonth = today.getMonth();
+                            const currentYear = today.getFullYear();
 
-                    let html = "";
-                    trainings.forEach(t => {
-                        const niceDate = new Date(t.trainingDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-                        const exactTime = timeDictionary[t.trainingId] || 'TBD';
-                        const hasAttended = attendedIds.includes(t.trainingId);
-                        
-                        const statusBadge = hasAttended 
-                            ? `<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: auto;">✅ Checked In</span>` 
-                            : `<span style="background: #64748b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: auto;">⏳ Upcoming</span>`;
-                        
-                        html += `
-                            <div class="training-item">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <h4>${t.trainingName}</h4>
-                                    ${statusBadge}
-                                </div>
-                                <p>
-                                    <span><i class="far fa-calendar-alt"></i> ${niceDate}</span> 
-                                    <span style="margin-left: 10px;"><i class="far fa-clock"></i> ${exactTime}</span>
-                                </p>
-                            </div>
-                        `;
+                            snap.forEach(doc => {
+                                const data = doc.data();
+                                const tDate = new Date(data.trainingDate);
+                                
+                                if (tDate >= today || (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear)) {
+                                    trainings.push(data);
+                                }
+                            });
+
+                            if (trainings.length === 0) {
+                                container.innerHTML = `<div class="detail-item" style="justify-content: center; color: #999;">No upcoming trainings scheduled.</div>`;
+                                return;
+                            }
+
+                            trainings.sort((a, b) => new Date(a.trainingDate) - new Date(b.trainingDate));
+
+                            let html = "";
+                            trainings.forEach(t => {
+                                const niceDate = new Date(t.trainingDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                                const exactTime = timeDictionary[t.trainingId] || 'TBD';
+                                const hasAttended = attendedIds.includes(t.trainingId);
+                                
+                                const statusBadge = hasAttended 
+                                    ? `<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: auto;">✅ Checked In</span>` 
+                                    : `<span style="background: #64748b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: auto;">⏳ Upcoming</span>`;
+                                
+                                html += `
+                                    <div class="training-item">
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                            <h4>${t.trainingName}</h4>
+                                            ${statusBadge}
+                                        </div>
+                                        <p>
+                                            <span><i class="far fa-calendar-alt"></i> ${niceDate}</span> 
+                                            <span style="margin-left: 10px;"><i class="far fa-clock"></i> ${exactTime}</span>
+                                        </p>
+                                    </div>
+                                `;
+                            });
+                            
+                            container.innerHTML = html;
+                        });
                     });
-                    
-                    container.innerHTML = html;
                 });
-            });
-        });
-    } catch (error) {
-        console.error("Error setting up training listener:", error);
-        container.innerHTML = `<div class="detail-item" style="justify-content: center; color: #ef4444;">Error loading your schedule.</div>`;
-    }
-}
+            } catch (error) {
+                console.error("Error setting up training listener:", error);
+                container.innerHTML = `<div class="detail-item" style="justify-content: center; color: #ef4444;">Error loading your schedule.</div>`;
+            }
+        }
 
-        // Get logged-in user and display info + KY stats + Trainings
+        // ===== MAIN AUTH HANDLER =====
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 getUserInfoRealtime(user.uid);
+                
+                // KY Stats (NEW)
                 await displayKYStats(user.uid);
-                displayJoinedTrainings(user.uid); // Removed the "await" here
+                
+                // Kaizen Stats
+                await displayKaizenStats(user.uid);
+                
+                // Trainings
+                displayJoinedTrainings(user.uid);
 
-                // Set up real-time updates for KY stats
+                // Real-time update for KY Stats
                 const kyQuery = query(
-                    collection(db, "she-kikenYochi"),
+                    collection(db, "ky_submission"),
                     where("submittedBy", "==", user.uid)
                 );
 
-                onSnapshot(kyQuery, (snapshot) => {
-                    const now = new Date();
-                    const currentMonth = now.getMonth();
-                    const currentYear = now.getFullYear();
-                    
-                    let count = 0;
-                    snapshot.forEach((doc) => {
-                        const data = doc.data();
-                        let submissionDate = null;
-                        
-                        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-                            submissionDate = data.createdAt.toDate();
-                        } else if (data.submittedDate) {
-                            submissionDate = new Date(data.submittedDate);
-                        }
-                        
-                        if (submissionDate && !isNaN(submissionDate.getTime())) {
-                            if (submissionDate.getMonth() === currentMonth && submissionDate.getFullYear() === currentYear) {
-                                count++;
-                            }
-                        }
-                    });
-                    
-                    const colorClass = count < 2 ? 'red' : 'green';
-                    const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-                    
-                    document.getElementById('kyStatsContent').innerHTML = `
-                        <div class="stat-row">
-                            <div><div class="stat-label">${monthName}</div></div>
-                            <div class="stat-value ${colorClass}">${count}/2</div>
-                        </div>
-                        <div class="stat-info">
-                            <i class="fas fa-info-circle"></i> Minimum required: 2 submissions per month
-                        </div>
-                    `;
+                onSnapshot(kyQuery, () => {
+                    displayKYStats(user.uid);
                 });
+
+                // Real-time update for Kaizen Stats
+                const kaizenQuery = query(
+                    collection(db, "kaizen_submissions"),
+                    where("submittedBy", "==", user.uid)
+                );
+
+                onSnapshot(kaizenQuery, () => {
+                    displayKaizenStats(user.uid);
+                });
+
             } else {
                 nameinfo.innerHTML = `<p>Please log in</p>`;
                 userDetails.innerHTML = `<p>Please log in</p>`;
                 document.getElementById('kyStatsContent').innerHTML = '<p>Please log in to view statistics</p>';
+                document.getElementById('kaizenStatsContent').innerHTML = '<p>Please log in to view statistics</p>';
                 document.getElementById('joinedTrainingsContent').innerHTML = '<p>Please log in to view schedule</p>';
             }
         });

@@ -72,6 +72,67 @@
         .section-divider { height: 2px; background: linear-gradient(to right, #1a1d3a, transparent); margin-bottom: 25px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) { .content { padding: 30px 25px; } .rank-options { grid-template-columns: 1fr; } .button-group { flex-direction: column; } .btn { width: 100%; } .grid-2 { grid-template-columns: 1fr; } }
+        
+        /* Custom file input styling */
+        .custom-file-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .custom-file-input .file-name {
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .custom-file-input .browse-btn {
+            background: #1a1d3a;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .custom-file-input .browse-btn:hover {
+            background: #252850;
+            transform: translateY(-1px);
+        }
+        .file-upload-area {
+            border: 2px dashed #cbd5e0;
+            background: #f7fafc;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #1a1d3a;
+            background: #edf2f7;
+        }
+        .file-upload-area .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .file-upload-area .text {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .file-upload-area .hint {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+        .close-proof-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            background: #f7fafc;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +145,9 @@
         <div class="container">
             <div class="header">
                 <h1>KIKEN YOCHI (KY) SUBMISSION FORM</h1>
+            </div>
+            <div style="text-align: center;">
+                <img src="pictures/logo_suria.png" alt="SCM" style="width: 400px; height: auto;">
             </div>
 
             <div class="content">
@@ -109,24 +173,7 @@
 
                     <div class="form-group">
                         <label>Department <span class="required">*</span></label>
-                        <select id="department" required>
-                            <option value="">Please Select</option>
-                            <option value="HRA">HRA</option>
-                            <option value="FNA">FNA</option>
-                            <option value="MDO">MDO</option>
-                            <option value="BD&Project">BD&Project</option>
-                            <option value="SALES">SALES</option>
-                            <option value="PVD">PVD</option>
-                            <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
-                            <option value="QMS">QMS</option>
-                            <option value="QAQC">QAQC</option>
-                            <option value="PE/LPS">PE/LPS</option>
-                            <option value="MAINTENANCE">MAINTENANCE</option>
-                            <option value="PROD">PROD</option>
-                            <option value="PPCL">PPCL</option>
-                            <option value="SYNERGY">SYNERGY</option>
-                            <option value="SGTSB">SGTSB</option>
-                        </select>
+                        <input type="text" id="department" required>
                     </div>
 
                     <div class="form-section">
@@ -134,8 +181,48 @@
                         <div class="section-divider"></div>
                     </div>
 
+                    <!-- Abnormality Type -->
                     <div class="form-group">
-                        <label>KY Finding Images <span class="required">*</span></label>
+                        <label>Abnormality Type <span class="required">*</span></label>
+                        <select id="abnormalityType" required>
+                            <option value="">Please Select</option>
+                            <option value="Unsafe Act">Unsafe Act</option>
+                            <option value="Not Wear PPE">Not Wear PPE</option>
+                            <option value="Near Miss">Near Miss</option>
+                        </select>
+                    </div>
+
+                    <!-- Location Abnormal -->
+                    <div class="form-group">
+                        <label>Location Abnormal <span class="required">*</span></label>
+                        <select id="locationAbnormal" required>
+                            <option value="">Please Select</option>
+                            <option value="Ground Floor">Ground Floor</option>
+                            <option value="Mezzanine Floor">Mezzanine Floor</option>
+                            <option value="L1 Office">L1 Office</option>
+                            <option value="SGT and Synergy">SGT and Synergy</option>
+                            <option value="Outside the Factory / In front of the Factory">Outside the Factory / In front of the Factory</option>
+                        </select>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="pictures/Location_KY.png" alt="SCM" style="width: 400px; height: auto;">
+                    </div>
+
+                    <!-- Incident Location/Area -->
+                    <div class="form-group">
+                        <label>Incident Location/Area <span class="required">*</span></label>
+                        <select id="incidentLocation" required>
+                            <option value="">Please Select</option>
+                            <option value="Zone A Alza - En.Nasir">Zone A Alza - En.Nasir</option>
+                            <option value="Zone B Bezza - En. Wan Mohammad">Zone B Bezza - En. Wan Mohammad</option>
+                            <option value="Zone C Kelisa - En.Kamarul">Zone C Kelisa - En.Kamarul</option>
+                            <option value="Zone D Kancil - En.Shafrul">Zone D Kancil - En.Shafrul</option>
+                            <option value="Zone E Myvi - Pn.Nasihah">Zone E Myvi - Pn.Nasihah</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>KY Finding Images</label>
                         <div class="file-upload-wrapper">
                             <div class="file-upload" id="mainFileUpload" onclick="document.getElementById('fileInput').click()">
                                 <div class="file-upload-icon">📁</div>
@@ -153,47 +240,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Area of SURIA <span class="required">*</span></label>
-                        <input type="text" id="area" required>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Person In Charge <span class="required">*</span></label>
-                            <select id="personInCharge" required>
-                                <option value="">Please Select</option>
-                                <option value="HRA">HRA</option>
-                                <option value="FNA">FNA</option>
-                                <option value="MDO">MDO</option>
-                                <option value="BD&Project">BD&Project</option>
-                                <option value="SALES">SALES</option>
-                                <option value="PVD">PVD</option>
-                                <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
-                                <option value="QMS">QMS</option>
-                                <option value="QAQC">QAQC</option>
-                                <option value="PE/LPS">PE/LPS</option>
-                                <option value="MAINTENANCE">MAINTENANCE</option>
-                                <option value="PROD">PROD</option>
-                                <option value="PPCL">PPCL</option>
-                                <option value="SYNERGY">SYNERGY</option>
-                                <option value="SGTSB">SGTSB</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Stop <span class="required">*</span></label>
-                            <select id="stop" required>
-                                <option value="">Please Select</option>
-                                <option value="STOP 1">STOP 1: Bahaya Mesin</option>
-                                <option value="STOP 2">STOP 2: Bahaya Objek Berat/Tajam/Panas</option>
-                                <option value="STOP 3">STOP 3: Bahaya pengendalian barang/peralatan & kenderaan</option>
-                                <option value="STOP 4">STOP 4: Jatuh dari tempat yang berbeza ketinggian</option>
-                                <option value="STOP 5">STOP 5: Bahaya renjatan elektrik</option>
-                                <option value="STOP 6">STOP 6: Bahaya terbakar</option>
-                                <option value="STOP 7">STOP 7: Pembinaan/Kontraktor</option>
-                                <option value="STOP 8">STOP 8: Bahaya lain lain (Bahan kimia, pencemaran, Sisa terjadual, PPE)</option>
-                            </select>
-                        </div>
+                        <label>Stop <span class="required">*</span></label>
+                        <select id="stop" required>
+                            <option value="">Please Select</option>
+                            <option value="STOP 1">STOP 1: Bahaya Mesin</option>
+                            <option value="STOP 2">STOP 2: Bahaya Objek Berat/Tajam/Panas</option>
+                            <option value="STOP 3">STOP 3: Bahaya pengendalian barang/peralatan & kenderaan</option>
+                            <option value="STOP 4">STOP 4: Jatuh dari tempat yang berbeza ketinggian</option>
+                            <option value="STOP 5">STOP 5: Bahaya renjatan elektrik</option>
+                            <option value="STOP 6">STOP 6: Bahaya terbakar</option>
+                            <option value="STOP 7">STOP 7: Pembinaan/Kontraktor</option>
+                            <option value="STOP 8">STOP 8: Bahaya lain lain (Bahan kimia, pencemaran, Sisa terjadual, PPE)</option>
+                        </select>
                     </div>
 
                     <div class="form-group rank-section">
@@ -229,26 +287,41 @@
                         </div>
                     </div>
 
+                    <!-- KY Status -->
                     <div class="form-group">
-                        <label>Current Status <span class="required">*</span></label>
-                        <select id="currentStatus" required>
+                        <label>KY Status <span class="required">*</span></label>
+                        <select id="kyStatus" required>
                             <option value="">Please Select</option>
                             <option value="Open">Open</option>
                             <option value="Close">Close</option>
                         </select>
                     </div>
 
+                    <!-- After KY Close - Upload Images (conditional) -->
                     <div class="form-group conditional-field" id="closeProofSection">
-                        <label>KY Close Proof Images <span class="required">*</span></label>
-                        <div class="file-upload-wrapper">
-                            <div class="file-upload" id="closeProofUpload" onclick="document.getElementById('closeProofInput').click()">
-                                <div class="file-upload-icon">📁</div>
-                                <div class="file-upload-text">Browse Files</div>
-                                <div class="file-upload-hint">Drag and drop files here or click to browse</div>
+                        <label>After KY Close, Please Attach Supporting Images</label>
+                        <div class="close-proof-container">
+                            <!-- Custom file input with "No file chosen" text -->
+                            <div class="custom-file-input">
+                                <span class="file-name" id="closeFileName">No file chosen</span>
+                                <button type="button" class="browse-btn" onclick="document.getElementById('closeProofInput').click()">Browse Files</button>
                             </div>
+                            
+                            <!-- Drag and drop area -->
+                            <div class="file-upload-area" id="closeProofUpload">
+                                <div class="icon">📁</div>
+                                <div class="text">Drag and drop files here</div>
+                            </div>
+                            
                             <input type="file" id="closeProofInput" multiple accept="image/*,.pdf,.doc,.docx">
                             <div id="closeProofPreviewContainer" class="file-preview-container"></div>
                         </div>
+                    </div>
+
+                    <!-- Improvement Suggestion -->
+                    <div class="form-group">
+                        <label>Improvement Suggestion</label>
+                        <textarea id="improvementSuggestion" placeholder="Please provide any suggestions for improvement..."></textarea>
                     </div>
 
                     <div class="button-group">
@@ -260,14 +333,13 @@
     </div>
 
     <script type="module">
-        // STRIPPED: languageTranslator.js is completely gone.
         import { auth, db, storage } from './firebaseConfig.js';
         import { collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
         import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
         const collectionName = 'ky_submission';
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwOfvQGDyq5DnZxsNNtpeGIvUXkcS2LKadtpdlGZvM80BX2xMeRr6gfFOjKD0RcnRuqig/exec'; 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwOfvQGDyq5DnZxsNNtpeGIvUXkcS2LKadtpdlGZvM80BX2xMeRr6gfFOjKD0RcnRuqig/exec';
         
         let selectedFiles = [];
         let selectedCloseProofFiles = [];
@@ -295,36 +367,24 @@
             }
         }
 
-        document.getElementById('currentStatus').addEventListener('change', function() {
+        // Conditional display for Close Proof section based on KY Status
+        document.getElementById('kyStatus').addEventListener('change', function() {
             const closeProofSection = document.getElementById('closeProofSection');
-            const closeProofInput = document.getElementById('closeProofInput');
             if (this.value === 'Close') {
                 closeProofSection.classList.add('show');
-                closeProofInput.required = true;
             } else {
                 closeProofSection.classList.remove('show');
-                closeProofInput.required = false;
                 selectedCloseProofFiles = [];
                 document.getElementById('closeProofPreviewContainer').innerHTML = '';
-                updateCloseProofUploadButton();
+                updateCloseFileName();
             }
         });
 
-        const fileInput = document.getElementById('fileInput');
-        fileInput.addEventListener('click', function() { this.value = null; });
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; 
-        
-        fileInput.addEventListener('change', function(e) {
-            handleFileSelection(e.target.files, selectedFiles, displayFilePreviews, updateUploadButton);
-        });
+        // --- File Handling Functions ---
 
-        const closeProofInput = document.getElementById('closeProofInput');
-        closeProofInput.addEventListener('click', function() { this.value = null; });
-        closeProofInput.addEventListener('change', function(e) {
-            handleFileSelection(e.target.files, selectedCloseProofFiles, displayCloseProofPreviews, updateCloseProofUploadButton);
-        });
+        const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-        function handleFileSelection(files, targetArray, displayFunc, updateBtnFunc) {
+        function handleFileSelection(files, targetArray, displayFunc, updateBtnFunc, updateFileNameFunc) {
             const newFiles = Array.from(files);
             const validFiles = [];
             const invalidFiles = [];
@@ -339,7 +399,8 @@
             if (invalidFiles.length > 0) showError(`The following file(s) exceed 5MB: ${invalidFiles.join(', ')}`);
             targetArray.push(...validFiles);
             displayFunc();
-            updateBtnFunc();
+            if (updateBtnFunc) updateBtnFunc();
+            if (updateFileNameFunc) updateFileNameFunc();
         }
 
         function createPreviewItem(file, index, removeFunc) {
@@ -371,28 +432,23 @@
             return previewItem;
         }
 
+        // --- Main KY Finding File Handlers ---
+        const fileInput = document.getElementById('fileInput');
+        fileInput.addEventListener('click', function() { this.value = null; });
+        fileInput.addEventListener('change', function(e) {
+            handleFileSelection(e.target.files, selectedFiles, displayFilePreviews, updateUploadButton);
+        });
+
         function displayFilePreviews() {
             const container = document.getElementById('filePreviewContainer');
             container.innerHTML = '';
             selectedFiles.forEach((file, index) => container.appendChild(createPreviewItem(file, index, removeFile)));
         }
 
-        function displayCloseProofPreviews() {
-            const container = document.getElementById('closeProofPreviewContainer');
-            container.innerHTML = '';
-            selectedCloseProofFiles.forEach((file, index) => container.appendChild(createPreviewItem(file, index, removeCloseProofFile)));
-        }
-
         function removeFile(index) {
             selectedFiles.splice(index, 1);
             displayFilePreviews();
             updateUploadButton();
-        }
-
-        function removeCloseProofFile(index) {
-            selectedCloseProofFiles.splice(index, 1);
-            displayCloseProofPreviews();
-            updateCloseProofUploadButton();
         }
 
         function updateUploadButton() {
@@ -404,15 +460,65 @@
             }
         }
 
+        setupDragAndDrop('mainFileUpload', selectedFiles, displayFilePreviews, updateUploadButton);
+
+        // --- Close Proof File Handlers ---
+        const closeProofInput = document.getElementById('closeProofInput');
+        closeProofInput.addEventListener('click', function() { this.value = null; });
+        closeProofInput.addEventListener('change', function(e) {
+            handleFileSelection(e.target.files, selectedCloseProofFiles, displayCloseProofPreviews, updateCloseProofUploadButton, updateCloseFileName);
+        });
+
+        function displayCloseProofPreviews() {
+            const container = document.getElementById('closeProofPreviewContainer');
+            container.innerHTML = '';
+            selectedCloseProofFiles.forEach((file, index) => container.appendChild(createPreviewItem(file, index, removeCloseProofFile)));
+        }
+
+        function removeCloseProofFile(index) {
+            selectedCloseProofFiles.splice(index, 1);
+            displayCloseProofPreviews();
+            updateCloseFileName();
+        }
+
         function updateCloseProofUploadButton() {
-            const closeProofUpload = document.getElementById('closeProofUpload');
+            // No change needed for the drag and drop area
+        }
+
+        function updateCloseFileName() {
+            const fileNameDisplay = document.getElementById('closeFileName');
             if (selectedCloseProofFiles.length > 0) {
-                closeProofUpload.innerHTML = `<div class="file-upload-icon">✅</div><div class="file-upload-text">${selectedCloseProofFiles.length} file(s) selected</div><div class="file-upload-hint">Click to add more files</div>`;
+                const names = selectedCloseProofFiles.map(f => f.name).join(', ');
+                fileNameDisplay.textContent = names.length > 50 ? names.substring(0, 50) + '...' : names;
             } else {
-                closeProofUpload.innerHTML = `<div class="file-upload-icon">📁</div><div class="file-upload-text">Browse Files</div><div class="file-upload-hint">Drag and drop files here or click to browse</div>`;
+                fileNameDisplay.textContent = 'No file chosen';
             }
         }
 
+        // Setup drag and drop for close proof area
+        const closeProofUpload = document.getElementById('closeProofUpload');
+        if (closeProofUpload) {
+            closeProofUpload.addEventListener('dragover', (e) => { 
+                e.preventDefault(); 
+                closeProofUpload.style.borderColor = '#1a1d3a'; 
+                closeProofUpload.style.background = '#edf2f7'; 
+            });
+            closeProofUpload.addEventListener('dragleave', () => { 
+                closeProofUpload.style.borderColor = '#cbd5e0'; 
+                closeProofUpload.style.background = '#f7fafc'; 
+            });
+            closeProofUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                closeProofUpload.style.borderColor = '#cbd5e0';
+                closeProofUpload.style.background = '#f7fafc';
+                handleFileSelection(e.dataTransfer.files, selectedCloseProofFiles, displayCloseProofPreviews, updateCloseProofUploadButton, updateCloseFileName);
+            });
+            closeProofUpload.addEventListener('click', () => {
+                document.getElementById('closeProofInput').click();
+            });
+        }
+
+        // --- Drag and Drop Setup Helper for main upload ---
         function setupDragAndDrop(elementId, targetArray, displayFunc, updateBtnFunc) {
             const dropzone = document.getElementById(elementId);
             if(!dropzone) return;
@@ -426,9 +532,7 @@
             });
         }
 
-        setupDragAndDrop('mainFileUpload', selectedFiles, displayFilePreviews, updateUploadButton);
-        setupDragAndDrop('closeProofUpload', selectedCloseProofFiles, displayCloseProofPreviews, updateCloseProofUploadButton);
-
+        // --- UI Helpers ---
         function showError(message) {
             const errorContainer = document.getElementById('errorContainer');
             errorContainer.innerHTML = `<div class="error">${message}</div>`;
@@ -448,6 +552,7 @@
             errorContainer.innerHTML = `<div class="upload-progress">${message}<div class="progress-bar"><div class="progress-fill" style="width: ${percent}%"></div></div></div>`;
         }
 
+        // --- Upload to Firebase Storage ---
         async function uploadFilesToStorage(files, folderName) {
             const uploadedUrls = [];
             for (let i = 0; i < files.length; i++) {
@@ -467,6 +572,7 @@
             return uploadedUrls;
         }
 
+        // --- Send to Google Sheets ---
         async function sendToGoogleSheets(data) {
             try {
                 const payload = { ...data };
@@ -478,13 +584,14 @@
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
-                return true; 
+                return true;
             } catch (err) {
                 console.error("Sheets error:", err);
                 return false;
             }
         }
 
+        // --- Form Submission ---
         document.getElementById('kyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
@@ -494,35 +601,34 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Processing...';
 
-                if (selectedFiles.length === 0) {
-                    showError('Please upload at least one file for KY Finding');
-                    return;
-                }
+                const kyStatus = document.getElementById('kyStatus').value;
 
-                const currentStatus = document.getElementById('currentStatus').value;
-                if (currentStatus === 'Close' && selectedCloseProofFiles.length === 0) {
-                    showError('Please upload at least one close proof image when status is "Close"');
-                    return;
-                }
-
-                const imageUrls = await uploadFilesToStorage(selectedFiles, 'ky-findings');
+                // Upload files if any are selected
+                let imageUrls = [];
                 let closeProofUrls = [];
-                if (currentStatus === 'Close' && selectedCloseProofFiles.length > 0) {
+
+                if (selectedFiles.length > 0) {
+                    imageUrls = await uploadFilesToStorage(selectedFiles, 'ky-findings');
+                }
+
+                if (kyStatus === 'Close' && selectedCloseProofFiles.length > 0) {
                     closeProofUrls = await uploadFilesToStorage(selectedCloseProofFiles, 'ky-close-proof');
                 }
                 
                 const formData = {
                     fullName: document.getElementById('fullName').value.trim(),
                     staffId: document.getElementById('staffId').value.trim(),
-                    department: document.getElementById('department').value,
+                    department: document.getElementById('department').value.trim(),
+                    abnormalityType: document.getElementById('abnormalityType').value,
+                    locationAbnormal: document.getElementById('locationAbnormal').value,
+                    incidentLocation: document.getElementById('incidentLocation').value,
                     description: document.getElementById('description').value.trim(),
-                    area: document.getElementById('area').value.trim(),
-                    personInCharge: document.getElementById('personInCharge').value,
                     stop: document.getElementById('stop').value,
                     rank: document.querySelector('input[name="rank"]:checked').value,
-                    currentStatus: currentStatus,
+                    kyStatus: kyStatus,
                     imageUrls: imageUrls.join('\n'),
                     closeProofUrls: closeProofUrls.length > 0 ? closeProofUrls.join('\n') : '',
+                    improvementSuggestion: document.getElementById('improvementSuggestion').value.trim(),
                     submittedBy: currentUser?.uid || 'unknown',
                     submittedByEmail: currentUser?.email || 'unknown',
                     submittedDate: new Date().toISOString(),
@@ -530,7 +636,7 @@
                     updatedAt: serverTimestamp()
                 };
 
-                let submissionId = "KY-" + Date.now(); 
+                let submissionId = "KY-" + Date.now();
                 
                 try {
                     const docRef = await addDoc(collection(db, collectionName), formData);
@@ -541,7 +647,7 @@
 
                 const sheetData = {
                     ...formData,
-                    submissionId: submissionId,                
+                    submissionId: submissionId,
                     submittedDate: new Date().toLocaleString()
                 };
 
@@ -558,7 +664,7 @@
                     document.getElementById('closeProofPreviewContainer').innerHTML = '';
                     document.getElementById('closeProofSection').classList.remove('show');
                     updateUploadButton();
-                    updateCloseProofUploadButton();
+                    updateCloseFileName();
                 }, 1000);
                 
             } catch (error) {
