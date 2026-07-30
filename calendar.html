@@ -60,6 +60,57 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 .form-group .checkbox-group input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
 .btn-save { width: 100%; background: #1a1d3a; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
 .btn-save:hover { background: #2a2e5a; }
+.btn-cancel-training {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #ef4444;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btn-cancel-training:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.btn-cancel-training:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cancel-warning {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: white;
+    resize: vertical;
+    min-height: 90px;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1a1d3a;
+}
 .hidden { display: none; }
 .sub-category-section { 
     background: #f8fafc; 
@@ -158,12 +209,74 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                 <p><strong><i class="fas fa-user-tie"></i> PIC:</strong> <span id="detailPic"></span></p>
                 <p><strong><i class="fas fa-users"></i> Capacity:</strong> <span id="detailSeats"></span></p>
             </div>
-            <div style="display: flex; gap: 15px; margin-top: 30px;">
-                <button class="btn-back" onclick="closeDetailsModal()"><i class="fas fa-arrow-left"></i> Back</button>
-                <div id="detailStatusContainer" style="flex: 1;"></div>
-            </div>
+            <div id="detailStatusContainer" style="margin-top: 25px;"></div>
+
+<div style="display: flex; gap: 15px; margin-top: 15px;">
+    <button class="btn-back" onclick="closeDetailsModal()">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+
+    <button class="btn-cancel-training" onclick="openCancelTrainingModal()">
+        <i class="fas fa-ban"></i> Cancel Training
+    </button>
+</div>
         </div>
     </div>
+
+    <div class="modal-overlay" id="cancelTrainingModal">
+    <div class="modal-content" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3 style="color: #dc2626;">
+                <i class="fas fa-exclamation-triangle"></i>
+                Cancel Training
+            </h3>
+
+            <button class="close-modal" onclick="closeCancelTrainingModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="cancel-warning">
+            You are about to cancel:
+            <br>
+            <strong id="cancelTrainingName"></strong>
+            <br><br>
+            The training will disappear from the active calendar and employees
+            will no longer be able to check in.
+        </div>
+
+        <div class="form-group">
+            <label>Cancellation Reason <span style="color: #ef4444;">*</span></label>
+            <textarea
+                id="cancelReason"
+                placeholder="Example: Trainer unavailable"
+            ></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Admin Password <span style="color: #ef4444;">*</span></label>
+            <input
+                type="password"
+                id="cancelAdminPassword"
+                placeholder="Enter admin password"
+            >
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <button class="btn-back" onclick="closeCancelTrainingModal()">
+                Keep Training
+            </button>
+
+            <button
+                class="btn-cancel-training"
+                id="confirmCancelBtn"
+                onclick="confirmCancelTraining()"
+            >
+                <i class="fas fa-ban"></i> Confirm Cancellation
+            </button>
+        </div>
+    </div>
+</div>
 
     <div class="modal-overlay" id="adminModal">
         <div class="modal-content">
@@ -251,7 +364,18 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 
     <script type="module">
         import { auth, db } from './firebaseConfig.js';
-        import { collection, addDoc, getDocs, query, orderBy, where, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    orderBy,
+    where,
+    serverTimestamp,
+    doc,
+    getDoc,
+    updateDoc
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
         let currentDate = new Date();
@@ -260,6 +384,7 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
         let currentUser = null;
         let userProfile = { fullName: '', staffId: '', department: '' };
         let passwordAction = 'add'; // 'add' or 'records'
+        let selectedTrainingForCancellation = null;
 
         // 1. Auth & User Data Load
         onAuthStateChanged(auth, async (user) => {
@@ -338,6 +463,120 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
         window.closeDetailsModal = function() {
             document.getElementById('detailsModal').classList.remove('active');
         };
+        window.openCancelTrainingModal = function() {
+    if (!selectedTrainingForCancellation) {
+        alert("Training information could not be found.");
+        return;
+    }
+
+    document.getElementById('cancelTrainingName').textContent =
+        selectedTrainingForCancellation.name;
+
+    document.getElementById('cancelReason').value = '';
+    document.getElementById('cancelAdminPassword').value = '';
+
+    closeDetailsModal();
+
+    document
+        .getElementById('cancelTrainingModal')
+        .classList.add('active');
+
+    document.getElementById('cancelReason').focus();
+};
+
+window.closeCancelTrainingModal = function() {
+    document
+        .getElementById('cancelTrainingModal')
+        .classList.remove('active');
+
+    document.getElementById('cancelReason').value = '';
+    document.getElementById('cancelAdminPassword').value = '';
+};
+
+window.confirmCancelTraining = async function() {
+    if (!selectedTrainingForCancellation) {
+        alert("Training information could not be found.");
+        return;
+    }
+
+    const reason = document
+        .getElementById('cancelReason')
+        .value
+        .trim();
+
+    const password = document
+        .getElementById('cancelAdminPassword')
+        .value;
+
+    if (!reason) {
+        alert("Please enter a cancellation reason.");
+        document.getElementById('cancelReason').focus();
+        return;
+    }
+
+    if (password !== "suriaadmin") {
+        alert("Incorrect admin password.");
+        document.getElementById('cancelAdminPassword').value = '';
+        document.getElementById('cancelAdminPassword').focus();
+        return;
+    }
+
+    const confirmButton = document.getElementById('confirmCancelBtn');
+
+    confirmButton.disabled = true;
+    confirmButton.innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+
+    try {
+        const trainingRef = doc(
+            db,
+            'trainings',
+            selectedTrainingForCancellation.id
+        );
+
+        const latestTrainingSnapshot = await getDoc(trainingRef);
+
+        if (!latestTrainingSnapshot.exists()) {
+            throw new Error("This training no longer exists.");
+        }
+
+        const latestTraining = latestTrainingSnapshot.data();
+
+        if ((latestTraining.status || 'active') === 'cancelled') {
+            throw new Error("This training has already been cancelled.");
+        }
+
+        await updateDoc(trainingRef, {
+            status: 'cancelled',
+            cancellationReason: reason,
+            cancelledAt: serverTimestamp(),
+            cancelledBy: currentUser ? currentUser.uid : '',
+            cancelledByName: userProfile.fullName || 'Admin',
+            cancelledByStaffId: userProfile.staffId || ''
+        });
+
+        closeCancelTrainingModal();
+
+        alert("Training cancelled successfully.");
+
+        selectedTrainingForCancellation = null;
+
+        await fetchTrainingsAndAttendance();
+
+    } catch (error) {
+        console.error("Error cancelling training:", error);
+
+        alert(
+            error.message ||
+            "Failed to cancel the training. Please try again."
+        );
+
+    } finally {
+        confirmButton.disabled = false;
+        confirmButton.innerHTML =
+            '<i class="fas fa-ban"></i> Confirm Cancellation';
+    }
+};
 
         // 3. Category Dropdown Logic
         function resetCategoryFields() {
@@ -432,6 +671,10 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
 
         // 8. Open Details Modal
         window.openDetailsModal = async function(id, name, dateStr, startTime, endTime, location, pic, seatLimit, category) {
+            selectedTrainingForCancellation = {
+    id: id,
+    name: name
+};
             document.getElementById('detailName').innerText = name;
             
             // Category
@@ -501,8 +744,18 @@ body { font-family: 'Inter', sans-serif; background: #f5f5f5; min-height: 100vh;
                 const qTrainings = query(collection(db, 'trainings'), orderBy("dateString", "asc"));
                 const snapTrainings = await getDocs(qTrainings);
                 eventsData = [];
-                snapTrainings.forEach(doc => eventsData.push({ id: doc.id, ...doc.data() }));
-                
+
+snapTrainings.forEach(trainingDoc => {
+    const trainingData = trainingDoc.data();
+    const trainingStatus = trainingData.status || 'active';
+
+    if (trainingStatus === 'active') {
+        eventsData.push({
+            id: trainingDoc.id,
+            ...trainingData
+        });
+    }
+});                
                 if (currentUser) {
                     const qAttendance = query(collection(db, 'training_attendance'), where("userId", "==", currentUser.uid));
                     const snapAttendance = await getDocs(qAttendance);
@@ -620,6 +873,7 @@ window.renderCalendar = function() {
 
                 const newEvent = {
                     name: document.getElementById('tName').value.trim(),
+                    status: 'active',
                     category: category,
                     dateString: document.getElementById('tDate').value,
                     startTime: startTime,

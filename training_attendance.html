@@ -189,47 +189,77 @@
                     debugMsg.textContent += ` | No trainings found in database at all!`;
                 }
 
-                // Now query specifically for today's trainings
-                const q = query(
-                    collection(db, 'trainings'), 
-                    where("dateString", "==", todayString),
-                    orderBy("startTime", "asc")
-                );
-                const snap = await getDocs(q);
-                
-                selectElement.innerHTML = '';
-                
-                if (snap.empty) {
-                    selectElement.innerHTML = '<option value="">No training sessions available today</option>';
-                    // Show a message to the user
-                    const infoMsg = document.getElementById('infoMsg');
-                    infoMsg.textContent = `ℹ️ No training sessions scheduled for today (${todayString}). Please check the calendar for upcoming sessions.`;
-                    infoMsg.style.display = 'block';
-                    document.getElementById('submitBtn').disabled = true;
-                    
-                    debugMsg.textContent += ` | No trainings found for today`;
-                    return;
-                }
+                // Query specifically for today's trainings
+const q = query(
+    collection(db, 'trainings'),
+    where("dateString", "==", todayString),
+    orderBy("startTime", "asc")
+);
 
-                // Store trainings for later use
-                todaysTrainings = [];
-                snap.forEach(doc => {
-                    const t = doc.data();
-                    const trainingData = { id: doc.id, ...t };
-                    todaysTrainings.push(trainingData);
-                    
-                    const timeDisplay = t.startTime && t.endTime ? `${t.startTime} - ${t.endTime}` : 'TBD';
-                    const option = document.createElement('option');
-                    option.value = doc.id;
-                    option.setAttribute('data-date', t.dateString);
-                    option.textContent = `${t.name} (${timeDisplay})`;
-                    selectElement.appendChild(option);
-                });
+const snap = await getDocs(q);
 
-                debugMsg.textContent += ` | Found ${todaysTrainings.length} training(s) for today`;
-                
-                document.getElementById('submitBtn').disabled = false;
-                document.getElementById('infoMsg').style.display = 'none';
+todaysTrainings = [];
+
+snap.forEach(trainingDoc => {
+    const trainingData = {
+        id: trainingDoc.id,
+        ...trainingDoc.data()
+    };
+
+    // Existing records without a status are treated as active
+    const trainingStatus = trainingData.status || 'active';
+
+    if (trainingStatus === 'active') {
+        todaysTrainings.push(trainingData);
+    }
+});
+
+selectElement.innerHTML = '';
+
+if (todaysTrainings.length === 0) {
+    selectElement.innerHTML =
+        '<option value="">No active training sessions available today</option>';
+
+    const infoMsg = document.getElementById('infoMsg');
+
+    infoMsg.textContent =
+        `ℹ️ No active training sessions are scheduled for today (${todayString}).`;
+
+    infoMsg.style.display = 'block';
+
+    document.getElementById('submitBtn').disabled = true;
+
+    debugMsg.textContent +=
+        ` | No active trainings found for today`;
+
+    return;
+}
+
+// Add a default selection
+selectElement.innerHTML =
+    '<option value="">Please select a training session</option>';
+
+todaysTrainings.forEach(trainingData => {
+    const timeDisplay =
+        trainingData.startTime && trainingData.endTime
+            ? `${trainingData.startTime} - ${trainingData.endTime}`
+            : 'TBD';
+
+    const option = document.createElement('option');
+
+    option.value = trainingData.id;
+    option.setAttribute('data-date', trainingData.dateString);
+    option.textContent =
+        `${trainingData.name} (${timeDisplay})`;
+
+    selectElement.appendChild(option);
+});
+
+debugMsg.textContent +=
+    ` | Found ${todaysTrainings.length} active training(s) for today`;
+
+document.getElementById('submitBtn').disabled = false;
+document.getElementById('infoMsg').style.display = 'none';
 
             } catch (error) {
                 console.error("Error loading trainings:", error);
@@ -270,11 +300,61 @@
                 const trainingId = selectedOption.value;
                 const trainingDate = document.getElementById('trainingDate').value;
                 
-                // Find the selected training data
-                const selectedTraining = todaysTrainings.find(t => t.id === trainingId);
-                if (!selectedTraining) {
-                    throw new Error("Training session not found. Please refresh and try again.");
-                }
+                // Fetch the latest training data directly from Firebase.
+// This prevents check-in if admin cancelled the training
+// after the employee opened this page.
+
+const latestTrainingSnapshot = await getDoc(
+    doc(db, 'trainings', trainingId)
+);
+
+if (!latestTrainingSnapshot.exists()) {
+    throw new Error(
+        "This training session no longer exists. Please refresh the page."
+    );
+}
+
+const selectedTraining = {
+    id: latestTrainingSnapshot.id,
+    ...latestTrainingSnapshot.data()
+};
+
+const latestTrainingStatus =
+    selectedTraining.status || 'active';
+
+if (latestTrainingStatus !== 'active') {
+    // Remove the cancelled training from the current dropdown
+    todaysTrainings = todaysTrainings.filter(
+        training => training.id !== trainingId
+    );
+
+    selectedOption.remove();
+
+    if (todaysTrainings.length === 0) {
+        selectElement.innerHTML =
+            '<option value="">No active training sessions available today</option>';
+
+        submitBtn.disabled = true;
+    }
+
+    throw new Error(
+        "This training session has been cancelled. Check-in is no longer available."
+    );
+}
+
+// Confirm that the training is really scheduled for today
+const actualToday = new Date();
+
+const actualTodayString =
+    actualToday.getFullYear() + '-' +
+    String(actualToday.getMonth() + 1).padStart(2, '0') + '-' +
+    String(actualToday.getDate()).padStart(2, '0');
+
+if (selectedTraining.dateString !== actualTodayString) {
+    throw new Error(
+        "Attendance can only be recorded for training scheduled today."
+    );
+}
 
                 // --- SECURITY CHECK: Prevent duplicate check-ins ---
                 const qCheck = query(
@@ -334,12 +414,27 @@
                 }, 2000);
 
             } catch (error) {
-                console.error("Error saving attendance: ", error);
-                errorMsg.textContent = error.message || "Failed to record attendance. Please try again.";
-                errorMsg.style.display = 'block';
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Check In';
-            }
+    console.error("Error saving attendance: ", error);
+
+    errorMsg.textContent =
+        error.message ||
+        "Failed to record attendance. Please try again.";
+
+    errorMsg.style.display = 'block';
+
+    const hasActiveTraining = todaysTrainings.length > 0;
+
+    submitBtn.disabled = !hasActiveTraining;
+    submitBtn.innerHTML =
+        '<i class="fas fa-check-circle"></i> Check In';
+
+    if (!hasActiveTraining) {
+        infoMsg.textContent =
+            "ℹ️ There are no active training sessions available for check-in today.";
+
+        infoMsg.style.display = 'block';
+    }
+}
         });
     </script>
 </body>
