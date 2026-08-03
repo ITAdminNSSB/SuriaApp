@@ -264,6 +264,12 @@ export const translations = {
         faq3A: "The system will reject the scan until the sequence is corrected.",
         faq4Q: "Can I continue my progress tomorrow?",
         faq4A: "No. Progress resets automatically at midnight.",
+        faq5Q: "Why is there a 30-second timer?",
+        faq5A:
+        "You do not need to stand still and wait for 30 seconds. The timer is designed to encourage participants to walk safely instead of running. Together with the checkpoint’s radius detection, it ensures participants move safely to the next checkpoint.",
+        faq6Q: "Why must participants follow the suggested route?",
+        faq6A:
+        "The suggested route ensures that participants complete the required total distance of approximately 700 metres. It also standardises the Gemba Walk Challenge across the participating companies, including SCM, NSSB, and NPSB.",
         loadingText: "Syncing live data...",
         checkpointLabel: "Checkpoint",
         cpDesc1: "Located in the wall cabinet of the PA System.",
@@ -286,6 +292,15 @@ export const translations = {
         verifyBtn: "Verify",
         points: "points",
         routesCompleted: "Routes Completed:", 
+    },
+
+    ms: {
+        faq5Q: "Mengapa terdapat pemasa 30 saat?",
+        faq5A:
+        "Peserta tidak perlu berdiri dan menunggu selama 30 saat. Pemasa ini bertujuan untuk menggalakkan peserta berjalan dengan selamat dan tidak berlari. Bersama fungsi pengesanan radius di setiap checkpoint, sistem ini memastikan peserta bergerak dengan selamat ke checkpoint seterusnya.",
+        faq6Q: "Mengapa peserta perlu mengikut laluan yang dicadangkan?",
+        faq6A:
+        "Laluan yang dicadangkan memastikan peserta melengkapkan jarak keseluruhan kira-kira 700 meter. Ia juga menyeragamkan Gemba Walk Challenge antara syarikat yang mengambil bahagian, iaitu SCM, NSSB dan NPSB.",
     },
     
     bn: {
@@ -346,8 +361,15 @@ export const translations = {
         productionDepartment: "উৎপাদন বিভাগ",
         QualityControlDepartment: "গুণমান নিয়ন্ত্রণ বিভাগ",
         HumanResourcesDepartment: "মানব সম্পদ বিভাগ",
-        EngineeringDepartment: "প্রকৌশল বিভাগ",
-        MainMenu: "মেইন মেনু",
+        EngineeringDepartment: "इन्जिनियरिङ विभाग",
+        MainMenu: "मुख्य मेनु",
+        
+        faq5Q: "३० सेकेन्डको टाइमर किन राखिएको हो?",
+        faq5A:
+        "सहभागीहरूले ३० सेकेन्डसम्म एकै ठाउँमा उभिएर पर्खनु आवश्यक छैन। यो टाइमर सहभागीहरूलाई नदौडी सुरक्षित रूपमा हिँड्न प्रोत्साहित गर्न राखिएको हो। प्रत्येक चेकपोइन्टको रेडियस डिटेक्सन सुविधासँग मिलेर, यसले सहभागीहरू अर्को चेकपोइन्टसम्म सुरक्षित रूपमा अघि बढेको सुनिश्चित गर्छ।",
+        faq6Q: "सहभागीहरूले सुझाव दिइएको मार्ग किन पछ्याउनुपर्छ?",
+        faq6A:
+        "सुझाव दिइएको मार्गले सहभागीहरूले करिब ७०० मिटरको कुल दूरी पूरा गरेको सुनिश्चित गर्छ। यसले SCM, NSSB र NPSB लगायत सहभागी कम्पनीहरूमा Gemba Walk Challenge लाई एउटै मापदण्डअनुसार सञ्चालन गर्न पनि मद्दत गर्छ।",
 
         // --- NEW KEYS FOR RAMADAN CODE HTML ---
         todaysDate: "আজকের তারিখ",

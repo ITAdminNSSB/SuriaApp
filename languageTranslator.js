@@ -55,13 +55,19 @@ export function changeLanguage(lang) {
 
     document.querySelectorAll("[data-translate]").forEach(el => {
         const key = el.getAttribute("data-translate");
-        el.textContent = (translations[lang] && translations[lang][key]) || key;
+        el.textContent =
+            (translations[lang] && translations[lang][key]) ||
+            (translations.en && translations.en[key]) ||
+            key;
     });
 
     document.querySelectorAll("[data-translate-placeholder]").forEach(el => {
         const key = el.getAttribute("data-translate-placeholder");
-        if (translations[lang] && translations[lang][key]) {
-            el.placeholder = translations[lang][key];
+        const translated =
+            (translations[lang] && translations[lang][key]) ||
+            (translations.en && translations.en[key]);
+        if (translated) {
+            el.placeholder = translated;
         }
     });
 

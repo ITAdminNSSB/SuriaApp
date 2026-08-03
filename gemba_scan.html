@@ -1,12 +1,14 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <title>SURIA Gemba Walk Scanner</title>
     <meta charset="UTF-8" />
-    <meta 
-      name="viewport" 
-      content="width=device-width, initial-scale=1.0" 
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
+    <meta name="theme-color" content="#2563eb" />
+
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link
       rel="stylesheet"
@@ -16,216 +18,420 @@
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --primary-soft: #dbeafe;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --navy: #0f172a;
+        --text: #1e293b;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --surface: rgba(255, 255, 255, 0.94);
+        --shadow: 0 18px 50px rgba(15, 23, 42, 0.1);
+      }
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Inter", sans-serif;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html {
+        background: #eff6ff;
       }
 
       body {
-        background-color: #f8fafc;
-        color: #1e293b;
-        padding: 20px;
-        padding-bottom: 80px;
-        max-width: 500px;
+        min-height: 100vh;
+        max-width: 520px;
         margin: 0 auto;
+        padding: 18px 16px calc(82px + env(safe-area-inset-bottom));
+        color: var(--text);
+        background:
+          radial-gradient(circle at top right, rgba(37, 99, 235, 0.17), transparent 31%),
+          linear-gradient(180deg, #f8fffc 0%, #f8fafc 52%, #eef2f7 100%);
       }
 
-      /* --- Header --- */
+      button,
+      select,
+      textarea,
+      input {
+        font: inherit;
+      }
+
+      button {
+        touch-action: manipulation;
+      }
+
       .header {
-        display: flex;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
         align-items: center;
-        justify-content: space-between;
-        margin-bottom: 25px;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .header h2 {
+        min-width: 0;
+        color: var(--navy);
+        font-size: 19px;
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: -0.02em;
+      }
+
+      .back-btn,
+      .icon-btn {
+        min-width: 44px;
+        min-height: 44px;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #334155;
+        box-shadow: 0 5px 16px rgba(15, 23, 42, 0.06);
+        cursor: pointer;
+        transition: transform 0.18s ease, background 0.18s ease;
       }
 
       .back-btn {
-        background: white;
-        border: 1px solid #e2e8f0;
-        color: #334155;
-        padding: 10px 15px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 14px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        transition: all 0.2s ease;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
-        text-decoration: none;
-      }
-
-      .back-btn:hover {
-        background: #f1f5f9;
-        transform: translateY(-2px);
-      }
-
-      h2 {
-        font-size: 20px;
+        padding: 10px 13px;
+        font-size: 13px;
         font-weight: 700;
-        color: #0f172a;
       }
 
-      #adminAccessBtn {
-        color: #cbd5e1;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 10px;
-        transition: color 0.2s;
+      .icon-btn {
+        display: grid;
+        place-items: center;
+        font-size: 17px;
       }
 
-      #adminAccessBtn:hover {
-        color: #94a3b8;
+      .back-btn:active,
+      .icon-btn:active,
+      .action-btn:active,
+      .popup-card button:active {
+        transform: scale(0.97);
       }
 
-      /* --- Status Info Card --- */
       .status-card {
-        background: linear-gradient(135deg, #059669, #10b981);
-        border-radius: 20px;
-        padding: 20px;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
         position: relative;
+        isolation: isolate;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
         overflow: hidden;
+        margin-bottom: 12px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 24px;
+        color: #fff;
+        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 62%, #60a5fa 100%);
+        box-shadow: 0 17px 36px rgba(37, 99, 235, 0.25);
       }
 
+      .status-card::before,
       .status-card::after {
         content: "";
         position: absolute;
-        top: -20px;
-        right: -20px;
-        width: 100px;
-        height: 100px;
+        z-index: -1;
+        border-radius: 999px;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        pointer-events: none;
+      }
+
+      .status-card::before {
+        width: 130px;
+        height: 130px;
+        top: -72px;
+        right: -34px;
+      }
+
+      .status-card::after {
+        width: 82px;
+        height: 82px;
+        right: 44%;
+        bottom: -55px;
       }
 
       .status-item {
+        position: relative;
+        z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        z-index: 2;
+        gap: 5px;
       }
 
-      .status-item span {
-        font-size: 12px;
-        font-weight: 500;
-        opacity: 0.9;
+      .status-item:last-child {
+        align-items: flex-end;
+        text-align: right;
+      }
+
+      .status-item > span {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        opacity: 0.86;
       }
 
       .status-item strong {
-        font-size: 24px;
+        font-size: 28px;
         font-weight: 800;
+        line-height: 1;
       }
 
       .timer-badge {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 700;
-        display: flex;
+        min-height: 32px;
+        display: inline-flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
       }
 
       .timer-badge.ready {
-        background: white;
-        color: #059669;
+        color: #1d4ed8;
+        background: #fff;
       }
 
       .timer-badge.locked {
-        background: #ef4444;
-        color: white;
+        color: #fff;
+        background: rgba(239, 68, 68, 0.94);
       }
 
-      /* --- Scanner Area --- */
-      .scanner-wrapper {
-        background: white;
-        border-radius: 24px;
-        padding: 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        margin-bottom: 25px;
+      .schedule-strip {
         display: flex;
-        flex-direction: column;
         align-items: center;
+        gap: 11px;
+        min-height: 58px;
+        margin-bottom: 18px;
+        padding: 12px 14px;
+        border: 1px solid #dce6e2;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: 0 7px 20px rgba(15, 23, 42, 0.05);
+      }
+
+      .schedule-strip .schedule-icon {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--primary-dark);
+        background: var(--primary-soft);
+      }
+
+      .schedule-strip.closed .schedule-icon {
+        color: #b45309;
+        background: #fef3c7;
+      }
+
+      .schedule-copy {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .schedule-copy strong {
+        display: block;
+        color: var(--navy);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .schedule-copy small {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .scanner-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 26px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .scanner-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 4px 5px 12px;
+      }
+
+      .scanner-title-row strong {
+        color: var(--navy);
+        font-size: 14px;
+      }
+
+      .camera-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .camera-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #94a3b8;
+      }
+
+      .camera-state.active .camera-dot {
+        background: var(--primary);
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.13);
       }
 
       #reader {
         width: 100%;
-        border-radius: 16px;
+        min-height: 286px;
         overflow: hidden;
-        border: 2px solid #f1f5f9;
+        border: 0 !important;
+        border-radius: 20px;
+        background: #020617;
+      }
+
+      #reader video {
+        width: 100% !important;
+        min-height: 286px;
+        object-fit: cover !important;
+        border-radius: 20px;
+      }
+
+      #reader__scan_region {
+        min-height: 286px;
+        background: #020617 !important;
+      }
+
+      #reader__dashboard_section_csr,
+      #reader__dashboard_section_swaplink,
+      #reader__status_span {
+        display: none !important;
+      }
+
+      #reader img {
+        max-width: 90px !important;
+      }
+
+      .scan-guide {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: min(58vw, 235px);
+        height: min(58vw, 235px);
+        max-width: 235px;
+        max-height: 235px;
+        transform: translate(-50%, -43%);
+        border-radius: 24px;
+        pointer-events: none;
+        box-shadow: 0 0 0 999px rgba(2, 6, 23, 0.2);
+      }
+
+      .scan-guide::before,
+      .scan-guide::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+      }
+
+      .scan-guide::before {
+        background:
+          linear-gradient(var(--primary), var(--primary)) left top / 42px 4px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) left top / 4px 42px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) right top / 42px 4px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) right top / 4px 42px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) left bottom / 42px 4px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) left bottom / 4px 42px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) right bottom / 42px 4px no-repeat,
+          linear-gradient(var(--primary), var(--primary)) right bottom / 4px 42px no-repeat;
+      }
+
+      .scan-guide::after {
+        height: 2px;
+        top: 50%;
+        right: 12px;
+        left: 12px;
+        background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+        box-shadow: 0 0 10px rgba(96, 165, 250, 0.9);
+        animation: scanLine 2s ease-in-out infinite;
       }
 
       .action-buttons {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
-        margin-top: 15px;
         width: 100%;
+        margin-top: 12px;
       }
 
       .action-btn {
-        flex: 1;
-        padding: 10px 15px;
-        border-radius: 30px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
+        min-height: 46px;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
+        padding: 10px 12px;
         border: 1px solid transparent;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: transform 0.18s ease, background 0.18s ease;
+      }
+
+      .action-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
       }
 
       .btn-switch {
+        color: #334155;
+        border-color: var(--line);
         background: #f8fafc;
-        color: #475569;
-        border-color: #e2e8f0;
-      }
-
-      .btn-switch:hover {
-        background: #e2e8f0;
-        color: #0f172a;
       }
 
       .btn-report {
-        background: #fef2f2;
-        color: #ef4444;
+        color: #dc2626;
         border-color: #fecaca;
+        background: #fff1f2;
       }
 
-      .btn-report:hover {
-        background: #fee2e2;
-      }
-
-      /* --- Rules Card --- */
       .rules-card {
-        background: #fff8f1;
+        padding: 18px;
         border: 1px solid #fed7aa;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.05);
+        border-radius: 21px;
+        background: linear-gradient(145deg, #fffaf4, #fff7ed);
+        box-shadow: 0 9px 24px rgba(249, 115, 22, 0.06);
       }
 
       .rules-card h3 {
-        color: #c2410c;
-        font-size: 16px;
-        margin-bottom: 12px;
         display: flex;
         align-items: center;
         gap: 8px;
+        margin-bottom: 12px;
+        color: #c2410c;
+        font-size: 15px;
       }
 
       .rules-card ul {
@@ -234,215 +440,337 @@
 
       .rules-card li {
         position: relative;
+        margin-bottom: 9px;
         padding-left: 20px;
-        margin-bottom: 10px;
-        font-size: 13px;
         color: #78350f;
-        line-height: 1.5;
-        font-weight: 500;
+        font-size: 12px;
+        font-weight: 550;
+        line-height: 1.55;
+      }
+
+      .rules-card li:last-child {
+        margin-bottom: 0;
       }
 
       .rules-card li::before {
         content: "•";
         position: absolute;
-        left: 0;
+        left: 2px;
+        top: -1px;
         color: #f97316;
-        font-weight: bold;
         font-size: 18px;
-        line-height: 1;
+        font-weight: 800;
       }
 
-      /* --- Custom Modals --- */
       .popup-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(4px);
-        display: none;
-        justify-content: center;
-        align-items: center;
         z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        background: rgba(15, 23, 42, 0.67);
+        backdrop-filter: blur(7px);
+        transition: opacity 0.16s ease, visibility 0.16s ease;
+      }
+
+      .popup-overlay.show {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
       }
 
       .popup-card {
-        background: white;
-        width: 90%;
-        max-width: 350px;
-        border-radius: 24px;
-        padding: 30px 25px;
+        width: 100%;
+        max-width: 365px;
+        max-height: calc(100vh - 36px);
+        overflow-y: auto;
+        padding: 27px 23px 22px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 26px;
+        background: #fff;
         text-align: center;
-        animation: popupShow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 24px 70px rgba(2, 6, 23, 0.28);
+        transform: translateY(10px) scale(0.97);
+        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .popup-overlay.show .popup-card {
+        transform: translateY(0) scale(1);
       }
 
       .popup-icon {
-        font-size: 55px;
-        margin-bottom: 15px;
-      }
-      .popup-card h3 {
-        color: #0f172a;
-        font-size: 20px;
+        min-height: 62px;
+        display: grid;
+        place-items: center;
         margin-bottom: 8px;
+        font-size: 52px;
       }
+
+      .popup-icon.processing {
+        font-size: 38px;
+      }
+
+      .popup-card h3 {
+        margin-bottom: 8px;
+        color: var(--navy);
+        font-size: 20px;
+        line-height: 1.3;
+      }
+
       .popup-card p {
-        color: #64748b;
-        font-size: 14px;
-        line-height: 1.6;
-        margin-bottom: 25px;
+        margin-bottom: 22px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.65;
         white-space: pre-line;
       }
 
       .popup-card button {
         width: 100%;
-        border: none;
-        background: #3b82f6;
-        color: white;
-        padding: 14px;
+        min-height: 47px;
+        border: 0;
         border-radius: 14px;
-        font-weight: 600;
-        font-size: 15px;
+        color: #fff;
+        background: #2563eb;
+        font-size: 14px;
+        font-weight: 750;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: transform 0.18s ease, filter 0.18s ease;
       }
 
       .popup-card button:hover {
-        background: #2563eb;
-        transform: translateY(-2px);
+        filter: brightness(0.96);
       }
 
-      /* Forms in Modal */
       .form-group {
-        text-align: left;
         margin-bottom: 15px;
+        text-align: left;
       }
+
       .form-group label {
         display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
         margin-bottom: 6px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
       }
+
       .form-group select,
       .form-group textarea,
       .form-group input {
         width: 100%;
-        padding: 12px;
-        border-radius: 10px;
+        min-height: 46px;
+        padding: 11px 12px;
         border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        color: var(--navy);
+        background: #fff;
+        outline: none;
         font-size: 14px;
-        font-family: inherit;
-      }
-      .form-group textarea {
-        resize: vertical;
-        min-height: 80px;
-      }
-      .modal-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-      }
-      .btn-cancel {
-        background: #f1f5f9 !important;
-        color: #475569 !important;
-      }
-      .btn-cancel:hover {
-        background: #e2e8f0 !important;
-        transform: none !important;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
       }
 
-      @keyframes popupShow {
-        from {
-          transform: scale(0.9);
-          opacity: 0;
-        }
+      .form-group select:focus,
+      .form-group textarea:focus,
+      .form-group input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+      }
+
+      .form-group textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      .modal-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .btn-cancel {
+        color: #475569 !important;
+        background: #f1f5f9 !important;
+      }
+
+      .spinner {
+        width: 38px;
+        height: 38px;
+        border: 4px solid #dbeafe;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin 0.75s linear infinite;
+      }
+
+      @keyframes spin {
         to {
-          transform: scale(1);
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes scanLine {
+        0%,
+        100% {
+          transform: translateY(-78px);
+          opacity: 0.65;
+        }
+        50% {
+          transform: translateY(78px);
           opacity: 1;
+        }
+      }
+
+      @media (max-width: 370px) {
+        body {
+          padding-right: 12px;
+          padding-left: 12px;
+        }
+
+        .back-btn span {
+          display: none;
+        }
+
+        .status-card {
+          padding: 17px;
+        }
+
+        .action-btn {
+          font-size: 11px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
       }
     </style>
   </head>
 
   <body>
-    <div class="header">
-      <button class="back-btn" onclick="window.location.href = 'home.html'">
+    <header class="header">
+      <button
+        class="back-btn"
+        type="button"
+        onclick="window.location.href = 'home.html'"
+      >
         <i class="fas fa-arrow-left"></i>
         <span data-translate="home">Home</span>
       </button>
-      <h2 data-translate="gembaWalk">Gemba Walk</h2>
-      <i
-        class="fas fa-user-shield"
-        id="adminAccessBtn"
-        title="Admin Access"
-      ></i>
-    </div>
 
-    <div class="status-card">
+      <h2 data-translate="gembaWalk">Gemba Walk</h2>
+
+      <button
+        class="icon-btn"
+        id="adminAccessBtn"
+        type="button"
+        title="Admin Access"
+        aria-label="Admin Access"
+      >
+        <i class="fas fa-user-shield"></i>
+      </button>
+    </header>
+
+    <section class="status-card" aria-label="Gemba progress">
       <div class="status-item">
         <span data-translate="lastCheckpoint">Last Checkpoint</span>
-        <strong id="display-last-cp">0</strong>
+        <strong id="display-last-cp">-</strong>
       </div>
-      <div class="status-item" style="align-items: flex-end">
+
+      <div class="status-item">
         <span data-translate="nextScan">Next Scan</span>
         <div id="timer-badge" class="timer-badge ready">
           <i class="fas fa-check-circle"></i>
           <span data-translate="ready">Ready</span>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="scanner-wrapper">
-      <div id="reader"></div>
-      <div class="action-buttons">
-        <button id="switchCameraBtn" class="action-btn btn-switch">
-          <i class="fas fa-sync-alt"></i>
-          <span data-translate="switchCamera">Switch Camera</span>
-        </button>
-        <button id="reportIssueBtn" class="action-btn btn-report">
-          <i class="fas fa-exclamation-triangle"></i>
-          <span data-translate="reportIssue">Report Issue</span>
-        </button>
+    <section id="scheduleStrip" class="schedule-strip closed" aria-live="polite">
+      <div class="schedule-icon">
+        <i id="scheduleIcon" class="fas fa-clock"></i>
       </div>
-    </div>
+      <div class="schedule-copy">
+        <strong id="scheduleStatus">Loading your scanning schedule...</strong>
+        <small id="scheduleDetails">Checking Work Section and permitted hours.</small>
+      </div>
+    </section>
 
-    <div class="rules-card">
-      <h3>
-        <i class="fas fa-exclamation-triangle"></i>
-        <span data-translate="participationRules">Participation Rules</span>
-      </h3>
-      <ul>
-        <li data-translate="rule1">
-          Participate during break time, before shift or after shift.
-        </li>
-        <li data-translate="rule2">
-          Do not participate during active working hours.
-        </li>
-        <li data-translate="rule3">Follow all safety requirements.</li>
-        <li data-translate="rule4">
-          Complete all 6 checkpoints in the same day to earn 50 points.
-        </li>
-      </ul>
-    </div>
+    <main>
+      <section class="scanner-wrapper">
+        <div class="scanner-title-row">
+          <strong>Scan Checkpoint QR</strong>
+          <span id="cameraState" class="camera-state">
+            <span class="camera-dot"></span>
+            <span id="cameraStateText">Starting camera</span>
+          </span>
+        </div>
 
-    <div id="popup" class="popup-overlay">
+        <div id="reader"></div>
+        <div class="scan-guide" aria-hidden="true"></div>
+
+        <div class="action-buttons">
+          <button id="switchCameraBtn" class="action-btn btn-switch" type="button">
+            <i class="fas fa-rotate"></i>
+            <span data-translate="switchCamera">Switch Camera</span>
+          </button>
+
+          <button id="reportIssueBtn" class="action-btn btn-report" type="button">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span data-translate="reportIssue">Report Issue</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="rules-card">
+        <h3>
+          <i class="fas fa-triangle-exclamation"></i>
+          <span data-translate="participationRules">Participation Rules</span>
+        </h3>
+        <ul>
+          <li data-translate="rule1">
+            Participate during permitted break times or the additional scanning time only.
+          </li>
+          <li data-translate="rule2">
+            Do not participate during active working hours.
+          </li>
+          <li data-translate="rule3">Follow all safety requirements.</li>
+          <li data-translate="rule4">
+            Complete all 6 checkpoints in the same day to earn 50 points.
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <div id="popup" class="popup-overlay" role="dialog" aria-modal="true">
       <div class="popup-card">
         <div id="popupIcon" class="popup-icon">✅</div>
         <h3 id="popupTitle">Success</h3>
         <p id="popupMessage">Message</p>
-        <button onclick="closePopup()">OK</button>
+        <button id="popupButton" type="button">OK</button>
       </div>
     </div>
 
-    <div id="reportModal" class="popup-overlay">
-      <div class="popup-card" style="padding-top: 25px">
-        <h3
-          style="margin-bottom: 20px; color: #ef4444"
-          data-translate="reportIssue"
-        >
-          <i class="fas fa-exclamation-circle"></i> Report Issue
+    <div id="reportModal" class="popup-overlay" role="dialog" aria-modal="true">
+      <div class="popup-card">
+        <h3 style="margin-bottom: 20px; color: #dc2626">
+          <i class="fas fa-circle-exclamation"></i>
+          <span data-translate="reportIssue">Report Issue</span>
         </h3>
+
         <div class="form-group">
-          <label data-translate="issueTypeLabel">Issue Type</label>
+          <label for="issueType" data-translate="issueTypeLabel">Issue Type</label>
           <select id="issueType">
             <option value="Damaged QR" data-translate="optDamagedQR">
               Damaged QR Code
@@ -456,8 +784,9 @@
             <option value="Other" data-translate="optOther">Other</option>
           </select>
         </div>
+
         <div class="form-group">
-          <label data-translate="feedbackDescription">Details</label>
+          <label for="issueDetails" data-translate="feedbackDescription">Details</label>
           <textarea
             id="issueDetails"
             data-translate-placeholder="feedbackPlaceholder"
@@ -465,9 +794,11 @@
             required
           ></textarea>
         </div>
+
         <div class="modal-buttons">
           <button
             class="btn-cancel"
+            type="button"
             onclick="closeReportModal()"
             data-translate="cancelBtn"
           >
@@ -475,6 +806,7 @@
           </button>
           <button
             id="submitReportBtn"
+            type="button"
             style="background: #ef4444"
             data-translate="submitBtn"
           >
@@ -484,22 +816,30 @@
       </div>
     </div>
 
-    <div id="adminModal" class="popup-overlay">
+    <div id="adminModal" class="popup-overlay" role="dialog" aria-modal="true">
       <div class="popup-card">
         <h3 style="margin-bottom: 20px">
           <i class="fas fa-lock"></i> FIT Executive Access
         </h3>
+
         <div class="form-group">
           <input
             type="password"
+            inputmode="numeric"
+            maxlength="8"
             id="adminPinInput"
             placeholder="Enter PIN"
             style="text-align: center; font-size: 20px; letter-spacing: 5px"
           />
         </div>
+
         <div class="modal-buttons">
-          <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
-          <button id="submitPinBtn" style="background: #10b981">Verify</button>
+          <button class="btn-cancel" type="button" onclick="closeAdminModal()">
+            Cancel
+          </button>
+          <button id="submitPinBtn" type="button" style="background: #2563eb">
+            Verify
+          </button>
         </div>
       </div>
     </div>
@@ -508,585 +848,1041 @@
       import { auth, db } from "./firebaseConfig.js";
       import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
       import {
-        doc,
-        getDoc,
-        setDoc,
         addDoc,
         collection,
-        serverTimestamp,
+        doc,
+        getDoc,
         getDocs,
-        query,
-        where,
+        increment,
         onSnapshot,
+        runTransaction,
+        serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-      // Translation imports
       import { initializeWithDetection } from "./languageTranslator.js";
-      document.addEventListener("DOMContentLoaded", () => {
-        initializeWithDetection();
-      });
 
-      // Global Variables
-      let cameras = [];
-      let currentCameraIndex = 0;
-      let html5QrCode;
-      let scanLocked = false;
-      let nextScanAvailableAt = null;
-      let timerInterval = null;
-
-      // Authentication Check
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          window.location.href = "login_pg.html";
-        } else {
-          listenToGembaPoints(user.uid);
-        }
-      });
-
-      // Live Listener for User Data (Timer & Checkpoints)
-      function listenToGembaPoints(userId) {
-        const userRef = doc(db, "gemba_points", userId);
-
-        onSnapshot(userRef, (snap) => {
-          if (snap.exists()) {
-            const data = snap.data();
-
-            let currentStep = data.currentRouteStep || 1;
-            const completedRoutes = data.completedRoutes || 0;
-
-            if (data.updatedAt) {
-              const lastUpdate = data.updatedAt.toDate().toDateString();
-              const today = new Date().toDateString();
-              if (lastUpdate !== today && currentStep !== 1) {
-                currentStep = 1;
-              }
-            }
-
-            let lastStep =
-              completedRoutes === 0 && currentStep === 1
-                ? "-"
-                : currentStep === 1
-                  ? 6
-                  : currentStep - 1;
-            document.getElementById("display-last-cp").innerText = lastStep;
-
-            if (data.updatedAt) {
-              const lastScanTime = data.updatedAt.toDate();
-              const lastScanDateStr = lastScanTime.toDateString();
-              const todayStr = new Date().toDateString();
-
-              let cooldownTime = 0;
-
-              // Apply cooldown ONLY if the scan was done today
-              if (lastScanDateStr === todayStr) {
-                if (currentStep === 2) {
-                  cooldownTime = 30000; // CP 1 ➔ CP 2 (30 seconds)
-                } else if (currentStep === 3) {
-                  cooldownTime = 30000; // CP 2 ➔ CP 3 (30 seconds)
-                } else if (currentStep === 4) {
-                  cooldownTime = 30000; // CP 3 ➔ CP 4 (30 seconds)
-                } else if (currentStep === 5) {
-                  cooldownTime = 30000; // CP 4 ➔ CP 5 (30 seconds)
-                } else if (currentStep === 6) {
-                  cooldownTime = 30000; // CP 5 ➔ CP 6 (30 seconds)
-                } else if (currentStep === 1) {
-                  cooldownTime = 0; // Route completed! No timer needed. Ready immediately.
-                }
-              }
-
-              nextScanAvailableAt = new Date(
-                lastScanTime.getTime() + cooldownTime,
-              );
-              startCooldownTimer();
-            }
-          }
-        });
-      }
-
-      function startCooldownTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-
-        timerInterval = setInterval(() => {
-          const now = new Date();
-          const diff = nextScanAvailableAt - now;
-          const badge = document.getElementById("timer-badge");
-
-          if (diff <= 0) {
-            clearInterval(timerInterval);
-            scanLocked = false;
-            badge.className = "timer-badge ready";
-            badge.innerHTML = `<i class="fas fa-check-circle"></i> <span data-translate="ready">Ready</span>`;
-          } else {
-            scanLocked = true;
-            badge.className = "timer-badge locked";
-
-            const minutes = Math.floor(diff / 60000);
-            const seconds = Math.floor((diff % 60000) / 1000);
-            const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-            badge.innerHTML = `<i class="fas fa-lock"></i> ${timeStr}`;
-          }
-        }, 1000);
-      }
-
-      function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371000;
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c;
-      }
-
-      // Standard Popup
-      function showPopup(icon, title, message) {
-        document.getElementById("popupIcon").innerHTML = icon;
-        document.getElementById("popupTitle").innerHTML = title;
-        document.getElementById("popupMessage").innerHTML = message;
-        document.getElementById("popup").style.display = "flex";
-      }
-
-      window.closePopup = () => {
-        document.getElementById("popup").style.display = "none";
+      // Cooldown based on the tested average walking time between checkpoints.
+      // CP1→CP2: 1m 06s | CP2→CP3: 1m 12s | CP3→CP4: 2m 18s
+      // CP4→CP5: 2m 16s | CP5→CP6: 1m 44s
+      const CHECKPOINT_COOLDOWN_MS = {
+        1: 66_000,
+        2: 72_000,
+        3: 138_000,
+        4: 136_000,
+        5: 104_000,
       };
+      const DUPLICATE_SCAN_BLOCK_MS = 2_500;
+      const LOCATION_CACHE_MS = 15_000;
+      const MAX_CACHED_LOCATION_ACCURACY = 120;
+
+      const state = {
+        user: null,
+        userProfile: null,
+        pointsData: null,
+        pointsUnsubscribe: null,
+        profileUnsubscribe: null,
+        checkpointsBySecret: new Map(),
+        scanner: null,
+        scannerStarted: false,
+        scannerPaused: false,
+        cameras: [],
+        currentCameraIndex: 0,
+        isProcessingScan: false,
+        cooldownUntil: null,
+        cooldownTimer: null,
+        lastDecodedText: "",
+        lastDecodedAt: 0,
+        latestPosition: null,
+        locationWatchId: null,
+        cameraInitialised: false,
+      };
+
+      const elements = {
+        lastCheckpoint: document.getElementById("display-last-cp"),
+        timerBadge: document.getElementById("timer-badge"),
+        scheduleStrip: document.getElementById("scheduleStrip"),
+        scheduleIcon: document.getElementById("scheduleIcon"),
+        scheduleStatus: document.getElementById("scheduleStatus"),
+        scheduleDetails: document.getElementById("scheduleDetails"),
+        cameraState: document.getElementById("cameraState"),
+        cameraStateText: document.getElementById("cameraStateText"),
+        switchCameraBtn: document.getElementById("switchCameraBtn"),
+        popup: document.getElementById("popup"),
+        popupIcon: document.getElementById("popupIcon"),
+        popupTitle: document.getElementById("popupTitle"),
+        popupMessage: document.getElementById("popupMessage"),
+        popupButton: document.getElementById("popupButton"),
+        reportModal: document.getElementById("reportModal"),
+        adminModal: document.getElementById("adminModal"),
+      };
+
+      document.addEventListener("DOMContentLoaded", initializeWithDetection);
+
+      function setCameraState(text, active = false) {
+        elements.cameraStateText.textContent = text;
+        elements.cameraState.classList.toggle("active", active);
+      }
+
+      function openModal(modal) {
+        pauseScanner();
+        modal.classList.add("show");
+      }
+
+      function closeModal(modal, shouldResume = true) {
+        modal.classList.remove("show");
+        if (shouldResume) {
+          window.setTimeout(resumeScanner, 280);
+        }
+      }
+
+      function showPopup(icon, title, message, { processing = false } = {}) {
+        if (processing) {
+          elements.popupIcon.className = "popup-icon processing";
+          elements.popupIcon.innerHTML = '<span class="spinner" aria-label="Loading"></span>';
+          elements.popupButton.hidden = true;
+        } else {
+          elements.popupIcon.className = "popup-icon";
+          elements.popupIcon.textContent = icon;
+          elements.popupButton.hidden = false;
+        }
+
+        elements.popupTitle.textContent = title;
+        elements.popupMessage.textContent = message;
+        openModal(elements.popup);
+      }
+
+      function updatePopup(icon, title, message) {
+        elements.popupIcon.className = "popup-icon";
+        elements.popupIcon.textContent = icon;
+        elements.popupTitle.textContent = title;
+        elements.popupMessage.textContent = message;
+        elements.popupButton.hidden = false;
+      }
+
+      window.closePopup = () => closeModal(elements.popup);
+      elements.popupButton.addEventListener("click", window.closePopup);
 
       const WORK_SECTION_SCHEDULES = {
         "Mezzanine & Level 1": {
-          mondayToThursdayLunch: [740, 785], // 12:20 PM - 1:05 PM
+          mondayToThursdayLunch: [toMinutes(12, 20), toMinutes(13, 5)],
         },
         "Shopfloor & Ground Floor": {
-          mondayToThursdayLunch: [760, 805], // 12:40 PM - 1:25 PM
+          mondayToThursdayLunch: [toMinutes(12, 40), toMinutes(13, 25)],
         },
       };
 
-      // Validate against the break schedule for the user's saved work section.
-      function isAllowedScanTime(workSection) {
-        const now = new Date();
+      function normalizeWorkSection(value) {
+        const normalized = String(value ?? "")
+          .trim()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        if (!normalized) return null;
+
+        if (
+          normalized === "mezzanine & level 1" ||
+          normalized === "mezzanine and level 1" ||
+          normalized.includes("mezzanine") ||
+          normalized.includes("level 1")
+        ) {
+          return "Mezzanine & Level 1";
+        }
+
+        if (
+          normalized === "shopfloor & ground floor" ||
+          normalized === "shopfloor and ground floor" ||
+          normalized.includes("shopfloor") ||
+          normalized.includes("ground floor")
+        ) {
+          return "Shopfloor & Ground Floor";
+        }
+
+        return null;
+      }
+
+      function toMinutes(hours, minutes) {
+        return hours * 60 + minutes;
+      }
+
+      /**
+       * SURIA permitted scanning hours, aligned with Gemba Info.
+       * Monday-Thursday:
+       * - Morning: 10:15 AM-10:30 AM
+       * - Lunch: based on the user's saved Work Section
+       * - Evening: 3:45 PM-4:00 PM
+       * Friday:
+       * - Morning: 10:15 AM-10:30 AM
+       * - Lunch: 12:30 PM-2:30 PM
+       * - Evening: 4:00 PM-4:15 PM
+       * Additional time for all Work Sections: 5:50 PM-6:00 PM.
+       * Saturday and Sunday are not permitted.
+       */
+      function getAllowedWindows(workSection, now = new Date()) {
+        const section = normalizeWorkSection(workSection);
+        if (!section) return [];
+
         const day = now.getDay();
-        // Sunday = 0, Monday = 1, Tuesday = 2, Wednesday = 3,
-        // Thursday = 4, Friday = 5, Saturday = 6
+        const isMondayToThursday = day >= 1 && day <= 4;
+        const isFriday = day === 5;
 
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        let allowedTimes = [];
+        if (!isMondayToThursday && !isFriday) return [];
 
-        const sectionSchedule = WORK_SECTION_SCHEDULES[workSection];
-        if (!sectionSchedule) return false;
+        const sectionSchedule = WORK_SECTION_SCHEDULES[section];
 
-        // Monday - Thursday
-        if (day >= 1 && day <= 4) {
-          allowedTimes = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            sectionSchedule.mondayToThursdayLunch,
-            [945, 960], // 3:45 PM - 4:00 PM
-          ];
-        }
-
-        // Friday
-        else if (day === 5) {
-          allowedTimes = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [750, 870], // 12:30 PM - 2:30 PM
-            [960, 975], // 4:00 PM - 4:15 PM
-          ];
-        }
-
-        // Saturday
-        else if (day === 6) {
-          allowedTimes = [
-            [615, 630], // 10:15 AM - 10:30 AM
-            [780, 825], // 1:00 PM - 1:45 PM
-            [945, 960], // 3:45 PM - 4:00 PM
-          ];
-        }
-
-        // Sunday not allowed
-        else {
-          return false;
-        }
-
-        return allowedTimes.some(([start, end]) => {
-          return currentMinutes >= start && currentMinutes <= end;
-        });
-      }
-
-      // Process Scan Checkpoint
-      async function processCheckpoint(checkpointId) {
-        if (scanLocked) {
-          const diff = nextScanAvailableAt - new Date();
-          if (diff > 0) {
-            const sec = Math.ceil(diff / 1000);
-            showPopup(
-              "⏳",
-              "Please Wait",
-              `Please avoid running! Wait ${sec} more seconds before scanning the next checkpoint.`,
-            );
-          }
-          return;
-        }
-
-        scanLocked = true;
-        
-        /*setTimeout(() => {
-          scanLocked = false;
-        }, 3000);*/
-
-        try {
-          const user = auth.currentUser;
-          if (!user) {
-            alert("User not logged in");
-            scanLocked = false;
-            return;
-          }
-
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (!userDoc.exists()) {
-            showPopup(
-              "❌",
-              "Profile Not Found",
-              "Unable to load your profile.",
-            );
-            scanLocked = false;
-            return;
-          }
-
-          const userData = userDoc.data();
-          const workSection = userData.workSection;
-
-          if (!WORK_SECTION_SCHEDULES[workSection]) {
-            showPopup(
-              "⚠️",
-              "Work Section Required",
-              "Please select your Work Section in Profile Settings before scanning.",
-            );
-            scanLocked = false;
-            return;
-          }
-
-          if (!isAllowedScanTime(workSection)) {
-            showPopup(
-              "⏰",
-              "Outside Scan Hours",
-              `Scanning is not available for ${workSection} at this time. Please follow your designated break schedule.`,
-            );
-            scanLocked = false;
-            return;
-          }
-
-          const checkpointQuery = query(
-            collection(db, "checkpoints"),
-            where("qrSecret", "==", checkpointId),
-          );
-
-          const checkpointSnap = await getDocs(checkpointQuery);
-          if (checkpointSnap.empty) {
-            showPopup(
-              "❌", 
-              "Invalid QR", 
-              "This QR code is not registered.",
-            );
-            scanLocked = false;
-            return;
-          }
-
-          const checkpointDoc = checkpointSnap.docs[0];
-          const checkpoint = checkpointDoc.data();
-          const pointsRef = doc(db, "gemba_points", user.uid);
-
-          const pointsSnap = await getDoc(pointsRef);
-          if (!pointsSnap.exists()) {
-            await setDoc(pointsRef, {
-              totalPoints: 0,
-              completedRoutes: 0,
-              currentRouteStep: 1,
-              lastCheckpoint: "",
-              createdAt: serverTimestamp(),
-            });
-          }
-
-          const currentPosition = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0,
-            });
-          });
-
-          const distance = calculateDistance(
-            currentPosition.coords.latitude,
-            currentPosition.coords.longitude,
-            checkpoint.lat,
-            checkpoint.lng,
-          );
-
-          if (distance > checkpoint.radius) {
-            showPopup(
-              "📍",
-              "Outside Radius Area",
-              `Distance: ${distance.toFixed(1)}m\nAllowed: ${checkpoint.radius}m\nPlease get closer to the checkpoint.`,
-            );
-            scanLocked = false;
-            return;
-          }
-
-          const freshSnap = await getDoc(pointsRef);
-          const data = freshSnap.data() || {};
-
-          let expectedStep = data.currentRouteStep || 1;
-          let lastCp = data.lastCheckpoint || "";
-
-          /* ANTI DUPLICATE */
-
-          if (data.updatedAt) {
-            const lastScanDate = data.updatedAt.toDate().toDateString();
-            const todayDate = new Date().toDateString();
-            if (lastScanDate !== todayDate && expectedStep !== 1) {
-              expectedStep = 1;
-              lastCp = "";
-            }
-          }
-
-          if (checkpoint.id === lastCp) {
-            showPopup(
-              "⚠️",
-              "Already Scanned",
-              "You have already scanned this checkpoint. Please proceed to the next one.",
-            );
-            scanLocked = false;
-            return;
-          }
-
-          /* ROUTE VALIDATION */
-
-          if (checkpoint.routeOrder !== expectedStep) {
-            if (
-              expectedStep === 1 &&
-              data.updatedAt &&
-              data.updatedAt.toDate().toDateString() !==
-                new Date().toDateString()
-            ) {
-              showPopup(
-                "🔄",
-                "Progress Reset",
-                "Your incomplete route from yesterday has been reset. Please start again from Checkpoint 1 for today.",
-              );
-            } else {
-              showPopup(
-                "🚫",
-                "Wrong Sequence",
-                `Please scan Checkpoint ${String(expectedStep).padStart(2, "0")} first.`,
-              );
-            }
-            scanLocked = false;
-            return;
-          }
-
-          let totalPoints = data.totalPoints || 0;
-          let completedRoutes = data.completedRoutes || 0;
-          let nextStep = expectedStep + 1;
-          let routeCompleted = false;
-          let earnedPointsText = "";
-
-          /*
-LAST CHECKPOINT?
-*/
-          if (checkpoint.routeOrder === 6) {
-            routeCompleted = true;
-            completedRoutes++;
-            totalPoints += 50;
-            nextStep = 1;
-            earnedPointsText = `🎉 Congratulations! You have completed the route.\n\n+50 Points Received!`;
-          } else {
-            earnedPointsText = `Keep walking! Complete all 6 checkpoints today to earn 50 points.`;
-          }
-
-          await setDoc(
-            pointsRef,
+        if (isMondayToThursday) {
+          return [
             {
-              totalPoints: totalPoints,
-              completedRoutes: completedRoutes,
-              currentRouteStep: nextStep,
-              lastCheckpoint: checkpoint.id,
-              updatedAt: serverTimestamp(),
+              label: "Morning break",
+              range: [toMinutes(10, 15), toMinutes(10, 30)],
             },
             {
-              merge: true,
+              label: `${section} lunch break`,
+              range: sectionSchedule.mondayToThursdayLunch,
             },
-          );
-
-          await addDoc(collection(db, "gemba_scans"), {
-            userId: user.uid,
-            checkpointId: checkpoint.id,
-            checkpointName: checkpoint.name,
-            points: routeCompleted ? 50 : 0,
-            distance: Number(distance.toFixed(1)),
-            routeCompleted: routeCompleted,
-            latitude: checkpoint.lat,
-            longitude: checkpoint.lng,
-            scanTime: serverTimestamp(),
-          });
-
-          showPopup(
-            "✅",
-            `CP ${checkpoint.routeOrder}/6 : ${checkpoint.name}`,
-            `${earnedPointsText}\n\nTotal Accumulated Points: ${totalPoints}`,
-          );
-          if (navigator.vibrate) navigator.vibrate(200);
-        } catch (error) {
-          console.error(error);
-          showPopup("❌", "Scan Error", error.message);
-          scanLocked = false;
-        }
-      }
-
-      // Camera Logic
-      async function onScanSuccess(decodedText) {
-        await processCheckpoint(decodedText.trim());
-      }
-
-      html5QrCode = new Html5Qrcode("reader");
-
-      Html5Qrcode.getCameras()
-        .then(async (devices) => {
-          cameras = devices;
-          const backCameraIndex = devices.findIndex((d) =>
-            d.label.toLowerCase().includes("back"),
-          );
-          if (backCameraIndex >= 0) currentCameraIndex = backCameraIndex;
-
-          if (!devices.length) {
-            showPopup("📷", "No Camera", "No camera detected on your device.");
-            return;
-          }
-          await startCamera(currentCameraIndex);
-        })
-        .catch((error) => {
-          console.error(error);
-          showPopup("📷", "Camera Error", error.message);
-        });
-
-      async function startCamera(index) {
-        if (html5QrCode.isScanning) {
-          await html5QrCode.stop();
+            {
+              label: "Evening break",
+              range: [toMinutes(15, 45), toMinutes(16, 0)],
+            },
+            {
+              label: "Additional scanning time",
+              range: [toMinutes(17, 50), toMinutes(18, 0)],
+            },
+          ];
         }
 
-        await html5QrCode.start(
-          cameras[index].id,
+        return [
           {
-            fps: 10,
-            qrbox: 250,
+            label: "Friday morning break",
+            range: [toMinutes(10, 15), toMinutes(10, 30)],
           },
-          onScanSuccess,
+          {
+            label: "Friday lunch break",
+            range: [toMinutes(12, 30), toMinutes(14, 30)],
+          },
+          {
+            label: "Friday evening break",
+            range: [toMinutes(16, 0), toMinutes(16, 15)],
+          },
+          {
+            label: "Additional scanning time",
+            range: [toMinutes(17, 50), toMinutes(18, 0)],
+          },
+        ];
+      }
+
+      function getCurrentScheduleWindow(workSection, now = new Date()) {
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+        return (
+          getAllowedWindows(workSection, now).find(
+            ({ range: [start, end] }) => currentTime >= start && currentTime <= end,
+          ) || null
         );
       }
 
-      document
-        .getElementById("switchCameraBtn")
-        .addEventListener("click", async () => {
-          if (cameras.length < 2) {
-            showPopup("📷", "Camera Swap", "No secondary camera found.");
-            return;
+      function isAllowedScanTime(workSection, now = new Date()) {
+        return Boolean(getCurrentScheduleWindow(workSection, now));
+      }
+
+      function formatCurrentTime(now = new Date()) {
+        return new Intl.DateTimeFormat("en-MY", {
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+        }).format(now);
+      }
+
+      function updateScheduleStatus() {
+        const section = normalizeWorkSection(state.userProfile?.workSection);
+        const now = new Date();
+
+        if (!section) {
+          elements.scheduleStrip.classList.add("closed");
+          elements.scheduleIcon.className = "fas fa-building";
+          elements.scheduleStatus.textContent = "Work Section is not set";
+          elements.scheduleDetails.textContent =
+            "Update your Work Section in Profile Settings before scanning.";
+          return;
+        }
+
+        const activeWindow = getCurrentScheduleWindow(section, now);
+        const isOpen = Boolean(activeWindow);
+        elements.scheduleStrip.classList.toggle("closed", !isOpen);
+        elements.scheduleIcon.className = isOpen
+          ? "fas fa-circle-check"
+          : "fas fa-clock";
+        elements.scheduleStatus.textContent = isOpen
+          ? `Scanning is open for ${section}`
+          : `Scanning is closed for ${section}`;
+        elements.scheduleDetails.textContent = isOpen
+          ? `${activeWindow.label} • ${formatCurrentTime(now)}`
+          : `${formatCurrentTime(now)} • Follow your Monday-Friday Work Section schedule in Gemba Info.`;
+      }
+
+      function isToday(date) {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return false;
+        const today = new Date();
+        return (
+          date.getFullYear() === today.getFullYear() &&
+          date.getMonth() === today.getMonth() &&
+          date.getDate() === today.getDate()
+        );
+      }
+
+      function firestoreDate(value) {
+        if (!value) return null;
+        if (typeof value.toDate === "function") return value.toDate();
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      function getEffectivePointsData(rawData = {}) {
+        const data = { ...rawData };
+        const updatedDate = firestoreDate(data.updatedAt);
+
+        if (updatedDate && !isToday(updatedDate) && (data.currentRouteStep || 1) !== 1) {
+          data.currentRouteStep = 1;
+          data.lastCheckpoint = "";
+        }
+
+        return data;
+      }
+
+      function renderProgress(rawData = {}) {
+        const data = getEffectivePointsData(rawData);
+        const updatedDate = firestoreDate(data.updatedAt);
+        const currentStep = Number(data.currentRouteStep) || 1;
+
+        if (!updatedDate || !isToday(updatedDate)) {
+          elements.lastCheckpoint.textContent = "-";
+        } else if (currentStep === 1) {
+          elements.lastCheckpoint.textContent = Number(data.completedRoutes) > 0 ? "6" : "-";
+        } else {
+          elements.lastCheckpoint.textContent = String(currentStep - 1);
+        }
+
+        if (updatedDate && isToday(updatedDate) && currentStep >= 2 && currentStep <= 6) {
+          const lastCheckpointOrder = currentStep - 1;
+          const cooldownMs = CHECKPOINT_COOLDOWN_MS[lastCheckpointOrder] || 0;
+          state.cooldownUntil = cooldownMs
+            ? new Date(updatedDate.getTime() + cooldownMs)
+            : null;
+        } else {
+          state.cooldownUntil = null;
+        }
+
+        startCooldownTimer();
+      }
+
+      function renderTimer() {
+        const remaining = state.cooldownUntil
+          ? state.cooldownUntil.getTime() - Date.now()
+          : 0;
+
+        if (remaining <= 0) {
+          state.cooldownUntil = null;
+          elements.timerBadge.className = "timer-badge ready";
+          elements.timerBadge.innerHTML =
+            '<i class="fas fa-check-circle"></i><span data-translate="ready">Ready</span>';
+          return;
+        }
+
+        const seconds = Math.ceil(remaining / 1000);
+        elements.timerBadge.className = "timer-badge locked";
+        elements.timerBadge.innerHTML = `<i class="fas fa-lock"></i><span>${seconds}s</span>`;
+      }
+
+      function startCooldownTimer() {
+        if (state.cooldownTimer) {
+          window.clearInterval(state.cooldownTimer);
+        }
+
+        renderTimer();
+        state.cooldownTimer = window.setInterval(() => {
+          renderTimer();
+          if (!state.cooldownUntil) {
+            window.clearInterval(state.cooldownTimer);
+            state.cooldownTimer = null;
           }
-          currentCameraIndex++;
-          if (currentCameraIndex >= cameras.length) currentCameraIndex = 0;
-          await startCamera(currentCameraIndex);
+        }, 250);
+      }
+
+      function getCooldownRemainingSeconds() {
+        if (!state.cooldownUntil) return 0;
+        return Math.max(0, Math.ceil((state.cooldownUntil.getTime() - Date.now()) / 1000));
+      }
+
+      async function loadUserProfile(forceRefresh = false) {
+        if (state.userProfile && !forceRefresh) return state.userProfile;
+        if (!state.user) throw new Error("User is not logged in.");
+
+        const userSnap = await getDoc(doc(db, "users", state.user.uid));
+        if (!userSnap.exists()) {
+          throw new Error("Unable to load your user profile.");
+        }
+
+        state.userProfile = userSnap.data();
+        updateScheduleStatus();
+        return state.userProfile;
+      }
+
+      function listenToUserProfile(userId) {
+        if (state.profileUnsubscribe) state.profileUnsubscribe();
+
+        state.profileUnsubscribe = onSnapshot(
+          doc(db, "users", userId),
+          (snapshot) => {
+            if (snapshot.exists()) {
+              state.userProfile = snapshot.data();
+              updateScheduleStatus();
+            }
+          },
+          (error) => {
+            console.error("User profile listener error:", error);
+          },
+        );
+      }
+
+      async function loadCheckpoints(forceRefresh = false) {
+        if (state.checkpointsBySecret.size && !forceRefresh) {
+          return state.checkpointsBySecret;
+        }
+
+        const checkpointSnap = await getDocs(collection(db, "checkpoints"));
+        const checkpointMap = new Map();
+
+        checkpointSnap.forEach((checkpointDoc) => {
+          const checkpoint = {
+            firestoreId: checkpointDoc.id,
+            ...checkpointDoc.data(),
+          };
+          const secret = String(checkpoint.qrSecret ?? "").trim();
+          if (secret) checkpointMap.set(secret, checkpoint);
         });
 
-        // ----------------------------------------------------
-      // REPORT ISSUE LOGIC
-      // ----------------------------------------------------
-      const reportModal = document.getElementById("reportModal");
-      const adminModal = document.getElementById("adminModal");
+        state.checkpointsBySecret = checkpointMap;
+        return checkpointMap;
+      }
 
-      document
-        .getElementById("reportIssueBtn")
-        .addEventListener("click", () => {
-          reportModal.style.display = "flex";
-        });
+      async function findCheckpoint(decodedText) {
+        const secret = decodedText.trim();
+        let checkpoint = state.checkpointsBySecret.get(secret);
 
-      window.closeReportModal = () => {
-        reportModal.style.display = "none";
-        document.getElementById("issueDetails").value = "";
-      };
+        if (!checkpoint) {
+          await loadCheckpoints(true);
+          checkpoint = state.checkpointsBySecret.get(secret);
+        }
 
-      document
-        .getElementById("submitReportBtn")
-        .addEventListener("click", async () => {
-          const type = document.getElementById("issueType").value;
-          const details = document.getElementById("issueDetails").value.trim();
-          const btn = document.getElementById("submitReportBtn");
+        return checkpoint || null;
+      }
 
-          if (!details) {
-            alert("Please provide the details of the issue.");
+      function listenToGembaPoints(userId) {
+        if (state.pointsUnsubscribe) state.pointsUnsubscribe();
+
+        const pointsRef = doc(db, "gemba_points", userId);
+        state.pointsUnsubscribe = onSnapshot(
+          pointsRef,
+          (snapshot) => {
+            state.pointsData = snapshot.exists() ? snapshot.data() : null;
+            renderProgress(state.pointsData || {});
+          },
+          (error) => {
+            console.error("Gemba points listener error:", error);
+          },
+        );
+      }
+
+      function startLocationWarmup() {
+        if (!navigator.geolocation || state.locationWatchId !== null) return;
+
+        state.locationWatchId = navigator.geolocation.watchPosition(
+          (position) => {
+            state.latestPosition = {
+              position,
+              receivedAt: Date.now(),
+            };
+          },
+          () => {
+            // A fresh location request will still be attempted during scanning.
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 12_000,
+            maximumAge: 10_000,
+          },
+        );
+      }
+
+      function getFreshPosition() {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("Location service is not supported on this device."));
             return;
           }
 
-          btn.disabled = true;
-          btn.innerHTML = "Submitting...";
+          const cached = state.latestPosition;
+          const cachedAccuracy = cached?.position?.coords?.accuracy ?? Infinity;
+          const cachedAge = cached ? Date.now() - cached.receivedAt : Infinity;
 
-          try {
-            const user = auth.currentUser;
-            let userName = "Unknown User";
+          if (
+            cached &&
+            cachedAge <= LOCATION_CACHE_MS &&
+            cachedAccuracy <= MAX_CACHED_LOCATION_ACCURACY
+          ) {
+            resolve(cached.position);
+            return;
+          }
 
-            if (user) {
-              const userDoc = await getDoc(doc(db, "users", user.uid));
-              if (userDoc.exists()) userName = userDoc.data().name;
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              state.latestPosition = { position, receivedAt: Date.now() };
+              resolve(position);
+            },
+            (error) => {
+              const message =
+                error.code === 1
+                  ? "Location permission is required to verify the checkpoint."
+                  : error.code === 2
+                    ? "Your location could not be detected. Please move to an open area and try again."
+                    : "Location request timed out. Please try again.";
+              reject(new Error(message));
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 8_000,
+              maximumAge: 8_000,
+            },
+          );
+        });
+      }
+
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const earthRadius = 6_371_000;
+        const latitudeDifference = ((lat2 - lat1) * Math.PI) / 180;
+        const longitudeDifference = ((lon2 - lon1) * Math.PI) / 180;
+        const value =
+          Math.sin(latitudeDifference / 2) ** 2 +
+          Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(longitudeDifference / 2) ** 2;
+        return earthRadius * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+      }
+
+      class ScanValidationError extends Error {
+        constructor(icon, title, message) {
+          super(message);
+          this.name = "ScanValidationError";
+          this.icon = icon;
+          this.title = title;
+        }
+      }
+
+      async function processCheckpoint(checkpointSecret) {
+        if (state.isProcessingScan) return;
+
+        const cooldownSeconds = getCooldownRemainingSeconds();
+        if (cooldownSeconds > 0) {
+          showPopup(
+            "⏳",
+            "Please Wait",
+            `Please avoid running. Wait ${cooldownSeconds} more second${cooldownSeconds === 1 ? "" : "s"} before scanning the next checkpoint.`,
+          );
+          return;
+        }
+
+        state.isProcessingScan = true;
+        pauseScanner();
+        showPopup("", "Checking QR Code", "Validating checkpoint and your location...", {
+          processing: true,
+        });
+
+        try {
+          const user = state.user || auth.currentUser;
+          if (!user) {
+            throw new ScanValidationError("❌", "Login Required", "Please log in again.");
+          }
+
+          const [profile, checkpoint] = await Promise.all([
+            loadUserProfile(),
+            findCheckpoint(checkpointSecret),
+          ]);
+
+          if (!checkpoint) {
+            throw new ScanValidationError(
+              "❌",
+              "Invalid QR",
+              "This QR code is not registered in the Gemba Walk system.",
+            );
+          }
+
+          const workSection = normalizeWorkSection(profile.workSection);
+          if (!workSection) {
+            throw new ScanValidationError(
+              "⚠️",
+              "Work Section Required",
+              "Please update your Work Section in Profile Settings before scanning.",
+            );
+          }
+
+          if (!isAllowedScanTime(workSection)) {
+            throw new ScanValidationError(
+              "⏰",
+              "Outside Scan Hours",
+              `${workSection} is not allowed to scan at this time.
+
+Scanning is available only during the permitted Monday-Friday break times and the additional 5:50 PM-6:00 PM slot shown in Gemba Info.`,
+            );
+          }
+
+          const requiredNumbers = [
+            checkpoint.lat,
+            checkpoint.lng,
+            checkpoint.radius,
+            checkpoint.routeOrder,
+          ].map(Number);
+
+          if (requiredNumbers.some((value) => !Number.isFinite(value))) {
+            throw new Error("Checkpoint configuration is incomplete. Please contact the FIT team.");
+          }
+
+          const position = await getFreshPosition();
+          const distance = calculateDistance(
+            position.coords.latitude,
+            position.coords.longitude,
+            Number(checkpoint.lat),
+            Number(checkpoint.lng),
+          );
+
+          if (distance > Number(checkpoint.radius)) {
+            throw new ScanValidationError(
+              "📍",
+              "Outside Radius Area",
+              `Current distance: ${distance.toFixed(1)} m\nAllowed radius: ${Number(checkpoint.radius)} m\n\nPlease move closer to the checkpoint and scan again.`,
+            );
+          }
+
+          const pointsRef = doc(db, "gemba_points", user.uid);
+          const scanDocRef = doc(collection(db, "gemba_scans"));
+          const historyDocRef = doc(collection(db, "fit_points_history"));
+          const fitWalletRef = doc(db, "fit_points", user.uid);
+
+          const result = await runTransaction(db, async (transaction) => {
+            const pointsSnapshot = await transaction.get(pointsRef);
+            const originalData = pointsSnapshot.exists() ? pointsSnapshot.data() : {};
+            const data = getEffectivePointsData(originalData);
+
+            const expectedStep = Number(data.currentRouteStep) || 1;
+            const lastCheckpoint = String(data.lastCheckpoint || "");
+            const routeOrder = Number(checkpoint.routeOrder);
+            const checkpointId = String(checkpoint.id || checkpoint.firestoreId);
+
+            if (checkpointId === lastCheckpoint) {
+              throw new ScanValidationError(
+                "⚠️",
+                "Already Scanned",
+                "You already scanned this checkpoint. Please continue to the next checkpoint.",
+              );
             }
 
-            await addDoc(collection(db, "gemba_issues"), {
-              userId: user ? user.uid : "GUEST",
-              userName: userName,
-              issueType: type,
-              details: details,
-              status: "Pending",
-              reportedAt: serverTimestamp(),
+            if (routeOrder !== expectedStep) {
+              const originalUpdatedDate = firestoreDate(originalData.updatedAt);
+              const resetFromYesterday =
+                originalUpdatedDate &&
+                !isToday(originalUpdatedDate) &&
+                Number(originalData.currentRouteStep || 1) !== 1;
+
+              if (resetFromYesterday && expectedStep === 1) {
+                throw new ScanValidationError(
+                  "🔄",
+                  "Progress Reset",
+                  "Your incomplete route from yesterday has reset. Please begin again from Checkpoint 1.",
+                );
+              }
+
+              throw new ScanValidationError(
+                "🚫",
+                "Wrong Sequence",
+                `Please scan Checkpoint ${expectedStep} first.`,
+              );
+            }
+
+            let totalPoints = Number(data.totalPoints) || 0;
+            let completedRoutes = Number(data.completedRoutes) || 0;
+            const routeCompleted = routeOrder === 6;
+            const nextStep = routeCompleted ? 1 : routeOrder + 1;
+
+            if (routeCompleted) {
+              totalPoints += 50;
+              completedRoutes += 1;
+            }
+
+            const pointsUpdate = {
+              totalPoints,
+              completedRoutes,
+              currentRouteStep: nextStep,
+              lastCheckpoint: checkpointId,
+              updatedAt: serverTimestamp(),
+            };
+
+            if (!pointsSnapshot.exists()) {
+              pointsUpdate.createdAt = serverTimestamp();
+            }
+
+            transaction.set(pointsRef, pointsUpdate, { merge: true });
+
+            transaction.set(scanDocRef, {
+              userId: user.uid,
+              checkpointId,
+              checkpointName: checkpoint.name || `Checkpoint ${routeOrder}`,
+              points: routeCompleted ? 50 : 0,
+              distance: Number(distance.toFixed(1)),
+              routeCompleted,
+              latitude: Number(checkpoint.lat),
+              longitude: Number(checkpoint.lng),
+              scanTime: serverTimestamp(),
             });
 
-            closeReportModal();
-            showPopup(
-              "✅",
-              "Report Submitted",
-              "Thank you. The FIT Executive team has received your report.",
-            );
-          } catch (e) {
-            console.error("Error submitting report:", e);
-            alert("Failed to submit report. Try again later.");
-          } finally {
-            btn.disabled = false;
-            btn.innerHTML = "Submit";
-          }
-        });
+            if (routeCompleted) {
+              transaction.set(
+                fitWalletRef,
+                {
+                  totalPoints: increment(50),
+                  updatedAt: serverTimestamp(),
+                },
+                { merge: true },
+              );
 
-        // ----------------------------------------------------
-        // ADMIN ACCESS LOGIC (FIT EXECUTIVE)
-        // ----------------------------------------------------
-        document
-          .getElementById("adminAccessBtn")
-          .addEventListener("click", () => {
-            adminModal.style.display = "flex";
+              transaction.set(historyDocRef, {
+                userId: user.uid,
+                title: "Gemba Walk Route Completed",
+                amount: 50,
+                type: "earn",
+                icon: "fa-route",
+                timestamp: serverTimestamp(),
+              });
+            }
+
+            return {
+              routeOrder,
+              routeCompleted,
+              totalPoints,
+              checkpointName: checkpoint.name || `Checkpoint ${routeOrder}`,
+            };
           });
 
-        window.closeAdminModal = () => {
-          adminModal.style.display = "none";
-          document.getElementById("adminPinInput").value = "";
-        };
+          const message = result.routeCompleted
+            ? `🎉 Route completed successfully!\n\n+50 points received.\nTotal accumulated points: ${result.totalPoints}`
+            : `Checkpoint ${result.routeOrder} recorded.\n\nContinue safely to Checkpoint ${result.routeOrder + 1}. Complete all 6 checkpoints today to earn 50 points.`;
 
-        document.getElementById("submitPinBtn").addEventListener("click", () => {
-          const pin = document.getElementById("adminPinInput").value;
+          updatePopup(
+            "✅",
+            `CP ${result.routeOrder}/6: ${result.checkpointName}`,
+            message,
+          );
 
-          // Default PIN is set to 9999
-          if (pin === "9999") {
-            window.location.href = "gemba_issues.html";
+          if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+        } catch (error) {
+          console.error("Checkpoint scan error:", error);
+
+          if (error instanceof ScanValidationError) {
+            updatePopup(error.icon, error.title, error.message);
           } else {
-            alert("Incorrect PIN.");
-            document.getElementById("adminPinInput").value = "";
+            updatePopup(
+              "❌",
+              "Scan Error",
+              error?.message || "The scan could not be completed. Please try again.",
+            );
           }
-        });
+        } finally {
+          state.isProcessingScan = false;
+        }
+      }
+
+      async function onScanSuccess(decodedText) {
+        const value = String(decodedText || "").trim();
+        if (!value || state.isProcessingScan) return;
+
+        const now = Date.now();
+        const isImmediateDuplicate =
+          value === state.lastDecodedText &&
+          now - state.lastDecodedAt < DUPLICATE_SCAN_BLOCK_MS;
+
+        if (isImmediateDuplicate) return;
+
+        state.lastDecodedText = value;
+        state.lastDecodedAt = now;
+        await processCheckpoint(value);
+      }
+
+      function onScanFailure() {
+        // Continuous scanning naturally produces misses; no UI update is needed.
+      }
+
+      function pauseScanner() {
+        if (!state.scannerStarted || state.scannerPaused || !state.scanner?.isScanning) {
+          return;
+        }
+
+        try {
+          state.scanner.pause(true);
+          state.scannerPaused = true;
+          setCameraState("Paused", false);
+        } catch (error) {
+          console.debug("Scanner pause skipped:", error);
+        }
+      }
+
+      function resumeScanner() {
+        const anyModalOpen = document.querySelector(".popup-overlay.show");
+        if (
+          anyModalOpen ||
+          state.isProcessingScan ||
+          !state.scannerStarted ||
+          !state.scannerPaused ||
+          !state.scanner?.isScanning
+        ) {
+          return;
+        }
+
+        try {
+          state.scanner.resume();
+          state.scannerPaused = false;
+          state.lastDecodedAt = Date.now();
+          setCameraState("Camera active", true);
+        } catch (error) {
+          console.debug("Scanner resume skipped:", error);
+        }
+      }
+
+      function chooseBackCameraIndex(devices) {
+        const preferredIndex = devices.findIndex((device) =>
+          /back|rear|environment|world/i.test(device.label || ""),
+        );
+        return preferredIndex >= 0 ? preferredIndex : Math.max(0, devices.length - 1);
+      }
+
+      function getQrBoxSize(viewfinderWidth, viewfinderHeight) {
+        const minimumSide = Math.min(viewfinderWidth, viewfinderHeight);
+        const size = Math.max(190, Math.floor(minimumSide * 0.72));
+        return {
+          width: Math.min(size, 265),
+          height: Math.min(size, 265),
+        };
+      }
+
+      async function startCamera(index) {
+        if (!state.cameras[index]) {
+          throw new Error("Selected camera is not available.");
+        }
+
+        setCameraState("Opening camera", false);
+        elements.switchCameraBtn.disabled = true;
+
+        if (state.scanner?.isScanning) {
+          await state.scanner.stop();
+          state.scannerStarted = false;
+          state.scannerPaused = false;
+        }
+
+        await state.scanner.start(
+          state.cameras[index].id,
+          {
+            fps: 15,
+            qrbox: getQrBoxSize,
+            aspectRatio: 1,
+            disableFlip: false,
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: true,
+            },
+          },
+          onScanSuccess,
+          onScanFailure,
+        );
+
+        state.scannerStarted = true;
+        state.scannerPaused = false;
+        elements.switchCameraBtn.disabled = state.cameras.length < 2;
+        setCameraState("Camera active", true);
+      }
+
+      async function initializeCamera() {
+        if (state.cameraInitialised) return;
+        state.cameraInitialised = true;
+
+        try {
+          if (typeof Html5Qrcode === "undefined") {
+            throw new Error("QR scanner library failed to load.");
+          }
+
+          const scannerOptions =
+            typeof Html5QrcodeSupportedFormats !== "undefined"
+              ? {
+                  formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+                  verbose: false,
+                }
+              : { verbose: false };
+
+          state.scanner = new Html5Qrcode("reader", scannerOptions);
+          state.cameras = await Html5Qrcode.getCameras();
+
+          if (!state.cameras.length) {
+            throw new Error("No camera was detected on this device.");
+          }
+
+          state.currentCameraIndex = chooseBackCameraIndex(state.cameras);
+          await startCamera(state.currentCameraIndex);
+        } catch (error) {
+          console.error("Camera initialization error:", error);
+          setCameraState("Camera unavailable", false);
+          showPopup(
+            "📷",
+            "Camera Error",
+            `${error.message}\n\nAllow camera permission, then refresh this page.`,
+          );
+        }
+      }
+
+      elements.switchCameraBtn.addEventListener("click", async () => {
+        if (state.cameras.length < 2) {
+          showPopup("📷", "Camera Swap", "No secondary camera was found.");
+          return;
+        }
+
+        try {
+          state.currentCameraIndex =
+            (state.currentCameraIndex + 1) % state.cameras.length;
+          await startCamera(state.currentCameraIndex);
+        } catch (error) {
+          console.error("Camera switch error:", error);
+          showPopup("📷", "Camera Error", error.message);
+        }
+      });
+
+      document.getElementById("reportIssueBtn").addEventListener("click", () => {
+        openModal(elements.reportModal);
+      });
+
+      window.closeReportModal = () => {
+        document.getElementById("issueDetails").value = "";
+        closeModal(elements.reportModal);
+      };
+
+      document.getElementById("submitReportBtn").addEventListener("click", async () => {
+        const type = document.getElementById("issueType").value;
+        const details = document.getElementById("issueDetails").value.trim();
+        const button = document.getElementById("submitReportBtn");
+
+        if (!details) {
+          document.getElementById("issueDetails").focus();
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Submitting...";
+
+        try {
+          const user = state.user || auth.currentUser;
+          const profile = user ? await loadUserProfile() : null;
+
+          await addDoc(collection(db, "gemba_issues"), {
+            userId: user?.uid || "GUEST",
+            userName: profile?.name || "Unknown User",
+            issueType: type,
+            details,
+            status: "Pending",
+            reportedAt: serverTimestamp(),
+          });
+
+          closeModal(elements.reportModal, false);
+          showPopup(
+            "✅",
+            "Report Submitted",
+            "Thank you. The FIT Executive team has received your report.",
+          );
+        } catch (error) {
+          console.error("Issue report error:", error);
+          closeModal(elements.reportModal, false);
+          showPopup(
+            "❌",
+            "Submission Failed",
+            "The report could not be submitted. Please try again.",
+          );
+        } finally {
+          button.disabled = false;
+          button.textContent = "Submit";
+        }
+      });
+
+      document.getElementById("adminAccessBtn").addEventListener("click", () => {
+        openModal(elements.adminModal);
+        window.setTimeout(() => document.getElementById("adminPinInput").focus(), 180);
+      });
+
+      window.closeAdminModal = () => {
+        document.getElementById("adminPinInput").value = "";
+        closeModal(elements.adminModal);
+      };
+
+      function verifyAdminPin() {
+        const input = document.getElementById("adminPinInput");
+        if (input.value === "9999") {
+          window.location.href = "gemba_issues.html";
+          return;
+        }
+
+        input.value = "";
+        input.focus();
+        input.placeholder = "Incorrect PIN";
+      }
+
+      document.getElementById("submitPinBtn").addEventListener("click", verifyAdminPin);
+      document.getElementById("adminPinInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") verifyAdminPin();
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          pauseScanner();
+        } else {
+          window.setTimeout(resumeScanner, 250);
+        }
+      });
+
+      window.addEventListener("beforeunload", () => {
+        if (state.pointsUnsubscribe) state.pointsUnsubscribe();
+        if (state.profileUnsubscribe) state.profileUnsubscribe();
+        if (state.locationWatchId !== null && navigator.geolocation) {
+          navigator.geolocation.clearWatch(state.locationWatchId);
+        }
+      });
+
+      window.setInterval(updateScheduleStatus, 1_000);
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = "login_pg.html";
+          return;
+        }
+
+        state.user = user;
+        listenToGembaPoints(user.uid);
+        listenToUserProfile(user.uid);
+        startLocationWarmup();
+
+        try {
+          await Promise.all([
+            loadUserProfile(),
+            loadCheckpoints(),
+            initializeCamera(),
+          ]);
+          updateScheduleStatus();
+        } catch (error) {
+          console.error("Scanner setup error:", error);
+          showPopup(
+            "❌",
+            "Unable to Start Scanner",
+            error.message || "Please refresh this page and try again.",
+          );
+        }
+      });
     </script>
   </body>
 </html>

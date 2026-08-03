@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SURIA Gemba Walk Leaderboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>NSSB Gemba Walk Leaderboard</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    >
+
     <style>
-        /* --- CSS VARIABLES & RESET --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         :root {
-            --primary: #2563eb;
-            --primary-dark: #4f46e5;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #eef2ff 100%);
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg-gradient: #f8fafc;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --accent-green: #10b981;
+            --accent-color: #059669;
             --card-bg: rgba(255, 255, 255, 0.95);
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --gold: #fbbf24;
@@ -25,7 +31,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
         body {
@@ -33,16 +39,14 @@
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 30px 20px 80px;
         }
 
-        /* Expanded container for better desktop view */
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
 
-        /* --- NAVIGATION --- */
         .header {
             display: flex;
             align-items: center;
@@ -51,26 +55,26 @@
         }
 
         .back-btn {
-            display: inline-flex;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            padding: 10px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            display: flex;
             align-items: center;
             gap: 8px;
-            background: #ffffff;
-            color: var(--text-main);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 30px;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .back-btn:hover {
+            background: #f1f5f9;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            background: #f8fafc;
         }
 
         .header h2 {
@@ -79,16 +83,15 @@
             color: #0f172a;
         }
 
-        /* --- HEADER SECTION --- */
         .header-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             border-radius: 24px;
-            padding: 40px 30px;
-            margin-bottom: 30px;
+            padding: 35px 30px;
+            margin-bottom: 25px;
             position: relative;
             overflow: hidden;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.25);
             color: white;
         }
 
@@ -99,16 +102,18 @@
             position: absolute;
             right: -20px;
             top: -30px;
-            font-size: 180px;
+            font-size: 160px;
             opacity: 0.1;
             transform: rotate(15deg);
         }
 
         .header-card h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
         }
 
         .header-card p {
@@ -117,41 +122,41 @@
             font-weight: 500;
             letter-spacing: 1px;
             text-transform: uppercase;
+            position: relative;
+            z-index: 1;
         }
 
-        /* --- STATS GRID --- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .stat-box {
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid white;
+            border: 1px solid #e2e8f0;
             border-radius: 20px;
-            padding: 25px 20px;
+            padding: 20px;
             text-align: center;
             transition: transform 0.3s ease;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
         }
 
         .stat-box:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
         }
 
         .stat-box h2 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 800;
-            color: var(--accent-green);
+            color: var(--accent-color);
             margin-bottom: 5px;
         }
 
         .stat-box p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -159,28 +164,60 @@
         }
 
         .stat-box.highlight {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(79, 70, 229, 0.05));
-            border: 1px solid rgba(37, 99, 235, 0.1);
-        }
-        
-        .stat-box.highlight h2 {
-            color: var(--primary);
+            background: linear-gradient(
+                135deg,
+                rgba(16, 185, 129, 0.05),
+                rgba(5, 150, 105, 0.05)
+            );
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
-        /* --- LEADERBOARD LIST --- */
+        .stat-box.highlight h2 {
+            color: var(--primary-dark);
+        }
+
+        .ranking-rule {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding: 15px 17px;
+            border: 1px solid #d1fae5;
+            border-radius: 16px;
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        .ranking-rule i {
+            margin-top: 2px;
+            font-size: 18px;
+        }
+
+        .ranking-rule strong {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+
+        .ranking-rule span {
+            display: block;
+            color: #047857;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
         .leaderboard-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid white;
+            border: 1px solid #e2e8f0;
             border-radius: 24px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: var(--card-shadow);
         }
 
         .leaderboard-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 800;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -193,268 +230,648 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 18px 24px;
-            margin-bottom: 15px;
+            gap: 18px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
             border-radius: 16px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             animation: slideUp 0.5s ease backwards;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
 
         .user-row:hover {
-            transform: scale(1.01) translateX(5px);
-            background: #ffffff;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
-            border-color: #cbd5e1;
+            transform: scale(1.01) translateX(4px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.08);
+            border-color: #a7f3d0;
         }
 
-        /* Dynamic Animation Delays */
+        .user-row.current-user {
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.18);
+        }
+
         .user-row:nth-child(1) { animation-delay: 0.1s; }
         .user-row:nth-child(2) { animation-delay: 0.2s; }
         .user-row:nth-child(3) { animation-delay: 0.3s; }
         .user-row:nth-child(4) { animation-delay: 0.4s; }
         .user-row:nth-child(5) { animation-delay: 0.5s; }
 
-        /* Sleek Top 3 Styling for Light Mode */
-        .user-row.top1 { 
-            border-left: 5px solid var(--gold); 
-            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, #ffffff 100%);
+        .user-row.top1 {
+            border-left: 5px solid var(--gold);
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.05) 0%, #ffffff 100%);
             border-top: 1px solid rgba(251, 191, 36, 0.2);
             border-right: 1px solid rgba(251, 191, 36, 0.2);
             border-bottom: 1px solid rgba(251, 191, 36, 0.2);
         }
-        .user-row.top2 { 
-            border-left: 5px solid #94a3b8; 
-            background: linear-gradient(90deg, rgba(148, 163, 184, 0.1) 0%, #ffffff 100%);
-        }
-        .user-row.top3 { 
-            border-left: 5px solid var(--bronze); 
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.1) 0%, #ffffff 100%);
+
+        .user-row.top2 {
+            border-left: 5px solid #94a3b8;
+            background: linear-gradient(90deg, rgba(148, 163, 184, 0.05) 0%, #ffffff 100%);
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
         }
 
-        .left { display: flex; align-items: center; gap: 20px; }
+        .user-row.top3 {
+            border-left: 5px solid var(--bronze);
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.05) 0%, #ffffff 100%);
+            border-top: 1px solid rgba(217, 119, 6, 0.2);
+            border-right: 1px solid rgba(217, 119, 6, 0.2);
+            border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+        }
+
+        .left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+        }
 
         .rank {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
             border-radius: 14px;
-            background: #ffffff;
+            background: #f8fafc;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: var(--text-main);
             border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
         }
 
-        .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 700; font-size: 1.1rem; color: var(--text-main); letter-spacing: 0.5px; }
-        .user-dept { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
-        
-        /* Unified Points Badge - Always consistent and legible */
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            letter-spacing: 0.3px;
+            overflow-wrap: anywhere;
+        }
+
+        .user-dept {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            overflow-wrap: anywhere;
+        }
+
+        .tie-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #64748b;
+            font-size: 0.73rem;
+            margin-top: 6px;
+        }
+
         .points {
+            flex: 0 0 auto;
             font-weight: 800;
             color: #fff;
-            background: var(--accent-green);
-            padding: 8px 16px;
+            background: var(--accent-color);
+            padding: 7px 14px;
             border-radius: 30px;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
             letter-spacing: 0.5px;
-            min-width: 90px;
+            min-width: 82px;
             text-align: center;
         }
 
-        .loading { text-align: center; padding: 40px; color: var(--text-muted); font-weight: 500; }
-
-        /* Animations */
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .loading,
+        .empty-state,
+        .error-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-weight: 500;
         }
+
+        .error-state {
+            color: #b91c1c;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 16px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
-        .pulse-text { animation: pulse 1.5s infinite; }
 
-        /* Responsive */
+        .pulse-text {
+            animation: pulse 1.5s infinite;
+        }
+
         @media (max-width: 600px) {
-            .user-row { flex-direction: column; gap: 15px; align-items: flex-start; }
-            .points { align-self: flex-end; }
+            body {
+                padding: 20px 14px 60px;
+            }
+
+            .header-card {
+                padding: 30px 20px;
+            }
+
+            .header-card h1 {
+                font-size: 1.65rem;
+            }
+
+            .leaderboard-card {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                align-items: flex-start;
+            }
+
+            .header h2 {
+                padding-top: 8px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-row {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .points {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <div class="header">
+            <a href="home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span data-translate="home">Home</span>
+            </a>
 
-<div class="container">
-
-    <div class="header">
-        <a href="home.html" class="back-btn">
-            <i class="fas fa-arrow-left"></i> <span data-translate="home">Home</span>
-        </a>
-        <h2 data-translate="gembaLeaderboard">Leaderboard</h2>
-    </div>
-
-    <!-- Main Header -->
-    <div class="header-card">
-        <h1 data-translate="gembaWalk">🏭 Gemba Walk</h1>
-        <p data-translate="latestUpdatesTitle">Live Rankings</p>
-    </div>
-
-    <!-- Personal & Company Stats Grid -->
-    <div class="stats-grid">
-        <div class="stat-box highlight">
-            <h2 id="myRank">-</h2>
-            <p data-translate="myRank">My Rank</p>
-        </div>
-        <div class="stat-box">
-            <h2 id="myPoints">0</h2>
-            <p data-translate="myPoints">My Points</p>
-        </div>
-        <div class="stat-box">
-            <h2 id="totalPoints">0</h2>
-            <p data-translate="companyTotal">Company Total</p>
-        </div>
-    </div>
-
-    <!-- Leaderboard List -->
-    <div class="leaderboard-card">
-        <div class="leaderboard-title">
-            <span data-translate="topParticipants">🚀 Top Participants</span>
-            <i class="fas fa-crown" style="color: var(--gold);"></i>
+            <h2 data-translate="gembaLeaderboard">Leaderboard</h2>
         </div>
 
-        <div id="leaderboard-list">
-            <div class="loading pulse-text">
-                <i class="fas fa-circle-notch fa-spin" style="margin-right: 8px; font-size: 20px;"></i><br><br>
-                <span data-translate="loadingText">Syncing live data...</span>
+        <div class="header-card">
+            <h1 data-translate="gembaWalk">🏭 Gemba Walk</h1>
+            <p data-translate="latestUpdatesTitle">Live Rankings</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box highlight">
+                <h2 id="myRank">-</h2>
+                <p data-translate="myRank">My Rank</p>
+            </div>
+
+            <div class="stat-box">
+                <h2 id="myPoints">0</h2>
+                <p data-translate="myPoints">My Points</p>
+            </div>
+
+            <div class="stat-box">
+                <h2 id="totalPoints">0</h2>
+                <p data-translate="companyTotal">Company Total</p>
+            </div>
+        </div>
+
+        <div class="ranking-rule">
+            <i class="fas fa-scale-balanced"></i>
+
+            <div>
+                <strong>Fair Ranking Rule</strong>
+                <span>
+                    Highest points first. If points are tied, the participant who achieved
+                    the score earlier ranks higher. Name A–Z is used only as the final fallback.
+                </span>
+            </div>
+        </div>
+
+        <div class="leaderboard-card">
+            <div class="leaderboard-title">
+                <span data-translate="topParticipants">🚀 Top Participants</span>
+                <i class="fas fa-crown" style="color: var(--gold);"></i>
+            </div>
+
+            <div id="leaderboard-list" aria-live="polite">
+                <div class="loading pulse-text">
+                    <i
+                        class="fas fa-circle-notch fa-spin"
+                        style="margin-right: 8px; font-size: 20px;"
+                    ></i>
+
+                    <br><br>
+
+                    <span data-translate="loadingText">Syncing live data...</span>
+                </div>
             </div>
         </div>
     </div>
 
-</div>
+    <script type="module">
+        import { db, auth } from './firebaseConfig.js';
 
-<!-- Firebase Script Logic -->
-<script type="module">
-    import { db, auth } from './firebaseConfig.js';
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-    import { collection, query, orderBy, onSnapshot, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-    import { initializeWithDetection } from './languageTranslator.js';
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeWithDetection();
-    });
-    
-    const leaderboardList = document.getElementById("leaderboard-list");
-    const totalPointsElement = document.getElementById("totalPoints");
-    const myPointsElement = document.getElementById("myPoints");
-    const myRankElement = document.getElementById("myRank");
+        import {
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-    let currentUserId = null;
-    let latestSnapshotData = null; // Store data to re-render if auth resolves later
+        import {
+            collection,
+            doc,
+            getDoc,
+            onSnapshot,
+            query
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-    // Listen for Auth State
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUserId = user.uid;
-            // Re-evaluate personal stats once user is known
-            if (latestSnapshotData) {
-                updatePersonalStats(latestSnapshotData);
+        import { initializeWithDetection } from './languageTranslator.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeWithDetection();
+        });
+
+        const leaderboardList = document.getElementById("leaderboard-list");
+        const totalPointsElement = document.getElementById("totalPoints");
+        const myPointsElement = document.getElementById("myPoints");
+        const myRankElement = document.getElementById("myRank");
+
+        let currentUserId = null;
+        let latestParticipants = [];
+
+        /*
+         * This page only READS:
+         * - gemba_points
+         * - users
+         *
+         * It does not create, update or delete any Firestore document.
+         */
+
+        onAuthStateChanged(auth, (user) => {
+            currentUserId = user ? user.uid : null;
+            renderLeaderboard(latestParticipants);
+        });
+
+        /*
+         * Client-side sorting is intentional because the participant name is stored
+         * in the separate "users" collection.
+         */
+        const leaderboardQuery = query(collection(db, "gemba_points"));
+
+        /**
+         * Safely converts a Firestore Timestamp, Date, number or date string to milliseconds.
+         * Missing or invalid values are pushed behind participants with a valid timestamp.
+         */
+        function getTimestampMillis(value) {
+            if (!value) {
+                return Number.MAX_SAFE_INTEGER;
             }
+
+            if (typeof value.toMillis === "function") {
+                return value.toMillis();
+            }
+
+            if (value instanceof Date) {
+                const time = value.getTime();
+                return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
+            }
+
+            if (typeof value === "number") {
+                return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+            }
+
+            if (typeof value === "string") {
+                const parsedTime = new Date(value).getTime();
+                return Number.isNaN(parsedTime)
+                    ? Number.MAX_SAFE_INTEGER
+                    : parsedTime;
+            }
+
+            if (
+                typeof value === "object" &&
+                Number.isFinite(value.seconds)
+            ) {
+                const nanoseconds = Number.isFinite(value.nanoseconds)
+                    ? value.nanoseconds
+                    : 0;
+
+                return (value.seconds * 1000) + (nanoseconds / 1000000);
+            }
+
+            return Number.MAX_SAFE_INTEGER;
         }
-    });
 
-    const q = query(collection(db, "gemba_points"), orderBy("totalPoints", "desc"));
+        /**
+         * Chooses the best available timestamp for tie-breaking.
+         *
+         * Preferred field:
+         * 1. scoreReachedAt
+         *
+         * Backward-compatible fallbacks:
+         * 2. completedAt
+         * 3. completionTime
+         * 4. lastCompletedAt
+         * 5. updatedAt
+         *
+         * For the most accurate ranking, update scoreReachedAt only when the
+         * participant successfully earns new points.
+         */
+        function getTieTimestamp(pointsData) {
+            const timestampValue =
+                pointsData.scoreReachedAt ??
+                pointsData.completedAt ??
+                pointsData.completionTime ??
+                pointsData.lastCompletedAt ??
+                pointsData.updatedAt ??
+                null;
 
-    // Function to update user specific boxes
-    function updatePersonalStats(snapshotDocs) {
-        if (!currentUserId) return;
+            return {
+                raw: timestampValue,
+                millis: getTimestampMillis(timestampValue)
+            };
+        }
 
-        let rank = 1;
-        for (const docSnap of snapshotDocs) {
-            if (docSnap.id === currentUserId) {
-                myRankElement.innerText = "#" + rank;
-                myPointsElement.textContent = docSnap.data().totalPoints || 0;
+        /**
+         * Prevents user profile text from being interpreted as HTML.
+         */
+        function escapeHTML(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function formatTieTime(timestampMillis) {
+            if (
+                !Number.isFinite(timestampMillis) ||
+                timestampMillis === Number.MAX_SAFE_INTEGER
+            ) {
+                return "";
+            }
+
+            return new Intl.DateTimeFormat("en-MY", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
+            }).format(new Date(timestampMillis));
+        }
+
+        /**
+         * Ranking priority:
+         * 1. Highest total points
+         * 2. Earliest time the score was achieved
+         * 3. Participant name A-Z
+         * 4. UID as the final deterministic fallback
+         */
+        function sortParticipants(participants) {
+            return [...participants].sort((a, b) => {
+                if (b.totalPoints !== a.totalPoints) {
+                    return b.totalPoints - a.totalPoints;
+                }
+
+                if (a.tieTimestampMillis !== b.tieTimestampMillis) {
+                    return a.tieTimestampMillis - b.tieTimestampMillis;
+                }
+
+                const nameComparison = a.name.localeCompare(b.name, "en", {
+                    sensitivity: "base",
+                    numeric: true
+                });
+
+                if (nameComparison !== 0) {
+                    return nameComparison;
+                }
+
+                return a.uid.localeCompare(b.uid);
+            });
+        }
+
+        function updatePersonalStats(participants) {
+            if (!currentUserId) {
+                myRankElement.textContent = "-";
+                myPointsElement.textContent = "0";
                 return;
             }
-            rank++;
+
+            const participantIndex = participants.findIndex(
+                (participant) => participant.uid === currentUserId
+            );
+
+            if (participantIndex === -1) {
+                myRankElement.textContent = "-";
+                myPointsElement.textContent = "0";
+                return;
+            }
+
+            const currentParticipant = participants[participantIndex];
+
+            myRankElement.textContent = `#${participantIndex + 1}`;
+            myPointsElement.textContent = currentParticipant.totalPoints.toLocaleString();
         }
-    }
 
-    onSnapshot(q, async (snapshot) => {
-        latestSnapshotData = snapshot.docs; // Cache for auth listener
-        
-        let html = '';
-        let rank = 1;
-        let totalCompanyPoints = 0;
+        function getMedal(rank) {
+            if (rank === 1) return "🥇";
+            if (rank === 2) return "🥈";
+            if (rank === 3) return "🥉";
+            return rank;
+        }
 
-        // Process data
-        for (const docSnap of snapshot.docs) {
-            const pointsData = docSnap.data();
-            
-            // Note: In a production app with 1000+ users, making a getDoc call in a loop inside onSnapshot can be slow. 
-            // For a company event size, this is perfectly fine.
-            const userDoc = await getDoc(doc(db, "users", docSnap.id));
-            const user = userDoc.exists() ? userDoc.data() : {};
+        function getRowClass(rank, participantUid) {
+            const classes = [];
 
-            totalCompanyPoints += pointsData.totalPoints || 0;
+            if (rank === 1) classes.push("top1");
+            if (rank === 2) classes.push("top2");
+            if (rank === 3) classes.push("top3");
 
-            // Medal Logic
-            let medal = '';
-            if (rank === 1) medal = '🥇';
-            else if (rank === 2) medal = '🥈';
-            else if (rank === 3) medal = '🥉';
-            else medal = rank;
+            if (currentUserId && participantUid === currentUserId) {
+                classes.push("current-user");
+            }
 
-            // Row Class Logic
-            let rowClass = "";
-            if (rank === 1) rowClass = "top1";
-            else if (rank === 2) rowClass = "top2";
-            else if (rank === 3) rowClass = "top3";
-            if (currentUserId && docSnap.id === currentUserId) rowClass += " highlight"; // Optional self-highlight
+            return classes.join(" ");
+        }
 
-            // Generate HTML Row
-            html += `
-            <div class="user-row ${rowClass}">
-                <div class="left">
-                    <div class="rank">${medal}</div>
-                    <div class="user-info">
-                        <div class="user-name">${user.name || "NSSB Participant"}</div>
-                        <div class="user-dept">${user.department || 'NSSB Team'}</div>
+        function renderLeaderboard(participants) {
+            updatePersonalStats(participants);
+
+            const totalCompanyPoints = participants.reduce(
+                (total, participant) => total + participant.totalPoints,
+                0
+            );
+
+            totalPointsElement.textContent = totalCompanyPoints.toLocaleString();
+
+            if (participants.length === 0) {
+                leaderboardList.innerHTML = `
+                    <div class="empty-state">
+                        <i
+                            class="fas fa-industry"
+                            style="
+                                font-size: 32px;
+                                margin-bottom: 15px;
+                                display: block;
+                                opacity: 0.3;
+                                color: var(--primary);
+                            "
+                        ></i>
+
+                        No participants yet. Be the first to start the Gemba Walk!
+                    </div>
+                `;
+
+                return;
+            }
+
+            leaderboardList.innerHTML = participants.map((participant, index) => {
+                const rank = index + 1;
+                const formattedTieTime = formatTieTime(
+                    participant.tieTimestampMillis
+                );
+
+                const tieTimeHTML = formattedTieTime
+                    ? `
+                        <div class="tie-time" title="Used as the tie-breaker when points are equal">
+                            <i class="far fa-clock"></i>
+                            <span>Score reached: ${escapeHTML(formattedTieTime)}</span>
+                        </div>
+                    `
+                    : "";
+
+                return `
+                    <div class="user-row ${getRowClass(rank, participant.uid)}">
+                        <div class="left">
+                            <div class="rank">${getMedal(rank)}</div>
+
+                            <div class="user-info">
+                                <div class="user-name">
+                                    ${escapeHTML(participant.name)}
+                                </div>
+
+                                <div class="user-dept">
+                                    ${escapeHTML(participant.department)}
+                                </div>
+
+                                ${tieTimeHTML}
+                            </div>
+                        </div>
+
+                        <div class="points">
+                            ${participant.totalPoints.toLocaleString()} pts
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function showError(error) {
+            console.error("Unable to load Gemba Walk leaderboard:", error);
+
+            leaderboardList.innerHTML = `
+                <div class="error-state">
+                    <i
+                        class="fas fa-triangle-exclamation"
+                        style="font-size: 24px; margin-bottom: 12px;"
+                    ></i>
+
+                    <div>
+                        Unable to load the leaderboard right now.
+                        Please refresh the page or try again.
                     </div>
                 </div>
-                <div class="points">${pointsData.totalPoints || 0} pts</div>
-            </div>
             `;
-            
-            rank++;
         }
 
-        // Handle Empty State
-        if (snapshot.empty) {
-            leaderboardList.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-industry" style="font-size: 32px; margin-bottom: 15px; display:block; opacity: 0.3; color: var(--primary);"></i>
-                    No participants yet. Be the first to start the Gemba Walk!
-                </div>
-            `;
-            return;
-        }
+        onSnapshot(
+            leaderboardQuery,
+            async (snapshot) => {
+                try {
+                    if (snapshot.empty) {
+                        latestParticipants = [];
+                        renderLeaderboard(latestParticipants);
+                        return;
+                    }
 
-        // Render Data
-        leaderboardList.innerHTML = html;
-        totalPointsElement.textContent = totalCompanyPoints.toLocaleString();
+                    const participants = await Promise.all(
+                        snapshot.docs.map(async (pointsDoc) => {
+                            const pointsData = pointsDoc.data();
 
-        // Update Personal UI if Auth resolved
-        updatePersonalStats(snapshot.docs);
-    });
-</script>
+                            let userData = {};
 
+                            try {
+                                const userSnapshot = await getDoc(
+                                    doc(db, "users", pointsDoc.id)
+                                );
+
+                                if (userSnapshot.exists()) {
+                                    userData = userSnapshot.data();
+                                }
+                            } catch (userError) {
+                                /*
+                                 * Keep the participant visible even if their
+                                 * corresponding users document cannot be read.
+                                 */
+                                console.warn(
+                                    `Unable to read user profile for ${pointsDoc.id}:`,
+                                    userError
+                                );
+                            }
+
+                            const tieTimestamp = getTieTimestamp(pointsData);
+
+                            return {
+                                uid: pointsDoc.id,
+                                name: userData.name || "NSSB Participant",
+                                department: userData.department || "NSSB Team",
+                                totalPoints: Number(pointsData.totalPoints) || 0,
+                                tieTimestampRaw: tieTimestamp.raw,
+                                tieTimestampMillis: tieTimestamp.millis
+                            };
+                        })
+                    );
+
+                    latestParticipants = sortParticipants(participants);
+                    renderLeaderboard(latestParticipants);
+                } catch (error) {
+                    showError(error);
+                }
+            },
+            (error) => {
+                showError(error);
+            }
+        );
+    </script>
 </body>
 </html>
