@@ -232,7 +232,7 @@ export const translations = {
         programRules: "Program Rules",
         permittedHours: "Permitted Scanning Hours",
         permittedHoursDesc:
-        "Scanning is strictly allowed only during your designated break times based on your assigned Sticker Group.",
+        "Scanning is strictly allowed only during your designated break times based on your assigned Work Section.",
         groupSticker: "Group (Sticker)",
         morningBreak: "Morning Break",
         lunchMonThu: "Lunch (Mon-Thu)",
@@ -264,20 +264,20 @@ export const translations = {
         faq3A: "The system will reject the scan until the sequence is corrected.",
         faq4Q: "Can I continue my progress tomorrow?",
         faq4A: "No. Progress resets automatically at midnight.",
-        faq5Q: "Why is there a 30-second timer?",
+        faq5Q: "Why is there a cooldown timer?",
         faq5A:
-        "You do not need to stand still and wait for 30 seconds. The timer is designed to encourage participants to walk safely instead of running. Together with the checkpoint’s radius detection, it ensures participants move safely to the next checkpoint.",
+        "You do not need to stand still or wait for the entire cooldown period. The timer is designed to discourage running and encourage participants to walk safely to the next checkpoint. It helps ensure everyone completes the route at a safe pace.",
         faq6Q: "Why must participants follow the suggested route?",
         faq6A:
-        "The suggested route ensures that participants complete the required total distance of approximately 700 metres. It also standardises the Gemba Walk Challenge across the participating companies, including SCM, NSSB, and NPSB.",
+        "The suggested route ensures that participants complete the required total distance of approximately 700 metres. It also standardises the Gemba Walk Challenge across the participating companies, including SCM and NSSB.",
         loadingText: "Syncing live data...",
         checkpointLabel: "Checkpoint",
-        cpDesc1: "Located in the wall cabinet of the PA System.",
-        cpDesc2: "In front of the main production notice board (Line A).",
-        cpDesc3: "On the Quality Control (QC) room desk, near the entrance.",
-        cpDesc4: "Near the box wrapping machine.",
-        cpDesc5: "At loading bay #2, parking area.",
-        cpDesc6: "Inside the staff pantry, next to the water dispenser.",
+        cpDesc1: "Located at the hallway of the Main Lobby SCM between meeting rooms and logistics room.",
+        cpDesc2: "At the lamp post in front of the Main Entrance.",
+        cpDesc3: "Near the Waste Area under the stairs at the back of the factory.",
+        cpDesc4: "At the parking lot near the main gate.",
+        cpDesc5: "Located on the wall of the Smoking Area.",
+        cpDesc6: "Located on the wall of the Guard House.",
         noParticipants: "No participants yet.",
         reportIssueTitle: "Report Issue",
         issueTypeLabel: "Issue Type",
@@ -295,12 +295,12 @@ export const translations = {
     },
 
     ms: {
-        faq5Q: "Mengapa terdapat pemasa 30 saat?",
+        faq5Q: "Mengapakah terdapat cooldown timer?",
         faq5A:
-        "Peserta tidak perlu berdiri dan menunggu selama 30 saat. Pemasa ini bertujuan untuk menggalakkan peserta berjalan dengan selamat dan tidak berlari. Bersama fungsi pengesanan radius di setiap checkpoint, sistem ini memastikan peserta bergerak dengan selamat ke checkpoint seterusnya.",
+        "Anda tidak perlu berdiri diam atau menunggu sehingga tempoh cooldown tamat. Pemasa ini bertujuan mengelakkan peserta daripada berlari dan menggalakkan mereka berjalan dengan selamat ke checkpoint seterusnya. Ini membantu memastikan semua peserta melengkapkan laluan pada kadar yang selamat.",
         faq6Q: "Mengapa peserta perlu mengikut laluan yang dicadangkan?",
         faq6A:
-        "Laluan yang dicadangkan memastikan peserta melengkapkan jarak keseluruhan kira-kira 700 meter. Ia juga menyeragamkan Gemba Walk Challenge antara syarikat yang mengambil bahagian, iaitu SCM, NSSB dan NPSB.",
+        "Laluan yang dicadangkan memastikan peserta melengkapkan jarak keseluruhan kira-kira 700 meter. Ia juga menyeragamkan Gemba Walk Challenge antara syarikat yang mengambil bahagian, iaitu SCM dan NSSB.",
     },
     
     bn: {
@@ -364,12 +364,12 @@ export const translations = {
         EngineeringDepartment: "इन्जिनियरिङ विभाग",
         MainMenu: "मुख्य मेनु",
         
-        faq5Q: "३० सेकेन्डको टाइमर किन राखिएको हो?",
+        faq5Q: "कुलडाउन टाइमर किन राखिएको हो?",
         faq5A:
-        "सहभागीहरूले ३० सेकेन्डसम्म एकै ठाउँमा उभिएर पर्खनु आवश्यक छैन। यो टाइमर सहभागीहरूलाई नदौडी सुरक्षित रूपमा हिँड्न प्रोत्साहित गर्न राखिएको हो। प्रत्येक चेकपोइन्टको रेडियस डिटेक्सन सुविधासँग मिलेर, यसले सहभागीहरू अर्को चेकपोइन्टसम्म सुरक्षित रूपमा अघि बढेको सुनिश्चित गर्छ।",
+        "तपाईंले एकै ठाउँमा उभिएर कुलडाउन समय सकिन्जेल पर्खनु पर्दैन। यो टाइमर सहभागीहरूलाई दौडिनबाट रोक्न र अर्को चेकपोइन्टसम्म सुरक्षित रूपमा हिँड्न प्रोत्साहित गर्न राखिएको हो। यसले सबैलाई सुरक्षित गतिमा मार्ग पूरा गर्न मद्दत गर्छ।",
         faq6Q: "सहभागीहरूले सुझाव दिइएको मार्ग किन पछ्याउनुपर्छ?",
         faq6A:
-        "सुझाव दिइएको मार्गले सहभागीहरूले करिब ७०० मिटरको कुल दूरी पूरा गरेको सुनिश्चित गर्छ। यसले SCM, NSSB र NPSB लगायत सहभागी कम्पनीहरूमा Gemba Walk Challenge लाई एउटै मापदण्डअनुसार सञ्चालन गर्न पनि मद्दत गर्छ।",
+        "सुझाव दिइएको मार्गले सहभागीहरूले करिब ७०० मिटरको कुल दूरी पूरा गरेको सुनिश्चित गर्छ। यसले SCM र NSSB लगायत सहभागी कम्पनीहरूमा Gemba Walk Challenge लाई एउटै मापदण्डअनुसार सञ्चालन गर्न पनि मद्दत गर्छ।",
 
         // --- NEW KEYS FOR RAMADAN CODE HTML ---
         todaysDate: "আজকের তারিখ",
