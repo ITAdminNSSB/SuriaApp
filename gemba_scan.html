@@ -861,14 +861,14 @@
       import { initializeWithDetection } from "./languageTranslator.js";
 
       // Cooldown based on the tested average walking time between checkpoints.
-      // CP1→CP2: 45s | CP2→CP3: 1m 40s | CP3→CP4: 1m 40s
-      // CP4→CP5: 1m 30s | CP5→CP6: 1m 30s
+      // CP1→CP2: 50s | CP2→CP3: 3m | CP3→CP4: 2m 20s
+      // CP4→CP5: 1m 10s | CP5→CP6: 40s
       const CHECKPOINT_COOLDOWN_MS = {
-        1: 45_000, //asal 66s -> 45s
-        2: 100_000, //asal 72s -> 100s
-        3: 100_000, //asal 138s -> 100s
-        4: 90_000, //asal 136s -> 90s
-        5: 90_000, //asal 104s -> 90s
+        1: 55_000, //asal 66s -> 45s -> 55s
+        2: 180_000, //asal 72s -> 100s -> 180s
+        3: 140_000, //asal 138s -> 100s -> 140s
+        4: 70_000, //asal 136s -> 90s -> 70s
+        5: 40_000, //asal 104s -> 90s -> 40s 
       };
       const DUPLICATE_SCAN_BLOCK_MS = 2_500;
       const LOCATION_CACHE_MS = 15_000;
