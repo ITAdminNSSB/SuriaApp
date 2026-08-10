@@ -45,6 +45,7 @@
         .hr-department {background: linear-gradient(135deg, #9C51B6, #D862BC);}
         .eng-department {background: linear-gradient(135deg, #4b49b8, #7375d2);}
         .kaizen-admin {background: linear-gradient(135deg, #0b2a4a, #1a3f62);}
+        .ky-evaluation {background: linear-gradient(135deg, #7c3aed, #a855f7);}
 
         @media (max-width: 768px) {.buttons-container {grid-template-columns: 1fr 1fr;}}
         @media (max-width: 480px) {h1 { font-size: 1.8rem; margin-bottom: 30px; }
@@ -103,10 +104,11 @@
 
         .modal-box-pin .lock-icon {
             font-size: 48px;
-            color: #60a5fa;
             margin-bottom: 10px;
             display: block;
         }
+        .modal-box-pin .lock-icon.ky { color: #a855f7; }
+        .modal-box-pin .lock-icon.kaizen { color: #60a5fa; }
 
         .modal-box-pin h2 {
             font-size: 22px;
@@ -231,6 +233,14 @@
             transform: none;
         }
 
+        .btn-pin-verify.ky-btn {
+            background: #7c3aed;
+        }
+        .btn-pin-verify.ky-btn:hover:not(:disabled) {
+            background: #6d28d9;
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+        }
+
         /* Numpad for Mobile */
         .numpad-pin {
             display: none;
@@ -348,32 +358,33 @@
                 <span class="button-text" data-translate="HumanResourcesDepartment">Human Resources Department</span>
             </a>
 
-            <!-- ===== KAIZEN ADMIN - PASSWORD PROTECTED ===== -->
-            <a href="#" class="department-btn kaizen-admin" id="kaizenAdminLink">
+            <!-- ===== KY EVALUATION - SEPARATE PASSWORD ===== -->
+            <a href="javascript:void(0)" class="department-btn ky-evaluation" id="kyEvaluationLink">
+                <span class="button-icon">📊</span>
+                <span class="button-text" data-translate="KYEvaluation">KY Evaluation</span>
+            </a>
+
+            <!-- ===== KAIZEN ADMIN - SEPARATE PASSWORD ===== -->
+            <a href="javascript:void(0)" class="department-btn kaizen-admin" id="kaizenAdminLink">
                 <span class="button-icon">📋</span>
                 <span class="button-text" data-translate="KaizenAdmin">Kaizen Admin</span>
-            </a>
-            <!-- ===== END KAIZEN ADMIN ===== -->
-             <a href="Ky_Admin.html" class="department-btn hr-department">
-                <span class="button-icon">📊</span>
-                <span class="button-text" data-translate="KY Evaluation">KY Evaluation</span>
             </a>
         </div>
     </div>
 
     <!-- ========================================================== -->
-    <!-- ===== PASSWORD MODAL ===== -->
+    <!-- ===== KY PASSWORD MODAL ===== -->
     <!-- ========================================================== -->
-    <div class="modal-overlay-pin" id="passwordModal">
+    <div class="modal-overlay-pin" id="kyPasswordModal">
         <div class="modal-box-pin">
             <div class="pin-title-area">
-                <span class="lock-icon">🔐</span>
-                <h2>Kaizen Admin Access</h2>
-                <p>Enter your 6-digit PIN to continue</p>
+                <span class="lock-icon ky">📊</span>
+                <h2>KY Evaluation Access</h2>
+                <p>Enter your 6-digit KY PIN to continue</p>
             </div>
 
             <!-- 6 PIN Boxes -->
-            <div class="pin-container" id="pinContainer">
+            <div class="pin-container" id="kyPinContainer">
                 <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autofocus>
                 <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
                 <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
@@ -383,13 +394,13 @@
             </div>
 
             <!-- Success Checkmark -->
-            <div class="checkmark" id="checkmark">✅</div>
+            <div class="checkmark" id="kyCheckmark">✅</div>
 
             <!-- Error Message -->
-            <div class="error-msg-pin hidden" id="errorMsg">❌ Invalid PIN. Please try again.</div>
+            <div class="error-msg-pin hidden" id="kyErrorMsg">❌ Invalid KY PIN. Please try again.</div>
 
             <!-- Numpad for Mobile -->
-            <div class="numpad-pin" id="numpad">
+            <div class="numpad-pin" id="kyNumpad">
                 <button data-num="1">1</button>
                 <button data-num="2">2</button>
                 <button data-num="3">3</button>
@@ -406,12 +417,62 @@
 
             <!-- Action Buttons -->
             <div class="modal-actions-pin">
-                <button class="btn-pin btn-pin-cancel" id="cancelBtn">Cancel</button>
-                <button class="btn-pin btn-pin-verify" id="verifyBtn" disabled>Verify</button>
+                <button class="btn-pin btn-pin-cancel" id="kyCancelBtn">Cancel</button>
+                <button class="btn-pin btn-pin-verify ky-btn" id="kyVerifyBtn" disabled>Verify</button>
             </div>
         </div>
     </div>
-    <!-- ===== END PASSWORD MODAL ===== -->
+
+    <!-- ========================================================== -->
+    <!-- ===== KAIZEN PASSWORD MODAL ===== -->
+    <!-- ========================================================== -->
+    <div class="modal-overlay-pin" id="kaizenPasswordModal">
+        <div class="modal-box-pin">
+            <div class="pin-title-area">
+                <span class="lock-icon kaizen">🔐</span>
+                <h2>Kaizen Admin Access</h2>
+                <p>Enter your 6-digit Kaizen PIN to continue</p>
+            </div>
+
+            <!-- 6 PIN Boxes -->
+            <div class="pin-container" id="kaizenPinContainer">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autofocus>
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="password" class="pin-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            </div>
+
+            <!-- Success Checkmark -->
+            <div class="checkmark" id="kaizenCheckmark">✅</div>
+
+            <!-- Error Message -->
+            <div class="error-msg-pin hidden" id="kaizenErrorMsg">❌ Invalid Kaizen PIN. Please try again.</div>
+
+            <!-- Numpad for Mobile -->
+            <div class="numpad-pin" id="kaizenNumpad">
+                <button data-num="1">1</button>
+                <button data-num="2">2</button>
+                <button data-num="3">3</button>
+                <button data-num="4">4</button>
+                <button data-num="5">5</button>
+                <button data-num="6">6</button>
+                <button data-num="7">7</button>
+                <button data-num="8">8</button>
+                <button data-num="9">9</button>
+                <button data-num="clear" class="clear-btn">⌫</button>
+                <button data-num="0">0</button>
+                <button data-num="back" class="back-btn">←</button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-actions-pin">
+                <button class="btn-pin btn-pin-cancel" id="kaizenCancelBtn">Cancel</button>
+                <button class="btn-pin btn-pin-verify" id="kaizenVerifyBtn" disabled>Verify</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeWithDetection, changeLanguage } from './translation.js';
@@ -436,11 +497,11 @@
             });
         });
 
-        // Ripple effect and delayed navigation for department buttons (EXCEPT Kaizen Admin)
-        const deptButtons = document.querySelectorAll('.department-btn:not(#kaizenAdminLink)');
+        // Ripple effect and delayed navigation for department buttons (EXCEPT protected ones)
+        const deptButtons = document.querySelectorAll('.department-btn:not(#kaizenAdminLink):not(#kyEvaluationLink)');
         deptButtons.forEach(button => {
             button.addEventListener('click', event => {
-                event.preventDefault(); // Stop immediate navigation to allow animation
+                event.preventDefault();
                 const targetUrl = button.getAttribute('href');
 
                 button.classList.add('loading');
@@ -449,7 +510,6 @@
                 const rect = button.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
                 
-                // Calculate click coordinates relative to the button
                 const x = event.clientX - rect.left - size / 2;
                 const y = event.clientY - rect.top - size / 2;
                 
@@ -459,111 +519,95 @@
                 ripple.classList.add('ripple');
                 button.appendChild(ripple);
                 
-                // Navigate after the ripple finishes expanding
                 setTimeout(() => {
                     window.location.href = targetUrl;
                 }, 400); 
 
-                // Clean up classes if returning via back button
                 setTimeout(() => ripple.remove(), 600);
                 setTimeout(() => button.classList.remove('loading'), 500);
             });
 
-            // Touch support
             button.addEventListener('touchstart', () => button.style.transform = 'scale(0.98)');
             button.addEventListener('touchend', () => button.style.transform = 'scale(1)');
         });
 
         // ==========================================================
-        // ===== PASSWORD SCRIPT FOR KAIZEN ADMIN =====
+        // ===== KY PASSWORD SCRIPT (SEPARATE) =====
         // ==========================================================
         
-        // ===== CONFIGURATION =====
-        const CORRECT_PIN = "123456"; // ← CHANGE THIS TO YOUR DESIRED 6-DIGIT PIN
+        // ===== KY CONFIGURATION =====
+        const KY_PIN = "123456"; // ← CHANGE THIS TO YOUR DESIRED 6-DIGIT KY PIN
+        const KY_REDIRECT_URL = "Ky_Admin.html";
 
-        // ===== DOM ELEMENTS =====
-        const kaizenLink = document.getElementById('kaizenAdminLink');
-        const modal = document.getElementById('passwordModal');
-        const pinInputs = document.querySelectorAll('.pin-box');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const errorMsg = document.getElementById('errorMsg');
-        const checkmark = document.getElementById('checkmark');
-        const numpad = document.getElementById('numpad');
-        let targetUrl = null;
+        // ===== KY DOM ELEMENTS =====
+        const kyLink = document.getElementById('kyEvaluationLink');
+        const kyModal = document.getElementById('kyPasswordModal');
+        const kyPinInputs = document.querySelectorAll('#kyPinContainer .pin-box');
+        const kyVerifyBtn = document.getElementById('kyVerifyBtn');
+        const kyCancelBtn = document.getElementById('kyCancelBtn');
+        const kyErrorMsg = document.getElementById('kyErrorMsg');
+        const kyCheckmark = document.getElementById('kyCheckmark');
+        const kyNumpad = document.getElementById('kyNumpad');
 
-        // ===== OPEN MODAL =====
-        kaizenLink.addEventListener('click', function(e) {
+        // ===== KY OPEN MODAL =====
+        kyLink.addEventListener('click', function(e) {
             e.preventDefault();
-            targetUrl = this.href;
-            modal.classList.add('active');
-            resetModal();
-            setTimeout(() => pinInputs[0].focus(), 100);
+            kyModal.classList.add('active');
+            resetKyModal();
+            setTimeout(() => kyPinInputs[0].focus(), 100);
         });
 
-        // ===== CLOSE MODAL =====
-        function closeModal() {
-            modal.classList.remove('active');
-            resetModal();
+        // ===== KY CLOSE MODAL =====
+        function closeKyModal() {
+            kyModal.classList.remove('active');
+            resetKyModal();
         }
 
-        cancelBtn.addEventListener('click', closeModal);
+        kyCancelBtn.addEventListener('click', closeKyModal);
 
-        // Close on overlay click
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+        kyModal.addEventListener('click', function(e) {
+            if (e.target === this) closeKyModal();
         });
 
-        // Close on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.classList.contains('active')) {
-                closeModal();
-            }
-        });
-
-        // ===== PIN INPUT HANDLING =====
-        pinInputs.forEach((input, index) => {
-            // Auto-advance on input
+        // ===== KY PIN INPUT HANDLING =====
+        kyPinInputs.forEach((input, index) => {
             input.addEventListener('input', function(e) {
                 const val = this.value.replace(/[^0-9]/g, '');
                 this.value = val.slice(0, 1);
 
-                if (val.length === 1 && index < pinInputs.length - 1) {
-                    pinInputs[index + 1].focus();
+                if (val.length === 1 && index < kyPinInputs.length - 1) {
+                    kyPinInputs[index + 1].focus();
                 }
 
-                updateVerifyButton();
-                hideError();
+                updateKyVerifyButton();
+                hideKyError();
             });
 
-            // Backspace: go to previous input
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Backspace' && this.value === '' && index > 0) {
-                    pinInputs[index - 1].focus();
+                    kyPinInputs[index - 1].focus();
                 }
             });
 
-            // Paste support
             input.addEventListener('paste', function(e) {
                 e.preventDefault();
                 const paste = (e.clipboardData || window.clipboardData).getData('text');
                 const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
 
-                pinInputs.forEach((inp, i) => {
+                kyPinInputs.forEach((inp, i) => {
                     inp.value = digits[i] || '';
                 });
 
                 if (digits.length < 6) {
-                    pinInputs[digits.length]?.focus();
+                    kyPinInputs[digits.length]?.focus();
                 } else {
-                    pinInputs[5].focus();
+                    kyPinInputs[5].focus();
                 }
 
-                updateVerifyButton();
-                hideError();
+                updateKyVerifyButton();
+                hideKyError();
             });
 
-            // Allow number input only
             input.addEventListener('keydown', function(e) {
                 if (!/^[0-9]$/.test(e.key) &&
                     e.key !== 'Backspace' &&
@@ -578,143 +622,332 @@
             });
         });
 
-        // ===== NUMPAD SUPPORT (Mobile) =====
-        numpad.querySelectorAll('button').forEach(btn => {
+        // ===== KY NUMPAD SUPPORT =====
+        kyNumpad.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', function() {
                 const num = this.dataset.num;
 
                 if (num === 'clear') {
-                    // Clear all
-                    pinInputs.forEach(inp => inp.value = '');
-                    pinInputs[0].focus();
-                    updateVerifyButton();
-                    hideError();
+                    kyPinInputs.forEach(inp => inp.value = '');
+                    kyPinInputs[0].focus();
+                    updateKyVerifyButton();
+                    hideKyError();
                     return;
                 }
 
                 if (num === 'back') {
-                    // Backspace
-                    for (let i = pinInputs.length - 1; i >= 0; i--) {
-                        if (pinInputs[i].value !== '') {
-                            pinInputs[i].value = '';
-                            pinInputs[i].focus();
+                    for (let i = kyPinInputs.length - 1; i >= 0; i--) {
+                        if (kyPinInputs[i].value !== '') {
+                            kyPinInputs[i].value = '';
+                            kyPinInputs[i].focus();
                             break;
                         } else if (i === 0) {
-                            pinInputs[0].focus();
+                            kyPinInputs[0].focus();
                         }
                     }
-                    updateVerifyButton();
-                    hideError();
+                    updateKyVerifyButton();
+                    hideKyError();
                     return;
                 }
 
-                // Find first empty input
                 let filled = false;
-                for (let i = 0; i < pinInputs.length; i++) {
-                    if (pinInputs[i].value === '') {
-                        pinInputs[i].value = num;
-                        if (i < pinInputs.length - 1) {
-                            pinInputs[i + 1].focus();
+                for (let i = 0; i < kyPinInputs.length; i++) {
+                    if (kyPinInputs[i].value === '') {
+                        kyPinInputs[i].value = num;
+                        if (i < kyPinInputs.length - 1) {
+                            kyPinInputs[i + 1].focus();
                         }
                         filled = true;
                         break;
                     }
                 }
 
-                // If all filled, replace last digit
                 if (!filled) {
-                    pinInputs[pinInputs.length - 1].value = num;
+                    kyPinInputs[kyPinInputs.length - 1].value = num;
                 }
 
-                updateVerifyButton();
-                hideError();
+                updateKyVerifyButton();
+                hideKyError();
             });
         });
 
-        // ===== UPDATE VERIFY BUTTON =====
-        function updateVerifyButton() {
-            const allFilled = Array.from(pinInputs).every(inp => inp.value !== '');
-            verifyBtn.disabled = !allFilled;
+        // ===== KY FUNCTIONS =====
+        function updateKyVerifyButton() {
+            const allFilled = Array.from(kyPinInputs).every(inp => inp.value !== '');
+            kyVerifyBtn.disabled = !allFilled;
         }
 
-        // ===== HIDE ERROR =====
-        function hideError() {
-            errorMsg.classList.add('hidden');
-            pinInputs.forEach(inp => inp.classList.remove('wrong'));
+        function hideKyError() {
+            kyErrorMsg.classList.add('hidden');
+            kyPinInputs.forEach(inp => inp.classList.remove('wrong'));
         }
 
-        // ===== SHOW ERROR =====
-        function showError() {
-            errorMsg.classList.remove('hidden');
-            pinInputs.forEach(inp => {
+        function showKyError() {
+            kyErrorMsg.classList.remove('hidden');
+            kyPinInputs.forEach(inp => {
                 inp.classList.add('wrong');
                 inp.value = '';
             });
-            pinInputs[0].focus();
-            updateVerifyButton();
+            kyPinInputs[0].focus();
+            updateKyVerifyButton();
 
             setTimeout(() => {
-                pinInputs.forEach(inp => inp.classList.remove('wrong'));
+                kyPinInputs.forEach(inp => inp.classList.remove('wrong'));
             }, 1500);
         }
 
-        // ===== RESET MODAL =====
-        function resetModal() {
-            pinInputs.forEach(inp => {
+        function resetKyModal() {
+            kyPinInputs.forEach(inp => {
                 inp.value = '';
                 inp.classList.remove('wrong', 'correct');
             });
-            errorMsg.classList.add('hidden');
-            checkmark.classList.remove('show');
-            verifyBtn.disabled = true;
-            targetUrl = null;
+            kyErrorMsg.classList.add('hidden');
+            kyCheckmark.classList.remove('show');
+            kyVerifyBtn.disabled = true;
         }
 
-        // ===== VERIFY PIN =====
-        function verifyPin() {
-            const entered = Array.from(pinInputs).map(inp => inp.value).join('');
+        function verifyKyPin() {
+            const entered = Array.from(kyPinInputs).map(inp => inp.value).join('');
 
-            if (entered === CORRECT_PIN) {
-                // Success!
-                pinInputs.forEach(inp => inp.classList.add('correct'));
-                errorMsg.classList.add('hidden');
-                checkmark.classList.add('show');
+            if (entered === KY_PIN) {
+                kyPinInputs.forEach(inp => inp.classList.add('correct'));
+                kyErrorMsg.classList.add('hidden');
+                kyCheckmark.classList.add('show');
 
                 setTimeout(() => {
-                    closeModal();
-                    if (targetUrl && targetUrl !== '#') {
-                        window.location.href = targetUrl;
-                    } else {
-                        window.location.href = 'kaizen_admin.html';
-                    }
+                    closeKyModal();
+                    window.location.href = KY_REDIRECT_URL;
                 }, 600);
             } else {
-                // Wrong PIN
-                showError();
+                showKyError();
                 setTimeout(() => {
-                    pinInputs.forEach(inp => inp.value = '');
-                    pinInputs[0].focus();
-                    updateVerifyButton();
+                    kyPinInputs.forEach(inp => inp.value = '');
+                    kyPinInputs[0].focus();
+                    updateKyVerifyButton();
                 }, 300);
             }
         }
 
-        verifyBtn.addEventListener('click', verifyPin);
+        kyVerifyBtn.addEventListener('click', verifyKyPin);
 
-        // Enter key on last input triggers verify
-        pinInputs[pinInputs.length - 1].addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !verifyBtn.disabled) {
-                verifyPin();
+        kyPinInputs[kyPinInputs.length - 1].addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !kyVerifyBtn.disabled) {
+                verifyKyPin();
             }
         });
 
-        // Auto-focus on modal open
-        const observer = new MutationObserver(() => {
-            if (modal.classList.contains('active')) {
-                setTimeout(() => pinInputs[0].focus(), 100);
+        // ==========================================================
+        // ===== KAIZEN PASSWORD SCRIPT (SEPARATE) =====
+        // ==========================================================
+        
+        // ===== KAIZEN CONFIGURATION =====
+        const KAIZEN_PIN = "888888"; // ← CHANGE THIS TO YOUR DESIRED 6-DIGIT KAIZEN PIN
+        const KAIZEN_REDIRECT_URL = "kaizen_admin.html";
+
+        // ===== KAIZEN DOM ELEMENTS =====
+        const kaizenLink = document.getElementById('kaizenAdminLink');
+        const kaizenModal = document.getElementById('kaizenPasswordModal');
+        const kaizenPinInputs = document.querySelectorAll('#kaizenPinContainer .pin-box');
+        const kaizenVerifyBtn = document.getElementById('kaizenVerifyBtn');
+        const kaizenCancelBtn = document.getElementById('kaizenCancelBtn');
+        const kaizenErrorMsg = document.getElementById('kaizenErrorMsg');
+        const kaizenCheckmark = document.getElementById('kaizenCheckmark');
+        const kaizenNumpad = document.getElementById('kaizenNumpad');
+
+        // ===== KAIZEN OPEN MODAL =====
+        kaizenLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            kaizenModal.classList.add('active');
+            resetKaizenModal();
+            setTimeout(() => kaizenPinInputs[0].focus(), 100);
+        });
+
+        // ===== KAIZEN CLOSE MODAL =====
+        function closeKaizenModal() {
+            kaizenModal.classList.remove('active');
+            resetKaizenModal();
+        }
+
+        kaizenCancelBtn.addEventListener('click', closeKaizenModal);
+
+        kaizenModal.addEventListener('click', function(e) {
+            if (e.target === this) closeKaizenModal();
+        });
+
+        // ===== KAIZEN PIN INPUT HANDLING =====
+        kaizenPinInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                const val = this.value.replace(/[^0-9]/g, '');
+                this.value = val.slice(0, 1);
+
+                if (val.length === 1 && index < kaizenPinInputs.length - 1) {
+                    kaizenPinInputs[index + 1].focus();
+                }
+
+                updateKaizenVerifyButton();
+                hideKaizenError();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    kaizenPinInputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
+
+                kaizenPinInputs.forEach((inp, i) => {
+                    inp.value = digits[i] || '';
+                });
+
+                if (digits.length < 6) {
+                    kaizenPinInputs[digits.length]?.focus();
+                } else {
+                    kaizenPinInputs[5].focus();
+                }
+
+                updateKaizenVerifyButton();
+                hideKaizenError();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (!/^[0-9]$/.test(e.key) &&
+                    e.key !== 'Backspace' &&
+                    e.key !== 'Tab' &&
+                    e.key !== 'ArrowLeft' &&
+                    e.key !== 'ArrowRight' &&
+                    e.key !== 'Delete' &&
+                    !e.ctrlKey &&
+                    !e.metaKey) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // ===== KAIZEN NUMPAD SUPPORT =====
+        kaizenNumpad.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const num = this.dataset.num;
+
+                if (num === 'clear') {
+                    kaizenPinInputs.forEach(inp => inp.value = '');
+                    kaizenPinInputs[0].focus();
+                    updateKaizenVerifyButton();
+                    hideKaizenError();
+                    return;
+                }
+
+                if (num === 'back') {
+                    for (let i = kaizenPinInputs.length - 1; i >= 0; i--) {
+                        if (kaizenPinInputs[i].value !== '') {
+                            kaizenPinInputs[i].value = '';
+                            kaizenPinInputs[i].focus();
+                            break;
+                        } else if (i === 0) {
+                            kaizenPinInputs[0].focus();
+                        }
+                    }
+                    updateKaizenVerifyButton();
+                    hideKaizenError();
+                    return;
+                }
+
+                let filled = false;
+                for (let i = 0; i < kaizenPinInputs.length; i++) {
+                    if (kaizenPinInputs[i].value === '') {
+                        kaizenPinInputs[i].value = num;
+                        if (i < kaizenPinInputs.length - 1) {
+                            kaizenPinInputs[i + 1].focus();
+                        }
+                        filled = true;
+                        break;
+                    }
+                }
+
+                if (!filled) {
+                    kaizenPinInputs[kaizenPinInputs.length - 1].value = num;
+                }
+
+                updateKaizenVerifyButton();
+                hideKaizenError();
+            });
+        });
+
+        // ===== KAIZEN FUNCTIONS =====
+        function updateKaizenVerifyButton() {
+            const allFilled = Array.from(kaizenPinInputs).every(inp => inp.value !== '');
+            kaizenVerifyBtn.disabled = !allFilled;
+        }
+
+        function hideKaizenError() {
+            kaizenErrorMsg.classList.add('hidden');
+            kaizenPinInputs.forEach(inp => inp.classList.remove('wrong'));
+        }
+
+        function showKaizenError() {
+            kaizenErrorMsg.classList.remove('hidden');
+            kaizenPinInputs.forEach(inp => {
+                inp.classList.add('wrong');
+                inp.value = '';
+            });
+            kaizenPinInputs[0].focus();
+            updateKaizenVerifyButton();
+
+            setTimeout(() => {
+                kaizenPinInputs.forEach(inp => inp.classList.remove('wrong'));
+            }, 1500);
+        }
+
+        function resetKaizenModal() {
+            kaizenPinInputs.forEach(inp => {
+                inp.value = '';
+                inp.classList.remove('wrong', 'correct');
+            });
+            kaizenErrorMsg.classList.add('hidden');
+            kaizenCheckmark.classList.remove('show');
+            kaizenVerifyBtn.disabled = true;
+        }
+
+        function verifyKaizenPin() {
+            const entered = Array.from(kaizenPinInputs).map(inp => inp.value).join('');
+
+            if (entered === KAIZEN_PIN) {
+                kaizenPinInputs.forEach(inp => inp.classList.add('correct'));
+                kaizenErrorMsg.classList.add('hidden');
+                kaizenCheckmark.classList.add('show');
+
+                setTimeout(() => {
+                    closeKaizenModal();
+                    window.location.href = KAIZEN_REDIRECT_URL;
+                }, 600);
+            } else {
+                showKaizenError();
+                setTimeout(() => {
+                    kaizenPinInputs.forEach(inp => inp.value = '');
+                    kaizenPinInputs[0].focus();
+                    updateKaizenVerifyButton();
+                }, 300);
+            }
+        }
+
+        kaizenVerifyBtn.addEventListener('click', verifyKaizenPin);
+
+        kaizenPinInputs[kaizenPinInputs.length - 1].addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !kaizenVerifyBtn.disabled) {
+                verifyKaizenPin();
             }
         });
-        observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (kyModal.classList.contains('active')) closeKyModal();
+                if (kaizenModal.classList.contains('active')) closeKaizenModal();
+            }
+        });
     </script>
 </body>
 </html>
