@@ -101,7 +101,6 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         <option value="unclaimed">Unclaimed Only</option>
                     </select>
 
-                    <!-- ADDED MEAL TYPE FILTER HERE -->
                     <select id="mealTypeFilter">
                         <option value="all">All Meals</option>
                         <option value="diet">Diet Only</option>
@@ -233,21 +232,6 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
             return `<span class="location-badge" style="background-color: #e5e7eb; color: #374151;">${cleanLoc}</span>`;
         }
 
-        // --- ACTIVE DIET REGISTRATION CUTOFF HELPER ---
-        function getMostRecentFriday3PM() {
-            const now = new Date();
-            const currentDay = now.getDay(); 
-            const currentHour = now.getHours();
-            const lastFriday = new Date(now);
-            let daysToSubtract = (currentDay + 2) % 7;
-            if (currentDay === 5 && currentHour < 15) {
-                daysToSubtract = 7;
-            }
-            lastFriday.setDate(now.getDate() - daysToSubtract);
-            lastFriday.setHours(15, 0, 0, 0);
-            return lastFriday;
-        }
-
         async function getClaimedOrders(selectedDate) {
             const startOfDay = new Date(selectedDate);
             startOfDay.setHours(0, 0, 0, 0);
@@ -322,12 +306,13 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                 // 1. Fetch Claimed Orders
                 const claimedOrders = await getClaimedOrders(selectedDate);
 
-                // 2. Fetch Active Diet Profiles for the current cycle
-                const cycleStart = getMostRecentFriday3PM();
+                // 2. Fetch Active Diet Profiles (Permanent Setup from Epoch Start)
+                const epochStart = new Date('2026-06-22T00:00:00+08:00');
                 const activeDietQuery = query(
                     collection(db, "fit_program_users"),
-                    where("registeredAt", ">=", Timestamp.fromDate(cycleStart))
+                    where("registeredAt", ">=", Timestamp.fromDate(epochStart))
                 );
+                
                 const activeDietSnap = await getDocs(activeDietQuery);
                 const activeDietEmpIds = new Set();
                 activeDietSnap.forEach(doc => {
@@ -407,7 +392,7 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                     }
                     
                     const claimFilterValue = document.getElementById('claimStatusFilter').value;
-                    const mealFilterValue = document.getElementById('mealTypeFilter').value; // ADDED THIS
+                    const mealFilterValue = document.getElementById('mealTypeFilter').value; 
 
                     sortedOrders.forEach((orderData) => {
                         const orderTime = orderData.orderDate.toDate();
@@ -445,7 +430,7 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         // STRICT DIET CHECK AND OVERRIDE
                         let isDiet = displaySelection.toLowerCase().includes('diet');
 
-                        // Option A validation guard check
+                        // Option A validation guard check based on Permanent Registration
                         if (isDiet && !activeDietEmpIds.has(employeeId)) {
                             displaySelection = 'Normal';
                             isDiet = false; // System resets them to regular
@@ -465,8 +450,8 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         if (claimFilterValue === 'claimed' && !isClaimed) return;   
                         if (claimFilterValue === 'unclaimed' && isClaimed) return;  
                         
-                        if (mealFilterValue === 'diet' && !isDiet) return;          // ADDED THIS
-                        if (mealFilterValue === 'regular' && isDiet) return;        // ADDED THIS
+                        if (mealFilterValue === 'diet' && !isDiet) return;          
+                        if (mealFilterValue === 'regular' && isDiet) return;        
 
                         // Render row
                         const newRow = orderTableBody.insertRow();
@@ -476,11 +461,11 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         }
 
                         newRow.insertCell(0).textContent = orderNumber++;
-                        newRow.insertCell(1).textContent = orderData.name;
-                        newRow.insertCell(2).textContent = orderData.employeeId;
-                        newRow.insertCell(3).textContent = orderData.department;
+                        newRow.insertCell(1).textContent = orderData.name || 'N/A';
+                        newRow.insertCell(2).textContent = orderData.employeeId || 'N/A';
+                        newRow.insertCell(3).textContent = orderData.department || 'N/A';
                         newRow.insertCell(4).innerHTML = getLocationBadge(orderData.location);
-                        newRow.insertCell(5).textContent = orderData.orderStatus;
+                        newRow.insertCell(5).textContent = orderData.orderStatus || 'Pending';
                         newRow.insertCell(6).textContent = formattedTime;
                         
                         const mealSetCell = newRow.insertCell(7);
@@ -529,8 +514,6 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
             datePicker.max = formatDate(today);
             
             document.getElementById('claimStatusFilter').addEventListener('change', () => getOrdersByFilter());
-            
-            // ADDED EVENT LISTENER HERE
             document.getElementById('mealTypeFilter').addEventListener('change', () => getOrdersByFilter());
 
             getOrdersByFilter();

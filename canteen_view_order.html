@@ -359,16 +359,14 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                 return;
             }
 
-            // Fetch Current Week's Registered Diet Users First
-            const cycleStart = getMostRecentFriday3PM();
-            const activeDietQuery = query(
-                collection(db, "fit_program_users"),
-                where("registeredAt", ">=", Timestamp.fromDate(cycleStart))
-            );
+            // Fetch Permanently Registered Diet Users (removed weekly cutoff)
+            const activeDietQuery = query(collection(db, "fit_program_users"));
             const activeDietSnap = await getDocs(activeDietQuery);
             const activeDietEmpIds = new Set();
             activeDietSnap.forEach(doc => {
-                activeDietEmpIds.add(String(doc.data().employeeId).trim());
+                if(doc.data().registeredAt) { // Checks that they are actively registered
+                    activeDietEmpIds.add(String(doc.data().employeeId).trim());
+                }
             });
 
             const startOfDay = new Date(selectedDate);
@@ -455,7 +453,7 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         else displaySelection = 'Normal';
                     }
 
-                    // OPTION A OVERRIDE: Check active diet list
+                    // OPTION A OVERRIDE: Check permanent diet list
                     if (displaySelection.toLowerCase().includes('diet') && !activeDietEmpIds.has(String(processedOrder.employeeId).trim())) {
                         displaySelection = 'Normal';
                     }
@@ -496,11 +494,11 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                     });
 
                     newRow.insertCell(0).textContent = orderNumber++;
-                    newRow.insertCell(1).textContent = orderData.name;
-                    newRow.insertCell(2).textContent = orderData.employeeId;
-                    newRow.insertCell(3).textContent = orderData.department;
+                    newRow.insertCell(1).textContent = orderData.name || 'N/A';
+                    newRow.insertCell(2).textContent = orderData.employeeId || 'N/A';
+                    newRow.insertCell(3).textContent = orderData.department || 'N/A';
                     newRow.insertCell(4).innerHTML = getLocationBadge(orderData.location);
-                    newRow.insertCell(5).textContent = orderData.orderStatus;
+                    newRow.insertCell(5).textContent = orderData.orderStatus || 'Pending';
                     newRow.insertCell(6).textContent = formattedTime;
                     newRow.insertCell(7).textContent = orderData.finalSelection;
                 });
