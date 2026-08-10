@@ -14,25 +14,28 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 .header {display: flex;justify-content: center;align-items: center;padding: 15px 20px;background-color: var(--white);box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);position: fixed;top: 0;left: 0;width: 100%;z-index: 1000;}
 .header .logo1 img {max-height: 50px;object-fit: contain;}
 .filter-container {display: flex;flex-direction: column;gap: 15px;margin: 80px 0 30px;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
-.filter-row {display: flex;gap: 15px;align-items: center;}
-.date-picker input,.department-filter select {padding: 10px;border: 1px solid #e4e4e7;border-radius: 8px;font-size: 16px;transition: all 0.3s ease;min-width: 200px;}
-.date-picker input:focus,.department-filter select:focus{outline: none;border-color: var(--primary-color);box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);}
+.filter-row {display: flex;gap: 15px;align-items: center;flex-wrap: wrap;}
+.date-picker input,.department-filter select,.location-filter select {padding: 10px;border: 1px solid #e4e4e7;border-radius: 8px;font-size: 16px;transition: all 0.3s ease;min-width: 200px;}
+.date-picker input:focus,.department-filter select:focus,.location-filter select:focus {outline: none;border-color: var(--primary-color);box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);}
 .department-buttons{display: flex;gap: 15px;flex-wrap: wrap;}
 .dept-filter-btn,.total-btn {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;min-width: 120px;}
 .dept-filter-btn:hover,.total-btn:hover {background-color: #1a1e9c;}
 .dept-filter-btn.active,.total-btn.active {background-color: var(--secondary-color);}
 #fetchOrders {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;display: flex;align-items: center;gap: 10px;}
 #fetchOrders:hover {background-color: #1a1e9c;}
-.time-filter-container {display: flex;justify-content: center;align-items: center;gap: 15px;margin: 20px 0;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
+.time-filter-container {display: flex;justify-content: center;align-items: center;gap: 15px;margin: 20px 0;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);flex-wrap: wrap;}
 .time-filter-buttons {display: flex;gap: 15px;flex-wrap: wrap;}
 .time-filter-btn {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;}
 .time-filter-btn:hover {background-color: #1a1e9c;}
 .time-filter-btn.active {background-color: var(--secondary-color);}
+.order-table-container {overflow-x: auto;}
 .order-table {width: 100%;background-color: var(--white);border-radius: var(--border-radius);overflow: hidden;box-shadow: var(--box-shadow);margin-bottom: 30px;}
-.order-table th {background-color: var(--primary-color);color: var(--white);padding: 15px;text-align: left;font-weight: 600;}
+.order-table th {background-color: var(--primary-color);color: var(--white);padding: 15px;text-align: left;font-weight: 600;white-space: nowrap;}
 .order-table td {padding: 15px;border-bottom: 1px solid #e4e4e7;}
 .order-table tr:last-child td {border-bottom: none;}
 .order-table tr:nth-child(even) {background-color: #f8fafc;}
+.order-table tr.claimed-order {background-color: #90EE90 !important;}
+.order-table tr.claimed-order:hover {background-color: #7FDD7F !important;}
 .send-info {background-color: var(--white);border-radius: var(--border-radius);padding: 25px;box-shadow: var(--box-shadow);}
 .send-info h3 {color: var(--primary-color);margin-bottom: 15px;}
 .send-info textarea {width: 100%;padding: 15px;border: 1px solid #e4e4e7;border-radius: 8px;resize: vertical;min-height: 100px;margin-bottom: 15px;}
@@ -43,12 +46,17 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 .nav-item {color: var(--white);text-decoration: none;display: flex;flex-direction: column;align-items: center;gap: 5px;}
 .nav-item i {font-size: 20px;}
 .nav-item span {font-size: 12px;}
-.total-orders-display {background-color: var(--white);padding: 15px;border-radius: var(--border-radius);margin-bottom: 20px;box-shadow: var(--box-shadow);text-align: center;font-size: 18px;font-weight: bold;color: var(--primary-color);}
+.total-orders-display {background-color: var(--white);padding: 20px;border-radius: var(--border-radius);margin-bottom: 20px;box-shadow: var(--box-shadow);text-align: center;font-weight: bold;color: var(--primary-color);}
+.legend {text-align: center;margin: 10px 0;padding: 10px;background-color: var(--white);border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
+.legend-item {display: inline-block;margin: 5px;padding: 5px 10px;border-radius: 5px;}
 @media (max-width: 768px) {.filter-container,.time-filter-container {padding: 15px;}
 .filter-row {flex-direction: column;align-items: stretch;}
-.date-picker input,.department-filter select,.dept-filter-btn,.total-btn,.time-filter-btn {width: 100%;}
+.date-picker input,.department-filter select,.location-filter select,.dept-filter-btn,.total-btn,.time-filter-btn,#fetchOrders {width: 100%;min-width: unset;}
 .department-buttons,.time-filter-buttons {flex-direction: column;}
-.nav-item span {display: none;}}
+.order-table th,.order-table td {padding: 10px 8px;font-size: 14px;}
+.order-table th {font-size: 12px;}
+.nav-item span {display: none;}
+.legend-item {display: block;margin: 5px 0;font-size: 12px;}}
     </style>
 </head>
 <body>
@@ -87,6 +95,19 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         <option value="claimed">Claimed Only</option>
                         <option value="unclaimed">Unclaimed Only</option>
                     </select>
+
+                    <select id="mealTypeFilter">
+                        <option value="all">All Meals</option>
+                        <option value="diet">Diet Only</option>
+                        <option value="regular">Regular Only</option>
+                    </select>
+                </div>
+                <div class="location-filter">
+                    <select id="locationFilter">
+                        <option value="">All Locations</option>
+                        <option value="PEKAN SUBANG">PEKAN SUBANG</option>
+                        <option value="SUBANG KRISTAL">SUBANG KRISTAL</option>
+                    </select>
                 </div>
             </div>
 
@@ -110,20 +131,23 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
             </div>
         </div>
 
-        <table class="order-table" id="orderTable">
-            <thead>
-                <tr>
-                    <th>NO.</th>
-                    <th>Employee Name</th>
-                    <th>Employee ID</th>
-                    <th>Department</th>
-                    <th>Order Status</th>
-                    <th>Order Time</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="order-table-container">
+            <table class="order-table" id="orderTable">
+                <thead>
+                    <tr>
+                        <th>NO.</th>
+                        <th>Employee Name</th>
+                        <th>Employee ID</th>
+                        <th>Department</th>
+                        <th>Order Status</th>
+                        <th>Order Time</th>
+                        <th>Selection</th>
+                    </tr>
+                </thead>
+                <tbody>
                 </tbody>
-        </table>
+            </table>
+        </div>
 
         <div class="send-info">
             <h3>Send Information to Admin</h3>
@@ -174,8 +198,7 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
             appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
-
-       // Initialize Firebase
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -187,12 +210,6 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
         const stampingDepartments = []; // Empty if Suria has no stamping, keeps button from breaking
         const mainCanteenDepartments = ['HRA', 'FNA', 'MDO', 'BD&Project', 'SALES', 'PVD', 'SPECIAL PROJECT', 'QMS', 'QAQC', 'PE/LPS', 'MAINTENANCE', 'PROD', 'PPCL', 'SYNERGY', 'SGTSB'];
         const totalsdepart = [...mainCanteenDepartments];
-
-        function isSameDate(date1, date2) {
-            return date1.getFullYear() === date2.getFullYear() &&
-                date1.getMonth() === date2.getMonth() &&
-                date1.getDate() === date2.getDate();
-        }
 
         async function getClaimedOrders(selectedDate) {
             const startOfDay = new Date(selectedDate);
@@ -208,17 +225,18 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
             try {
                 const claimedSnapshot = await getDocs(claimedQuery);
-                return claimedSnapshot.docs.map(doc => ({
-                    employeeId: doc.data().employeeId,
-                    timestamp: doc.data().timestamp.toDate()
-                }));
+                const claimedSet = new Set();
+                claimedSnapshot.docs.forEach(doc => {
+                    const empId = doc.data().employeeId;
+                    claimedSet.add(String(empId).trim());
+                });
+                return claimedSet;
             } catch (error) {
                 console.error("Error fetching claimed orders:", error);
-                return [];
+                return new Set();
             }
         }
 
-        // ADDED: Claimed Diet & Unclaimed Diet Parameters
         function displayTotalOrders(orders, claimedCount = 0, claimedDietCount = 0, unclaimedDietCount = 0) {
             const existingTotal = document.querySelector('.total-orders-display');
             if (existingTotal) {
@@ -227,7 +245,6 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
             const total = orders.length;
             const unclaimedCount = total - claimedCount;
-            // Percentage directly calculated from total vs claimed
             const percentageClaimed = total > 0 ? ((claimedCount / total) * 100).toFixed(1) : 0;
 
             const totalElement = document.createElement('div');
@@ -249,13 +266,14 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                 </div>
             `;
             
-            document.querySelector('.order-table').insertAdjacentElement('beforebegin', totalElement);
+            document.querySelector('.order-table-container').insertAdjacentElement('beforebegin', totalElement);
         }
 
         async function getOrdersByFilter(customDepartments = null) {
             try {
                 const selectedDate = document.getElementById('datePicker').value;
                 const selectedDepartment = document.getElementById('departmentFilter').value;
+                const selectedLocation = document.getElementById('locationFilter').value;
                 const morningTimeBtn = document.getElementById('morningTimeBtn');
                 const eveningTimeBtn = document.getElementById('eveningTimeBtn');
 
@@ -264,7 +282,21 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                     return;
                 }
 
+                // 1. Fetch Claimed Orders
                 const claimedOrders = await getClaimedOrders(selectedDate);
+
+                // 2. Fetch Active Diet Profiles (Permanent Setup from Epoch Start)
+                const epochStart = new Date('2026-06-22T00:00:00+08:00');
+                const activeDietQuery = query(
+                    collection(db, "fit_program_users"),
+                    where("registeredAt", ">=", Timestamp.fromDate(epochStart))
+                );
+                
+                const activeDietSnap = await getDocs(activeDietQuery);
+                const activeDietEmpIds = new Set();
+                activeDietSnap.forEach(doc => {
+                    activeDietEmpIds.add(String(doc.data().employeeId).trim());
+                });
 
                 let timeStart = new Date(selectedDate);
                 let timeEnd = new Date(selectedDate);
@@ -312,7 +344,7 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                     if (querySnapshot.empty) {
                         const newRow = orderTableBody.insertRow();
                         const cell = newRow.insertCell(0);
-                        cell.colSpan = 6;
+                        cell.colSpan = 7;
                         cell.textContent = "No orders found for the selected criteria";
                         cell.style.textAlign = "center";
                         displayTotalOrders([], 0, 0, 0);
@@ -333,12 +365,21 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         }
                     });
 
-                    // Convert the Map values to an array and sort by time
-                    const sortedOrders = Array.from(employeeOrders.values())
+                    // Convert the Map values to an array
+                    let sortedOrders = Array.from(employeeOrders.values())
                         .sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
 
-                    // Grab the filter value
+                    // Apply Location Filter
+                    if (selectedLocation) {
+                        sortedOrders = sortedOrders.filter(order => {
+                            const loc = order.location ? order.location.toUpperCase().trim() : '';
+                            return loc === selectedLocation;
+                        });
+                    }
+
+                    // Grab the filter values
                     const claimFilterValue = document.getElementById('claimStatusFilter').value;
+                    const mealFilterValue = document.getElementById('mealTypeFilter').value; 
 
                     // Display the deduplicated and sorted orders
                     sortedOrders.forEach((orderData) => {
@@ -348,12 +389,10 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                             minute: '2-digit'
                         });
 
-                        const isClaimed = claimedOrders.some(claimed => 
-                            claimed.employeeId === orderData.employeeId && 
-                            isSameDate(claimed.timestamp, orderTime)
-                        );
+                        const employeeId = String(orderData.employeeId).trim();
+                        const isClaimed = claimedOrders.has(employeeId);
 
-                        // BACKGROUND DIET CHECK
+                        // STRICT DIET CHECK
                         let displaySelection = orderData.mealSet || 'Normal';
                         if (displaySelection === 'A' || displaySelection === 'B') {
                             displaySelection = 'Normal';
@@ -362,11 +401,27 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                             if (orderData.customBroth) displaySelection = 'Extra broth';
                             else if (orderData.customMoreRice) displaySelection = 'More rice';
                             else if (orderData.customLessRice) displaySelection = 'Less rice';
-                            else if (orderData.customAllergy) displaySelection = 'Allergy';
+                            else if (orderData.customAllergy) {
+                                let allergyText = "";
+                                if (typeof orderData.customAllergy === 'string' && orderData.customAllergy.toLowerCase() !== 'true' && orderData.customAllergy.toLowerCase() !== 'on') {
+                                    allergyText = orderData.customAllergy;
+                                } else if (orderData.allergyDetails) {
+                                    allergyText = orderData.allergyDetails;
+                                } else if (orderData.allergyType) {
+                                    allergyText = orderData.allergyType;
+                                }
+                                displaySelection = allergyText ? 'Allergy: ' + allergyText : 'Allergy';
+                            }
                             else displaySelection = 'Normal';
                         }
 
-                        const isDiet = displaySelection.toLowerCase().includes('diet');
+                        let isDiet = displaySelection.toLowerCase().includes('diet');
+
+                        // Validation guard check based on Permanent Registration
+                        if (isDiet && !activeDietEmpIds.has(employeeId)) {
+                            displaySelection = 'Normal';
+                            isDiet = false; // System resets them to regular
+                        }
 
                         // Increment Diet Counters
                         if (isDiet) {
@@ -382,23 +437,27 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                             claimedCount++;
                         }
 
-                        // --- APPLY THE FILTER HERE ---
-                        if (claimFilterValue === 'claimed' && !isClaimed) return;   // Skip unclaimed rows
-                        if (claimFilterValue === 'unclaimed' && isClaimed) return;  // Skip claimed rows
+                        // --- APPLY THE FILTERS HERE ---
+                        if (claimFilterValue === 'claimed' && !isClaimed) return;   
+                        if (claimFilterValue === 'unclaimed' && isClaimed) return;  
+                        
+                        if (mealFilterValue === 'diet' && !isDiet) return;          
+                        if (mealFilterValue === 'regular' && isDiet) return;        
 
                         // Render the row
                         const newRow = orderTableBody.insertRow();
                         
                         if (isClaimed) {
-                            newRow.style.backgroundColor = '#90EE90';
+                            newRow.classList.add('claimed-order');
                         }
 
                         newRow.insertCell(0).textContent = orderNumber++;
-                        newRow.insertCell(1).textContent = orderData.name;
-                        newRow.insertCell(2).textContent = orderData.employeeId;
-                        newRow.insertCell(3).textContent = orderData.department;
-                        newRow.insertCell(4).textContent = orderData.orderStatus;
+                        newRow.insertCell(1).textContent = orderData.name || 'N/A';
+                        newRow.insertCell(2).textContent = orderData.employeeId || 'N/A';
+                        newRow.insertCell(3).textContent = orderData.department || 'N/A';
+                        newRow.insertCell(4).textContent = orderData.orderStatus || 'Pending';
                         newRow.insertCell(5).textContent = formattedTime;
+                        newRow.insertCell(6).textContent = displaySelection;
                     });
 
                     // Display total orders with the separated diet counts
@@ -444,8 +503,10 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
             datePicker.value = formatDate(today);
             datePicker.max = formatDate(today);
             
-            // Link Claimed Status Filter
+            // Link Filters
             document.getElementById('claimStatusFilter').addEventListener('change', () => getOrdersByFilter());
+            document.getElementById('mealTypeFilter').addEventListener('change', () => getOrdersByFilter());
+            document.getElementById('locationFilter').addEventListener('change', () => getOrdersByFilter());
 
             // Initial orders fetch
             getOrdersByFilter();
@@ -509,9 +570,11 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
             // Add legend for claimed orders
             const legend = document.createElement('div');
-            legend.style.cssText = 'text-align: center; margin: 10px 0; padding: 10px; background-color: var(--white); border-radius: var(--border-radius); box-shadow: var(--box-shadow);';
-            legend.innerHTML = '<span style="background-color: #90EE90; padding: 5px 10px; border-radius: 5px;">Green rows indicate claimed orders</span>';
-            document.querySelector('.order-table').insertAdjacentElement('beforebegin', legend);
+            legend.classList.add('legend');
+            legend.innerHTML = `
+                <span class="legend-item" style="background-color: #90EE90;">Green rows indicate claimed orders</span>
+            `;
+            document.querySelector('.order-table-container').insertAdjacentElement('beforebegin', legend);
         });
 
         function formatDate(date) {
