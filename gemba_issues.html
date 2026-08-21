@@ -3,297 +3,1273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIT Executive | Gemba Issues Dashboard</title>
+    <meta name="theme-color" content="#059669">
+    <title>FIT Executive | Gemba Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --navy: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --blue: #2563eb;
+            --purple: #7c3aed;
+            --shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+        }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
+
         body {
-            background-color: #f8fafc;
-            color: #1e293b;
-            padding: 20px;
-            padding-bottom: 50px;
-            max-width: 800px;
+            min-height: 100vh;
+            max-width: 980px;
             margin: 0 auto;
+            padding: 20px 16px 60px;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 100% 0%, rgba(16,185,129,.13), transparent 27%),
+                linear-gradient(180deg, #f8fffc 0%, #f8fafc 55%, #f1f5f9 100%);
         }
+
+        button, input { font: inherit; }
+        button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
         .header {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
             align-items: center;
-            margin-bottom: 30px;
-            gap: 15px;
+            margin-bottom: 18px;
         }
-        .back-btn {
-            background: white;
-            border: 1px solid #e2e8f0;
+
+        .header h2 {
+            color: var(--navy);
+            font-size: 20px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .back-btn, .refresh-btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 13px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
             color: #334155;
-            padding: 10px 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            background: #fff;
+            box-shadow: 0 5px 16px rgba(15,23,42,.05);
+            font-size: 12px;
+            font-weight: 800;
             text-decoration: none;
-            display: flex;
+        }
+
+        .refresh-btn { width: 44px; padding: 0; }
+
+        .hero {
+            margin-bottom: 16px;
+            padding: 22px;
+            border-radius: 24px;
+            color: #fff;
+            background: linear-gradient(135deg, #047857, #10b981 68%, #34d399);
+            box-shadow: 0 18px 38px rgba(5,150,105,.22);
+        }
+
+        .hero-badge {
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
+            gap: 7px;
+            margin-bottom: 10px;
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 999px;
+            background: rgba(255,255,255,.12);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
         }
-        .back-btn:hover { 
-            background: #f1f5f9; 
-            transform: translateY(-2px);
+
+        .hero h1 { font-size: clamp(1.35rem, 5vw, 2rem); }
+        .hero p { margin-top: 7px; color: rgba(255,255,255,.9); font-size: 12px; line-height: 1.6; }
+
+        .tabs-shell {
+            margin-bottom: 16px;
+            padding: 6px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: rgba(255,255,255,.92);
+            box-shadow: 0 6px 20px rgba(15,23,42,.04);
         }
-        h2 { 
-            font-size: 22px; 
-            font-weight: 800; 
-            color: #0f172a; 
-            flex: 1; 
+
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
         }
+
+        .tab-btn {
+            min-height: 44px;
+            border: 0;
+            border-radius: 12px;
+            color: #64748b;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: var(--primary-dark);
+            box-shadow: 0 7px 15px rgba(5,150,105,.19);
+        }
+
         .dashboard-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid #f1f5f9;
-        }
-        .stat-card h3 { 
-            font-size: 32px; 
-            font-weight: 800; 
-            color: #ef4444; 
-            margin-bottom: 5px; 
-        }
-        .stat-card p { 
-            font-size: 13px; 
-            color: #64748b; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px;
-        }
-        .stat-card.resolved h3 { color: #10b981; }
-        .issue-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .issue-card {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border-left: 5px solid #ef4444;
-            display: flex;
-            flex-direction: column;
             gap: 12px;
-            transition: all 0.3s ease;
+            margin-bottom: 16px;
         }
-        .issue-card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+
+        .stat-card {
+            padding: 17px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(15,23,42,.04);
+            text-align: center;
         }
+
+        .stat-card h3 {
+            color: var(--warning);
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .stat-card.secondary h3 { color: var(--primary-dark); }
+        .stat-card p { margin-top: 5px; color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) auto;
+            gap: 9px;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .search-box input {
+            width: 100%;
+            min-height: 46px;
+            padding: 10px 13px 10px 38px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            color: var(--navy);
+            background: #fff;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16,185,129,.1);
+        }
+
+        .filter-select {
+            min-height: 46px;
+            padding: 9px 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            color: #334155;
+            background: #fff;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding: 13px 14px;
+            border: 1px solid #bfdbfe;
+            border-radius: 15px;
+            color: #1e40af;
+            background: #eff6ff;
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .notice i { margin-top: 2px; }
+
+        .list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .bmi-card, .issue-card {
+            padding: 17px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .bmi-card.submitted { border-left: 5px solid #3b82f6; }
+        .bmi-card.finalist { border-left: 5px solid #f59e0b; }
+        .bmi-card.verified { border-left: 5px solid #10b981; }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .person-name {
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .person-meta {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 10.5px;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 9px;
+            border-radius: 999px;
+            color: #92400e;
+            background: #fef3c7;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .status-badge.submitted {
+            color: #1d4ed8;
+            background: #dbeafe;
+        }
+
+        .status-badge.finalist {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .status-badge.verified {
+            color: #047857;
+            background: #d1fae5;
+        }
+
+        .verify-btn.secondary {
+            color: #4338ca;
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+        }
+
+        .declared-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 13px 0;
+        }
+
+        .measure-chip {
+            min-width: 0;
+            padding: 10px;
+            border-radius: 12px;
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .measure-chip small {
+            display: block;
+            color: var(--muted);
+            font-size: 8.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .measure-chip strong {
+            display: block;
+            margin-top: 3px;
+            color: var(--navy);
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .verify-panel {
+            margin-top: 12px;
+            padding: 13px;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            background: #f8fbff;
+        }
+
+        .verify-panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .verify-panel-title strong { color: var(--navy); font-size: 11.5px; }
+        .verify-panel-title small { color: var(--muted); font-size: 9px; }
+
+        .measure-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #475569;
+            font-size: 9.5px;
+            font-weight: 800;
+        }
+
+        .input-group input {
+            width: 100%;
+            min-height: 42px;
+            padding: 9px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 11px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .calc-preview {
+            margin-top: 9px;
+            padding: 9px 10px;
+            border-radius: 11px;
+            color: #065f46;
+            background: #ecfdf5;
+            font-size: 10.5px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .verify-btn {
+            width: 100%;
+            min-height: 43px;
+            margin-top: 10px;
+            border: 0;
+            border-radius: 12px;
+            color: #fff;
+            background: var(--primary-dark);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .verified-detail {
+            margin-top: 10px;
+            padding: 10px 11px;
+            border-radius: 12px;
+            color: #065f46;
+            background: #ecfdf5;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        .issue-card {
+            border-left: 5px solid #ef4444;
+        }
+
         .issue-card.resolved {
             border-left-color: #10b981;
-            opacity: 0.85;
+            opacity: .9;
         }
-        .issue-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
+
         .issue-type {
-            font-size: 12px;
-            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            color: #b91c1c;
             background: #fee2e2;
-            color: #ef4444;
-            padding: 5px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            letter-spacing: 0.3px;
+            font-size: 9px;
+            font-weight: 800;
         }
+
         .issue-card.resolved .issue-type {
+            color: #047857;
             background: #d1fae5;
-            color: #10b981;
         }
+
         .issue-date {
-            font-size: 11px;
             color: #94a3b8;
-            font-weight: 600;
-            background: #f8fafc;
-            padding: 4px 10px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .issue-reporter {
-            font-size: 13px;
-            color: #475569;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .issue-details {
-            font-size: 14px;
-            color: #1e293b;
-            line-height: 1.6;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .action-btn {
-            align-self: flex-end;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            color: #475569;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .action-btn:hover { 
-            background: #10b981; 
-            color: white;
-            border-color: #10b981;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-        }
-        .resolved-badge {
-            align-self: flex-end;
-            font-size: 13px;
-            color: #10b981;
+            font-size: 9px;
             font-weight: 700;
-            display: flex;
+        }
+
+        .issue-reporter {
+            margin-top: 10px;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .issue-details {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            color: #334155;
+            background: #f8fafc;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .resolve-btn {
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 0;
+            margin-top: 11px;
+            padding: 8px 11px;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            color: #047857;
+            background: #ecfdf5;
+            font-size: 10px;
+            font-weight: 800;
         }
-        .loading {
+
+        .loading, .empty, .error {
+            padding: 40px 18px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 18px;
+            color: var(--muted);
+            background: rgba(255,255,255,.76);
             text-align: center;
-            padding: 40px;
-            color: #64748b;
-            font-weight: 500;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .error {
+            border-color: #fecaca;
+            color: #b91c1c;
+            background: #fef2f2;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            z-index: 9999;
+            width: calc(100% - 32px);
+            max-width: 430px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            color: #fff;
+            background: #0f172a;
+            box-shadow: 0 15px 40px rgba(15,23,42,.25);
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            transform: translate(-50%, 20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: .2s ease;
+        }
+
+        .toast.show { transform: translate(-50%,0); opacity: 1; }
+        .toast.error { background: #b91c1c; }
+
+        [hidden] { display: none !important; }
+
+        @media (max-width: 560px) {
+            body { padding: 16px 12px 54px; }
+            .back-btn span { display: none; }
+            .toolbar { grid-template-columns: 1fr; }
+            .declared-box { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
+        @media (max-width: 390px) {
+            .measure-inputs { grid-template-columns: 1fr; }
+            .declared-box { grid-template-columns: 1fr; }
+        }
+
+        /* Cleaner dashboard spacing */
+        .hero { padding: 19px 20px; border-radius: 20px; }
+        .notice { line-height: 1.45; }
+        @media (max-width: 560px) {
+            .hero h1 { font-size: 1.3rem; }
+            .hero p { font-size: 10.5px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-card h3 { font-size: 24px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <a href="gemba_scan.html" class="back-btn">
-            <i class="fas fa-sign-out-alt"></i> Exit
-        </a>
-        <h2>Reported Issues</h2>
+    <header class="header">
+        <button id="exitBtn" class="back-btn" type="button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Exit</span>
+        </button>
+        <h2>FIT Executive</h2>
+        <button id="refreshBtn" class="refresh-btn" type="button" aria-label="Refresh">
+            <i class="fas fa-rotate"></i>
+        </button>
+    </header>
+
+    <section class="hero">
+        <span class="hero-badge"><i class="fas fa-user-shield"></i> Gemba Administration</span>
+        <h1>BMI Category Verification & Issues</h1>
+        <p id="verifierLine">Loading FIT Executive profile...</p>
+    </section>
+
+    <div class="tabs-shell">
+        <div class="tabs">
+            <button class="tab-btn active" type="button" data-tab="bmi"><i class="fas fa-weight-scale"></i> BMI Category</button>
+            <button class="tab-btn" type="button" data-tab="issues"><i class="fas fa-triangle-exclamation"></i> Reported Issues</button>
+        </div>
     </div>
 
-    <div class="dashboard-stats">
+    <section class="dashboard-stats">
         <div class="stat-card">
-            <h3 id="pendingCount">0</h3>
-            <p>Pending Action</p>
+            <h3 id="primaryCount">0</h3>
+            <p id="primaryLabel">Candidates Waiting</p>
         </div>
-        <div class="stat-card resolved">
-            <h3 id="resolvedCount">0</h3>
-            <p>Resolved</p>
+        <div class="stat-card secondary">
+            <h3 id="secondaryCount">0</h3>
+            <p id="secondaryLabel">Verified Candidates</p>
         </div>
-    </div>
+    </section>
 
-    <div class="issue-list" id="issueContainer">
-        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading reports...</div>
-    </div>
+    <section id="bmiSection">
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-magnifying-glass"></i>
+                <input id="bmiSearchInput" type="search" autocomplete="off" placeholder="Search Employee ID or name">
+            </div>
+            <select id="bmiStatusFilter" class="filter-select">
+                <option value="candidates" selected>Top 3 Candidates</option>
+                <option value="eligible">All BMI Category Eligible</option>
+                <option value="finalist">Marked for Verification</option>
+                <option value="verified">Verified</option>
+                <option value="all">All BMI Profiles</option>
+            </select>
+        </div>
+
+        <div class="notice">
+            <i class="fas fa-circle-info"></i>
+            <div>
+                Top 3 eligible Overweight/Obesity participants are ranked by Gemba points and shortlisted for Office Lobby verification. BMI Category is separate from Male/Female Individual; team membership does not affect BMI eligibility.
+            </div>
+        </div>
+
+        <div id="bmiContainer" class="list">
+            <div class="loading"><i class="fas fa-circle-notch fa-spin"></i><br><br>Loading BMI profiles...</div>
+        </div>
+    </section>
+
+    <section id="issuesSection" hidden>
+        <div id="issueContainer" class="list">
+            <div class="loading"><i class="fas fa-circle-notch fa-spin"></i><br><br>Loading reported issues...</div>
+        </div>
+    </section>
+
+    <div id="toast" class="toast">Updated</div>
 
     <script type="module">
-        import { db } from "./firebaseConfig.js";
-        import { collection, query, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { auth, db } from "./firebaseConfig.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import {
+            collection,
+            doc,
+            getDoc,
+            onSnapshot,
+            query,
+            orderBy,
+            serverTimestamp,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-        const issueContainer = document.getElementById("issueContainer");
-        const pendingEl = document.getElementById("pendingCount");
-        const resolvedEl = document.getElementById("resolvedCount");
+        const state = {
+            currentUser: null,
+            verifierName: "FIT Executive",
+            activeTab: "bmi",
+            profiles: new Map(),
+            users: new Map(),
+            issues: new Map(),
+            loaded: {
+                profiles: false,
+                users: false,
+                issues: false,
+            },
+        };
 
-        // Listen to issues collection in realtime
-        const q = query(collection(db, "gemba_issues"), orderBy("reportedAt", "desc"));
+        const elements = {
+            verifierLine: document.getElementById("verifierLine"),
+            primaryCount: document.getElementById("primaryCount"),
+            secondaryCount: document.getElementById("secondaryCount"),
+            primaryLabel: document.getElementById("primaryLabel"),
+            secondaryLabel: document.getElementById("secondaryLabel"),
+            bmiSection: document.getElementById("bmiSection"),
+            issuesSection: document.getElementById("issuesSection"),
+            bmiSearchInput: document.getElementById("bmiSearchInput"),
+            bmiStatusFilter: document.getElementById("bmiStatusFilter"),
+            bmiContainer: document.getElementById("bmiContainer"),
+            issueContainer: document.getElementById("issueContainer"),
+            toast: document.getElementById("toast"),
+            refreshBtn: document.getElementById("refreshBtn"),
+        };
 
-        onSnapshot(q, (snapshot) => {
-            let html = '';
-            let pending = 0;
-            let resolved = 0;
+        if (sessionStorage.getItem("gembaFitAdminAccess") !== "granted") {
+            window.location.replace("gemba_scan.html");
+        }
 
-            if (snapshot.empty) {
-                issueContainer.innerHTML = `
-                    <div class="loading" style="background: white; border-radius: 16px; border: 1px dashed #e2e8f0;">
-                        <i class="fas fa-check-circle" style="font-size: 40px; color: #10b981; margin-bottom: 15px; display: block; opacity: 0.8;"></i>
-                        No issues reported yet. All good! 🚀
-                    </div>`;
-                pendingEl.innerText = "0";
-                resolvedEl.innerText = "0";
+        function escapeHTML(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function normalizeEmployeeId(value) {
+            return String(value ?? "")
+                .trim()
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "");
+        }
+
+        function getUserName(data = {}) {
+            return String(
+                data.name ||
+                data.fullName ||
+                data.employeeName ||
+                data.displayName ||
+                data.username ||
+                ""
+            ).trim();
+        }
+
+        function getUserDepartment(data = {}) {
+            return String(
+                data.department ||
+                data.dept ||
+                data.division ||
+                data.section ||
+                ""
+            ).trim();
+        }
+
+        function getEmployeeId(data = {}, fallback = "") {
+            return String(
+                data.employeeId ||
+                data.employeeID ||
+                data.employee_id ||
+                data.employeeNo ||
+                data.employeeNumber ||
+                data.empId ||
+                data.empID ||
+                data.staffId ||
+                data.staffID ||
+                data.staffNo ||
+                fallback ||
+                ""
+            ).trim();
+        }
+
+        function calculateBmi(heightCm, weightKg) {
+            const h = Number(heightCm) / 100;
+            const w = Number(weightKg);
+            if (!Number.isFinite(h) || h <= 0 || !Number.isFinite(w) || w <= 0) return null;
+            const value = w / (h ** 2);
+            return Number.isFinite(value) ? Number(value.toFixed(1)) : null;
+        }
+
+        function getBmiCategory(bmi) {
+            const value = Number(bmi);
+            if (!Number.isFinite(value)) return "Unknown";
+            if (value < 18.5) return "Underweight";
+            if (value < 25) return "Normal";
+            if (value < 30) return "Overweight";
+            return "Obesity";
+        }
+
+        function isCompleteProfile(profile = {}) {
+            return Boolean(
+                profile.profileReady &&
+                Number.isFinite(Number(profile.heightCm)) &&
+                Number.isFinite(Number(profile.weightKg)) &&
+                Number.isFinite(Number(profile.bmi))
+            );
+        }
+
+        function getVerificationStatus(profile = {}) {
+            if (profile.bmiVerificationStatus === "verified") return "verified";
+            if (profile.bmiFinalist || profile.bmiVerificationStatus === "finalist") return "finalist";
+            return "submitted";
+        }
+
+        function normalizeGender(value) {
+            const raw = String(value ?? "").trim().toLowerCase();
+            if (["male", "m", "lelaki"].includes(raw)) return "male";
+            if (["female", "f", "perempuan"].includes(raw)) return "female";
+            return "";
+        }
+
+        function timestampMillis(value) {
+            if (!value) return Number.MAX_SAFE_INTEGER;
+            if (typeof value.toMillis === "function") return value.toMillis();
+            if (typeof value === "object" && Number.isFinite(value.seconds)) return value.seconds * 1000;
+            const parsed = new Date(value).getTime();
+            return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+        }
+
+        function isJoinedParticipant(profile = {}) {
+            return Boolean(profile.profileReady && (profile.teamId || profile.participationMode === "team" || profile.participationMode === "individual"));
+        }
+
+        function sortByPersonalPoints(a, b) {
+            const pointDiff = (Number(b.individualPoints) || 0) - (Number(a.individualPoints) || 0);
+            if (pointDiff) return pointDiff;
+            const timeDiff = timestampMillis(a.individualScoreReachedAt) - timestampMillis(b.individualScoreReachedAt);
+            if (timeDiff) return timeDiff;
+            return String(a.name || a.uid).localeCompare(String(b.name || b.uid), "en", { sensitivity: "base", numeric: true });
+        }
+
+        function getBmiAwardCandidateMap() {
+            const participants = [...state.profiles.entries()]
+                .map(([uid, profile]) => getResolvedProfile(uid, profile))
+                .filter((profile) => isCompleteProfile(profile) && isJoinedParticipant(profile))
+;
+
+            // Personal categories are mutually exclusive:
+            // Underweight/Normal -> Male/Female Individual
+            // Overweight/Obesity -> BMI Category
+            // Team membership is allowed in either personal category.
+            const eligible = participants
+                .filter((profile) => ["Overweight", "Obesity"].includes(
+                    profile.bmiCategory ||
+                    profile.submittedBmiCategory ||
+                    getBmiCategory(profile.bmi)
+                ))
+                .sort(sortByPersonalPoints);
+
+            return new Map(eligible.map((profile, index) => [profile.uid, index + 1]));
+        }
+
+        function formatTimestamp(value) {
+            if (!value) return "";
+            const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+            return new Intl.DateTimeFormat("en-MY", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            }).format(date);
+        }
+
+        function showToast(message, error = false) {
+            elements.toast.textContent = message;
+            elements.toast.className = `toast show${error ? " error" : ""}`;
+            window.clearTimeout(showToast.timer);
+            showToast.timer = window.setTimeout(() => {
+                elements.toast.className = "toast";
+            }, 2600);
+        }
+
+        function getResolvedProfile(uid, profile = {}) {
+            const user = state.users.get(uid) || {};
+            const profileName = String(profile.name || "").trim();
+            const userName = getUserName(user);
+            const name = userName && (!profileName || profileName === "NSSB Participant")
+                ? userName
+                : (profileName || userName || "NSSB Participant");
+
+            const profileDepartment = String(profile.department || "").trim();
+            const userDepartment = getUserDepartment(user);
+            const department = userDepartment && (!profileDepartment || profileDepartment === "NSSB Team")
+                ? userDepartment
+                : (profileDepartment || userDepartment || "NSSB Team");
+
+            const employeeId = getEmployeeId(profile, getEmployeeId(user, uid));
+
+            return { ...profile, uid, name, department, employeeId };
+        }
+
+        function getVisibleProfiles() {
+            const search = normalizeEmployeeId(elements.bmiSearchInput.value);
+            const rawSearch = elements.bmiSearchInput.value.trim().toLowerCase();
+            const statusFilter = elements.bmiStatusFilter.value;
+            const candidateMap = getBmiAwardCandidateMap();
+
+            return [...state.profiles.entries()]
+                .map(([uid, profile]) => ({ ...getResolvedProfile(uid, profile), candidateRank: candidateMap.get(uid) || null }))
+                .filter((profile) => isCompleteProfile(profile))
+                .filter((profile) => {
+                    const status = getVerificationStatus(profile);
+                    if (statusFilter === "candidates" && !(profile.candidateRank && profile.candidateRank <= 3)) return false;
+                    if (statusFilter === "eligible" && !profile.candidateRank) return false;
+                    if (statusFilter === "finalist" && status !== "finalist") return false;
+                    if (statusFilter === "verified" && status !== "verified") return false;
+                    if (!rawSearch) return true;
+                    const employeeMatch = normalizeEmployeeId(profile.employeeId).includes(search);
+                    const nameMatch = String(profile.name || "").toLowerCase().includes(rawSearch);
+                    return employeeMatch || nameMatch;
+                })
+                .sort((a, b) => {
+                    if (["candidates", "eligible"].includes(statusFilter)) return (a.candidateRank || 9999) - (b.candidateRank || 9999);
+                    const aStatus = getVerificationStatus(a);
+                    const bStatus = getVerificationStatus(b);
+                    const priority = { finalist: 0, verified: 1, submitted: 2 };
+                    if (aStatus !== bStatus) return (priority[aStatus] ?? 9) - (priority[bStatus] ?? 9);
+                    return sortByPersonalPoints(a, b);
+                });
+        }
+
+        function renderBmiProfiles() {
+            if (!state.loaded.profiles || !state.loaded.users) {
+                elements.bmiContainer.innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-spin"></i><br><br>Loading BMI profiles...</div>';
                 return;
             }
 
-            snapshot.forEach((docSnap) => {
-                const issue = docSnap.data();
-                const id = docSnap.id;
-                const isResolved = issue.status === "Resolved";
-                
-                if (isResolved) resolved++; else pending++;
-
-                // Format Date safely
-                let dateStr = "Unknown Date";
-                if (issue.reportedAt) {
-                    const d = issue.reportedAt.toDate();
-                    dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + " - " + d.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
-                }
-
-                html += `
-                    <div class="issue-card ${isResolved ? 'resolved' : ''}">
-                        <div class="issue-header">
-                            <span class="issue-type"><i class="fas ${isResolved ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${issue.issueType || 'General Issue'}</span>
-                            <span class="issue-date"><i class="far fa-clock"></i> ${dateStr}</span>
-                        </div>
-                        <div class="issue-reporter">
-                            <i class="fas fa-user-circle" style="font-size: 16px; color: #94a3b8;"></i> Reported by: ${issue.userName || "Unknown"}
-                        </div>
-                        <div class="issue-details">
-                            "${issue.details}"
-                        </div>
-                        ${!isResolved 
-                            ? `<button class="action-btn" onclick="markResolved('${id}')"><i class="fas fa-check"></i> Mark as Resolved</button>` 
-                            : `<span class="resolved-badge"><i class="fas fa-check-double"></i> Resolved</span>`
-                        }
+            const profiles = getVisibleProfiles();
+            if (!profiles.length) {
+                elements.bmiContainer.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-weight-scale" style="font-size:28px;color:#94a3b8;margin-bottom:10px;display:block;"></i>
+                        No BMI profiles match the current search/filter.
                     </div>
                 `;
+                return;
+            }
+
+            elements.bmiContainer.innerHTML = profiles.map((profile) => {
+                const status = getVerificationStatus(profile);
+                const verified = status === "verified";
+                const finalist = status === "finalist";
+                const declaredHeight = Number(profile.submittedHeightCm ?? profile.heightCm);
+                const declaredWeight = Number(profile.submittedWeightKg ?? profile.weightKg);
+                const declaredBmi = Number(profile.submittedBmi ?? profile.bmi);
+                const declaredCategory = profile.submittedBmiCategory || getBmiCategory(declaredBmi);
+                const inputHeight = Number(profile.verifiedHeightCm ?? declaredHeight);
+                const inputWeight = Number(profile.verifiedWeightKg ?? declaredWeight);
+                const previewBmi = calculateBmi(inputHeight, inputWeight);
+                const previewCategory = getBmiCategory(previewBmi);
+                const statusLabel = verified ? "Verified" : finalist ? "Finalist" : "Submitted";
+                const statusIcon = verified ? "fa-circle-check" : finalist ? "fa-trophy" : "fa-circle-check";
+                const verifiedText = verified
+                    ? `${escapeHTML(profile.bmiVerifiedByName || "FIT Committee")} • ${escapeHTML(formatTimestamp(profile.bmiVerifiedAt) || "Verified")}`
+                    : "";
+
+                return `
+                    <article class="bmi-card ${status}" data-profile-card="${escapeHTML(profile.uid)}">
+                        <div class="card-top">
+                            <div>
+                                <div class="person-name">${escapeHTML(profile.name)}</div>
+                                <div class="person-meta">${escapeHTML(profile.employeeId || profile.uid)} • ${escapeHTML(profile.department)} • ${(Number(profile.individualPoints) || 0).toLocaleString()} pts${profile.candidateRank ? ` • BMI Category Candidate #${profile.candidateRank}` : ""}</div>
+                            </div>
+                            <span class="status-badge ${status}">
+                                <i class="fas ${statusIcon}"></i> ${statusLabel}
+                            </span>
+                        </div>
+
+                        <div class="declared-box">
+                            <div class="measure-chip"><small>Submitted Height</small><strong>${Number.isFinite(declaredHeight) ? `${declaredHeight.toFixed(1)} cm` : "-"}</strong></div>
+                            <div class="measure-chip"><small>Submitted Weight</small><strong>${Number.isFinite(declaredWeight) ? `${declaredWeight.toFixed(1)} kg` : "-"}</strong></div>
+                            <div class="measure-chip"><small>Submitted BMI</small><strong>${Number.isFinite(declaredBmi) ? `${declaredBmi.toFixed(1)} • ${escapeHTML(declaredCategory)}` : "-"}</strong></div>
+                        </div>
+
+                        ${verified ? `
+                            <div class="verified-detail">
+                                <strong>Official BMI:</strong> ${Number(profile.bmi).toFixed(1)} • ${escapeHTML(profile.bmiCategory || getBmiCategory(profile.bmi))}<br>
+                                <strong>Verified by:</strong> ${verifiedText}
+                            </div>
+                        ` : ""}
+
+                        ${!verified && (finalist || (profile.candidateRank && profile.candidateRank <= 3)) ? `
+                            <button class="verify-btn secondary" type="button" data-action="toggle-finalist" data-uid="${escapeHTML(profile.uid)}">
+                                <i class="fas ${finalist ? "fa-user-minus" : "fa-ruler-combined"}"></i>
+                                ${finalist ? "Remove Verification Mark" : "Mark for Office Lobby Verification"}
+                            </button>
+                        ` : ""}
+
+                        ${(finalist || verified) ? `
+                            <div class="verify-panel">
+                                <div class="verify-panel-title">
+                                    <strong><i class="fas fa-ruler-combined"></i> Office Lobby Measurement</strong>
+                                    <small>Top candidates only</small>
+                                </div>
+                                <div class="measure-inputs">
+                                    <div class="input-group">
+                                        <label>Actual Height (cm)</label>
+                                        <input type="number" inputmode="decimal" min="100" max="250" step="0.1" data-bmi-height="${escapeHTML(profile.uid)}" value="${Number.isFinite(inputHeight) ? inputHeight.toFixed(1) : ""}">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Actual Weight (kg)</label>
+                                        <input type="number" inputmode="decimal" min="25" max="300" step="0.1" data-bmi-weight="${escapeHTML(profile.uid)}" value="${Number.isFinite(inputWeight) ? inputWeight.toFixed(1) : ""}">
+                                    </div>
+                                </div>
+                                <div class="calc-preview" data-bmi-preview="${escapeHTML(profile.uid)}">
+                                    Official BMI preview: ${previewBmi ? `${previewBmi.toFixed(1)} • ${escapeHTML(previewCategory)}` : "Enter valid measurements"}
+                                </div>
+                                <button class="verify-btn" type="button" data-action="verify-bmi" data-uid="${escapeHTML(profile.uid)}">
+                                    <i class="fas fa-shield-halved"></i> ${verified ? "Re-Verify Candidate" : "Verify Candidate"}
+                                </button>
+                            </div>
+                        ` : ""}
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function renderIssues() {
+            if (!state.loaded.issues) {
+                elements.issueContainer.innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-spin"></i><br><br>Loading reported issues...</div>';
+                return;
+            }
+
+            const issues = [...state.issues.entries()];
+            if (!issues.length) {
+                elements.issueContainer.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-circle-check" style="font-size:30px;color:#10b981;margin-bottom:10px;display:block;"></i>
+                        No issues reported yet.
+                    </div>
+                `;
+                return;
+            }
+
+            elements.issueContainer.innerHTML = issues.map(([id, issue]) => {
+                const resolved = issue.status === "Resolved";
+                return `
+                    <article class="issue-card ${resolved ? "resolved" : ""}">
+                        <div class="card-top">
+                            <span class="issue-type">
+                                <i class="fas ${resolved ? "fa-circle-check" : "fa-circle-exclamation"}"></i>
+                                ${escapeHTML(issue.issueType || "General Issue")}
+                            </span>
+                            <span class="issue-date">${escapeHTML(formatTimestamp(issue.reportedAt) || "Unknown date")}</span>
+                        </div>
+                        <div class="issue-reporter">
+                            <i class="fas fa-user-circle"></i>
+                            Reported by: ${escapeHTML(issue.userName || "Unknown")}
+                        </div>
+                        <div class="issue-details">${escapeHTML(issue.details || "")}</div>
+                        ${resolved
+                            ? '<div class="verified-detail"><i class="fas fa-check-double"></i> Resolved</div>'
+                            : `<button class="resolve-btn" type="button" data-action="resolve-issue" data-id="${escapeHTML(id)}"><i class="fas fa-check"></i> Mark as Resolved</button>`
+                        }
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function updateStats() {
+            if (state.activeTab === "bmi") {
+                const candidateMap = getBmiAwardCandidateMap();
+                const topCandidateUids = [...candidateMap.entries()].filter(([, rank]) => rank <= 3).map(([uid]) => uid);
+                const waiting = topCandidateUids.filter((uid) => getVerificationStatus(state.profiles.get(uid) || {}) !== "verified").length;
+                const verified = topCandidateUids.filter((uid) => getVerificationStatus(state.profiles.get(uid) || {}) === "verified").length;
+                elements.primaryCount.textContent = waiting;
+                elements.secondaryCount.textContent = verified;
+                elements.primaryLabel.textContent = "Candidates Waiting";
+                elements.secondaryLabel.textContent = "Verified Candidates";
+            } else {
+                const issues = [...state.issues.values()];
+                const pending = issues.filter((issue) => issue.status !== "Resolved").length;
+                const resolved = issues.filter((issue) => issue.status === "Resolved").length;
+                elements.primaryCount.textContent = pending;
+                elements.secondaryCount.textContent = resolved;
+                elements.primaryLabel.textContent = "Pending Action";
+                elements.secondaryLabel.textContent = "Resolved";
+            }
+        }
+
+        function setActiveTab(tab) {
+            state.activeTab = tab;
+            document.querySelectorAll(".tab-btn").forEach((button) => {
+                button.classList.toggle("active", button.dataset.tab === tab);
+            });
+            elements.bmiSection.hidden = tab !== "bmi";
+            elements.issuesSection.hidden = tab !== "issues";
+            updateStats();
+        }
+
+        async function toggleBmiFinalist(uid, button) {
+            const profile = state.profiles.get(uid);
+            if (!profile) throw new Error("Participant profile was not found.");
+            if (profile.bmiVerificationStatus === "verified") return;
+
+            const makeFinalist = !Boolean(profile.bmiFinalist || profile.bmiVerificationStatus === "finalist");
+            if (makeFinalist) {
+                const rank = getBmiAwardCandidateMap().get(uid);
+                if (!rank || rank > 3) throw new Error("Only the current Top 3 BMI Category candidates can be marked for verification.");
+            }
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Updating...';
+
+            await updateDoc(doc(db, "gemba_participants", uid), {
+                bmiFinalist: makeFinalist,
+                bmiVerificationStatus: makeFinalist ? "finalist" : "submitted",
+                ...(makeFinalist ? {
+                    bmiFinalistAt: serverTimestamp(),
+                    bmiFinalistByUid: state.currentUser.uid,
+                    bmiFinalistByName: state.verifierName,
+                } : {}),
+                updatedAt: serverTimestamp(),
             });
 
-            issueContainer.innerHTML = html;
-            pendingEl.innerText = pending;
-            resolvedEl.innerText = resolved;
+            showToast(makeFinalist ? "Candidate marked for verification" : "Verification mark removed");
+        }
+
+        async function verifyBmi(uid, button) {
+            const profile = state.profiles.get(uid);
+            if (!profile) throw new Error("Participant profile was not found.");
+            if (!profile.bmiFinalist && profile.bmiVerificationStatus !== "verified") {
+                throw new Error("Mark this participant for BMI Category verification first.");
+            }
+
+            const heightInput = document.querySelector(`[data-bmi-height="${CSS.escape(uid)}"]`);
+            const weightInput = document.querySelector(`[data-bmi-weight="${CSS.escape(uid)}"]`);
+            const height = Number(heightInput?.value);
+            const weight = Number(weightInput?.value);
+
+            if (!Number.isFinite(height) || height < 100 || height > 250) {
+                heightInput?.focus();
+                throw new Error("Enter an actual height between 100 cm and 250 cm.");
+            }
+            if (!Number.isFinite(weight) || weight < 25 || weight > 300) {
+                weightInput?.focus();
+                throw new Error("Enter an actual weight between 25 kg and 300 kg.");
+            }
+
+            const bmi = calculateBmi(height, weight);
+            if (!bmi) throw new Error("Unable to calculate BMI from the measurement.");
+            const category = getBmiCategory(bmi);
+
+            if (!window.confirm(`Verify ${bmi.toFixed(1)} (${category}) as this participant's Office Lobby measurement?`)) {
+                return;
+            }
+
+            const roundedHeight = Number(height.toFixed(1));
+            const roundedWeight = Number(weight.toFixed(1));
+            const submittedHeight = Number(profile.submittedHeightCm ?? profile.heightCm);
+            const submittedWeight = Number(profile.submittedWeightKg ?? profile.weightKg);
+            const submittedBmi = Number(profile.submittedBmi ?? profile.bmi);
+
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verifying...';
+
+            await updateDoc(doc(db, "gemba_participants", uid), {
+                submittedHeightCm: Number.isFinite(submittedHeight) ? submittedHeight : roundedHeight,
+                submittedWeightKg: Number.isFinite(submittedWeight) ? submittedWeight : roundedWeight,
+                submittedBmi: Number.isFinite(submittedBmi) ? submittedBmi : bmi,
+                submittedBmiCategory: profile.submittedBmiCategory || getBmiCategory(submittedBmi || bmi),
+
+                heightCm: roundedHeight,
+                weightKg: roundedWeight,
+                bmi,
+                bmiCategory: category,
+
+                verifiedHeightCm: roundedHeight,
+                verifiedWeightKg: roundedWeight,
+                verifiedBmi: bmi,
+                verifiedBmiCategory: category,
+                bmiFinalist: true,
+                bmiVerificationStatus: "verified",
+                bmiVerifiedByUid: state.currentUser.uid,
+                bmiVerifiedByName: state.verifierName,
+                bmiVerifiedAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+
+            showToast(`BMI verified: ${bmi.toFixed(1)} • ${category}`);
+        }
+
+        document.querySelectorAll(".tab-btn").forEach((button) => {
+            button.addEventListener("click", () => setActiveTab(button.dataset.tab || "bmi"));
         });
 
-        // Global function to update document status
-        window.markResolved = async function(docId) {
-            if (confirm("Are you sure this issue has been resolved? This action cannot be undone.")) {
+        elements.bmiSearchInput.addEventListener("input", renderBmiProfiles);
+        elements.bmiStatusFilter.addEventListener("change", renderBmiProfiles);
+
+        elements.bmiContainer.addEventListener("input", (event) => {
+            const input = event.target.closest("[data-bmi-height], [data-bmi-weight]");
+            if (!input) return;
+
+            const uid = input.dataset.bmiHeight || input.dataset.bmiWeight;
+            const height = Number(document.querySelector(`[data-bmi-height="${CSS.escape(uid)}"]`)?.value);
+            const weight = Number(document.querySelector(`[data-bmi-weight="${CSS.escape(uid)}"]`)?.value);
+            const bmi = calculateBmi(height, weight);
+            const preview = document.querySelector(`[data-bmi-preview="${CSS.escape(uid)}"]`);
+            if (preview) {
+                preview.textContent = bmi
+                    ? `Official BMI preview: ${bmi.toFixed(1)} • ${getBmiCategory(bmi)}`
+                    : "Official BMI preview: Enter valid measurements";
+            }
+        });
+
+        elements.bmiContainer.addEventListener("click", async (event) => {
+            const button = event.target.closest('[data-action]');
+            if (!button) return;
+
+            if (button.dataset.action === "toggle-finalist") {
                 try {
-                    const issueRef = doc(db, "gemba_issues", docId);
-                    await updateDoc(issueRef, {
-                        status: "Resolved"
-                    });
+                    await toggleBmiFinalist(button.dataset.uid, button);
                 } catch (error) {
-                    console.error("Error updating issue:", error);
-                    alert("Failed to update status. Please try again.");
+                    console.error("BMI finalist update error:", error);
+                    showToast(error.message || "Unable to update finalist status.", true);
+                    button.disabled = false;
+                }
+                return;
+            }
+
+            if (button.dataset.action === "verify-bmi") {
+                try {
+                    await verifyBmi(button.dataset.uid, button);
+                } catch (error) {
+                    console.error("BMI verification error:", error);
+                    showToast(error.message || "BMI verification failed.", true);
+                    button.disabled = false;
                 }
             }
-        };
+        });
+
+        elements.issueContainer.addEventListener("click", async (event) => {
+            const button = event.target.closest('[data-action="resolve-issue"]');
+            if (!button) return;
+
+            if (!window.confirm("Mark this issue as resolved?")) return;
+
+            button.disabled = true;
+            try {
+                await updateDoc(doc(db, "gemba_issues", button.dataset.id), {
+                    status: "Resolved",
+                    resolvedAt: serverTimestamp(),
+                    resolvedByUid: state.currentUser?.uid || "",
+                    resolvedByName: state.verifierName,
+                });
+                showToast("Issue marked as resolved.");
+            } catch (error) {
+                console.error("Issue update error:", error);
+                showToast("Unable to update the issue.", true);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById("exitBtn").addEventListener("click", () => {
+            sessionStorage.removeItem("gembaFitAdminAccess");
+            window.location.href = "gemba_scan.html";
+        });
+
+        elements.refreshBtn.addEventListener("click", () => {
+            elements.refreshBtn.querySelector("i")?.classList.add("fa-spin");
+            renderBmiProfiles();
+            renderIssues();
+            updateStats();
+            window.setTimeout(() => {
+                elements.refreshBtn.querySelector("i")?.classList.remove("fa-spin");
+            }, 500);
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            state.currentUser = user;
+            try {
+                const userSnapshot = await getDoc(doc(db, "users", user.uid));
+                const userData = userSnapshot.exists() ? userSnapshot.data() : {};
+                state.verifierName = getUserName(userData) || user.displayName || user.email || "FIT Executive";
+                elements.verifierLine.textContent = `Signed in as ${state.verifierName}. Actions are logged.`;
+            } catch (error) {
+                console.warn("Unable to load verifier profile:", error);
+                state.verifierName = user.displayName || user.email || "FIT Executive";
+                elements.verifierLine.textContent = `Signed in as ${state.verifierName}.`;
+            }
+        });
+
+        onSnapshot(
+            query(collection(db, "users")),
+            (snapshot) => {
+                state.users.clear();
+                snapshot.forEach((userDoc) => state.users.set(userDoc.id, userDoc.data()));
+                state.loaded.users = true;
+                renderBmiProfiles();
+            },
+            (error) => {
+                console.error("Unable to load users:", error);
+                state.loaded.users = true;
+                renderBmiProfiles();
+            }
+        );
+
+        onSnapshot(
+            query(collection(db, "gemba_participants")),
+            (snapshot) => {
+                state.profiles.clear();
+                snapshot.forEach((profileDoc) => state.profiles.set(profileDoc.id, profileDoc.data()));
+                state.loaded.profiles = true;
+                renderBmiProfiles();
+                updateStats();
+            },
+            (error) => {
+                console.error("Unable to load Gemba profiles:", error);
+                elements.bmiContainer.innerHTML = '<div class="error">Unable to read gemba_participants. Please check Firestore permissions.</div>';
+            }
+        );
+
+        onSnapshot(
+            query(collection(db, "gemba_issues"), orderBy("reportedAt", "desc")),
+            (snapshot) => {
+                state.issues.clear();
+                snapshot.forEach((issueDoc) => state.issues.set(issueDoc.id, issueDoc.data()));
+                state.loaded.issues = true;
+                renderIssues();
+                updateStats();
+            },
+            (error) => {
+                console.error("Unable to load issues:", error);
+                elements.issueContainer.innerHTML = '<div class="error">Unable to load reported issues.</div>';
+            }
+        );
     </script>
 </body>
 </html>

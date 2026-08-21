@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCM Gemba Walk Leaderboard</title>
+    <meta name="theme-color" content="#059669">
+    <title>NSSB Gemba Walk Leaderboard</title>
 
     <link
         rel="stylesheet"
@@ -16,15 +17,19 @@
         :root {
             --primary: #10b981;
             --primary-dark: #059669;
-            --bg-gradient: #f8fafc;
+            --primary-soft: #ecfdf5;
+            --navy: #0f172a;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --accent-color: #059669;
+            --line: #e2e8f0;
             --card-bg: rgba(255, 255, 255, 0.95);
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             --gold: #fbbf24;
-            --silver: #cbd5e1;
+            --silver: #94a3b8;
             --bronze: #d97706;
+            --purple: #7c3aed;
+            --purple-soft: #f5f3ff;
+            --danger: #dc2626;
+            --shadow: 0 16px 40px rgba(15, 23, 42, 0.07);
         }
 
         * {
@@ -34,469 +39,1230 @@
             font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
+        html {
+            background: #f8fafc;
+        }
+
         body {
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text-main);
             min-height: 100vh;
-            padding: 30px 20px 80px;
+            padding: 26px 18px 80px;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at 15% 0%, rgba(16, 185, 129, 0.12), transparent 28%),
+                radial-gradient(circle at 100% 18%, rgba(124, 58, 237, 0.08), transparent 25%),
+                linear-gradient(180deg, #f8fffc 0%, #f8fafc 48%, #f1f5f9 100%);
+        }
+
+        button,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
-            max-width: 800px;
+            width: 100%;
+            max-width: 920px;
             margin: 0 auto;
         }
 
         .header {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .back-btn {
-            background: white;
-            border: 1px solid #e2e8f0;
-            color: #334155;
-            padding: 10px 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .back-btn:hover {
-            background: #f1f5f9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            gap: 14px;
+            margin-bottom: 20px;
         }
 
         .header h2 {
+            min-width: 0;
+            color: var(--navy);
             font-size: 20px;
-            font-weight: 700;
-            color: #0f172a;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: -0.02em;
         }
 
-        .header-card {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            border-radius: 24px;
-            padding: 35px 30px;
-            margin-bottom: 25px;
+        .back-btn,
+        .refresh-btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            color: #334155;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 5px 16px rgba(15, 23, 42, 0.05);
+            font-size: 13px;
+            font-weight: 750;
+            text-decoration: none;
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .refresh-btn {
+            width: 44px;
+            padding: 0;
+        }
+
+        .back-btn:active,
+        .refresh-btn:active,
+        .tab-btn:active,
+        .bmi-filter-btn:active {
+            transform: scale(0.97);
+        }
+
+        .hero-card {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            margin-bottom: 18px;
+            padding: 34px 28px;
+            border-radius: 28px;
+            color: #fff;
+            text-align: center;
+            background: linear-gradient(135deg, #047857 0%, #10b981 64%, #34d399 100%);
+            box-shadow: 0 18px 42px rgba(5, 150, 105, 0.24);
+        }
+
+        .hero-card::before,
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.10);
+        }
+
+        .hero-card::before {
+            width: 190px;
+            height: 190px;
+            top: -105px;
+            right: -50px;
+        }
+
+        .hero-card::after {
+            width: 120px;
+            height: 120px;
+            bottom: -75px;
+            left: 7%;
+        }
+
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 12px;
+            padding: 7px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.13);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-card h1 {
+            font-size: clamp(1.8rem, 6vw, 2.45rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-card p {
+            max-width: 640px;
+            margin: 10px auto 0;
+            color: rgba(255, 255, 255, 0.90);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+
+        /* Testing 1.0 Winners Showcase */
+        .past-winner-card {
             position: relative;
             overflow: hidden;
-            text-align: center;
-            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.25);
-            color: white;
+            margin-bottom: 18px;
+            padding: 16px;
+            border: 1px solid #fde68a;
+            border-radius: 24px;
+            background: linear-gradient(145deg, #fffbeb 0%, #ffffff 56%, #fff7ed 100%);
+            box-shadow: 0 12px 30px rgba(146, 64, 14, 0.08);
         }
 
-        .header-card::after {
-            content: '\f091';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
+        .past-winner-card::after {
+            content: "";
             position: absolute;
-            right: -20px;
-            top: -30px;
-            font-size: 160px;
-            opacity: 0.1;
-            transform: rotate(15deg);
+            width: 150px;
+            height: 150px;
+            right: -70px;
+            top: -75px;
+            border-radius: 50%;
+            background: rgba(251, 191, 36, 0.12);
+            pointer-events: none;
         }
 
-        .header-card h1 {
-            font-size: 2rem;
+        .past-winner-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 13px;
+        }
+
+        .past-winner-title {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .past-winner-icon {
+            flex: 0 0 42px;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            color: #92400e;
+            background: #fef3c7;
+            font-size: 18px;
+        }
+
+        .past-winner-title strong {
+            display: block;
+            color: var(--navy);
+            font-size: 14px;
             font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 1;
         }
 
-        .header-card p {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            letter-spacing: 1px;
+        .past-winner-title small {
+            display: block;
+            margin-top: 3px;
+            color: #78716c;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .past-winner-badge {
+            flex: 0 0 auto;
+            padding: 6px 9px;
+            border: 1px solid #fde68a;
+            border-radius: 999px;
+            color: #92400e;
+            background: rgba(255, 255, 255, 0.76);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
+        }
+
+        .past-winner-photo-wrap {
             position: relative;
             z-index: 1;
+            overflow: hidden;
+            min-height: 240px;
+            border: 1px dashed #f59e0b;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #fffaf0, #f8fafc);
+        }
+
+        .past-winner-photo {
+            width: 100%;
+            height: 100%;
+            min-height: 240px;
+            max-height: 460px;
+            display: block;
+            object-fit: cover;
+        }
+
+        .past-winner-placeholder {
+            min-height: 240px;
+            display: none;
+            place-items: center;
+            padding: 30px 20px;
+            color: #a16207;
+            text-align: center;
+        }
+
+        .past-winner-placeholder.show {
+            display: grid;
+        }
+
+        .past-winner-placeholder i {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 34px;
+        }
+
+        .past-winner-placeholder strong {
+            display: block;
+            color: #92400e;
+            font-size: 13px;
+        }
+
+        .past-winner-placeholder span {
+            display: block;
+            max-width: 420px;
+            margin: 5px auto 0;
+            color: #a16207;
+            font-size: 10px;
+            line-height: 1.55;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
         .stat-box {
+            min-width: 0;
+            padding: 18px 15px;
+            border: 1px solid var(--line);
+            border-radius: 19px;
             background: var(--card-bg);
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 20px;
+            box-shadow: 0 7px 22px rgba(15, 23, 42, 0.04);
             text-align: center;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-        }
-
-        .stat-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-        }
-
-        .stat-box h2 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-        }
-
-        .stat-box p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .stat-box.highlight {
-            background: linear-gradient(
-                135deg,
-                rgba(16, 185, 129, 0.05),
-                rgba(5, 150, 105, 0.05)
-            );
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .stat-box.highlight h2 {
-            color: var(--primary-dark);
-        }
-
-        .ranking-rule {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 25px;
-            padding: 15px 17px;
-            border: 1px solid #d1fae5;
-            border-radius: 16px;
-            background: #ecfdf5;
-            color: #065f46;
-        }
-
-        .ranking-rule i {
-            margin-top: 2px;
-            font-size: 18px;
-        }
-
-        .ranking-rule strong {
-            display: block;
-            margin-bottom: 3px;
-            font-size: 0.9rem;
-        }
-
-        .ranking-rule span {
-            display: block;
-            color: #047857;
-            font-size: 0.8rem;
-            line-height: 1.5;
-        }
-
-        .leaderboard-card {
-            background: var(--card-bg);
-            border: 1px solid #e2e8f0;
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .leaderboard-title {
-            font-size: 1.3rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: var(--text-main);
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .user-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 18px;
-            padding: 16px 20px;
-            margin-bottom: 12px;
-            border-radius: 16px;
-            background: #ffffff;
-            border: 1px solid #f1f5f9;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: slideUp 0.5s ease backwards;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-        }
-
-        .user-row:hover {
-            transform: scale(1.01) translateX(4px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.08);
             border-color: #a7f3d0;
+            background: linear-gradient(145deg, #ecfdf5, #ffffff);
         }
 
-        .user-row.current-user {
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.18);
-        }
-
-        .user-row:nth-child(1) { animation-delay: 0.1s; }
-        .user-row:nth-child(2) { animation-delay: 0.2s; }
-        .user-row:nth-child(3) { animation-delay: 0.3s; }
-        .user-row:nth-child(4) { animation-delay: 0.4s; }
-        .user-row:nth-child(5) { animation-delay: 0.5s; }
-
-        .user-row.top1 {
-            border-left: 5px solid var(--gold);
-            background: linear-gradient(90deg, rgba(251, 191, 36, 0.05) 0%, #ffffff 100%);
-            border-top: 1px solid rgba(251, 191, 36, 0.2);
-            border-right: 1px solid rgba(251, 191, 36, 0.2);
-            border-bottom: 1px solid rgba(251, 191, 36, 0.2);
-        }
-
-        .user-row.top2 {
-            border-left: 5px solid #94a3b8;
-            background: linear-gradient(90deg, rgba(148, 163, 184, 0.05) 0%, #ffffff 100%);
-            border-top: 1px solid rgba(148, 163, 184, 0.2);
-            border-right: 1px solid rgba(148, 163, 184, 0.2);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-        }
-
-        .user-row.top3 {
-            border-left: 5px solid var(--bronze);
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.05) 0%, #ffffff 100%);
-            border-top: 1px solid rgba(217, 119, 6, 0.2);
-            border-right: 1px solid rgba(217, 119, 6, 0.2);
-            border-bottom: 1px solid rgba(217, 119, 6, 0.2);
-        }
-
-        .left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-width: 0;
-        }
-
-        .rank {
-            width: 44px;
-            height: 44px;
-            flex: 0 0 44px;
-            border-radius: 14px;
-            background: #f8fafc;
+        .stat-value {
+            min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            color: var(--primary-dark);
+            font-size: clamp(1.25rem, 4vw, 1.8rem);
             font-weight: 800;
-            color: var(--text-main);
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            line-height: 1.1;
+            overflow-wrap: anywhere;
         }
 
-        .user-info {
+        .stat-value.mode {
+            font-size: 1rem;
+        }
+
+        .stat-label {
+            display: block;
+            margin-top: 7px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .privacy-note,
+        .fairness-note {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 12px;
+            padding: 11px 13px;
+            border-radius: 14px;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .privacy-note {
+            border: 1px solid #ddd6fe;
+            color: #5b21b6;
+            background: #f5f3ff;
+        }
+
+        .fairness-note {
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            background: #ecfdf5;
+        }
+
+        .privacy-note i,
+        .fairness-note i {
+            margin-top: 2px;
+            font-size: 16px;
+        }
+
+        .privacy-note strong,
+        .fairness-note strong {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 12px;
+        }
+
+
+        .bmi-guide-card {
+          overflow: hidden;
+          margin: 0 0 18px;
+          border: 1px solid #dbeafe;
+          border-radius: 18px;
+          background: #fff;
+          box-shadow: 0 7px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .bmi-guide-header {
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          padding: 13px 14px;
+          color: #1e3a8a;
+          background: linear-gradient(135deg, #eff6ff, #ecfdf5);
+          border-bottom: 1px solid #dbeafe;
+        }
+
+        .bmi-guide-header i {
+          margin-top: 2px;
+          color: #2563eb;
+          font-size: 17px;
+        }
+
+        .bmi-guide-header strong {
+          display: block;
+          color: var(--navy);
+          font-size: 12px;
+        }
+
+        .bmi-guide-header small {
+          display: block;
+          margin-top: 3px;
+          color: var(--muted);
+          font-size: 9.5px;
+          line-height: 1.45;
+        }
+
+        .bmi-formula-box {
+          margin: 11px 12px;
+          padding: 10px 11px;
+          border: 1px solid #bbf7d0;
+          border-radius: 12px;
+          color: #065f46;
+          background: #ecfdf5;
+          font-size: 10px;
+          line-height: 1.55;
+        }
+
+        .bmi-formula-box strong {
+          color: #047857;
+        }
+
+        .bmi-guide-scroll {
+          overflow-x: auto;
+        }
+
+        .bmi-guide-table {
+          width: 100%;
+          min-width: 430px;
+          border-collapse: collapse;
+        }
+
+        .bmi-guide-table th,
+        .bmi-guide-table td {
+          padding: 9px 8px;
+          border-bottom: 1px solid #eef2f7;
+          font-size: 9.5px;
+          text-align: left;
+        }
+
+        .bmi-guide-table th {
+          color: #475569;
+          background: #f8fafc;
+          font-size: 8.5px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .bmi-guide-table tbody tr:last-child td {
+          border-bottom: 0;
+        }
+
+        .bmi-guide-tag {
+          display: inline-flex;
+          padding: 4px 7px;
+          border-radius: 999px;
+          color: #1e40af;
+          background: #eff6ff;
+          font-size: 8.5px;
+          font-weight: 800;
+        }
+
+        .bmi-guide-tag.bmi {
+          color: #6d28d9;
+          background: #f5f3ff;
+        }
+
+        .bmi-guide-disclaimer {
+          padding: 10px 12px;
+          border-top: 1px solid #e2e8f0;
+          color: #64748b;
+          background: #f8fafc;
+          font-size: 8.8px;
+          line-height: 1.5;
+        }
+
+        .bmi-guide-disclaimer strong {
+          color: #475569;
+        }
+
+        .tabs-shell {
+            margin-bottom: 18px;
+            padding: 7px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 7px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .tab-btn {
+            min-height: 48px;
+            border: 0;
+            border-radius: 13px;
+            color: #64748b;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 800;
+            transition: all 0.18s ease;
+        }
+
+        .tab-btn i {
+            margin-right: 6px;
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: var(--primary-dark);
+            box-shadow: 0 8px 18px rgba(5, 150, 105, 0.22);
+        }
+
+        .leaderboard-card {
+            overflow: hidden;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+        }
+
+        .leaderboard-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 17px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .leaderboard-heading h3 {
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .leaderboard-heading p {
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .live-badge {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            color: #047857;
+            background: #ecfdf5;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+        }
+
+        .bmi-filter-wrap {
+            display: none;
+            gap: 8px;
+            overflow-x: auto;
+            margin: -2px 0 16px;
+            padding: 2px 0 4px;
+            scrollbar-width: none;
+        }
+
+        .bmi-filter-wrap::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bmi-filter-wrap.show {
+            display: flex;
+        }
+
+        .bmi-filter-btn {
+            flex: 0 0 auto;
+            min-height: 34px;
+            padding: 7px 12px;
+            border: 1px solid #ddd6fe;
+            border-radius: 999px;
+            color: #6d28d9;
+            background: #faf5ff;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .bmi-filter-btn.active {
+            border-color: var(--purple);
+            color: #fff;
+            background: var(--purple);
+        }
+
+        .team-view-switch {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+            margin: -2px 0 16px;
+            padding: 6px;
+            border: 1px solid #dbeafe;
+            border-radius: 15px;
+            background: #f8fbff;
+        }
+
+        .team-view-switch.show {
+            display: grid;
+        }
+
+        .team-view-btn {
+            min-height: 40px;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 11px;
+            color: #64748b;
+            background: transparent;
+            font-size: 10.5px;
+            font-weight: 800;
+        }
+
+        .team-view-btn.active {
+            color: #fff;
+            background: #0f766e;
+            box-shadow: 0 6px 14px rgba(15, 118, 110, 0.18);
+        }
+
+        .team-week-label {
+            grid-column: 1 / -1;
+            padding: 3px 4px 1px;
+            color: #475569;
+            font-size: 9.5px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .leaderboard-list {
+            display: grid;
+            gap: 11px;
+        }
+
+        .rank-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px;
+            border: 1px solid #edf2f7;
+            border-radius: 17px;
+            background: #fff;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .rank-row:hover {
+            transform: translateY(-1px);
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .rank-row.current-user {
+            border-color: #6ee7b7;
+            box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.12);
+        }
+
+        .rank-row.top1 {
+            border-left: 5px solid var(--gold);
+            background: linear-gradient(90deg, rgba(251, 191, 36, 0.08), #fff 27%);
+        }
+
+        .rank-row.top2 {
+            border-left: 5px solid var(--silver);
+            background: linear-gradient(90deg, rgba(148, 163, 184, 0.08), #fff 27%);
+        }
+
+        .rank-row.top3 {
+            border-left: 5px solid var(--bronze);
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.07), #fff 27%);
+        }
+
+        .rank-left {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .rank-number {
+            flex: 0 0 43px;
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            color: var(--navy);
+            background: #f8fafc;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .rank-info {
             min-width: 0;
         }
 
-        .user-name {
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: var(--text-main);
-            letter-spacing: 0.3px;
+        .rank-name {
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.35;
             overflow-wrap: anywhere;
         }
 
-        .user-dept {
-            font-size: 0.8rem;
+        .rank-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px 8px;
+            margin-top: 5px;
             color: var(--text-muted);
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            overflow-wrap: anywhere;
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 7px;
+            border-radius: 999px;
+            color: #475569;
+            background: #f1f5f9;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .meta-chip.team {
+            color: #047857;
+            background: #ecfdf5;
+        }
+
+        .meta-chip.bmi {
+            color: #6d28d9;
+            background: #f5f3ff;
         }
 
         .tie-time {
             display: flex;
             align-items: center;
             gap: 5px;
-            color: #64748b;
-            font-size: 0.73rem;
             margin-top: 6px;
+            color: #94a3b8;
+            font-size: 9px;
         }
 
-        .points {
+        .rank-score {
             flex: 0 0 auto;
-            font-weight: 800;
+            min-width: 102px;
+            text-align: right;
+        }
+
+        .score-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 88px;
+            padding: 8px 12px;
+            border-radius: 999px;
             color: #fff;
-            background: var(--accent-color);
-            padding: 7px 14px;
-            border-radius: 30px;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-            letter-spacing: 0.5px;
-            min-width: 82px;
-            text-align: center;
+            background: var(--primary-dark);
+            box-shadow: 0 5px 13px rgba(5, 150, 105, 0.18);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .score-primary.purple {
+            background: var(--purple);
+            box-shadow: 0 5px 13px rgba(124, 58, 237, 0.16);
+        }
+
+        .score-secondary {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-muted);
+            font-size: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .members-panel {
+            display: grid;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .member-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            max-width: 390px;
+            padding: 6px 8px;
+            border-radius: 9px;
+            color: #475569;
+            background: #f8fafc;
+            font-size: 9px;
+        }
+
+        .member-line span:first-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .member-line b {
+            flex: 0 0 auto;
+            color: #0f766e;
         }
 
         .loading,
         .empty-state,
         .error-state {
+            padding: 44px 18px;
+            border-radius: 17px;
             text-align: center;
-            padding: 40px 20px;
             color: var(--text-muted);
-            font-weight: 500;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        .loading i,
+        .empty-state i,
+        .error-state i {
+            display: block;
+            margin-bottom: 13px;
+            font-size: 30px;
+        }
+
+        .loading i {
+            color: var(--primary);
+        }
+
+        .empty-state {
+            background: #f8fafc;
         }
 
         .error-state {
+            border: 1px solid #fecaca;
             color: #b91c1c;
             background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 16px;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        .footer-note {
+            margin-top: 16px;
+            color: #94a3b8;
+            font-size: 9px;
+            line-height: 1.55;
+            text-align: center;
+        }
+
+        @media (max-width: 720px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .pulse-text {
-            animation: pulse 1.5s infinite;
-        }
-
-        @media (max-width: 600px) {
+        @media (max-width: 560px) {
             body {
-                padding: 20px 14px 60px;
+                padding: 18px 12px 60px;
             }
 
-            .header-card {
-                padding: 30px 20px;
+            .header {
+                gap: 9px;
             }
 
-            .header-card h1 {
-                font-size: 1.65rem;
+            .back-btn {
+                width: 44px;
+                padding: 0;
+            }
+
+            .back-btn span {
+                display: none;
+            }
+
+            .hero-card {
+                padding: 29px 18px;
+                border-radius: 23px;
+            }
+
+            .tabs-shell {
+                overflow: visible;
+            }
+
+            .tabs {
+                min-width: 0;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .leaderboard-card {
-                padding: 18px;
+                padding: 16px;
+                border-radius: 21px;
+            }
+
+            .leaderboard-heading {
+                gap: 10px;
+            }
+
+            .rank-row {
+                align-items: flex-start;
+                padding: 14px;
+            }
+
+            .rank-number {
+                flex-basis: 38px;
+                width: 38px;
+                height: 38px;
+            }
+
+            .rank-score {
+                min-width: 84px;
+            }
+
+            .score-primary {
+                min-width: 77px;
+                padding: 7px 9px;
+                font-size: 11px;
             }
         }
 
-        @media (max-width: 480px) {
-            .header {
+        @media (max-width: 390px) {
+            .rank-row {
+                flex-direction: column;
+            }
+
+            .rank-score {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+
+            .score-secondary {
+                margin-top: 0;
+            }
+        }
+
+        /* Compact mobile-first polish */
+        .hero-card { padding: 26px 22px; border-radius: 24px; }
+        .hero-card p { max-width: 560px; }
+        .stats-grid { gap: 10px; }
+        .stat-box { padding: 15px 12px; border-radius: 16px; }
+        .fairness-note { margin-bottom: 14px; }
+        @media (max-width: 560px) {
+            .hero-card { padding: 23px 16px; }
+            .hero-card h1 { font-size: 1.65rem; }
+            .stats-grid { gap: 8px; }
+            .stat-box { padding: 13px 9px; }
+            .stat-label { font-size: 8.5px; letter-spacing: .04em; }
+            .leaderboard-heading p { font-size: 10.5px; }
+        }
+
+        @media (max-width: 560px) {
+            .past-winner-card {
+                padding: 13px;
+                border-radius: 20px;
+            }
+
+            .past-winner-head {
                 align-items: flex-start;
             }
 
-            .header h2 {
-                padding-top: 8px;
+            .past-winner-badge {
+                display: none;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .user-row {
-                flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
-            }
-
-            .points {
-                width: 100%;
+            .past-winner-photo-wrap,
+            .past-winner-photo,
+            .past-winner-placeholder {
+                min-height: 190px;
             }
         }
+
     </style>
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <a href="home.html" class="back-btn">
+            <a href="home.html" class="back-btn" aria-label="Back to Home">
                 <i class="fas fa-arrow-left"></i>
                 <span data-translate="home">Home</span>
             </a>
 
             <h2 data-translate="gembaLeaderboard">Leaderboard</h2>
+
+            <button class="refresh-btn" id="refreshBtn" type="button" title="Refresh" aria-label="Refresh leaderboard">
+                <i class="fas fa-rotate"></i>
+            </button>
         </div>
 
-        <div class="header-card">
-            <h1 data-translate="gembaWalk">🏭 Gemba Walk</h1>
-            <p data-translate="latestUpdatesTitle">Live Rankings</p>
-        </div>
+        <section class="hero-card">
+            <div class="hero-kicker">
+                <i class="fas fa-chart-line"></i>
+                <span>Live Rankings</span>
+            </div>
+            <h1>Gemba Walk Challenge</h1>
+            <p>
+                Follow your Team and personal category rankings. Team members open directly to the Team leaderboard.
+            </p>
+        </section>
 
-        <div class="stats-grid">
-            <div class="stat-box highlight">
-                <h2 id="myRank">-</h2>
-                <p data-translate="myRank">My Rank</p>
+        <section class="past-winner-card" aria-label="Gemba Testing 1.0 winners">
+            <div class="past-winner-head">
+                <div class="past-winner-title">
+                    <div class="past-winner-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div>
+                        <strong>Gemba Testing 1.0 Winners</strong>
+                        <small>Celebrating our previous Gemba Walk champions.</small>
+                    </div>
+                </div>
+                <span class="past-winner-badge">Hall of Fame</span>
             </div>
 
-            <div class="stat-box">
-                <h2 id="myPoints">0</h2>
-                <p data-translate="myPoints">My Points</p>
-            </div>
-
-            <div class="stat-box">
-                <h2 id="totalPoints">0</h2>
-                <p data-translate="companyTotal">Company Total</p>
-            </div>
-        </div>
-
-        <div class="ranking-rule">
-            <i class="fas fa-scale-balanced"></i>
-
-            <div>
-                <strong>Fair Ranking Rule</strong>
-                <span>
-                    Highest points first. If points are tied, the participant who achieved
-                    the score earlier ranks higher. Name A–Z is used only as the final fallback.
-                </span>
-            </div>
-        </div>
-
-        <div class="leaderboard-card">
-            <div class="leaderboard-title">
-                <span data-translate="topParticipants">🚀 Top Participants</span>
-                <i class="fas fa-crown" style="color: var(--gold);"></i>
-            </div>
-
-            <div id="leaderboard-list" aria-live="polite">
-                <div class="loading pulse-text">
-                    <i
-                        class="fas fa-circle-notch fa-spin"
-                        style="margin-right: 8px; font-size: 20px;"
-                    ></i>
-
-                    <br><br>
-
-                    <span data-translate="loadingText">Syncing live data...</span>
+            <div class="past-winner-photo-wrap">
+                <!--
+                    Put your Testing 1.0 winner photo in the same folder as this HTML file
+                    and name it: gemba_testing_1_winners.jpg
+                    Or change the src below to your preferred image filename/path.
+                -->
+                <img
+                    id="testing1WinnerPhoto"
+                    class="past-winner-photo"
+                    src="./pictures/gemba_testing_1_winners.jpg"
+                    alt="Gemba Testing 1.0 winners"
+                >
+                <div id="testing1WinnerPlaceholder" class="past-winner-placeholder">
+                    <div>
+                        <i class="fas fa-image"></i>
+                        <strong>Add Testing 1.0 Winner Photo Here</strong>
+                        <span>Save the image as <b>gemba_testing_1_winners.jpg</b> in the same folder, or change the image path in this HTML.</span>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Personal Gemba statistics">
+            <div class="stat-box highlight">
+                <div id="myRank" class="stat-value">-</div>
+                <span class="stat-label">My Rank</span>
+            </div>
+
+            <div class="stat-box">
+                <div id="myPoints" class="stat-value">0</div>
+                <span class="stat-label">My Points</span>
+            </div>
+
+            <div class="stat-box">
+                <div id="myMode" class="stat-value mode">-</div>
+                <span class="stat-label">My Mode</span>
+            </div>
+
+            <div class="stat-box">
+                <div id="companyPoints" class="stat-value">0</div>
+                <span class="stat-label">Company Points</span>
+            </div>
+        </section>
+
+        <div class="fairness-note" style="border-color:#bfdbfe;color:#1e40af;background:#eff6ff;">
+            <i class="fas fa-circle-info"></i>
+            <div>
+                <strong>Quick Rules</strong>
+                Underweight/Normal → Male/Female Individual • Overweight/Obesity → BMI Category • Team is optional for all BMI categories • Team score uses average points • BMI finalists require Office Lobby verification.
+            </div>
         </div>
+
+
+        <section class="bmi-guide-card" aria-label="BMI reference and calculation">
+      <div class="bmi-guide-header">
+        <i class="fas fa-calculator"></i>
+        <div>
+          <strong>BMI Reference & Calculation</strong>
+          <small>Use your current height and weight to calculate your BMI, then refer to the table below.</small>
+        </div>
+      </div>
+
+      <div class="bmi-formula-box">
+        <strong>Formula:</strong> BMI = Weight (kg) ÷ [Height (m) × Height (m)]<br>
+        <strong>Example:</strong> 70 kg ÷ (1.70 × 1.70) = 24.2 → Normal
+      </div>
+
+      <div class="bmi-guide-scroll">
+        <table class="bmi-guide-table">
+          <thead>
+            <tr>
+              <th>BMI Classification</th>
+              <th>BMI Range</th>
+              <th>Gemba Personal Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Underweight</td>
+              <td>&lt; 18.5</td>
+              <td><span class="bmi-guide-tag">Male / Female Individual</span></td>
+            </tr>
+            <tr>
+              <td>Normal</td>
+              <td>18.5 – 24.9</td>
+              <td><span class="bmi-guide-tag">Male / Female Individual</span></td>
+            </tr>
+            <tr>
+              <td>Overweight</td>
+              <td>25.0 – 29.9</td>
+              <td><span class="bmi-guide-tag bmi">BMI Category</span></td>
+            </tr>
+            <tr>
+              <td>Obesity</td>
+              <td>≥ 30.0</td>
+              <td><span class="bmi-guide-tag bmi">BMI Category</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bmi-guide-disclaimer">
+        <strong>Disclaimer:</strong> BMI is a general adult screening reference, not a medical diagnosis,
+        and it does not directly distinguish body fat from muscle or bone mass.
+        For Gemba Walk, BMI is used only to determine personal-category eligibility.
+        Winners are ranked by Gemba points. Height, weight and exact BMI remain private;
+        only shortlisted BMI Category finalists require Office Lobby verification.
+      </div>
+    </section>
+
+        <div class="tabs-shell">
+            <div class="tabs" role="tablist" aria-label="Gemba Walk winner categories">
+                <button class="tab-btn active" type="button" data-tab="team" role="tab" aria-selected="true">
+                    <i class="fas fa-people-group"></i> Team
+                </button>
+                <button class="tab-btn" type="button" data-tab="individual-male" role="tab" aria-selected="false">
+                    <i class="fas fa-person-walking"></i> Male Individual
+                </button>
+                <button class="tab-btn" type="button" data-tab="individual-female" role="tab" aria-selected="false">
+                    <i class="fas fa-person-dress"></i> Female Individual
+                </button>
+                <button class="tab-btn" type="button" data-tab="bmi" role="tab" aria-selected="false">
+                    <i class="fas fa-heart-pulse"></i> BMI Category
+                </button>
+            </div>
+        </div>
+
+        <div id="fairnessNote" class="fairness-note">
+            <i class="fas fa-scale-balanced"></i>
+            <div>
+                <strong>Team Rule</strong>
+                Overall = cumulative average • This Week = Monday–Sunday average • every official member needs 50+ pts in the selected period.
+            </div>
+        </div>
+
+        <section class="leaderboard-card">
+            <div class="leaderboard-heading">
+                <div>
+                    <h3 id="boardTitle">Overall Team Leaderboard</h3>
+                    <p id="boardSubtitle">Cumulative average points • Final Top 3 Teams.</p>
+                </div>
+                <span class="live-badge"><span class="live-dot"></span> Live</span>
+            </div>
+
+            <div id="teamViewSwitch" class="team-view-switch show" aria-label="Team leaderboard period">
+                <button class="team-view-btn active" type="button" data-team-view="overall">
+                    <i class="fas fa-trophy"></i> Overall
+                </button>
+                <button class="team-view-btn" type="button" data-team-view="weekly">
+                    <i class="fas fa-calendar-week"></i> This Week
+                </button>
+                <div id="teamWeekLabel" class="team-week-label">Monday – Sunday</div>
+            </div>
+
+            <div id="bmiFilters" class="bmi-filter-wrap" aria-label="BMI category filters">
+                <button class="bmi-filter-btn active" type="button" data-bmi="all">All Eligible</button>
+                <button class="bmi-filter-btn" type="button" data-bmi="Overweight">Overweight</button>
+                <button class="bmi-filter-btn" type="button" data-bmi="Obesity">Obesity</button>
+            </div>
+
+            <div id="leaderboardList" class="leaderboard-list" aria-live="polite">
+                <div class="loading">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    Syncing live Gemba data...
+                </div>
+            </div>
+        </section>
+
+        <p class="footer-note">🔒 Height, weight & exact BMI are private.</p>
     </div>
+
+
+    <script>
+        // Winner-photo fallback: shows a clean placeholder when the image file is not added yet.
+        (() => {
+            const photo = document.getElementById('testing1WinnerPhoto');
+            const placeholder = document.getElementById('testing1WinnerPlaceholder');
+            if (!photo || !placeholder) return;
+
+            photo.addEventListener('error', () => {
+                photo.style.display = 'none';
+                placeholder.classList.add('show');
+            });
+
+            photo.addEventListener('load', () => {
+                photo.style.display = 'block';
+                placeholder.classList.remove('show');
+            });
+        })();
+    </script>
 
     <script type="module">
         import { db, auth } from './firebaseConfig.js';
@@ -507,8 +1273,6 @@
 
         import {
             collection,
-            doc,
-            getDoc,
             onSnapshot,
             query
         } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
@@ -519,43 +1283,160 @@
             initializeWithDetection();
         });
 
-        const leaderboardList = document.getElementById("leaderboard-list");
-        const totalPointsElement = document.getElementById("totalPoints");
-        const myPointsElement = document.getElementById("myPoints");
-        const myRankElement = document.getElementById("myRank");
-
-        let currentUserId = null;
-        let latestParticipants = [];
-
         /*
-         * This page only READS:
-         * - gemba_points
-         * - users
+         * READ-ONLY LEADERBOARD
+         * ---------------------
+         * Existing collections read by this page:
+         * - gemba_participants
+         * - gemba_teams
+         * - users (READ ONLY, for participant name/department fallback)
          *
-         * It does not create, update or delete any Firestore document.
+         * IMPORTANT: This leaderboard never creates, updates or deletes any
+         * document in users. The users collection is only used to resolve the
+         * correct participant name and department for existing Gemba records. Official competition points and gender come only from gemba_participants.
          */
 
-        onAuthStateChanged(auth, (user) => {
-            currentUserId = user ? user.uid : null;
-            renderLeaderboard(latestParticipants);
-        });
+        const elements = {
+            leaderboardList: document.getElementById('leaderboardList'),
+            myRank: document.getElementById('myRank'),
+            myPoints: document.getElementById('myPoints'),
+            myMode: document.getElementById('myMode'),
+            companyPoints: document.getElementById('companyPoints'),
+            boardTitle: document.getElementById('boardTitle'),
+            boardSubtitle: document.getElementById('boardSubtitle'),
+            bmiFilters: document.getElementById('bmiFilters'),
+            teamViewSwitch: document.getElementById('teamViewSwitch'),
+            teamWeekLabel: document.getElementById('teamWeekLabel'),
+            fairnessNote: document.getElementById('fairnessNote'),
+            refreshBtn: document.getElementById('refreshBtn'),
+        };
 
-        /*
-         * Client-side sorting is intentional because the participant name is stored
-         * in the separate "users" collection.
-         */
-        const leaderboardQuery = query(collection(db, "gemba_points"));
+        const TEAM_MIN_MEMBERS = 2;
+        const TEAM_MAX_MEMBERS = 5;
+        const TEAM_MIN_QUALIFYING_POINTS = 50;
 
-        /**
-         * Safely converts a Firestore Timestamp, Date, number or date string to milliseconds.
-         * Missing or invalid values are pushed behind participants with a valid timestamp.
-         */
+
+        const state = {
+            currentUserId: null,
+            activeTab: 'team',
+            activeBmiFilter: 'all',
+            activeTeamView: 'overall',
+            profileMap: new Map(),
+            teamMap: new Map(),
+            usersMap: new Map(),
+            autoTabSelected: false,
+            loaded: {
+                profiles: false,
+                teams: false,
+                users: false,
+            },
+        };
+
+        function escapeHTML(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function toFiniteNumber(value, fallback = 0) {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : fallback;
+        }
+
+
+        function getMalaysiaWeekInfo(now = new Date()) {
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Kuala_Lumpur',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            }).formatToParts(now);
+
+            const values = Object.fromEntries(
+                parts.map((part) => [part.type, part.value])
+            );
+
+            const localDateUtc = new Date(Date.UTC(
+                Number(values.year),
+                Number(values.month) - 1,
+                Number(values.day)
+            ));
+
+            const daysFromMonday =
+                (localDateUtc.getUTCDay() + 6) % 7;
+
+            const monday = new Date(localDateUtc);
+            monday.setUTCDate(
+                localDateUtc.getUTCDate() - daysFromMonday
+            );
+
+            const sunday = new Date(monday);
+            sunday.setUTCDate(monday.getUTCDate() + 6);
+
+            const key =
+                `${monday.getUTCFullYear()}${String(
+                    monday.getUTCMonth() + 1
+                ).padStart(2, '0')}${String(
+                    monday.getUTCDate()
+                ).padStart(2, '0')}`;
+
+            const shortDate = (date) =>
+                new Intl.DateTimeFormat('en-MY', {
+                    day: 'numeric',
+                    month: 'short',
+                    timeZone: 'UTC',
+                }).format(date);
+
+            const sameMonth =
+                monday.getUTCFullYear() ===
+                    sunday.getUTCFullYear() &&
+                monday.getUTCMonth() ===
+                    sunday.getUTCMonth();
+
+            const label = sameMonth
+                ? `${monday.getUTCDate()}–${shortDate(
+                    sunday
+                )} ${sunday.getUTCFullYear()}`
+                : `${shortDate(monday)}–${shortDate(
+                    sunday
+                )} ${sunday.getUTCFullYear()}`;
+
+            return { key, label, monday, sunday };
+        }
+
+        function getWeeklyPoints(
+            profile = {},
+            weekKey = getMalaysiaWeekInfo().key
+        ) {
+            const map =
+                profile.weeklyPoints &&
+                typeof profile.weeklyPoints === 'object'
+                    ? profile.weeklyPoints
+                    : {};
+
+            return toFiniteNumber(map[weekKey]);
+        }
+
+        function getWeeklyScoreTime(
+            profile = {},
+            weekKey = getMalaysiaWeekInfo().key
+        ) {
+            const map =
+                profile.weeklyScoreReachedAt &&
+                typeof profile.weeklyScoreReachedAt === 'object'
+                    ? profile.weeklyScoreReachedAt
+                    : {};
+
+            return getTimestampMillis(map[weekKey]);
+        }
+
         function getTimestampMillis(value) {
-            if (!value) {
-                return Number.MAX_SAFE_INTEGER;
-            }
+            if (!value) return Number.MAX_SAFE_INTEGER;
 
-            if (typeof value.toMillis === "function") {
+            if (typeof value.toMillis === 'function') {
                 return value.toMillis();
             }
 
@@ -564,314 +1445,1180 @@
                 return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
             }
 
-            if (typeof value === "number") {
+            if (typeof value === 'number') {
                 return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
             }
 
-            if (typeof value === "string") {
-                const parsedTime = new Date(value).getTime();
-                return Number.isNaN(parsedTime)
-                    ? Number.MAX_SAFE_INTEGER
-                    : parsedTime;
+            if (typeof value === 'string') {
+                const parsed = new Date(value).getTime();
+                return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
             }
 
-            if (
-                typeof value === "object" &&
-                Number.isFinite(value.seconds)
-            ) {
-                const nanoseconds = Number.isFinite(value.nanoseconds)
-                    ? value.nanoseconds
-                    : 0;
-
-                return (value.seconds * 1000) + (nanoseconds / 1000000);
+            if (typeof value === 'object' && Number.isFinite(value.seconds)) {
+                const nanoseconds = Number.isFinite(value.nanoseconds) ? value.nanoseconds : 0;
+                return (value.seconds * 1000) + (nanoseconds / 1_000_000);
             }
 
             return Number.MAX_SAFE_INTEGER;
         }
 
-        /**
-         * Chooses the best available timestamp for tie-breaking.
-         *
-         * Preferred field:
-         * 1. scoreReachedAt
-         *
-         * Backward-compatible fallbacks:
-         * 2. completedAt
-         * 3. completionTime
-         * 4. lastCompletedAt
-         * 5. updatedAt
-         *
-         * For the most accurate ranking, update scoreReachedAt only when the
-         * participant successfully earns new points.
-         */
-        function getTieTimestamp(pointsData) {
-            const timestampValue =
-                pointsData.scoreReachedAt ??
-                pointsData.completedAt ??
-                pointsData.completionTime ??
-                pointsData.lastCompletedAt ??
-                pointsData.updatedAt ??
+        function getTieTimestamp(data = {}) {
+            const raw =
+                data.scoreReachedAt ??
+                data.completedAt ??
+                data.completionTime ??
+                data.lastCompletedAt ??
+                data.updatedAt ??
                 null;
 
             return {
-                raw: timestampValue,
-                millis: getTimestampMillis(timestampValue)
+                raw,
+                millis: getTimestampMillis(raw),
             };
         }
 
-        /**
-         * Prevents user profile text from being interpreted as HTML.
-         */
-        function escapeHTML(value) {
-            return String(value ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
         function formatTieTime(timestampMillis) {
-            if (
-                !Number.isFinite(timestampMillis) ||
-                timestampMillis === Number.MAX_SAFE_INTEGER
-            ) {
-                return "";
+            if (!Number.isFinite(timestampMillis) || timestampMillis === Number.MAX_SAFE_INTEGER) {
+                return '';
             }
 
-            return new Intl.DateTimeFormat("en-MY", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true
+            return new Intl.DateTimeFormat('en-MY', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
             }).format(new Date(timestampMillis));
         }
 
-        /**
-         * Ranking priority:
-         * 1. Highest total points
-         * 2. Earliest time the score was achieved
-         * 3. Participant name A-Z
-         * 4. UID as the final deterministic fallback
-         */
-        function sortParticipants(participants) {
-            return [...participants].sort((a, b) => {
-                if (b.totalPoints !== a.totalPoints) {
-                    return b.totalPoints - a.totalPoints;
+        function getMedal(rank) {
+            if (rank === 1) return '🥇';
+            if (rank === 2) return '🥈';
+            if (rank === 3) return '🥉';
+            return String(rank);
+        }
+
+        function getRowClass(rank, isCurrentUser = false) {
+            const classes = [];
+            if (rank === 1) classes.push('top1');
+            if (rank === 2) classes.push('top2');
+            if (rank === 3) classes.push('top3');
+            if (isCurrentUser) classes.push('current-user');
+            return classes.join(' ');
+        }
+
+        function isEverythingLoaded() {
+            return state.loaded.profiles && state.loaded.teams && state.loaded.users;
+        }
+
+        function getUserDisplayName(userData = {}) {
+            return String(
+                userData.name ||
+                userData.fullName ||
+                userData.employeeName ||
+                userData.displayName ||
+                userData.username ||
+                ''
+            ).trim();
+        }
+
+        function getUserDepartment(userData = {}) {
+            return String(
+                userData.department ||
+                userData.dept ||
+                userData.division ||
+                userData.section ||
+                ''
+            ).trim();
+        }
+
+        function normalizeGender(value) {
+            const raw = String(value ?? '').trim().toLowerCase();
+
+            if (!raw) return '';
+
+            const maleValues = new Set([
+                'male', 'm', 'man', 'boy', 'lelaki', 'l', '男'
+            ]);
+            const femaleValues = new Set([
+                'female', 'f', 'woman', 'girl', 'perempuan', 'p', '女'
+            ]);
+
+            if (maleValues.has(raw)) return 'male';
+            if (femaleValues.has(raw)) return 'female';
+
+            if (raw.includes('female') || raw.includes('perempuan')) return 'female';
+            if (raw.includes('male') || raw.includes('lelaki')) return 'male';
+
+            return '';
+        }
+
+        function getSavedGender(source = {}) {
+            return normalizeGender(
+                source.gender ??
+                source.Gender ??
+                source.sex ??
+                source.Sex ??
+                source.jantina ??
+                source.Jantina ??
+                source.employeeGender ??
+                source.employee_gender ??
+                ''
+            );
+        }
+
+        function getParticipantGender(uid) {
+            const profile = state.profileMap.get(uid) || {};
+            // Winner eligibility comes only from the participant's Gemba setup.
+            return getSavedGender(profile) || '';
+        }
+
+        function genderLabel(gender) {
+            if (gender === 'male') return 'Male';
+            if (gender === 'female') return 'Female';
+            return 'Gender Not Set';
+        }
+
+        function resolveBmiCategory(profile = {}) {
+            const savedCategory = String(profile.bmiCategory || profile.submittedBmiCategory || '').trim();
+            if (['Underweight', 'Normal', 'Overweight', 'Obesity'].includes(savedCategory)) {
+                return savedCategory;
+            }
+
+            const bmi = Number(profile.bmi ?? profile.submittedBmi);
+            if (!Number.isFinite(bmi)) return '';
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 25) return 'Normal';
+            if (bmi < 30) return 'Overweight';
+            return 'Obesity';
+        }
+
+        function isBmiCategoryProfile(profile = {}) {
+            return ['Overweight', 'Obesity'].includes(resolveBmiCategory(profile));
+        }
+
+        function isIndividualCategoryProfile(profile = {}) {
+            return ['Underweight', 'Normal'].includes(resolveBmiCategory(profile));
+        }
+
+        function getParticipantName(uid) {
+            const profile = state.profileMap.get(uid) || {};
+            const user = state.usersMap.get(uid) || {};
+            const profileName = String(profile.name || '').trim();
+            const userName = getUserDisplayName(user);
+
+            // Prefer the users collection when an older gemba_participants contains
+            // only the generic fallback name. users remains READ ONLY.
+            if (userName && (!profileName || profileName === 'NSSB Participant')) {
+                return userName;
+            }
+
+            return profileName || userName || 'NSSB Participant';
+        }
+
+        function getParticipantDepartment(uid) {
+            const profile = state.profileMap.get(uid) || {};
+            const user = state.usersMap.get(uid) || {};
+            const profileDepartment = String(profile.department || '').trim();
+            const userDepartment = getUserDepartment(user);
+
+            if (userDepartment && (!profileDepartment || profileDepartment === 'NSSB Team')) {
+                return userDepartment;
+            }
+
+            return profileDepartment || userDepartment || 'NSSB Team';
+        }
+
+        function buildIndividualParticipants({ requireBmi = false, requireIndividualCategory = false } = {}) {
+            const participants = [];
+
+            state.profileMap.forEach((profile, uid) => {
+                const joined = Boolean(
+                    profile.profileReady &&
+                    (profile.teamId || profile.participationMode === 'team' || profile.participationMode === 'individual')
+                );
+                if (!joined) return;
+
+                if (requireBmi && (!isBmiCategoryProfile(profile) || !['male', 'female'].includes(getParticipantGender(uid)))) {
+                    return;
                 }
 
-                if (a.tieTimestampMillis !== b.tieTimestampMillis) {
-                    return a.tieTimestampMillis - b.tieTimestampMillis;
+                if (requireIndividualCategory && !isIndividualCategoryProfile(profile)) {
+                    return;
                 }
 
-                const nameComparison = a.name.localeCompare(b.name, "en", {
-                    sensitivity: "base",
-                    numeric: true
+                const points = toFiniteNumber(profile.individualPoints);
+                const tieTimestamp = getTieTimestamp({
+                    scoreReachedAt: profile.individualScoreReachedAt || null,
                 });
 
-                if (nameComparison !== 0) {
-                    return nameComparison;
-                }
+                participants.push({
+                    uid,
+                    name: getParticipantName(uid),
+                    department: getParticipantDepartment(uid),
+                    totalPoints: points,
+                    participationMode: profile.teamId ? 'team' : 'individual',
+                    teamId: profile.teamId || null,
+                    teamName: profile.teamName || null,
+                    bmiCategory: resolveBmiCategory(profile) || null,
+                    bmiVerificationStatus: profile.bmiVerificationStatus === 'verified' ? 'verified' : (profile.bmiFinalist || profile.bmiVerificationStatus === 'finalist' ? 'finalist' : 'submitted'),
+                    bmiFinalist: Boolean(profile.bmiFinalist),
+                    gender: getParticipantGender(uid),
+                    tieTimestampMillis: tieTimestamp.millis,
+                });
+            });
 
+            return participants.sort((a, b) => {
+                if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+                if (a.tieTimestampMillis !== b.tieTimestampMillis) return a.tieTimestampMillis - b.tieTimestampMillis;
+                const nameCompare = a.name.localeCompare(b.name, 'en', { sensitivity: 'base', numeric: true });
+                if (nameCompare !== 0) return nameCompare;
                 return a.uid.localeCompare(b.uid);
             });
         }
 
-        function updatePersonalStats(participants) {
-            if (!currentUserId) {
-                myRankElement.textContent = "-";
-                myPointsElement.textContent = "0";
-                return;
-            }
+        function buildBmiAwardParticipants() {
+            // Personal categories are mutually exclusive:
+            // Underweight/Normal -> Male/Female Individual
+            // Overweight/Obesity -> BMI Category
+            return buildIndividualParticipants({ requireBmi: true });
+        }
 
-            const participantIndex = participants.findIndex(
-                (participant) => participant.uid === currentUserId
+        function buildTeams({ weekly = false } = {}) {
+            const teams = [];
+            const weekInfo = getMalaysiaWeekInfo();
+
+            state.teamMap.forEach((teamData, teamId) => {
+                const rawStatus =
+                    String(teamData.status || '').toLowerCase();
+                const status = rawStatus || 'active';
+
+                if (!['active', 'pending_approval'].includes(status)) {
+                    return;
+                }
+
+                const members =
+                    Array.isArray(teamData.members)
+                        ? teamData.members
+                        : [];
+
+                const memberIds =
+                    Array.isArray(teamData.memberIds)
+                        ? [...new Set(
+                            teamData.memberIds.filter(Boolean)
+                        )]
+                        : [...new Set(
+                            members
+                                .map((member) => member.uid)
+                                .filter(Boolean)
+                        )];
+
+                if (
+                    !memberIds.length ||
+                    memberIds.length > TEAM_MAX_MEMBERS
+                ) {
+                    return;
+                }
+
+                const memberPoints = {};
+                let totalPoints = 0;
+                let latestMemberScore =
+                    Number.MIN_SAFE_INTEGER;
+
+                memberIds.forEach((uid) => {
+                    const profile =
+                        state.profileMap.get(uid) || {};
+
+                    const points = weekly
+                        ? getWeeklyPoints(
+                            profile,
+                            weekInfo.key
+                        )
+                        : toFiniteNumber(
+                            profile.individualPoints
+                        );
+
+                    memberPoints[uid] = points;
+                    totalPoints += points;
+
+                    const memberTime = weekly
+                        ? getWeeklyScoreTime(
+                            profile,
+                            weekInfo.key
+                        )
+                        : getTimestampMillis(
+                            profile.individualScoreReachedAt
+                        );
+
+                    if (
+                        Number.isFinite(memberTime) &&
+                        memberTime !==
+                            Number.MAX_SAFE_INTEGER
+                    ) {
+                        latestMemberScore = Math.max(
+                            latestMemberScore,
+                            memberTime
+                        );
+                    }
+                });
+
+                const averagePoints =
+                    memberIds.length
+                        ? totalPoints / memberIds.length
+                        : 0;
+
+                const active = status === 'active';
+
+                const validTeamSize =
+                    memberIds.length >= TEAM_MIN_MEMBERS &&
+                    memberIds.length <= TEAM_MAX_MEMBERS;
+
+                const qualifies =
+                    active &&
+                    validTeamSize &&
+                    memberIds.every(
+                        (uid) =>
+                            toFiniteNumber(
+                                memberPoints[uid]
+                            ) >=
+                            TEAM_MIN_QUALIFYING_POINTS
+                    );
+
+                const teamRecordedTime = weekly
+                    ? Number.MAX_SAFE_INTEGER
+                    : getTimestampMillis(
+                        teamData.scoreReachedAt
+                    );
+
+                const tieTimestampMillis =
+                    teamRecordedTime !==
+                        Number.MAX_SAFE_INTEGER
+                        ? teamRecordedTime
+                        : latestMemberScore ===
+                            Number.MIN_SAFE_INTEGER
+                            ? Number.MAX_SAFE_INTEGER
+                            : latestMemberScore;
+
+                teams.push({
+                    teamId,
+                    teamName: String(
+                        teamData.teamName ||
+                        teamId ||
+                        'Gemba Team'
+                    ),
+                    status,
+                    approvals:
+                        teamData.approvals || {},
+                    memberIds,
+                    members,
+                    memberCount: memberIds.length,
+                    memberPoints,
+                    totalPoints,
+                    averagePoints,
+                    qualifies,
+                    rosterLocked:
+                        Boolean(teamData.rosterLocked),
+                    tieTimestampMillis,
+                    scoreMode:
+                        weekly ? 'weekly' : 'overall',
+                    weekKey: weekInfo.key,
+                    weekLabel: weekInfo.label,
+                });
+            });
+
+            return teams.sort((a, b) => {
+                const priority = (team) => {
+                    if (team.qualifies) return 0;
+                    if (team.status === 'active') return 1;
+                    return 2;
+                };
+
+                const priorityDiff =
+                    priority(a) - priority(b);
+
+                if (priorityDiff) {
+                    return priorityDiff;
+                }
+
+                if (
+                    b.averagePoints !== a.averagePoints
+                ) {
+                    return (
+                        b.averagePoints -
+                        a.averagePoints
+                    );
+                }
+
+                if (
+                    a.tieTimestampMillis !==
+                    b.tieTimestampMillis
+                ) {
+                    return (
+                        a.tieTimestampMillis -
+                        b.tieTimestampMillis
+                    );
+                }
+
+                return a.teamName.localeCompare(
+                    b.teamName,
+                    'en',
+                    {
+                        sensitivity: 'base',
+                        numeric: true
+                    }
+                );
+            });
+        }
+
+        function renderTeamLeaderboard() {
+            const weekly =
+                state.activeTeamView === 'weekly';
+
+            const weekInfo = getMalaysiaWeekInfo();
+
+            const teams = buildTeams({ weekly });
+            const qualifyingTeams =
+                teams.filter((team) => team.qualifies);
+
+            const winnerCount = weekly ? 1 : 3;
+
+            const winningTeamIds = new Set(
+                qualifyingTeams
+                    .slice(0, winnerCount)
+                    .map((team) => team.teamId)
             );
 
-            if (participantIndex === -1) {
-                myRankElement.textContent = "-";
-                myPointsElement.textContent = "0";
-                return;
-            }
+            elements.teamViewSwitch.classList.add('show');
 
-            const currentParticipant = participants[participantIndex];
+            elements.teamWeekLabel.textContent =
+                weekly
+                    ? `Current week: ${weekInfo.label} • Monday–Sunday`
+                    : 'Overall points continue until the end of the programme';
 
-            myRankElement.textContent = `#${participantIndex + 1}`;
-            myPointsElement.textContent = currentParticipant.totalPoints.toLocaleString();
-        }
+            elements.boardTitle.textContent =
+                weekly
+                    ? 'Weekly Team Challenge'
+                    : 'Overall Team Leaderboard';
 
-        function getMedal(rank) {
-            if (rank === 1) return "🥇";
-            if (rank === 2) return "🥈";
-            if (rank === 3) return "🥉";
-            return rank;
-        }
+            elements.boardSubtitle.textContent =
+                weekly
+                    ? `Current week only • Ranked by weekly average • Every official member needs ${TEAM_MIN_QUALIFYING_POINTS}+ weekly pts • Weekly winner: Top 1 Team.`
+                    : `Cumulative programme points • Ranked by overall average • Every official member needs ${TEAM_MIN_QUALIFYING_POINTS}+ overall pts • Final winners: Top 3 Teams.`;
 
-        function getRowClass(rank, participantUid) {
-            const classes = [];
+            elements.bmiFilters.classList.remove('show');
+            elements.fairnessNote.style.display = 'flex';
 
-            if (rank === 1) classes.push("top1");
-            if (rank === 2) classes.push("top2");
-            if (rank === 3) classes.push("top3");
+            elements.fairnessNote.innerHTML =
+                weekly
+                    ? `<i class="fas fa-calendar-week"></i>
+                       <div>
+                           <strong>Weekly Team Rule</strong>
+                           Monday–Sunday only • weekly score starts fresh automatically • overall points are never reset.
+                       </div>`
+                    : `<i class="fas fa-scale-balanced"></i>
+                       <div>
+                           <strong>Overall Team Rule</strong>
+                           2–5 members • cumulative average points • every official member needs 50+ overall pts.
+                       </div>`;
 
-            if (currentUserId && participantUid === currentUserId) {
-                classes.push("current-user");
-            }
-
-            return classes.join(" ");
-        }
-
-        function renderLeaderboard(participants) {
-            updatePersonalStats(participants);
-
-            const totalCompanyPoints = participants.reduce(
-                (total, participant) => total + participant.totalPoints,
-                0
-            );
-
-            totalPointsElement.textContent = totalCompanyPoints.toLocaleString();
-
-            if (participants.length === 0) {
-                leaderboardList.innerHTML = `
+            if (!teams.length) {
+                elements.leaderboardList.innerHTML = `
                     <div class="empty-state">
-                        <i
-                            class="fas fa-industry"
-                            style="
-                                font-size: 32px;
-                                margin-bottom: 15px;
-                                display: block;
-                                opacity: 0.3;
-                                color: var(--primary);
-                            "
-                        ></i>
-
-                        No participants yet. Be the first to start the Gemba Walk!
+                        <i class="fas fa-people-group"></i>
+                        No teams yet. Create or join a 2–5 member team from the Gemba Scanner.
                     </div>
                 `;
-
                 return;
             }
 
-            leaderboardList.innerHTML = participants.map((participant, index) => {
-                const rank = index + 1;
-                const formattedTieTime = formatTieTime(
-                    participant.tieTimestampMillis
-                );
+            const currentProfile =
+                state.currentUserId
+                    ? state.profileMap.get(
+                        state.currentUserId
+                    ) || {}
+                    : {};
 
-                const tieTimeHTML = formattedTieTime
-                    ? `
-                        <div class="tie-time" title="Used as the tie-breaker when points are equal">
-                            <i class="far fa-clock"></i>
-                            <span>Score reached: ${escapeHTML(formattedTieTime)}</span>
-                        </div>
-                    `
-                    : "";
+            const linkedTeamId =
+                currentProfile.teamId ||
+                currentProfile.pendingTeamId ||
+                currentProfile.incomingTeamInviteId ||
+                currentProfile.joinRequestTeamId ||
+                '';
+
+            elements.leaderboardList.innerHTML =
+                teams.map((team) => {
+                    const rank =
+                        qualifyingTeams.findIndex(
+                            (item) =>
+                                item.teamId ===
+                                team.teamId
+                        ) + 1;
+
+                    const isCurrentTeam =
+                        Boolean(
+                            state.currentUserId &&
+                            (
+                                team.memberIds.includes(
+                                    state.currentUserId
+                                ) ||
+                                linkedTeamId ===
+                                    team.teamId
+                            )
+                        );
+
+                    const tieTime =
+                        formatTieTime(
+                            team.tieTimestampMillis
+                        );
+
+                    const isWinningTeam =
+                        winningTeamIds.has(
+                            team.teamId
+                        );
+
+                    const pending =
+                        team.status ===
+                        'pending_approval';
+
+                    const memberLines =
+                        team.memberIds.map((uid) => {
+                            const member =
+                                team.members.find(
+                                    (item) =>
+                                        item.uid === uid
+                                ) || {};
+
+                            const points =
+                                toFiniteNumber(
+                                    team.memberPoints?.[
+                                        uid
+                                    ]
+                                );
+
+                            const approval =
+                                team.approvals?.[uid]
+                                    ?.status ||
+                                member.approvalStatus ||
+                                (
+                                    pending
+                                        ? 'pending'
+                                        : 'accepted'
+                                );
+
+                            const approvalText =
+                                pending
+                                    ? approval ===
+                                        'accepted'
+                                        ? ' • Approved'
+                                        : approval ===
+                                            'declined'
+                                            ? ' • Declined'
+                                            : ' • Pending'
+                                    : '';
+
+                            return `
+                                <div class="member-line">
+                                    <span>${escapeHTML(
+                                        member.name ||
+                                        getParticipantName(
+                                            uid
+                                        )
+                                    )}${escapeHTML(
+                                        approvalText
+                                    )}</span>
+                                    <b>${points.toLocaleString()} ${weekly ? 'weekly ' : ''}pts</b>
+                                </div>
+                            `;
+                        }).join('');
+
+                    let statusText = '';
+                    let statusIcon = '';
+                    let statusClass = '';
+
+                    if (pending) {
+                        statusText =
+                            'Pending approval';
+                        statusIcon = 'fa-clock';
+                    } else if (team.qualifies) {
+                        statusText = weekly
+                            ? 'Weekly qualified'
+                            : 'Qualified';
+                        statusIcon =
+                            'fa-circle-check';
+                        statusClass = 'team';
+                    } else {
+                        statusText = weekly
+                            ? `Each member needs ${TEAM_MIN_QUALIFYING_POINTS} weekly pts`
+                            : `Each member needs ${TEAM_MIN_QUALIFYING_POINTS} pts`;
+                        statusIcon =
+                            'fa-circle-exclamation';
+                    }
+
+                    const winnerText = weekly
+                        ? 'Current Weekly Leader'
+                        : `Current Top ${rank} Team`;
+
+                    return `
+                        <article class="rank-row ${
+                            team.qualifies
+                                ? getRowClass(
+                                    rank,
+                                    isCurrentTeam
+                                )
+                                : isCurrentTeam
+                                    ? 'current-user'
+                                    : ''
+                        }">
+                            <div class="rank-left">
+                                <div class="rank-number">
+                                    ${
+                                        team.qualifies
+                                            ? getMedal(rank)
+                                            : '—'
+                                    }
+                                </div>
+
+                                <div class="rank-info">
+                                    <div class="rank-name">
+                                        ${escapeHTML(
+                                            team.teamName
+                                        )}
+                                        ${
+                                            isCurrentTeam
+                                                ? '<span class="meta-chip team" style="margin-left:6px;">My Team</span>'
+                                                : ''
+                                        }
+                                    </div>
+
+                                    <div class="rank-meta">
+                                        <span class="meta-chip team">
+                                            <i class="fas fa-user-group"></i>
+                                            ${team.memberCount} members
+                                        </span>
+
+                                        <span class="meta-chip ${statusClass}">
+                                            <i class="fas ${statusIcon}"></i>
+                                            ${escapeHTML(
+                                                statusText
+                                            )}
+                                        </span>
+
+                                        ${
+                                            weekly
+                                                ? `<span class="meta-chip"><i class="fas fa-calendar"></i>${escapeHTML(
+                                                    weekInfo.label
+                                                )}</span>`
+                                                : ''
+                                        }
+
+                                        ${
+                                            team.rosterLocked
+                                                ? `<span class="meta-chip">
+                                                    <i class="fas fa-lock"></i>
+                                                    Roster locked
+                                                   </span>`
+                                                : ''
+                                        }
+                                    </div>
+
+                                    <div class="members-panel">
+                                        ${memberLines}
+                                    </div>
+
+                                    ${
+                                        isWinningTeam
+                                            ? `<div class="tie-time" style="color:#047857;font-weight:800;">
+                                                <i class="fas fa-ranking-star"></i>
+                                                ${escapeHTML(
+                                                    winnerText
+                                                )}
+                                               </div>`
+                                            : ''
+                                    }
+
+                                    ${
+                                        pending
+                                            ? `<div class="tie-time" style="color:#92400e;">
+                                                <i class="fas fa-hourglass-half"></i>
+                                                Waiting for initial approvals. Team is visible but not ranked yet.
+                                               </div>`
+                                            : ''
+                                    }
+
+                                    ${
+                                        tieTime &&
+                                        team.qualifies
+                                            ? `<div class="tie-time">
+                                                <i class="far fa-clock"></i>
+                                                ${weekly ? 'Weekly score' : 'Score'} reached: ${escapeHTML(
+                                                    tieTime
+                                                )}
+                                               </div>`
+                                            : ''
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="rank-score">
+                                <span class="score-primary">
+                                    ${team.averagePoints.toLocaleString(
+                                        undefined,
+                                        {
+                                            maximumFractionDigits:
+                                                1
+                                        }
+                                    )} ${weekly ? 'weekly ' : ''}avg pts
+                                </span>
+
+                                <span class="score-secondary">
+                                    ${team.totalPoints.toLocaleString()} ${weekly ? 'weekly ' : ''}total pts
+                                </span>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+        }
+
+        function renderIndividualLeaderboard(gender) {
+            const participants = buildIndividualParticipants({ requireIndividualCategory: true })
+                .filter((participant) => participant.gender === gender);
+
+            const label = genderLabel(gender);
+            elements.boardTitle.textContent = `${label} Individual Champion`;
+            elements.boardSubtitle.textContent = `Underweight/Normal ${label.toLowerCase()} participants • Team members remain eligible in their personal category.`;
+            elements.bmiFilters.classList.remove('show');
+            elements.teamViewSwitch.classList.remove('show');
+            elements.fairnessNote.style.display = 'none';
+
+            if (!participants.length) {
+                elements.leaderboardList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-person-walking"></i>
+                        No eligible Underweight/Normal ${escapeHTML(label.toLowerCase())} participants have scored yet.
+                    </div>
+                `;
+                return;
+            }
+
+            elements.leaderboardList.innerHTML = participants.map((participant, index) => {
+                const rank = index + 1;
+                const isCurrentUser = participant.uid === state.currentUserId;
+                const tieTime = formatTieTime(participant.tieTimestampMillis);
+                const modeLabel = participant.teamId ? `Team: ${participant.teamName || 'Team'}` : 'Individual';
 
                 return `
-                    <div class="user-row ${getRowClass(rank, participant.uid)}">
-                        <div class="left">
-                            <div class="rank">${getMedal(rank)}</div>
-
-                            <div class="user-info">
-                                <div class="user-name">
-                                    ${escapeHTML(participant.name)}
+                    <article class="rank-row ${getRowClass(rank, isCurrentUser)}">
+                        <div class="rank-left">
+                            <div class="rank-number">${getMedal(rank)}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${escapeHTML(participant.name)}</div>
+                                <div class="rank-meta">
+                                    <span>${escapeHTML(participant.department)}</span>
+                                    <span class="meta-chip"><i class="fas ${gender === 'male' ? 'fa-mars' : 'fa-venus'}"></i>${escapeHTML(label)}</span>
+                                    <span class="meta-chip ${participant.teamId ? 'team' : ''}">${escapeHTML(modeLabel)}</span>
                                 </div>
-
-                                <div class="user-dept">
-                                    ${escapeHTML(participant.department)}
-                                </div>
-
-                                ${tieTimeHTML}
+                                ${rank === 1 ? `<div class="tie-time" style="color:#047857;font-weight:800;"><i class="fas fa-ranking-star"></i> Current Category Leader</div>` : ''}
+                                ${tieTime ? `<div class="tie-time"><i class="far fa-clock"></i> Score reached: ${escapeHTML(tieTime)}</div>` : ''}
                             </div>
                         </div>
+                        <div class="rank-score"><span class="score-primary">${participant.totalPoints.toLocaleString()} pts</span></div>
+                    </article>
+                `;
+            }).join('');
+        }
 
-                        <div class="points">
-                            ${participant.totalPoints.toLocaleString()} pts
-                        </div>
+        function renderBmiLeaderboard() {
+            let participants = buildBmiAwardParticipants();
+
+            if (state.activeBmiFilter !== 'all') {
+                participants = participants.filter((participant) => participant.bmiCategory === state.activeBmiFilter);
+            }
+
+            elements.boardTitle.textContent = 'BMI Category Gemba Champion';
+            elements.boardSubtitle.textContent = 'Overweight/Obesity only • Ranked by Gemba points • Not included in Male/Female Individual • Final winner requires Office Lobby verification.';
+            elements.bmiFilters.classList.add('show');
+            elements.teamViewSwitch.classList.remove('show');
+            elements.fairnessNote.style.display = 'none';
+
+            if (!participants.length) {
+                elements.leaderboardList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-heart-pulse"></i>
+                        No eligible BMI Category participants with Gemba points yet.
                     </div>
                 `;
-            }).join("");
+                return;
+            }
+
+            elements.leaderboardList.innerHTML = participants.map((participant, index) => {
+                const rank = index + 1;
+                const isCurrentUser = participant.uid === state.currentUserId;
+                const tieTime = formatTieTime(participant.tieTimestampMillis);
+                const modeLabel = participant.teamId ? `Team: ${participant.teamName || participant.teamId}` : 'Individual';
+
+                return `
+                    <article class="rank-row ${getRowClass(rank, isCurrentUser)}">
+                        <div class="rank-left">
+                            <div class="rank-number">${getMedal(rank)}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${escapeHTML(participant.name)}</div>
+                                <div class="rank-meta">
+                                    <span>${escapeHTML(participant.department)}</span>
+                                    <span class="meta-chip bmi"><i class="fas fa-heart-pulse"></i>${escapeHTML(participant.bmiCategory)}</span>
+                                    <span class="meta-chip ${participant.bmiVerificationStatus === 'verified' ? 'team' : ''}">
+                                        <i class="fas ${participant.bmiVerificationStatus === 'verified' ? 'fa-circle-check' : participant.bmiVerificationStatus === 'finalist' ? 'fa-ruler-combined' : 'fa-clock'}"></i>
+                                        ${participant.bmiVerificationStatus === 'verified' ? 'Verified' : participant.bmiVerificationStatus === 'finalist' ? 'Verification Candidate' : 'Provisional'}
+                                    </span>
+                                    <span class="meta-chip ${participant.teamId ? 'team' : ''}">${escapeHTML(modeLabel)}</span>
+                                </div>
+                                ${rank === 1 ? `<div class="tie-time" style="color:#92400e;font-weight:800;"><i class="fas fa-gift"></i>${participant.bmiVerificationStatus === 'verified'
+                                    ? 'Verified Current Category Leader'
+                                    : 'Current Category Leader • Verification Required'}</div>` : ''}
+                                ${tieTime ? `<div class="tie-time"><i class="far fa-clock"></i> Score reached: ${escapeHTML(tieTime)}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="rank-score"><span class="score-primary purple">${participant.totalPoints.toLocaleString()} pts</span></div>
+                    </article>
+                `;
+            }).join('');
         }
 
-        function showError(error) {
-            console.error("Unable to load Gemba Walk leaderboard:", error);
+        function renderPersonalStats() {
+            const uid = state.currentUserId;
 
-            leaderboardList.innerHTML = `
-                <div class="error-state">
-                    <i
-                        class="fas fa-triangle-exclamation"
-                        style="font-size: 24px; margin-bottom: 12px;"
-                    ></i>
+            if (!uid) {
+                elements.myRank.textContent = '-';
+                elements.myPoints.textContent = '0';
+                elements.myMode.textContent = '-';
+                return;
+            }
 
-                    <div>
-                        Unable to load the leaderboard right now.
-                        Please refresh the page or try again.
-                    </div>
-                </div>
-            `;
-        }
+            const profile = state.profileMap.get(uid) || {};
+            const personalPoints = toFiniteNumber(profile.individualPoints);
+            const gender = getParticipantGender(uid);
+            const bmiCategoryMode = isBmiCategoryProfile(profile);
 
-        onSnapshot(
-            leaderboardQuery,
-            async (snapshot) => {
-                try {
-                    if (snapshot.empty) {
-                        latestParticipants = [];
-                        renderLeaderboard(latestParticipants);
+            elements.myPoints.textContent = personalPoints.toLocaleString();
+
+            if (profile.teamId) {
+                elements.myMode.textContent =
+                    `${bmiCategoryMode ? 'BMI' : 'Individual'} + ${profile.teamName || 'Team'}`;
+            } else if (profile.pendingTeamId) {
+                elements.myMode.textContent = 'Team Pending';
+            } else if (profile.incomingTeamInviteId) {
+                elements.myMode.textContent = 'Team Invite';
+            } else if (profile.joinRequestTeamId) {
+                elements.myMode.textContent = 'Join Request';
+            } else {
+                elements.myMode.textContent =
+                    profile.profileReady
+                        ? bmiCategoryMode
+                            ? 'BMI Category'
+                            : 'Individual'
+                        : 'Not Set';
+            }
+
+            let rankIndex = -1;
+
+            if (state.activeTab === 'team') {
+                const linkedTeamId =
+                    profile.teamId ||
+                    profile.pendingTeamId ||
+                    profile.incomingTeamInviteId ||
+                    profile.joinRequestTeamId ||
+                    '';
+
+                if (linkedTeamId) {
+                    const teams = buildTeams({
+                        weekly:
+                            state.activeTeamView === 'weekly'
+                    });
+                    const linkedTeam = teams.find(
+                        (team) => team.teamId === linkedTeamId
+                    );
+
+                    if (linkedTeam?.qualifies) {
+                        rankIndex = teams
+                            .filter((team) => team.qualifies)
+                            .findIndex(
+                                (team) => team.teamId === linkedTeamId
+                            );
+
+                        elements.myRank.textContent =
+                            rankIndex >= 0 ? `#${rankIndex + 1}` : '-';
                         return;
                     }
 
-                    const participants = await Promise.all(
-                        snapshot.docs.map(async (pointsDoc) => {
-                            const pointsData = pointsDoc.data();
-
-                            let userData = {};
-
-                            try {
-                                const userSnapshot = await getDoc(
-                                    doc(db, "users", pointsDoc.id)
-                                );
-
-                                if (userSnapshot.exists()) {
-                                    userData = userSnapshot.data();
-                                }
-                            } catch (userError) {
-                                /*
-                                 * Keep the participant visible even if their
-                                 * corresponding users document cannot be read.
-                                 */
-                                console.warn(
-                                    `Unable to read user profile for ${pointsDoc.id}:`,
-                                    userError
-                                );
-                            }
-
-                            const tieTimestamp = getTieTimestamp(pointsData);
-
-                            return {
-                                uid: pointsDoc.id,
-                                name: userData.name || "SCM Participant",
-                                department: userData.department || "SCM Team",
-                                totalPoints: Number(pointsData.totalPoints) || 0,
-                                tieTimestampRaw: tieTimestamp.raw,
-                                tieTimestampMillis: tieTimestamp.millis
-                            };
-                        })
-                    );
-
-                    latestParticipants = sortParticipants(participants);
-                    renderLeaderboard(latestParticipants);
-                } catch (error) {
-                    showError(error);
+                    if (linkedTeam?.status === 'pending_approval') {
+                        elements.myRank.textContent = 'Pending';
+                        return;
+                    }
                 }
+            } else if (
+                state.activeTab === 'individual-male' ||
+                state.activeTab === 'individual-female'
+            ) {
+                const targetGender =
+                    state.activeTab === 'individual-male'
+                        ? 'male'
+                        : 'female';
+
+                if (gender === targetGender) {
+                    rankIndex = buildIndividualParticipants({
+                        requireIndividualCategory: true,
+                    })
+                        .filter(
+                            (participant) =>
+                                participant.gender === targetGender
+                        )
+                        .findIndex(
+                            (participant) => participant.uid === uid
+                        );
+                }
+            } else if (state.activeTab === 'bmi') {
+                let bmiParticipants = buildBmiAwardParticipants();
+
+                if (state.activeBmiFilter !== 'all') {
+                    bmiParticipants = bmiParticipants.filter(
+                        (participant) =>
+                            participant.bmiCategory ===
+                            state.activeBmiFilter
+                    );
+                }
+
+                rankIndex = bmiParticipants.findIndex(
+                    (participant) => participant.uid === uid
+                );
+            }
+
+            elements.myRank.textContent =
+                rankIndex >= 0 ? `#${rankIndex + 1}` : '-';
+        }
+
+        function renderCompanyStats() {
+            // Company Points is the sum of official individualPoints only.
+            // A participant is counted once even when their points also contribute
+            // to a Team score.
+            let companyTotal = 0;
+            state.profileMap.forEach((profile) => {
+                const hasJoinedCurrentPhase = Boolean(
+                    profile.teamId ||
+                    profile.participationMode === 'team' ||
+                    profile.participationMode === 'individual'
+                );
+                if (hasJoinedCurrentPhase) companyTotal += toFiniteNumber(profile.individualPoints);
+            });
+            elements.companyPoints.textContent = companyTotal.toLocaleString();
+        }
+
+        function renderActiveBoard() {
+
+            if (!isEverythingLoaded()) {
+                elements.leaderboardList.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        Syncing live Gemba data...
+                    </div>
+                `;
+                return;
+            }
+
+            renderPersonalStats();
+            renderCompanyStats();
+
+            if (state.activeTab === 'individual-male') {
+                renderIndividualLeaderboard('male');
+            } else if (state.activeTab === 'individual-female') {
+                renderIndividualLeaderboard('female');
+            } else if (state.activeTab === 'bmi') {
+                renderBmiLeaderboard();
+            } else {
+                renderTeamLeaderboard();
+            }
+        }
+
+        function getPreferredTabForProfile(profile = {}) {
+            if (
+                profile.teamId ||
+                profile.pendingTeamId ||
+                profile.incomingTeamInviteId ||
+                profile.joinRequestTeamId
+            ) {
+                return 'team';
+            }
+
+            if (isBmiCategoryProfile(profile)) {
+                return 'bmi';
+            }
+
+            const gender = state.currentUserId
+                ? getParticipantGender(state.currentUserId)
+                : '';
+
+            if (gender === 'male' || gender === 'female') {
+                return `individual-${gender}`;
+            }
+
+            return 'team';
+        }
+
+        function setActiveTab(tabName, { manual = true } = {}) {
+            state.activeTab = tabName;
+            if (manual) state.autoTabSelected = true;
+
+            document.querySelectorAll('.tab-btn').forEach((button) => {
+                const active = button.dataset.tab === tabName;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-selected', String(active));
+            });
+
+            renderActiveBoard();
+        }
+
+        document.querySelectorAll('.tab-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                setActiveTab(button.dataset.tab || 'team', { manual: true });
+            });
+        });
+
+        document.querySelectorAll('.team-view-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                state.activeTeamView =
+                    button.dataset.teamView === 'weekly'
+                        ? 'weekly'
+                        : 'overall';
+
+                document.querySelectorAll(
+                    '.team-view-btn'
+                ).forEach((teamButton) => {
+                    teamButton.classList.toggle(
+                        'active',
+                        teamButton.dataset.teamView ===
+                            state.activeTeamView
+                    );
+                });
+
+                if (state.activeTab === 'team') {
+                    renderActiveBoard();
+                }
+            });
+        });
+
+        document.querySelectorAll('.bmi-filter-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                state.activeBmiFilter = button.dataset.bmi || 'all';
+
+                document.querySelectorAll('.bmi-filter-btn').forEach((filterButton) => {
+                    filterButton.classList.toggle(
+                        'active',
+                        filterButton.dataset.bmi === state.activeBmiFilter
+                    );
+                });
+
+                if (state.activeTab === 'bmi') {
+                    renderBmiLeaderboard();
+                }
+            });
+        });
+
+        elements.refreshBtn.addEventListener('click', () => {
+            elements.refreshBtn.querySelector('i')?.classList.add('fa-spin');
+            renderActiveBoard();
+            window.setTimeout(() => {
+                elements.refreshBtn.querySelector('i')?.classList.remove('fa-spin');
+            }, 500);
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            state.currentUserId = user?.uid || null;
+
+            const profile = state.currentUserId
+                ? state.profileMap.get(state.currentUserId)
+                : null;
+
+            if (profile?.profileReady) {
+                setActiveTab(
+                    getPreferredTabForProfile(profile),
+                    { manual: false }
+                );
+                state.autoTabSelected = true;
+            } else {
+                renderActiveBoard();
+            }
+        });
+
+
+        onSnapshot(
+            query(collection(db, 'users')),
+            (snapshot) => {
+                state.usersMap.clear();
+                snapshot.forEach((userDoc) => {
+                    state.usersMap.set(userDoc.id, userDoc.data());
+                });
+                state.loaded.users = true;
+                renderActiveBoard();
             },
             (error) => {
-                showError(error);
+                console.error('Unable to read users collection:', error);
+                showError('Unable to read participant names from users. Please check read permission for the users collection.');
             }
         );
+
+        onSnapshot(
+            query(collection(db, 'gemba_participants')),
+            (snapshot) => {
+                state.profileMap.clear();
+                snapshot.forEach((profileDoc) => {
+                    state.profileMap.set(profileDoc.id, profileDoc.data());
+                });
+                state.loaded.profiles = true;
+
+                if (state.currentUserId && !state.autoTabSelected) {
+                    const profile = state.profileMap.get(state.currentUserId);
+
+                    if (profile?.profileReady) {
+                        setActiveTab(
+                            getPreferredTabForProfile(profile),
+                            { manual: false }
+                        );
+                        state.autoTabSelected = true;
+                        return;
+                    }
+                }
+
+                renderActiveBoard();
+            },
+            (error) => {
+                console.error('Unable to load gemba_participants:', error);
+                showError('Unable to read Gemba profiles. Please check Firestore permissions.');
+            }
+        );
+
+        onSnapshot(
+            query(collection(db, 'gemba_teams')),
+            (snapshot) => {
+                state.teamMap.clear();
+                snapshot.forEach((teamDoc) => {
+                    state.teamMap.set(teamDoc.id, teamDoc.data());
+                });
+                state.loaded.teams = true;
+                renderActiveBoard();
+            },
+            (error) => {
+                console.error('Unable to load gemba_teams:', error);
+                showError('Unable to read Gemba teams. Please check Firestore permissions.');
+            }
+        );
+
+        function showError(message) {
+            elements.leaderboardList.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    ${escapeHTML(message)}
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
