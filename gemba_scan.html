@@ -2507,23 +2507,16 @@
         if (calendarDay < 1 || calendarDay > 5) return [];
 
         const isFriday = calendarDay === 5;
-        const lunch = isFriday
-          ? [toMinutes(12, 30), toMinutes(14, 30)]
-          : section === "mezzanine-level-1"
+        const lunch = section === "mezzanine-level-1"
             ? [toMinutes(12, 20), toMinutes(13, 5)]
             : [toMinutes(12, 40), toMinutes(13, 25)];
 
         const windows = [
           { label: "Morning break", range: [toMinutes(10, 15), toMinutes(10, 30)] },
-          { label: "Lunch break", range: lunch },
         ];
 
         if (!isFriday) {
-          windows.push({ label: "Afternoon break", range: [toMinutes(15, 45), toMinutes(16, 0)] });
-        }
-
-        if (isFriday) {
-          windows.push({ label: "Evening break", range: [toMinutes(16, 0), toMinutes(16, 15)] });
+          windows.push({ label: "Lunch break", range: lunch });
         }
 
         windows.push({ label: "Additional time", range: [toMinutes(17, 50), toMinutes(18, 0)] });
