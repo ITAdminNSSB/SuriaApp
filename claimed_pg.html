@@ -371,10 +371,10 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
                     // Apply Location Filter
                     if (selectedLocation) {
-                        sortedOrders = sortedOrders.filter(order => {
-                            const loc = order.location ? order.location.toUpperCase().trim() : '';
-                            return loc === selectedLocation;
-                        });
+                        const selLoc = selectedLocation.trim().toUpperCase();
+                        sortedOrders = sortedOrders.filter(order =>
+                            String(order.location || '').trim().toUpperCase() === selLoc
+                        );
                     }
 
                     // Grab the filter values

@@ -388,7 +388,10 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                         .sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
 
                     if (selectedLocation) {
-                        sortedOrders = sortedOrders.filter(order => order.location === selectedLocation);
+                        const selLoc = selectedLocation.trim().toUpperCase();
+                        sortedOrders = sortedOrders.filter(order =>
+                            String(order.location || '').trim().toUpperCase() === selLoc
+                        );
                     }
                     
                     const claimFilterValue = document.getElementById('claimStatusFilter').value;
