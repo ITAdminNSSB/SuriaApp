@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Management - Canteen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="auth-guard.js"></script>
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --secondary-hover: #0d9488;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #172033;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(12, 31, 95, 0.04);
+            --shadow-md: 0 8px 24px rgba(12, 31, 95, 0.08);
+            --danger-bg: #fef2f2;
+            --danger-text: #ef4444;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; background: var(--background-color); }
+        body {
+            min-height: 100vh;
+            padding-bottom: 120px;
+            background: radial-gradient(circle at 15% 0%, #e8f0ff 0, transparent 38%), var(--background-color);
+            color: var(--text-main);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 68px;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 18px rgba(12, 31, 95, 0.05);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .header img { max-height: 44px; width: auto; object-fit: contain; }
+
+        .container {
+            width: min(calc(100% - 32px), 1200px);
+            margin: 0 auto;
+            padding-top: 88px;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 20px 24px;
+            margin-bottom: 18px;
+        }
+
+        .page-title-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+        .page-title-banner h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+        .page-title-banner p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Filter Controls */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        input[type="month"], input[type="text"], select, input[type="number"] {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0 14px;
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #ffffff;
+            padding: 10px 20px;
+            border: 0;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: 0;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-warning:hover { background: #d97706; transform: translateY(-1px); }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            text-align: left;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            border-left: 5px solid var(--primary-color);
+        }
+        .stat-card.danger { border-left-color: var(--danger-text); }
+        .stat-card.success { border-left-color: var(--success-text); }
+        
+        .stat-card .label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-top: 6px;
+        }
+        .stat-card.danger .value { color: var(--danger-text); }
+        .stat-card.success .value { color: var(--success-text); }
+
+        /* Table Design */
+        .table-card {
+            padding: 0;
+            overflow: hidden;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            min-width: 1100px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        thead th {
+            background: #0f2468;
+            color: #ffffff;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 14px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        tbody td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.88rem;
+            vertical-align: middle;
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 750;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .badge.unpaid { background: var(--danger-bg); color: var(--danger-text); border: 1px solid #fecaca; }
+        .badge.paid { background: var(--success-bg); color: var(--success-text); border: 1px solid #bbf7d0; }
+        
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .method-badge.cash { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .method-badge.qr { background: #fef08a; color: #854d0e; border: 1px solid #fde047; }
+        .method-badge.card { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        
+        .currency { font-weight: 700; color: var(--text-main); }
+        .currency.red { color: var(--danger-text); }
+        .currency.muted { color: var(--text-muted); font-weight: 500; }
+
+        .btn-pay {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-pay:hover { background: var(--secondary-hover); }
+        .btn-pay:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(12, 31, 95, 0.6);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .close-modal {
+            position: absolute;
+            right: 20px; top: 20px;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .modal-title { font-size: 1.4rem; color: var(--primary-color); font-weight: 800; margin-bottom: 20px; }
+        
+        .payment-summary {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .summary-row.total { font-weight: 800; font-size: 1.1rem; color: var(--danger-text); margin-bottom: 0; padding-top: 8px; border-top: 1px dashed #cbd5e1;}
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: var(--primary-color); }
+        
+        /* Bottom App Navigation */
+        .nav-container {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: max(12px, env(safe-area-inset-bottom));
+            width: calc(100% - 24px);
+            max-width: 580px;
+            height: 68px;
+            padding: 7px;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 4px;
+            background: rgba(12, 31, 95, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 21px;
+            box-shadow: 0 14px 34px rgba(12, 31, 95, 0.3);
+            backdrop-filter: blur(14px);
+            z-index: 1200;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border-radius: 15px;
+            color: #cbd7f2;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .nav-item i { font-size: 18px; line-height: 18px; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .nav-item.active { background: var(--secondary-color); color: #ffffff; box-shadow: 0 5px 12px rgba(20, 184, 166, 0.3); }
+
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; color: var(--primary-color); font-weight: 700;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #e2e8f0;
+            border-top-color: var(--secondary-color); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .container { padding-top: 76px; }
+            .card { padding: 16px; }
+            .action-row { justify-content: center; }
+            .btn-primary, .btn-warning { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div id="loadingText">Syncing Data...</div>
+    </div>
+
+    <div class="header">
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-title-banner">
+            <div>
+                <h1>Canteen Billing Management</h1>
+                <p>Manage monthly debts, view unpaid penalties, and process cash collections.</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card">
+            <div class="filter-grid">
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom:4px; display:block;">Select Billing Month</label>
+                    <input type="month" id="monthPicker">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom:4px; display:block;">Filter Department</label>
+                    <select id="departmentFilter">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom:4px; display:block;">Search Employee</label>
+                    <input type="text" id="searchInput" placeholder="Search Name or ID...">
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button type="button" class="btn-primary" id="btnRefresh">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+                <button type="button" class="btn-warning" id="btnSyncBills" title="Generate bills in database to enable blocking feature">
+                    <i class="fas fa-lock"></i> Sync & Generate Bills
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card danger">
+                <div class="label">Total Outstanding Debt</div>
+                <div class="value" id="statOutstanding">RM 0.00</div>
+            </div>
+            <div class="stat-card success">
+                <div class="label">Total Collected (Debt Payment)</div>
+                <div class="value" id="statCollected">RM 0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Employees with Debt</div>
+                <div class="value" id="statUsers">0</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">NO.</th>
+                            <th>Employee Details</th>
+                            <th>Claimed (Debt)<br><small>(RM 2.00)</small></th>
+                            <th>Paid On Spot<br><small>(Cash/QR/Card)</small></th>
+                            <th>Unclaimed<br><small>(RM 7.50 Penalty)</small></th>
+                            <th>Total Bill</th>
+                            <th>Debt Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billingTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 28px; color: var(--text-muted);">
+                                Select a month to load billing data.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <i class="fas fa-times close-modal" id="closeModal"></i>
+            <div class="modal-title">Bayar Hutang Bulanan</div>
+            
+            <p style="margin-bottom: 15px; font-weight: 600;" id="modalEmpName">Employee Name</p>
+
+            <div class="payment-summary">
+                <div class="summary-row">
+                    <span>Total Monthly Bill (Debt):</span>
+                    <span id="modalTotalBill">RM 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Previously Paid:</span>
+                    <span id="modalPaidAmt">RM 0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Current Balance:</span>
+                    <span id="modalBalance">RM 0.00</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Amount Received (RM)</label>
+                <input type="number" id="paymentInput" step="0.01" min="0" placeholder="e.g. 10.00">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">* Enter the exact cash amount received to deduct the debt.</p>
+            </div>
+
+            <button class="btn-primary" style="width: 100%; justify-content: center;" id="btnConfirmPayment">
+                <i class="fas fa-check-circle"></i> Confirm Payment
+            </button>
+        </div>
+    </div>
+
+    <!-- App Navigation -->
+    <div class="nav-container">
+        <a href="canteen_home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_view_order.html" class="nav-item"><i class="fas fa-utensils"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="orderingfoodmanager.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i><span>Billing</span></a>
+        <a href="canteen_feedback.html" class="nav-item"><i class="fas fa-comment-dots"></i><span>Feedback</span></a>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps }  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import {
+            getFirestore, doc, getDoc, setDoc, collection,
+            query, where, getDocs, Timestamp, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app  = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        let userMap = new Map(); 
+        let currentSelectedUser = null;
+        let currentMonthStr = "";
+
+        // UI Elements
+        const monthPicker = document.getElementById('monthPicker');
+        const deptFilter = document.getElementById('departmentFilter');
+        const searchInput = document.getElementById('searchInput');
+        const tbody = document.getElementById('billingTableBody');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        
+        const modal = document.getElementById('paymentModal');
+        const closeModal = document.getElementById('closeModal');
+        const btnConfirmPayment = document.getElementById('btnConfirmPayment');
+        const paymentInput = document.getElementById('paymentInput');
+
+        // Set Default Month (Current)
+        function setDefaultMonth() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            monthPicker.value = `${y}-${m}`;
+        }
+
+        function showLoading(text) {
+            loadingText.textContent = text || "Processing...";
+            loadingOverlay.style.display = 'flex';
+        }
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        async function loadBillingData() {
+            const val = monthPicker.value;
+            if (!val) return;
+
+            showLoading("Loading Billing Data...");
+
+            const [year, month] = val.split('-');
+            currentMonthStr = `${year}_${month}`; // Format: 2026_09
+            
+            const startDate = new Date(year, parseInt(month) - 1, 1, 0, 0, 0);
+            const endDate = new Date(year, parseInt(month), 0, 23, 59, 59, 999);
+
+            try {
+                // 1. Fetch Orders for the month
+                const qOrders = query(
+                    collection(db, "canteen_orders"),
+                    where("orderDate", ">=", Timestamp.fromDate(startDate)),
+                    where("orderDate", "<=", Timestamp.fromDate(endDate))
+                );
+                
+                const ordersSnap = await getDocs(qOrders);
+                userMap.clear();
+                const depts = new Set();
+
+                ordersSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const uid = data.userId;
+                    if (!uid) return;
+
+                    if (!userMap.has(uid)) {
+                        userMap.set(uid, {
+                            uid: uid,
+                            empId: data.employeeId || 'N/A',
+                            name: data.name || 'Unknown',
+                            dept: data.department || 'N/A',
+                            debtCount: 0,
+                            cashCount: 0,
+                            qrCount: 0,
+                            cardCount: 0,
+                            unclaimedCount: 0,
+                            totalBill: 0,
+                            paidAmt: 0,
+                            balance: 0,
+                            status: 'unpaid',
+                            docExists: false
+                        });
+                    }
+
+                    const u = userMap.get(uid);
+                    if (data.department) depts.add(data.department);
+                    
+                    const pMethod = (data.paymentMethod || 'Debt').toLowerCase();
+
+                    if (data.claimStatus === 'claimed') {
+                        if (pMethod.includes('cash')) u.cashCount++;
+                        else if (pMethod.includes('qr')) u.qrCount++;
+                        else if (pMethod.includes('card')) u.cardCount++;
+                        else u.debtCount++; // Default to debt if not specified
+                    }
+                    if (data.claimStatus === 'unclaimed') {
+                        // Penalty applies to monthly bill regardless of intended payment method
+                        u.unclaimedCount++;
+                    }
+                });
+
+                // Update Dept Dropdown dynamically
+                const currentDeptVal = deptFilter.value;
+                deptFilter.innerHTML = '<option value="">All Departments</option>';
+                Array.from(depts).sort().forEach(d => {
+                    deptFilter.innerHTML += `<option value="${d}">${d}</option>`;
+                });
+                deptFilter.value = currentDeptVal;
+
+                // 2. Fetch Billing Documents
+                const promises = [];
+                for (const uid of userMap.keys()) {
+                    const billRef = doc(db, "canteen_monthly_billing", `${uid}_${currentMonthStr}`);
+                    promises.push(getDoc(billRef).then(snap => ({ uid, snap })));
+                }
+
+                const billSnaps = await Promise.all(promises);
+
+                // 3. Merge Calculations
+                billSnaps.forEach(({ uid, snap }) => {
+                    const u = userMap.get(uid);
+                    
+                    // Calculation logic: RM 2.00 for Debt claimed, RM 7.50 for unclaimed. Cash/QR/Card are RM 0.00 debt.
+                    u.totalBill = (u.debtCount * 2.00) + (u.unclaimedCount * 7.50);
+
+                    if (snap.exists()) {
+                        const bData = snap.data();
+                        u.paidAmt = bData.paidAmount || 0;
+                        u.balance = bData.balance !== undefined ? bData.balance : Math.max(0, u.totalBill - u.paidAmt);
+                        u.status = bData.status || (u.balance <= 0 ? 'paid' : 'unpaid');
+                        u.docExists = true;
+                    } else {
+                        u.paidAmt = 0;
+                        u.balance = u.totalBill;
+                        u.status = u.totalBill > 0 ? 'unpaid' : 'paid';
+                        u.docExists = false;
+                    }
+                });
+
+                renderTable();
+
+            } catch (err) {
+                console.error("Error loading data:", err);
+                alert("Failed to load data.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderTable() {
+            const selDept = deptFilter.value;
+            const searchKwd = searchInput.value.toLowerCase().trim();
+
+            let totalOutstanding = 0;
+            let totalCollected = 0;
+            let usersWithDebt = 0;
+
+            const finalArray = [];
+
+            for (const u of userMap.values()) {
+                // Ignore users with literally 0 activity
+                if (u.totalBill === 0 && u.paidAmt === 0 && u.debtCount === 0 && u.cashCount === 0 && u.qrCount === 0 && u.cardCount === 0 && u.unclaimedCount === 0) continue;
+
+                // Filters
+                if (selDept && u.dept !== selDept) continue;
+                if (searchKwd && !u.name.toLowerCase().includes(searchKwd) && !u.empId.toLowerCase().includes(searchKwd)) continue;
+
+                totalOutstanding += u.balance;
+                totalCollected += u.paidAmt;
+                if (u.balance > 0) usersWithDebt++;
+
+                finalArray.push(u);
+            }
+
+            // Sort by highest balance first, then name
+            finalArray.sort((a, b) => b.balance - a.balance || a.name.localeCompare(b.name));
+
+            // Update Stats
+            document.getElementById('statOutstanding').textContent = `RM ${totalOutstanding.toFixed(2)}`;
+            document.getElementById('statCollected').textContent = `RM ${totalCollected.toFixed(2)}`;
+            document.getElementById('statUsers').textContent = usersWithDebt;
+
+            tbody.innerHTML = '';
+
+            if (finalArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 28px;">No billing records match your search.</td></tr>`;
+                return;
+            }
+
+            finalArray.forEach((u, idx) => {
+                const tr = document.createElement('tr');
+                
+                const balClass = u.balance > 0 ? 'currency red' : 'currency';
+                const statusBadge = u.balance <= 0 || u.status === 'paid' 
+                    ? `<span class="badge paid"><i class="fas fa-check"></i> Settled</span>` 
+                    : `<span class="badge unpaid"><i class="fas fa-exclamation-circle"></i> Unpaid</span>`;
+                
+                const actionBtn = u.balance > 0 
+                    ? `<button class="btn-pay" onclick="openPaymentModal('${u.uid}')"><i class="fas fa-hand-holding-usd"></i> Pay Debt</button>`
+                    : `<button class="btn-pay" disabled><i class="fas fa-check-double"></i> Done</button>`;
+                
+                // Building the "Paid On Spot" visual breakdown
+                let paidOnSpotHtml = '';
+                if (u.cashCount > 0) paidOnSpotHtml += `<span class="method-badge cash"><i class="fas fa-money-bill"></i> Cash : ${u.cashCount}</span><br>`;
+                if (u.qrCount > 0) paidOnSpotHtml += `<span class="method-badge qr"><i class="fas fa-qrcode"></i> QR : ${u.qrCount}</span><br>`;
+                if (u.cardCount > 0) paidOnSpotHtml += `<span class="method-badge card"><i class="fas fa-credit-card"></i> Card : ${u.cardCount}</span>`;
+                
+                if (paidOnSpotHtml === '') paidOnSpotHtml = `<span style="color:#cbd5e1;">-</span>`;
+
+                tr.innerHTML = `
+                    <td style="text-align:center; color:var(--text-muted);">${idx + 1}</td>
+                    <td>
+                        <strong style="color:var(--primary-color);">${u.name}</strong><br>
+                        <small style="color:var(--text-muted);">${u.empId} • ${u.dept}</small>
+                    </td>
+                    <td style="text-align:center;"><strong>${u.debtCount}</strong></td>
+                    <td>${paidOnSpotHtml}</td>
+                    <td style="text-align:center;">${u.unclaimedCount > 0 ? `<strong style="color:var(--danger-text)">${u.unclaimedCount}</strong>` : `<span style="color:#cbd5e1;">0</span>`}</td>
+                    <td class="currency">RM ${u.totalBill.toFixed(2)}</td>
+                    <td class="currency" style="color: var(--success-text);">RM ${u.paidAmt.toFixed(2)}</td>
+                    <td class="${balClass}">RM ${u.balance.toFixed(2)}</td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align:center;">${actionBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Expose open modal function globally
+        window.openPaymentModal = function(uid) {
+            const u = userMap.get(uid);
+            if (!u) return;
+
+            currentSelectedUser = u;
+            document.getElementById('modalEmpName').textContent = `${u.name} (${u.empId})`;
+            document.getElementById('modalTotalBill').textContent = `RM ${u.totalBill.toFixed(2)}`;
+            document.getElementById('modalPaidAmt').textContent = `RM ${u.paidAmt.toFixed(2)}`;
+            document.getElementById('modalBalance').textContent = `RM ${u.balance.toFixed(2)}`;
+            
+            paymentInput.value = u.balance.toFixed(2); // Default to full balance
+            
+            modal.style.display = 'flex';
+        };
+
+        closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        // Process Payment Submit
+        btnConfirmPayment.addEventListener('click', async () => {
+            const inputVal = parseFloat(paymentInput.value);
+            if (isNaN(inputVal) || inputVal <= 0) {
+                alert("Please enter a valid payment amount.");
+                return;
+            }
+
+            const u = currentSelectedUser;
+            if (!u) return;
+
+            if (inputVal > u.balance) {
+                if(!confirm(`Amount entered (RM ${inputVal.toFixed(2)}) is higher than balance (RM ${u.balance.toFixed(2)}). Proceed anyway?`)) {
+                    return;
+                }
+            }
+
+            showLoading("Processing Payment...");
+            
+            try {
+                const newPaid = u.paidAmt + inputVal;
+                const newBalance = Math.max(0, u.totalBill - newPaid);
+                const newStatus = newBalance <= 0 ? 'paid' : 'unpaid';
+
+                const billRef = doc(db, "canteen_monthly_billing", `${u.uid}_${currentMonthStr}`);
+                
+                await setDoc(billRef, {
+                    totalAmount: u.totalBill,
+                    paidAmount: newPaid,
+                    balance: newBalance,
+                    status: newStatus,
+                    monthStr: currentMonthStr,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+
+                alert("Payment successfully processed!");
+                modal.style.display = 'none';
+                
+                // Refresh data to show changes
+                await loadBillingData();
+
+            } catch (err) {
+                console.error("Payment error:", err);
+                alert("Failed to process payment.");
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // SYNC BILLS: Generates "unpaid" docs in DB so User frontend can block them
+        document.getElementById('btnSyncBills').addEventListener('click', async () => {
+            if (!confirm(`Are you sure you want to generate and lock bills for ${monthPicker.value}? \n\nThis will apply blocking rules to employees who haven't paid their balance.`)) {
+                return;
+            }
+
+            showLoading("Syncing Data to Database...");
+            let syncCount = 0;
+
+            try {
+                for (const u of userMap.values()) {
+                    // Only sync people who have actual debt and haven't fully paid
+                    if (u.balance > 0) {
+                        const billRef = doc(db, "canteen_monthly_billing", `${u.uid}_${currentMonthStr}`);
+                        await setDoc(billRef, {
+                            totalAmount: u.totalBill,
+                            paidAmount: u.paidAmt,
+                            balance: u.balance,
+                            status: 'unpaid',
+                            monthStr: currentMonthStr,
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                        syncCount++;
+                    }
+                }
+                alert(`Successfully synced ${syncCount} unpaid bills to the database.`);
+                await loadBillingData();
+            } catch (err) {
+                console.error("Sync error:", err);
+                alert("Failed to sync bills.");
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Event Listeners
+        monthPicker.addEventListener('change', loadBillingData);
+        deptFilter.addEventListener('change', renderTable);
+        searchInput.addEventListener('input', renderTable);
+        document.getElementById('btnRefresh').addEventListener('click', loadBillingData);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setDefaultMonth();
+            loadBillingData();
+        });
+
+    </script>
+</body>
+</html>

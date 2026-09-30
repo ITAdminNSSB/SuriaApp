@@ -377,30 +377,24 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: space-around;
+            gap: 35px;
             width: calc(100% - 40px);
-            max-width: 500px;
-            z-index: 100;
+            max-width: 1200px;
+            z-index: 1000;
         }
 
         .nav-item {
+            color: #FFFFFF;
+            text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-decoration: none;
-            color: #FFFFFF;
-            transition: 0.3s;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-
-        .nav-item:hover {
-            color: #2dd4bf;
+            gap: 5px;
         }
 
         .nav-item i {
             font-size: 20px;
-            margin-bottom: 5px;
         }
 
         .nav-item span {
@@ -594,15 +588,15 @@
         </a>
         <a href="canteen_view_order.html" class="nav-item">
             <i class="fas fa-utensils"></i>
-            <span>Orders</span>
+            <span>View Orders</span>
         </a>
         <a href="canteen_claimed_pg.html" class="nav-item">
             <i class="fas fa-clipboard-check"></i>
-            <span>Claimed</span>
+            <span>Claimed Orders</span>
         </a>
         <a href="menu_update.html" class="nav-item">
             <i class="fas fa-sync"></i>
-            <span>Menu</span>
+            <span>Update Menu</span>
         </a>
         <a href="Analytics_dashboard_pg.html" class="nav-item">
             <i class="fas fa-file-invoice"></i>

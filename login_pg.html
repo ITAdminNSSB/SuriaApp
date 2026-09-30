@@ -4,41 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0c1f5f">
     <title>LogIn</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-* {margin: 0;padding: 0;box-sizing: border-box;}
-body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background: linear-gradient(115deg, black, #334155);min-height: 100vh;display: flex;align-items: center;justify-content: center;padding: 20px;}
-.main-container {width: 100%;max-width: 450px;background: rgba(255, 255, 255, 0.1);backdrop-filter: blur(10px);border-radius: 20px;border: 1px solid rgba(255, 255, 255, 0.2);box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);padding: 40px;text-align: center;}
-.logo {margin-bottom: 30px;padding: 20px;background: rgba(255, 255, 255, 0.95);border-radius: 15px;display: inline-block;box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);}
-.logo img {display: block;width: 100%;height: auto;max-width: 300px;}
-h2 {color: #ffffff;font-size: 32px;font-weight: 300;margin-bottom: 8px;text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);}
-h3 {color: #cccccc;font-size: 16px;font-weight: 300;margin-bottom: 40px;}
-.input-group {margin-bottom: 20px;}
-.input-group input {width: 100%;padding: 16px 20px;background: rgba(255, 255, 255, 0.1);border: 1px solid rgba(255, 255, 255, 0.3);border-radius: 12px;color: #ffffff;font-size: 16px;outline: none;transition: all 0.3s ease;}
-.input-group input::placeholder {color: rgba(255, 255, 255, 0.7);}
-.input-group input:focus {border-color: rgba(255, 255, 255, 0.6);background: rgba(255, 255, 255, 0.15);box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);}
-.forgot-password {text-align: right;margin-bottom: 25px;}
-.forgot-password a {color: #cccccc;text-decoration: none;font-size: 14px;transition: color 0.3s ease;}
-.forgot-password a:hover {color: #ffffff;}
-.login-button {width: 100%;padding: 16px;background: linear-gradient(135deg, #000000 0%, #333333 50%, #555555 100%);color: #ffffff;border: none;border-radius: 12px;font-size: 18px;font-weight: 600;cursor: pointer;transition: all 0.3s ease;text-transform: uppercase;letter-spacing: 1px;box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);margin-bottom: 25px;}
-.login-button:hover {transform: translateY(-2px);box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);background: linear-gradient(135deg, #1a1a1a 0%, #404040 50%, #666666 100%);}
-.signup {padding-top: 20px;border-top: 1px solid rgba(255, 255, 255, 0.2);}
-.signup h5 {color: #cccccc;font-size: 14px;margin-bottom: 10px;font-weight: 300;}
-.signup a {color: #ffffff;text-decoration: none;font-weight: 500;transition: color 0.3s ease;}
-.signup a:hover {color: #cccccc;}
-.footer {position: fixed;bottom: 0;left: 0;width: 100%;background: linear-gradient(135deg, #000000 0%, #333333 100%);color: #cccccc;text-align: center;padding: 15px;z-index: 1000;border-top: 1px solid rgba(255, 255, 255, 0.1);}
-.footer p {font-size: 14px;font-weight: 300;}
-@media (max-width: 768px) {
-.main-container {padding: 30px 20px;}h2 {font-size: 28px;}
-.logo {padding: 15px;}}
-.login-button.loading {opacity: 0.7;pointer-events: none;}
+        /* ENTERPRISE DESIGN SYSTEM - DARK BLUE & WHITE WITH DECORATIVE CORAK WALLPAPER */
+        :root {
+            --app-navy: #0c1f5f;
+            --app-navy-2: #162d78;
+            --app-teal: #14b8a6;
+            --app-bg: #f3f7fc;
+            --app-card: #ffffff;
+            --app-text: #17213c;
+            --app-muted: #68738d;
+            --app-line: #dfe7f2;
+            --app-radius: 24px;
+            --app-shadow: 0 20px 45px rgba(12, 31, 95, 0.2);
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", "Helvetica", sans-serif; }
+        
+        body {
+            background-color: var(--app-navy);
+            color: var(--app-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 20px 80px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Decorative Background Artwork / "Corak" Wallpaper */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 10% 15%, rgba(20, 184, 166, 0.22) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(22, 45, 120, 0.6) 0%, transparent 50%),
+                linear-gradient(135deg, #0c1f5f 0%, #060f30 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Decorative Abstract Wave / Geometric Lines Motif */
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2314b8a6' fill-opacity='0.08' d='M0,160L48,170.7C96,181,192,203,288,192C384,181,480,139,576,133.3C672,128,768,160,864,181.3C960,203,1056,213,1152,197.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            margin-bottom: 24px;
+            padding: 14px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            display: inline-block;
+        }
+        .logo img { display: block; width: 100%; height: auto; max-width: 220px; object-fit: contain; }
+
+        .main-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(15px);
+            border-radius: var(--app-radius);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: var(--app-shadow);
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        h2 { color: var(--app-navy); font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+        h3 { color: var(--app-muted); font-size: 14px; font-weight: 500; margin-bottom: 30px; }        
+        
+        .input-group { margin-bottom: 18px; text-align: left; }        
+        .input-group input {
+            width: 100%; padding: 14px 18px;
+            background: var(--app-bg);
+            border: 1px solid var(--app-line);
+            border-radius: 14px;
+            color: var(--app-text); font-size: 15px; font-weight: 500;
+            outline: none; transition: all 0.3s ease;
+        }        
+        .input-group input::placeholder { color: var(--app-muted); }        
+        .input-group input:focus {
+            border-color: var(--app-teal);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+        }        
+        
+        .forgot-password { text-align: right; margin-bottom: 24px; }        
+        .forgot-password a { color: var(--app-navy); text-decoration: none; font-size: 13px; font-weight: 600; transition: color 0.2s ease; }
+        .forgot-password a:hover { color: var(--app-teal); }
+        
+        .login-button {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2));
+            color: #ffffff; border: none; border-radius: 14px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px rgba(12, 31, 95, 0.25); margin-bottom: 24px;
+        }        
+        .login-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(12, 31, 95, 0.35);
+            background: linear-gradient(135deg, var(--app-navy-2), var(--app-navy));
+        }
+
+        .signup { padding-top: 20px; border-top: 1px solid var(--app-line); }
+        .signup h5 { color: var(--app-muted); font-size: 13px; margin-bottom: 8px; font-weight: 500; }
+        .signup a { color: var(--app-navy); text-decoration: none; font-weight: 700; transition: color 0.2s ease; }
+        .signup a:hover { color: var(--app-teal); }
+
+        .footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(6, 15, 48, 0.95); backdrop-filter: blur(10px);
+            color: #cbd7f2; text-align: center; padding: 14px;
+            z-index: 1000; border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .footer p { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+
+        @media (max-width: 480px) {
+            .wrapper { padding: 0 10px; }
+            .main-container { padding: 30px 20px; }
+            h2 { font-size: 24px; }
+        }
+        .login-button.loading { opacity: 0.7; pointer-events: none; }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, getDoc, doc, collection, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -50,95 +172,259 @@ h3 {color: #cccccc;font-size: 16px;font-weight: 300;margin-bottom: 40px;}
         appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth();
+        const auth = getAuth(app);
 
-        // Login form submit handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const loginButton = document.getElementById('login');
-            loginButton.classList.add('loading');
-            loginButton.textContent = 'LOGGING IN...';
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('login');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        function setLoginLoading(isLoading) {
+            loginButton.disabled = isLoading;
+            loginButton.classList.toggle('loading', isLoading);
+            loginButton.textContent = isLoading ? 'LOGGING IN...' : 'LOGIN';
+        }
+
+        function clearStoredUserData() {
+            localStorage.removeItem('loggedInPIC');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userDepartment');
+            localStorage.removeItem('employeeId');
+        }
+
+        function getRedirectPage(role) {
+            const routes = {
+                hr_admin: 'admin_home.html',
+                canteen1_admin: 'canteen_home.html',
+                canteen_trial: 'canteen.html', // Sokongan akaun vendor trial
+                vendor: 'canteen.html',        // Sokongan role vendor (selaras dengan modul canteen)
+                user: 'main_menu_pg.html',
+                admins: 'view_admins_orders.html',
+                prod_admin: 'prod_admin_user.html'
+            };
+            return routes[role] || null;
+        }
+
+        function getLoginErrorMessage(error) {
+            switch (error?.code) {
+                case 'auth/invalid-credential':
+                case 'auth/wrong-password':
+                case 'auth/user-not-found':
+                    return 'Invalid email or password.';
+                case 'auth/too-many-requests':
+                    return 'Too many login attempts. Please try again later.';
+                case 'auth/network-request-failed':
+                    return 'Network connection failed. Please check your internet and try again.';
+                default:
+                    return error?.message || 'Unable to log in. Please try again.';
+            }
+        }
+
+        function getLocalYYYYMMDD(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+            const day = String(dateObj.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (loginButton.disabled) return;
+
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            setLoginLoading(true);
+
+            if (email === 'bus@gmail.com' && password === '123456') {
+                localStorage.setItem('loggedInPIC', 'Bus Administrator');
+                window.location.replace('bus_dashboard.html');
+                return;
+            }
 
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                const userDocRef = doc(db, 'users', user.uid);
-                const userDocSnap = await getDoc(userDocRef);
+                
+                const userDocSnap = await getDoc(doc(db, 'users', user.uid));
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-
-                    // Redirect based on user role
-                    if (userData.role === 'hr_admin') {
-                        window.location.href = 'admin_home_pg.html';
-                    } else if (userData.role === 'canteen1_admin') {
-                        window.location.href = 'canteen_home.html';
-                    } else if (userData.role === 'user') {
-                        window.location.href = 'main_menu_pg.html'; 
-                    } else if (userData.role === 'admins') {
-                        window.location.href = 'view_admins_orders.html';
-                    } else if (userData.role === 'prod_admin') {
-                        window.location.href = 'prod_admin_user.html';
-                    } else {
-                        alert("Unknown user role. Please contact support.");
-                    }
+                if (!userDocSnap.exists()) {
+                    await signOut(auth);
+                    clearStoredUserData();
+                    throw new Error('Your user profile was not found. Please contact the system administrator.');
                 }
+
+                const userData = userDocSnap.data();
+                const status = String(userData.status || '').trim().toLowerCase();
+                const role = String(userData.role || 'user').trim().toLowerCase();
+
+                if (status === 'resigned') {
+                    await signOut(auth);
+                    clearStoredUserData();
+                    alert('Access Denied: Your account has been marked as resigned. Please contact HR if this is a mistake.');
+                    setLoginLoading(false);
+                    return;
+                }
+
+                const redirectPage = getRedirectPage(role);
+                if (!redirectPage) {
+                    await signOut(auth);
+                    clearStoredUserData();
+                    alert('Unknown user role. Please contact support.');
+                    setLoginLoading(false);
+                    return;
+                }
+
+                localStorage.setItem('loggedInPIC', userData.name || user.email || 'User');
+                localStorage.setItem('userRole', role);
+                localStorage.setItem('userDepartment', String(userData.department || 'none').trim().toLowerCase());
+                localStorage.setItem('employeeId', String(userData.employeeId || '').trim().toUpperCase());
+
+                if (role === 'user' || role === 'canteen1_admin') {
+                    (async () => {
+                        try {
+                            const now = new Date();
+                            const todayStr = getLocalYYYYMMDD(now);
+                            const startOfDay = new Date(now); startOfDay.setHours(0,0,0,0);
+                            const endOfDay = new Date(now); endOfDay.setHours(23,59,59,999);
+                            
+                            const [snapOrder, snapReg, snapAtt] = await Promise.all([
+                                // Canteen ordering system uses the "canteen_orders" collection.
+                                // Query by userId only, then filter today's order locally to stay compatible
+                                // with the same approach used in orderingfood.html and avoid composite-index dependency.
+                                getDocs(query(collection(db, "canteen_orders"), where("userId", "==", user.uid))),
+                                getDocs(query(collection(db, "training_registrations"), where("userId", "==", user.uid))),
+                                getDocs(query(collection(db, "training_attendance"), where("userId", "==", user.uid)))
+                            ]);
+
+                            let todayOrderDoc = null;
+                            snapOrder.forEach(docSnap => {
+                                if (todayOrderDoc) return;
+                                const data = docSnap.data();
+                                if (!data.orderDate) return;
+
+                                const orderDateObj = data.orderDate && typeof data.orderDate.toDate === 'function'
+                                    ? data.orderDate.toDate()
+                                    : new Date(data.orderDate);
+
+                                if (!Number.isNaN(orderDateObj.getTime()) &&
+                                    orderDateObj >= startOfDay && orderDateObj <= endOfDay) {
+                                    todayOrderDoc = docSnap;
+                                }
+                            });
+                            
+                            if (!todayOrderDoc) {
+                                const readStatus = localStorage.getItem(`orderReminderRead_${user.uid}_${todayStr}`);
+                                if (now.getHours() <= 10 && readStatus !== "true") {
+                                    sessionStorage.setItem("prep_orderReminder", "true");
+                                }
+                            } else {
+                                const orderData = { ...todayOrderDoc.data(), id: todayOrderDoc.id };
+                                const parsedOrderDate = orderData.orderDate && typeof orderData.orderDate.toDate === 'function'
+                                    ? orderData.orderDate.toDate().toISOString()
+                                    : (orderData.orderDate || new Date().toISOString());
+                                const toStore = {
+                                    ...orderData,
+                                    userId: user.uid,
+                                    orderDate: parsedOrderDate,
+                                    orderTimestamp: parsedOrderDate
+                                };
+
+                                // Keep login cache aligned with orderingfood.html.
+                                localStorage.setItem(`canteenOrderData_${user.uid}`, JSON.stringify(toStore));
+                                localStorage.setItem(`canteenOrderDate_${user.uid}`, todayStr);
+                            }
+
+                            const validDates = [];
+                            for(let i=0; i<=7; i++) {
+                                const d = new Date(now); d.setDate(d.getDate() + i); validDates.push(getLocalYYYYMMDD(d));
+                            }
+                            const tomorrowStr = validDates[1];
+
+                            const attendedIds = new Set();
+                            snapAtt.forEach(docSnap => { attendedIds.add(`${docSnap.data().trainingId}_${docSnap.data().trainingDate}`); });
+
+                            let pendingTrainings = [];
+                            for (const docSnap of snapReg.docs) {
+                                const regData = docSnap.data();
+                                const rDate = regData.trainingDate;
+                                if (validDates.includes(rDate)) {
+                                    if (attendedIds.has(`${regData.trainingId}_${rDate}`)) continue;
+                                    let isPast = (rDate === todayStr && regData.endTime && now >= new Date(`${rDate}T${regData.endTime}:00`));
+                                    if (!isPast) {
+                                        const tDocSnap = await getDoc(doc(db, "trainings", regData.trainingId));
+                                        if (tDocSnap.exists()) {
+                                            let tData = tDocSnap.data();
+                                            if (tData.isPrivate || rDate === todayStr || rDate === tomorrowStr) {
+                                                tData.id = tDocSnap.id;
+                                                tData.trainingDate = rDate; 
+                                                pendingTrainings.push(tData);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (pendingTrainings.length > 0) sessionStorage.setItem("prep_trainingReminder", JSON.stringify(pendingTrainings));
+                            else sessionStorage.removeItem("prep_trainingReminder");
+                        } catch (err) { console.error("Background cache prep error: ", err); }
+                    })();
+                }
+
+                window.location.replace(redirectPage);
+
             } catch (error) {
-                alert(`Login failed: ${error.message}`);
-                loginButton.classList.remove('loading');
-                loginButton.textContent = 'LOGIN';
+                console.error('Login error:', error);
+                alert(`Login failed: ${getLoginErrorMessage(error)}`);
+                setLoginLoading(false);
             }
         });
 
-        // Forgot password handler
-        document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = prompt("Please enter your registered email:");
-            if (email) {
-                try {
-                    await sendPasswordResetEmail(auth, email);
-                    alert("Password reset link has been sent to your email.");
-                } catch (error) {
-                    alert(`Error sending password reset email: ${error.message}`);
-                }
+        forgotPasswordLink.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const email = prompt('Please enter your registered email:')?.trim().toLowerCase();
+            if (!email) return;
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert('Password reset link has been sent to your email.');
+            } catch (error) {
+                alert(`Error sending password reset email: ${getLoginErrorMessage(error)}`);
             }
         });
     </script>
 </head>
 <body>
-
-    <div class="main-container">
-        
-        <h2>Welcome Back</h2>
-        <h3>Login to your account</h3>
-        
-        <form id="loginForm">
-            <div class="input-group">
-                <input type="email" id="email" placeholder="Email Address" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            <div class="forgot-password">
-                <a href="#" id="forgotPasswordLink">Forgot Password?</a>
-            </div>
-            <button type="submit" id="login" class="login-button">LOGIN</button>
-            <div class="signup">
-                <h5>Don't have an account yet?</h5>
-                <a href="signIn_pg.html">Sign Up</a>
-            </div>
-        </form>
+    <div class="wrapper">
+        <div class="logo">
+            <img src="pictures/new_logo.png" alt="Company Logo">
+        </div>
+        <div class="main-container">
+            <h2>Welcome Back</h2>
+            <h3>Login to your account</h3>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="forgot-password">
+                    <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                </div>
+                <button type="submit" id="login" class="login-button">LOGIN</button>
+                <div class="signup">
+                    <h5>Don't have an account yet?</h5>
+                    <a href="signIn_pg.html">Sign Up</a>
+                </div>
+            </form>
+        </div>
     </div>
     
     <div class="footer">
-        <p>&copy; SURIA COMPONENT SDN BHD NSSB</p>
+        <p>&copy; NAMICOH SURIA SDN BHD</p>
     </div>
 </body>
 </html>

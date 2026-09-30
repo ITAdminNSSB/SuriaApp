@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debt Collection - Canteen Management</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --secondary-hover: #0d9488;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #172033;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(12, 31, 95, 0.04);
+            --shadow-md: 0 8px 24px rgba(12, 31, 95, 0.08);
+            --danger-bg: #fef2f2;
+            --danger-text: #ef4444;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; background: var(--background-color); }
+        
+        body {
+            min-height: 100vh;
+            padding-bottom: 120px;
+            background: radial-gradient(circle at 15% 0%, #e8f0ff 0, transparent 38%), var(--background-color);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* --- Header --- */
+        .header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 72px;
+            padding: 0 24px;
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 18px rgba(12, 31, 95, 0.05);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .header img { max-height: 44px; width: auto; object-fit: contain; }
+        .back-btn { 
+            position: absolute; left: 24px; color: var(--primary-color); 
+            font-size: 1.25rem; text-decoration: none; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9;
+        }
+        .back-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+
+        .container {
+            width: min(calc(100% - 32px), 1200px);
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .page-title-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding: 0 4px;
+        }
+        .page-title-banner h1 {
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .page-title-banner p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Filter Controls */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .filter-grid label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+
+        input[type="month"], input[type="text"], select, input[type="number"] {
+            width: 100%;
+            min-height: 46px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0 14px;
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #ffffff;
+            padding: 12px 24px;
+            border: 0;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(12,31,95,0.2); }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: left;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            border-left: 5px solid var(--primary-color);
+        }
+        .stat-card.danger { border-left-color: var(--danger-text); }
+        .stat-card.success { border-left-color: var(--success-text); }
+        
+        .stat-card .label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-top: 6px;
+        }
+        .stat-card.danger .value { color: var(--danger-text); }
+        .stat-card.success .value { color: var(--success-text); }
+
+        /* Table Design */
+        .table-card { padding: 0; overflow: hidden; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; min-width: 1100px; border-collapse: collapse; text-align: left; }
+        thead th {
+            background: #0f2468;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 16px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        tbody td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+        tbody tr:hover { background: #f8fafc; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .badge.unpaid { background: var(--danger-bg); color: var(--danger-text); border: 1px solid #fecaca; }
+        .badge.paid { background: var(--success-bg); color: var(--success-text); border: 1px solid #bbf7d0; }
+        
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .method-badge.cash { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .method-badge.qr { background: #fef08a; color: #854d0e; border: 1px solid #fde047; }
+        .method-badge.card { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        
+        .currency { font-weight: 700; color: var(--text-main); }
+        .currency.red { color: var(--danger-text); }
+
+        .btn-pay {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-pay:hover { background: var(--secondary-hover); transform: translateY(-1px); }
+        .btn-pay:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(12, 31, 95, 0.6);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .close-modal {
+            position: absolute;
+            right: 20px; top: 20px;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .modal-title { font-size: 1.4rem; color: var(--primary-color); font-weight: 800; margin-bottom: 20px; }
+        
+        .payment-summary {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .summary-row.total { font-weight: 800; font-size: 1.15rem; color: var(--danger-text); margin-bottom: 0; padding-top: 10px; border-top: 1px dashed #cbd5e1;}
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: var(--primary-color); }
+        
+        /* Bottom App Navigation (Strictly 5 Items) */
+        .nav-container {
+            position: fixed; left: 50%; transform: translateX(-50%);
+            bottom: max(16px, env(safe-area-inset-bottom));
+            width: calc(100% - 32px); max-width: 500px; height: 70px; padding: 8px;
+            display: flex; justify-content: space-between;
+            background: rgba(12, 31, 95, 0.95); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px; box-shadow: 0 20px 40px rgba(12, 31, 95, 0.4);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1200;
+        }
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; border-radius: 18px; color: #94a3b8; text-decoration: none;
+            font-size: 10px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-item i { font-size: 18px; transition: 0.3s; }
+        .nav-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+        .nav-item.active { background: var(--secondary-color); color: #ffffff; box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4); }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        #loadingOverlay {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; color: var(--primary-color); font-weight: 700; backdrop-filter: blur(4px);
+        }
+        .spinner {
+            width: 48px; height: 48px; border: 4px solid #e2e8f0;
+            border-top-color: var(--secondary-color); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .container { padding-top: 84px; }
+            .card { padding: 16px; }
+            .action-row { justify-content: center; }
+            .btn-primary { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div id="loadingText">Processing Data...</div>
+    </div>
+
+    <!-- Header with Back Button -->
+    <div class="header">
+        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-title-banner">
+            <div>
+                <h1>Debt Collection (Canteen)</h1>
+                <p>View RM2 vendor debt and NSSB-managed unclaimed recovery separately.</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card">
+            <div class="filter-grid">
+                <div>
+                    <label>Select Billing Month</label>
+                    <input type="month" id="monthPicker">
+                </div>
+                <div>
+                    <label>Filter Department</label>
+                    <select id="departmentFilter">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Search Employee</label>
+                    <input type="text" id="searchInput" placeholder="Search Name or ID...">
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button type="button" class="btn-primary" id="btnRefresh">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card danger">
+                <div class="label">Total Outstanding Debt</div>
+                <div class="value" id="statOutstanding">RM 0.00</div>
+            </div>
+            <div class="stat-card success">
+                <div class="label">Vendor Debt Collected</div>
+                <div class="value" id="statCollected">RM 0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Employees with Debt</div>
+                <div class="value" id="statUsers">0</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">NO.</th>
+                            <th>Employee Details</th>
+                            <th>Claimed (Debt)<br><small>(RM 2.00)</small></th>
+                            <th>Paid On Spot<br><small>(Cash/QR/Card)</small></th>
+                            <th>Confirmed Unclaimed<br><small>(RM 7.50 • NSSB Recovery)</small></th>
+                            <th>Total Bill</th>
+                            <th>Total Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billingTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 28px; color: var(--text-muted);">
+                                Select a month to load collection data.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <i class="fas fa-times close-modal" id="closeModal"></i>
+            <div class="modal-title">Record Payment</div>
+            
+            <p style="margin-bottom: 15px; font-weight: 600;" id="modalEmpName">Employee Name</p>
+
+            <div class="payment-summary">
+                <div class="summary-row">
+                    <span>Total Employee Liability:</span>
+                    <span id="modalTotalBill">RM 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>RM2 Vendor Debt:</span>
+                    <span id="modalVendorDebt">RM 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>NSSB Unclaimed Recovery:</span>
+                    <span id="modalNssbRecovery">RM 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Previously Paid (Total):</span>
+                    <span id="modalPaidAmt">RM 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Overall Balance:</span>
+                    <span id="modalBalance">RM 0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Collectible Here (Vendor RM2):</span>
+                    <span id="modalVendorBalance">RM 0.00</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Cash Received (RM)</label>
+                <input type="number" id="paymentInput" step="0.01" min="0" placeholder="e.g. 10.00">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">* This page collects only outstanding RM2 employee contribution owed to the vendor. Confirmed RM7.50 unclaimed recovery is handled by NSSB.</p>
+            </div>
+
+            <button class="btn-primary" style="width: 100%; justify-content: center;" id="btnConfirmPayment">
+                <i class="fas fa-check-circle"></i> Confirm Collection
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Bar (Strictly 5 Items) -->
+    <div class="nav-container">
+        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteencollector.html" class="nav-item active"><i class="fas fa-hand-holding-usd"></i><span>Collection</span></a>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps }  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import {
+            getFirestore, doc, getDoc, setDoc, collection,
+            query, where, getDocs, Timestamp, serverTimestamp, runTransaction
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app  = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        const DEFAULT_EMPLOYEE_CONTRIBUTION = 2.00;
+        const DEFAULT_UNCLAIMED_RECOVERY = 7.50;
+
+        let userMap = new Map();
+        let currentSelectedUser = null;
+        let currentMonthStr = "";
+
+        // UI Elements
+        const monthPicker = document.getElementById('monthPicker');
+        const deptFilter = document.getElementById('departmentFilter');
+        const searchInput = document.getElementById('searchInput');
+        const tbody = document.getElementById('billingTableBody');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+
+        const modal = document.getElementById('paymentModal');
+        const closeModal = document.getElementById('closeModal');
+        const btnConfirmPayment = document.getElementById('btnConfirmPayment');
+        const paymentInput = document.getElementById('paymentInput');
+
+        function setDefaultMonth() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            monthPicker.value = `${y}-${m}`;
+        }
+
+        function showLoading(text) {
+            loadingText.textContent = text || "Processing...";
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        function toMoney(value, fallback = 0) {
+            const n = Number(value);
+            return Number.isFinite(n) ? n : fallback;
+        }
+
+        function firstPositiveAmount(values, fallback) {
+            for (const value of values) {
+                const n = Number(value);
+                if (Number.isFinite(n) && n > 0) return n;
+            }
+            return fallback;
+        }
+
+        function isConfirmedUnclaimed(data) {
+            if (String(data?.claimStatus || '').trim().toLowerCase() !== 'unclaimed') return false;
+
+            return data?.unclaimedConfirmed === true ||
+                   data?.unclaimedEligibleForInvoice === true ||
+                   data?.invoiceEligible === true ||
+                   String(data?.unclaimedVerificationStatus || '').trim().toLowerCase() === 'confirmed' ||
+                   String(data?.verificationStatus || '').trim().toLowerCase() === 'confirmed';
+        }
+
+        function getClaimedDebtAmount(data) {
+            return firstPositiveAmount([
+                data?.employeeDebtAmount,
+                data?.finalCharge,
+                data?.employeeContribution,
+                data?.baseCharge
+            ], DEFAULT_EMPLOYEE_CONTRIBUTION);
+        }
+
+        function getUnclaimedRecoveryAmount(data) {
+            return firstPositiveAmount([
+                data?.employeeRecoveryAmount,
+                data?.finalCharge,
+                data?.penaltyCharge,
+                data?.vendorClaimUnclaimed,
+                data?.mealPrice
+            ], DEFAULT_UNCLAIMED_RECOVERY);
+        }
+
+        function getMalaysiaMonthRange(year, month) {
+            const monthNum = Number(month);
+            const nextYear = monthNum === 12 ? Number(year) + 1 : Number(year);
+            const nextMonth = monthNum === 12 ? 1 : monthNum + 1;
+
+            const startDate = new Date(`${year}-${String(monthNum).padStart(2, '0')}-01T00:00:00+08:00`);
+            const nextStart = new Date(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01T00:00:00+08:00`);
+            const endDate = new Date(nextStart.getTime() - 1);
+
+            return { startDate, endDate };
+        }
+
+        async function syncBillingSummary(u, existingData = null) {
+            if (!u || (!u.totalBill && !u.paidAmt && !u.docExists)) return;
+
+            const calculatedBalance = Math.max(0, u.totalBill - u.paidAmt);
+            const calculatedStatus = calculatedBalance <= 0 ? 'paid' : 'unpaid';
+
+            const needsSync = !existingData ||
+                Math.abs(toMoney(existingData.totalAmount) - u.totalBill) > 0.001 ||
+                Math.abs(toMoney(existingData.balance) - calculatedBalance) > 0.001 ||
+                String(existingData.status || '') !== calculatedStatus ||
+                Math.abs(toMoney(existingData.vendorDebtAmount) - u.vendorDebtAmount) > 0.001 ||
+                Math.abs(toMoney(existingData.nssbRecoveryAmount) - u.nssbRecoveryAmount) > 0.001 ||
+                Number(existingData.pendingUnclaimedCount || 0) !== u.pendingUnclaimedCount;
+
+            if (!needsSync) return;
+
+            const billRef = doc(db, "canteen_monthly_billing", `${u.uid}_${currentMonthStr}`);
+            await setDoc(billRef, {
+                totalAmount: u.totalBill,
+                vendorDebtAmount: u.vendorDebtAmount,
+                nssbRecoveryAmount: u.nssbRecoveryAmount,
+                pendingUnclaimedCount: u.pendingUnclaimedCount,
+                paidAmount: u.paidAmt,
+                vendorPaidAmount: u.vendorPaidAmt,
+                balance: calculatedBalance,
+                status: calculatedStatus,
+                monthStr: currentMonthStr,
+                calculationVersion: 'trial_guideline_v1',
+                reconciledAt: serverTimestamp()
+            }, { merge: true });
+        }
+
+        async function loadBillingData() {
+            const val = monthPicker.value;
+            if (!val) return;
+
+            showLoading("Loading Collection Data...");
+
+            const [year, month] = val.split('-');
+            currentMonthStr = `${year}_${month}`;
+            const { startDate, endDate } = getMalaysiaMonthRange(year, month);
+
+            try {
+                const qOrders = query(
+                    collection(db, "canteen_orders"),
+                    where("orderDate", ">=", Timestamp.fromDate(startDate)),
+                    where("orderDate", "<=", Timestamp.fromDate(endDate))
+                );
+
+                const ordersSnap = await getDocs(qOrders);
+                userMap.clear();
+                const depts = new Set();
+
+                ordersSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const uid = data.userId;
+                    if (!uid) return;
+
+                    if (!userMap.has(uid)) {
+                        userMap.set(uid, {
+                            uid,
+                            empId: data.employeeId || 'N/A',
+                            name: data.name || 'Unknown',
+                            dept: data.department || 'N/A',
+                            debtCount: 0,
+                            cashCount: 0,
+                            qrCount: 0,
+                            cardCount: 0,
+                            unclaimedCount: 0,
+                            pendingUnclaimedCount: 0,
+                            vendorDebtAmount: 0,
+                            nssbRecoveryAmount: 0,
+                            totalBill: 0,
+                            paidAmt: 0,
+                            vendorPaidAmt: 0,
+                            balance: 0,
+                            vendorBalance: 0,
+                            status: 'unpaid',
+                            docExists: false,
+                            billData: null
+                        });
+                    }
+
+                    const u = userMap.get(uid);
+                    if (data.department) depts.add(data.department);
+
+                    const claimStatus = String(data.claimStatus || '').trim().toLowerCase();
+                    const pMethod = String(data.paymentMethod || 'Debt').trim().toLowerCase();
+
+                    if (claimStatus === 'claimed') {
+                        if (pMethod.includes('cash')) {
+                            u.cashCount++;
+                        } else if (pMethod.includes('qr')) {
+                            u.qrCount++;
+                        } else if (pMethod.includes('card')) {
+                            u.cardCount++;
+                        } else {
+                            u.debtCount++;
+                            u.vendorDebtAmount += getClaimedDebtAmount(data);
+                        }
+                    }
+
+                    if (claimStatus === 'unclaimed') {
+                        if (isConfirmedUnclaimed(data)) {
+                            u.unclaimedCount++;
+                            u.nssbRecoveryAmount += getUnclaimedRecoveryAmount(data);
+                        } else {
+                            u.pendingUnclaimedCount++;
+                        }
+                    }
+                });
+
+                const currentDeptVal = deptFilter.value;
+                deptFilter.innerHTML = '<option value="">All Departments</option>';
+                Array.from(depts).sort().forEach(d => {
+                    deptFilter.innerHTML += `<option value="${d}">${d}</option>`;
+                });
+                deptFilter.value = currentDeptVal;
+
+                const billPromises = [];
+                for (const uid of userMap.keys()) {
+                    const billRef = doc(db, "canteen_monthly_billing", `${uid}_${currentMonthStr}`);
+                    billPromises.push(getDoc(billRef).then(snap => ({ uid, snap })));
+                }
+
+                const billSnaps = await Promise.all(billPromises);
+                const syncPromises = [];
+
+                billSnaps.forEach(({ uid, snap }) => {
+                    const u = userMap.get(uid);
+                    if (!u) return;
+
+                    u.totalBill = u.vendorDebtAmount + u.nssbRecoveryAmount;
+
+                    let bData = null;
+                    if (snap.exists()) {
+                        bData = snap.data();
+                        u.docExists = true;
+                        u.billData = bData;
+                        u.paidAmt = Math.max(0, toMoney(bData.paidAmount, 0));
+
+                        // New records track vendor RM2 collections separately.
+                        // For legacy records that only have paidAmount, cap the backward-compatible
+                        // vendor-paid portion at the current RM2 debt so old data still renders safely.
+                        if (bData.vendorPaidAmount !== undefined) {
+                            u.vendorPaidAmt = Math.max(0, toMoney(bData.vendorPaidAmount, 0));
+                        } else {
+                            u.vendorPaidAmt = Math.min(u.paidAmt, u.vendorDebtAmount);
+                        }
+                    } else {
+                        u.docExists = false;
+                        u.paidAmt = 0;
+                        u.vendorPaidAmt = 0;
+                    }
+
+                    // IMPORTANT: balance/status are always recalculated from live orders.
+                    // We never trust an old stored balance snapshot after new debt is created.
+                    u.balance = Math.max(0, u.totalBill - u.paidAmt);
+                    u.vendorBalance = Math.max(0, u.vendorDebtAmount - u.vendorPaidAmt);
+                    u.status = u.balance <= 0 ? 'paid' : 'unpaid';
+
+                    syncPromises.push(syncBillingSummary(u, bData));
+                });
+
+                // Keep canteen_monthly_billing current so other pages do not read stale balances.
+                await Promise.all(syncPromises);
+                renderTable();
+
+            } catch (err) {
+                console.error("Error loading data:", err);
+                alert("Failed to load data.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderTable() {
+            const selDept = deptFilter.value;
+            const searchKwd = searchInput.value.toLowerCase().trim();
+
+            let totalOutstanding = 0;
+            let totalCollected = 0;
+            let usersWithDebt = 0;
+
+            const finalArray = [];
+
+            for (const u of userMap.values()) {
+                if (
+                    u.totalBill === 0 &&
+                    u.paidAmt === 0 &&
+                    u.debtCount === 0 &&
+                    u.cashCount === 0 &&
+                    u.qrCount === 0 &&
+                    u.cardCount === 0 &&
+                    u.unclaimedCount === 0 &&
+                    u.pendingUnclaimedCount === 0
+                ) continue;
+
+                if (selDept && u.dept !== selDept) continue;
+                if (searchKwd && !u.name.toLowerCase().includes(searchKwd) && !u.empId.toLowerCase().includes(searchKwd)) continue;
+
+                totalOutstanding += u.balance;
+                totalCollected += u.vendorPaidAmt;
+                if (u.balance > 0) usersWithDebt++;
+
+                finalArray.push(u);
+            }
+
+            finalArray.sort((a, b) => b.balance - a.balance || a.name.localeCompare(b.name));
+
+            document.getElementById('statOutstanding').textContent = `RM ${totalOutstanding.toFixed(2)}`;
+            document.getElementById('statCollected').textContent = `RM ${totalCollected.toFixed(2)}`;
+            document.getElementById('statUsers').textContent = usersWithDebt;
+
+            tbody.innerHTML = '';
+
+            if (finalArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 28px; color: var(--text-muted);">No records match your search.</td></tr>`;
+                return;
+            }
+
+            finalArray.forEach((u, idx) => {
+                const tr = document.createElement('tr');
+
+                const balClass = u.balance > 0 ? 'currency red' : 'currency';
+                const statusBadge = u.balance <= 0
+                    ? `<span class="badge paid"><i class="fas fa-check"></i> Settled</span>`
+                    : `<span class="badge unpaid"><i class="fas fa-exclamation-circle"></i> Unpaid</span>`;
+
+                let actionBtn;
+                if (u.vendorBalance > 0) {
+                    actionBtn = `<button class="btn-pay" onclick="openPaymentModal('${u.uid}')"><i class="fas fa-hand-holding-usd"></i> Collect</button>`;
+                } else if (u.balance > 0) {
+                    actionBtn = `<button class="btn-pay" disabled title="Remaining balance is NSSB-managed unclaimed recovery"><i class="fas fa-building"></i> NSSB</button>`;
+                } else {
+                    actionBtn = `<button class="btn-pay" disabled><i class="fas fa-check-double"></i> Done</button>`;
+                }
+
+                let paidOnSpotHtml = '';
+                if (u.cashCount > 0) paidOnSpotHtml += `<span class="method-badge cash"><i class="fas fa-money-bill"></i> Cash : ${u.cashCount}</span><br>`;
+                if (u.qrCount > 0) paidOnSpotHtml += `<span class="method-badge qr"><i class="fas fa-qrcode"></i> QR : ${u.qrCount}</span><br>`;
+                if (u.cardCount > 0) paidOnSpotHtml += `<span class="method-badge card"><i class="fas fa-credit-card"></i> Card : ${u.cardCount}</span>`;
+                if (paidOnSpotHtml === '') paidOnSpotHtml = `<span style="color:#cbd5e1;">-</span>`;
+
+                let unclaimedHtml = u.unclaimedCount > 0
+                    ? `<strong style="color:var(--danger-text)">${u.unclaimedCount}</strong>`
+                    : `<span style="color:#cbd5e1;">0</span>`;
+                if (u.pendingUnclaimedCount > 0) {
+                    unclaimedHtml += `<br><small style="color:#b45309;">${u.pendingUnclaimedCount} pending</small>`;
+                }
+
+                tr.innerHTML = `
+                    <td style="text-align:center; color:var(--text-muted);">${idx + 1}</td>
+                    <td>
+                        <strong style="color:var(--primary-color);">${u.name}</strong><br>
+                        <small style="color:var(--text-muted);">${u.empId} • ${u.dept}</small>
+                    </td>
+                    <td style="text-align:center;"><strong>${u.debtCount}</strong><br><small>RM ${u.vendorDebtAmount.toFixed(2)}</small></td>
+                    <td>${paidOnSpotHtml}</td>
+                    <td style="text-align:center;">${unclaimedHtml}</td>
+                    <td class="currency">RM ${u.totalBill.toFixed(2)}</td>
+                    <td class="currency" style="color: var(--success-text);">RM ${u.paidAmt.toFixed(2)}</td>
+                    <td class="${balClass}">RM ${u.balance.toFixed(2)}</td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align:center;">${actionBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.openPaymentModal = function(uid) {
+            const u = userMap.get(uid);
+            if (!u || u.vendorBalance <= 0) return;
+
+            currentSelectedUser = u;
+            document.getElementById('modalEmpName').textContent = `${u.name} (${u.empId})`;
+            document.getElementById('modalTotalBill').textContent = `RM ${u.totalBill.toFixed(2)}`;
+            document.getElementById('modalVendorDebt').textContent = `RM ${u.vendorDebtAmount.toFixed(2)}`;
+            document.getElementById('modalNssbRecovery').textContent = `RM ${u.nssbRecoveryAmount.toFixed(2)}`;
+            document.getElementById('modalPaidAmt').textContent = `RM ${u.paidAmt.toFixed(2)}`;
+            document.getElementById('modalBalance').textContent = `RM ${u.balance.toFixed(2)}`;
+            document.getElementById('modalVendorBalance').textContent = `RM ${u.vendorBalance.toFixed(2)}`;
+
+            paymentInput.value = u.vendorBalance.toFixed(2);
+            paymentInput.max = u.vendorBalance.toFixed(2);
+            modal.style.display = 'flex';
+        };
+
+        closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        btnConfirmPayment.addEventListener('click', async () => {
+            const inputVal = parseFloat(paymentInput.value);
+            if (isNaN(inputVal) || inputVal <= 0) {
+                alert("Please enter a valid payment amount.");
+                return;
+            }
+
+            const u = currentSelectedUser;
+            if (!u) return;
+
+            if (inputVal > u.vendorBalance + 0.001) {
+                alert(`This page can only collect the outstanding RM2 vendor debt. Maximum collectible amount is RM ${u.vendorBalance.toFixed(2)}.`);
+                return;
+            }
+
+            showLoading("Processing Payment...");
+            btnConfirmPayment.disabled = true;
+
+            try {
+                const billRef = doc(db, "canteen_monthly_billing", `${u.uid}_${currentMonthStr}`);
+                const paymentRef = doc(collection(db, "canteen_payments"));
+                const collector = auth.currentUser;
+
+                await runTransaction(db, async (transaction) => {
+                    const billSnap = await transaction.get(billRef);
+                    const bData = billSnap.exists() ? billSnap.data() : {};
+
+                    const previousPaidTotal = Math.max(0, toMoney(bData.paidAmount, u.paidAmt));
+                    const previousVendorPaid = bData.vendorPaidAmount !== undefined
+                        ? Math.max(0, toMoney(bData.vendorPaidAmount, u.vendorPaidAmt))
+                        : Math.min(previousPaidTotal, u.vendorDebtAmount);
+
+                    const liveVendorBalance = Math.max(0, u.vendorDebtAmount - previousVendorPaid);
+                    if (inputVal > liveVendorBalance + 0.001) {
+                        throw new Error(`PAYMENT_EXCEEDS_VENDOR_BALANCE:${liveVendorBalance.toFixed(2)}`);
+                    }
+
+                    const newVendorPaid = previousVendorPaid + inputVal;
+                    const newPaidTotal = previousPaidTotal + inputVal;
+                    const newBalance = Math.max(0, u.totalBill - newPaidTotal);
+                    const newStatus = newBalance <= 0 ? 'paid' : 'unpaid';
+
+                    transaction.set(billRef, {
+                        totalAmount: u.totalBill,
+                        vendorDebtAmount: u.vendorDebtAmount,
+                        nssbRecoveryAmount: u.nssbRecoveryAmount,
+                        pendingUnclaimedCount: u.pendingUnclaimedCount,
+                        paidAmount: newPaidTotal,
+                        vendorPaidAmount: newVendorPaid,
+                        balance: newBalance,
+                        status: newStatus,
+                        monthStr: currentMonthStr,
+                        calculationVersion: 'trial_guideline_v1',
+                        lastPaymentId: paymentRef.id,
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+
+                    // Immutable payment history for reconciliation/audit.
+                    transaction.set(paymentRef, {
+                        paymentId: paymentRef.id,
+                        userId: u.uid,
+                        employeeId: u.empId,
+                        employeeName: u.name,
+                        department: u.dept,
+                        monthStr: currentMonthStr,
+                        amount: inputVal,
+                        paymentMethod: 'Cash',
+                        paymentType: 'vendor_employee_contribution_debt',
+                        recipientType: 'vendor',
+                        sourcePage: 'canteencollector.html',
+                        totalAmountAtPayment: u.totalBill,
+                        vendorDebtAmountAtPayment: u.vendorDebtAmount,
+                        nssbRecoveryAmountAtPayment: u.nssbRecoveryAmount,
+                        vendorBalanceBefore: liveVendorBalance,
+                        vendorBalanceAfter: Math.max(0, liveVendorBalance - inputVal),
+                        overallBalanceAfter: newBalance,
+                        collectedByUid: collector?.uid || '',
+                        collectedByEmail: collector?.email || '',
+                        createdAt: serverTimestamp()
+                    });
+                });
+
+                alert("Collection successfully recorded!");
+                modal.style.display = 'none';
+                currentSelectedUser = null;
+                await loadBillingData();
+
+            } catch (err) {
+                console.error("Payment error:", err);
+                if (String(err?.message || '').startsWith('PAYMENT_EXCEEDS_VENDOR_BALANCE:')) {
+                    const maxAmount = String(err.message).split(':')[1] || '0.00';
+                    alert(`Payment was not recorded because the balance changed. Current maximum collectible amount is RM ${maxAmount}. Please refresh and try again.`);
+                } else {
+                    alert("Failed to process collection.");
+                }
+            } finally {
+                btnConfirmPayment.disabled = false;
+                hideLoading();
+            }
+        });
+
+        monthPicker.addEventListener('change', loadBillingData);
+        deptFilter.addEventListener('change', renderTable);
+        searchInput.addEventListener('input', renderTable);
+        document.getElementById('btnRefresh').addEventListener('click', loadBillingData);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setDefaultMonth();
+            loadBillingData();
+        });
+    </script>
+
+</body>
+</html>

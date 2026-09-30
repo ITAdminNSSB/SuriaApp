@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Invoice - NSSB Canteen</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="auth-guard.js"></script>
+
+    <style>
+        :root {
+            --navy:#0c1f5f;
+            --navy2:#162d78;
+            --teal:#14b8a6;
+            --bg:#f4f7fb;
+            --card:#fff;
+            --text:#172033;
+            --muted:#64748b;
+            --line:#e2e8f0;
+            --danger:#dc2626;
+            --warning:#d97706;
+            --success:#15803d;
+            --radius:18px;
+            --shadow:0 8px 24px rgba(12,31,95,.08);
+        }
+
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body {
+            font-family:'Inter',sans-serif;
+            background:radial-gradient(circle at 15% 0%,#e8f0ff 0,transparent 38%),var(--bg);
+            color:var(--text);
+            min-height:100vh;
+            padding-bottom:110px;
+        }
+
+        .header {
+            position:fixed; inset:0 0 auto 0; height:72px;
+            background:rgba(255,255,255,.96); border-bottom:1px solid var(--line);
+            box-shadow:0 4px 18px rgba(12,31,95,.05); backdrop-filter:blur(14px);
+            display:flex; align-items:center; justify-content:center; z-index:1000;
+        }
+        .header img { max-height:44px; width:auto; }
+        .back-btn {
+            position:absolute; left:24px; width:40px; height:40px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; text-decoration:none;
+            color:var(--navy); background:#f1f5f9; transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .back-btn:hover {
+            transform: scale(1.05); background: #e2e8f0;
+        }
+
+        .page { width:min(calc(100% - 32px),1080px); margin:0 auto; padding-top:98px; }
+        .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+
+        .access-card { display:none; padding:34px; text-align:center; max-width:650px; margin:70px auto 0; }
+        .access-card i { font-size:42px; color:var(--danger); margin-bottom:14px; }
+        .access-card h2 { color:var(--navy); margin-bottom:10px; }
+        .access-card p { color:var(--muted); line-height:1.6; }
+
+        #invoiceApp { display:none; }
+
+        .controls { padding:22px; margin-bottom:20px; }
+        .controls-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }
+        .controls h2 { color:var(--navy); font-size:1.28rem; margin-bottom:5px; }
+        .controls .subtitle { color:var(--muted); font-size:.9rem; }
+        .vendor-badge {
+            background:#eef2ff; color:var(--navy); border:1px solid #c7d2fe;
+            padding:9px 12px; border-radius:12px; font-size:.82rem; font-weight:800; white-space:nowrap;
+        }
+
+        .filter-grid { display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:12px; }
+        .field label { display:block; margin-bottom:6px; color:var(--muted); font-size:.8rem; font-weight:700; }
+        .field input,.field select {
+            width:100%; height:44px; border:1px solid #cbd5e1; border-radius:10px;
+            padding:0 12px; background:#fff; color:var(--text); font-family:inherit;
+        }
+        .field input:focus,.field select:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(20,184,166,.12); }
+
+        .action-row { display:flex; gap:10px; margin-top:16px; align-items:center; flex-wrap:wrap; }
+        .btn {
+            border:0; border-radius:10px; padding:11px 16px; font-weight:800; font-family:inherit;
+            cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+        }
+        .btn-primary { background:var(--navy); color:#fff; flex:1; justify-content:center; min-width:220px; }
+        .btn-primary:disabled { opacity:.45; cursor:not-allowed; }
+        .btn-light { background:#eef2ff; color:var(--navy); }
+        .btn-print { background:var(--teal); color:#fff; }
+
+        .status { display:none; padding:14px 18px; margin-bottom:18px; border-radius:12px; background:#fff; border:1px solid var(--line); font-weight:700; color:var(--navy); }
+
+        .invoice { display:none; padding:32px; }
+        .invoice-header { display:flex; justify-content:space-between; gap:28px; padding-bottom:22px; border-bottom:2px solid var(--line); }
+        .company h2 { color:var(--navy); font-size:1.28rem; margin-bottom:7px; }
+        .company p { color:var(--muted); font-size:.84rem; line-height:1.45; }
+        .invoice-meta { text-align:right; min-width:300px; }
+        .invoice-meta h1 { color:var(--navy); font-size:1.55rem; letter-spacing:.8px; margin-bottom:12px; }
+        .invoice-meta p { font-size:.84rem; color:var(--muted); margin:4px 0; }
+        .invoice-meta strong { color:var(--text); }
+        .vendor-name { color:var(--navy); font-weight:800; }
+
+        .summary-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:22px 0; }
+        .summary-card { border:1px solid var(--line); border-radius:14px; padding:16px; background:#fafcff; }
+        .summary-card span { display:block; color:var(--muted); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
+        .summary-card strong { display:block; color:var(--navy); font-size:1.35rem; margin-top:6px; }
+        .summary-card.net { background:#ecfdf5; border-color:#bbf7d0; }
+        .summary-card.net strong { color:var(--success); }
+
+        .section-title { color:var(--navy); font-size:1rem; margin:22px 0 10px; }
+        .table-wrap { width:100%; overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+        table { width:100%; border-collapse:collapse; min-width:760px; }
+        th { background:#0f2468; color:#fff; text-align:left; padding:11px 12px; font-size:.78rem; white-space:nowrap; }
+        td { padding:11px 12px; border-bottom:1px solid #edf2f7; font-size:.82rem; }
+        tbody tr:last-child td { border-bottom:0; }
+        .money { font-weight:800; color:var(--navy); white-space:nowrap; }
+        .deduction { color:var(--danger); font-weight:800; white-space:nowrap; }
+
+        .bottom-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; margin-top:20px; }
+        .note-box { padding:16px 18px; border:1px solid var(--line); border-radius:12px; background:#f8fafc; }
+        .note-box h4 { color:var(--navy); margin-bottom:8px; font-size:.9rem; }
+        .note-box p { color:var(--muted); font-size:.8rem; line-height:1.55; }
+        .note-box .pending { margin-top:8px; color:var(--warning); font-weight:700; }
+
+        .totals { width:100%; border-collapse:collapse; min-width:0; }
+        .totals td { padding:8px 0; border:0; font-size:.84rem; }
+        .totals td:last-child { text-align:right; font-weight:800; color:var(--navy); white-space:nowrap; }
+        .totals .minus td:last-child { color:var(--danger); }
+        .totals .grand td { border-top:2px solid var(--line); padding-top:12px; font-size:1.03rem; }
+        .totals .grand td:last-child { color:var(--success); font-size:1.22rem; }
+
+        .invoice-footer { margin-top:24px; padding-top:14px; border-top:1px solid var(--line); text-align:center; color:var(--muted); font-size:.75rem; line-height:1.5; }
+
+        .print-row { display:none; justify-content:flex-end; margin:0 0 12px; }
+
+        .nav-container {
+            position:fixed; left:50%; transform:translateX(-50%); bottom:16px;
+            width:calc(100% - 32px); max-width:500px; height:68px; padding:7px;
+            display:flex; background:rgba(12,31,95,.96); border-radius:24px; z-index:1200;
+            box-shadow:0 18px 36px rgba(12,31,95,.32);
+        }
+        .nav-item { flex:1; color:#94a3b8; text-decoration:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:17px; font-size:10px; font-weight:700; }
+        .nav-item i { font-size:17px; }
+        .nav-item.active { background:var(--teal); color:#fff; }
+
+        @media (max-width:800px) {
+            .filter-grid { grid-template-columns:1fr; }
+            .controls-top,.invoice-header { flex-direction:column; }
+            .invoice-meta { text-align:left; min-width:0; }
+            .summary-cards { grid-template-columns:repeat(2,1fr); }
+            .bottom-grid { grid-template-columns:1fr; }
+            .invoice { padding:20px; }
+        }
+        @media print {
+            body { background:#fff; padding:0; }
+            .header,.controls,.status,.print-row,.nav-container,.access-card { display:none!important; }
+            .page { width:100%; padding:0; }
+            .invoice { display:block!important; border:0; box-shadow:none; padding:0; }
+            .table-wrap { overflow:visible; }
+            table { min-width:0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <img src="pictures/new.png" alt="NSSB Logo">
+    </div>
+
+    <div class="page">
+        <div id="accessDenied" class="card access-card">
+            <i class="fas fa-lock"></i>
+            <h2>Vendor Access Required</h2>
+            <p id="accessDeniedText">This invoice page is restricted to authorised canteen vendor accounts.</p>
+        </div>
+
+        <div id="invoiceApp">
+            <div class="card controls">
+                <div class="controls-top">
+                    <div>
+                        <h2>Vendor Invoice</h2>
+                        <p class="subtitle">Invoice data is limited to transactions belonging to the currently logged-in vendor account.</p>
+                    </div>
+                    <div class="vendor-badge" id="loggedVendorBadge">Checking vendor account...</div>
+                </div>
+
+                <div class="filter-grid">
+                    <div class="field">
+                        <label>Start Date</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="field">
+                        <label>End Date</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div class="field">
+                        <label>Department (Optional)</label>
+                        <select id="departmentFilter">
+                            <option value="">All Departments</option>
+                            <option value="HRA">HRA</option>
+                            <option value="FNA">FNA</option>
+                            <option value="MDO">MDO</option>
+                            <option value="BD&Project">BD&Project</option>
+                            <option value="SALES">SALES</option>
+                            <option value="PVD">PVD</option>
+                            <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
+                            <option value="QMS">QMS</option>
+                            <option value="QAQC">QAQC</option>
+                            <option value="PE/LPS">PE/LPS</option>
+                            <option value="MAINTENANCE">MAINTENANCE</option>
+                            <option value="PROD">PROD</option>
+                            <option value="PPCL">PPCL</option>
+                            <option value="SYNERGY">SYNERGY</option>
+                            <option value="SGTSB">SGTSB</option>
+                            <option value="PPIC-STAMPING">PPIC-STAMPING</option>
+                            <option value="PROD-STAMPING">PROD-STAMPING</option>
+                            <option value="PROD-STAMPING-DIEMTCE">PROD-STAMPING-DIEMTCE</option>
+                            <option value="QC-STAMPING">QC-STAMPING</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button id="currentPeriodBtn" class="btn btn-light">Current 14 Days</button>
+                    <button id="lastPeriodBtn" class="btn btn-light">Previous 14 Days</button>
+                    <button id="generateInvoiceBtn" class="btn btn-primary" disabled>
+                        <i class="fas fa-file-invoice"></i> Generate Vendor Invoice
+                    </button>
+                </div>
+            </div>
+
+            <div id="invoiceStatus" class="status"></div>
+
+            <div id="printRow" class="print-row">
+                <button id="printInvoiceBtn" class="btn btn-print"><i class="fas fa-print"></i> Print Invoice</button>
+            </div>
+
+            <div id="invoicePreview" class="card invoice">
+                <div class="invoice-header">
+                    <div class="company">
+                        <h2>NAMICOH SURIA SDN BHD</h2>
+                        <p>Lot 42558, 42559, 42560, Seksyen U6, Jalan 2C</p>
+                        <p>Kampung Baru Subang, 40150 Shah Alam</p>
+                        <p>Tel: 03-7455 9800</p>
+                    </div>
+                    <div class="invoice-meta">
+                        <h1>VENDOR CLAIM INVOICE</h1>
+                        <p><strong>Invoice No.:</strong> <span id="invoiceNumber"></span></p>
+                        <p><strong>Generated:</strong> <span id="invoiceDate"></span></p>
+                        <p><strong>Billing Period:</strong> <span id="invoicePeriod"></span></p>
+                        <p><strong>Caterer / Vendor:</strong> <span id="invoiceVendorName" class="vendor-name"></span></p>
+                    </div>
+                </div>
+
+                <div class="summary-cards">
+                    <div class="summary-card"><span>Verified Meal Scan</span><strong id="cardScanQty">0</strong></div>
+                    <div class="summary-card"><span>Confirmed Miss Scan</span><strong id="cardMissQty">0</strong></div>
+                    <div class="summary-card"><span>Total Deductions</span><strong id="cardDeduction">RM 0.00</strong></div>
+                    <div class="summary-card net"><span>Net Payable</span><strong id="cardNet">RM 0.00</strong></div>
+                </div>
+
+                <h3 class="section-title">Daily Claim Summary</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service Date</th>
+                                <th>Verified Scan</th>
+                                <th>Subsidy Claim</th>
+                                <th>Miss Scan</th>
+                                <th>Miss Scan Claim</th>
+                                <th>Deductions</th>
+                                <th>Net Payable</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyBody"></tbody>
+                    </table>
+                </div>
+
+                <h3 class="section-title">Plant Summary</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plant</th>
+                                <th>Verified Scan</th>
+                                <th>Miss Scan</th>
+                                <th>Deductions</th>
+                                <th>Net Payable</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plantBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="bottom-grid">
+                    <div class="note-box">
+                        <h4>Invoice Basis</h4>
+                        <p>Verified Meal Scan: RM5.50 NSSB subsidy per eligible meal. Confirmed Miss Scan: RM7.50 per verified case. Scan Failure Penalty: RM2.00 deduction per confirmed transaction. Short Supply: approved adjustment only.</p>
+                        <p class="pending">Pending Miss Scan Verification: <span id="pendingMissCount">0</span></p>
+                    </div>
+                    <div>
+                        <table class="totals">
+                            <tr><td>Verified Meal Scan Claim</td><td id="scanTotal">RM 0.00</td></tr>
+                            <tr><td>Confirmed Miss Scan Claim</td><td id="missTotal">RM 0.00</td></tr>
+                            <tr class="minus"><td>Scan Failure Penalty</td><td id="penaltyTotal">- RM 0.00</td></tr>
+                            <tr class="minus"><td>Short Supply Adjustment</td><td id="shortSupplyTotal">- RM 0.00</td></tr>
+                            <tr class="grand"><td><strong>Net Payable</strong></td><td id="grandTotal">RM 0.00</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="invoice-footer">
+                    Generated from the authenticated vendor account in the NSSB Canteen Management System.<br>
+                    Employee RM2.00 collections are excluded from the NSSB subsidy claim.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-container" id="vendorNav" style="display:none;">
+        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteen_invoice.html" class="nav-item active"><i class="fas fa-file-invoice"></i><span>Invoice</span></a>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Updated Firebase config to match the production database
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const claimedRef = collection(db,"canteen_claimed");
+        const ordersRef = collection(db,"canteen_orders");
+
+        const VERIFIED_SCAN_RATE = 5.50;
+        const MISS_SCAN_RATE = 7.50;
+        const SCAN_FAILURE_PENALTY = 2.00;
+        const ALLOWED_VENDOR_ROLES = new Set(["canteen_trial","vendor","canteen1_admin"]);
+
+        let vendorSession = null;
+        let sessionResolved = false;
+        let resolveSession;
+        const sessionReady = new Promise(resolve => { resolveSession = resolve; });
+
+        const $ = id => document.getElementById(id);
+
+        function canonicalVendorName(...values) {
+            const raw = values.filter(Boolean).join(" ").toLowerCase();
+            const compact = raw.replace(/[^a-z0-9]/g,"");
+            if (compact.includes("alarbai") || compact.includes("arbai")) return "Al Arbai";
+            if (compact.includes("mirasa")) return "Mirasa";
+            if (compact.includes("sirehlegasi") || (compact.includes("sireh") && compact.includes("legasi"))) return "Sireh Legasi";
+            if (compact.includes("bangmedholdings") || compact.includes("bangmed")) return "Bang Med Holdings";
+            return "";
+        }
+
+        function vendorCode(name) {
+            return ({"Al Arbai":"ALARBAI","Mirasa":"MIRASA","Sireh Legasi":"SIREH","Bang Med Holdings":"BANGMED"})[name] || "VENDOR";
+        }
+
+        function denyAccess(message) {
+            $("invoiceApp").style.display = "none";
+            $("vendorNav").style.display = "none";
+            $("accessDeniedText").textContent = message;
+            $("accessDenied").style.display = "block";
+        }
+
+        function resolveVendorSession(value) {
+            if (sessionResolved) return;
+            sessionResolved = true;
+            resolveSession(value);
+        }
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                denyAccess("Please log in using an authorised canteen vendor account.");
+                resolveVendorSession(null);
+                return;
+            }
+
+            try {
+                const userSnap = await getDoc(doc(db,"users",user.uid));
+                const profile = userSnap.exists() ? userSnap.data() : {};
+                const role = String(profile.role || "").trim().toLowerCase();
+
+                if (!ALLOWED_VENDOR_ROLES.has(role)) {
+                    denyAccess(`Access denied for ${user.email || "this account"}. This page is limited to authorised canteen vendor accounts.`);
+                    resolveVendorSession(null);
+                    return;
+                }
+
+                const vendorName = canonicalVendorName(
+                    profile.vendorName,
+                    profile.companyName,
+                    profile.canteenVendorName,
+                    profile.name,
+                    profile.displayName,
+                    user.displayName,
+                    user.email
+                );
+
+                if (!vendorName) {
+                    denyAccess("This vendor account is authorised, but its vendor name is not configured. Set vendorName/companyName to Al Arbai, Mirasa, Sireh Legasi, or Bang Med Holdings before generating an invoice.");
+                    resolveVendorSession(null);
+                    return;
+                }
+
+                vendorSession = {
+                    uid:user.uid,
+                    email:String(user.email || "").trim().toLowerCase(),
+                    role,
+                    vendorName,
+                    profile
+                };
+
+                $("loggedVendorBadge").textContent = vendorName;
+                $("generateInvoiceBtn").disabled = false;
+                $("invoiceApp").style.display = "block";
+                $("vendorNav").style.display = "flex";
+                $("accessDenied").style.display = "none";
+                resolveVendorSession(vendorSession);
+            } catch (error) {
+                console.error("Vendor access check failed:",error);
+                denyAccess("Unable to verify the vendor account. Please try again.");
+                resolveVendorSession(null);
+            }
+        });
+
+        function malaysiaDateKey(dateObj = new Date()) {
+            const parts = new Intl.DateTimeFormat("en-CA",{
+                timeZone:"Asia/Kuala_Lumpur",year:"numeric",month:"2-digit",day:"2-digit"
+            }).formatToParts(dateObj);
+            const m = Object.fromEntries(parts.map(p => [p.type,p.value]));
+            return `${m.year}-${m.month}-${m.day}`;
+        }
+
+        function toDateInput(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth()+1).padStart(2,"0");
+            const d = String(dateObj.getDate()).padStart(2,"0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function displayDate(value) {
+            if (!value) return "-";
+            const raw = String(value);
+            const d = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T12:00:00`) : new Date(value);
+            return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+        }
+
+        function serviceDate(data) {
+            if (typeof data?.serviceDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.serviceDate)) return data.serviceDate;
+            if (typeof data?.scannedDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.scannedDate)) return data.scannedDate;
+            if (typeof data?.orderDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.orderDate)) return data.orderDate;
+            if (data?.orderDate?.toDate) return malaysiaDateKey(data.orderDate.toDate());
+            if (data?.timestamp?.toDate) return malaysiaDateKey(data.timestamp.toDate());
+            return "";
+        }
+
+        function plantName(data) {
+            const loc = String(data?.location || "").toLowerCase();
+            const dept = String(data?.department || "").toUpperCase();
+            return (loc.includes("stamping") || dept.includes("STAMPING")) ? "Stamping Plant" : "Main Plant";
+        }
+
+        function departmentMatches(data,filter) {
+            return !filter || String(data?.department || "") === filter;
+        }
+
+        async function queryOwnedDocuments(ref, uidFields, emailFields) {
+            const session = await sessionReady;
+            if (!session) throw new Error("VENDOR_SESSION_REQUIRED");
+
+            const requests = [];
+            uidFields.forEach(field => requests.push(getDocs(query(ref,where(field,"==",session.uid)))));
+            if (session.email) emailFields.forEach(field => requests.push(getDocs(query(ref,where(field,"==",session.email)))));
+
+            const settled = await Promise.allSettled(requests);
+            const docs = new Map();
+            settled.forEach(result => {
+                if (result.status !== "fulfilled") {
+                    console.warn("Vendor ownership query skipped:",result.reason);
+                    return;
+                }
+                result.value.forEach(snap => docs.set(snap.id,{id:snap.id,...snap.data()}));
+            });
+            return Array.from(docs.values());
+        }
+
+        async function getVendorClaims(startDate,endDate,deptFilter) {
+            // IMPORTANT: do not fetch all claims and filter in the browser.
+            // Only request records explicitly owned by the authenticated scanner/vendor account.
+            const rows = await queryOwnedDocuments(
+                claimedRef,
+                ["scannedByUid","vendorUserId","userId"],
+                ["scannedByEmail","vendorEmail"]
+            );
+
+            return rows.filter(data => {
+                const date = serviceDate(data);
+                return date && date >= startDate && date <= endDate && departmentMatches(data,deptFilter);
+            });
+        }
+
+        async function getVendorSupportOrders(startDate,endDate,deptFilter) {
+            // Miss Scan has no scanner by definition. Therefore it is included only when the
+            // order is explicitly assigned to this vendor or already linked to this vendor by a verified correction.
+            // Unassigned orders are intentionally excluded to prevent cross-vendor leakage.
+            const rows = await queryOwnedDocuments(
+                ordersRef,
+                ["assignedVendorUid","canteenVendorUid","vendorUserId","claimedByUserId"],
+                ["assignedVendorEmail","canteenVendorEmail","vendorEmail","claimedByEmail"]
+            );
+
+            return rows.filter(data => {
+                const date = serviceDate(data);
+                return date && date >= startDate && date <= endDate && departmentMatches(data,deptFilter);
+            });
+        }
+
+        function confirmedMissScan(data) {
+            const status = String(data?.claimStatus || "").toLowerCase();
+            if (status !== "unclaimed") return false;
+            return data?.unclaimedConfirmed === true ||
+                   data?.invoiceUnclaimedConfirmed === true ||
+                   data?.unclaimedEligibleForInvoice === true ||
+                   String(data?.unclaimedVerificationStatus || "").toLowerCase() === "confirmed" ||
+                   String(data?.verificationStatus || "").toLowerCase() === "confirmed";
+        }
+
+        function pendingMissScan(data) {
+            return String(data?.claimStatus || "").toLowerCase() === "unclaimed" && !confirmedMissScan(data);
+        }
+
+        function confirmedPenalty(data) {
+            return data?.scanFailureConfirmed === true ||
+                   data?.invoiceScanFailureConfirmed === true ||
+                   data?.vendorScanFailureConfirmed === true ||
+                   String(data?.scanFailureStatus || "").toLowerCase() === "confirmed";
+        }
+
+        function confirmedShortSupply(data) {
+            return data?.shortSupplyConfirmed === true ||
+                   data?.invoiceShortSupplyConfirmed === true ||
+                   data?.vendorShortSupplyConfirmed === true ||
+                   String(data?.shortSupplyStatus || "").toLowerCase() === "confirmed" ||
+                   String(data?.supplyIssueStatus || "").toLowerCase() === "short_supply";
+        }
+
+        function shortSupplyAmount(data) {
+            const n = Number(data?.shortSupplyDeduction ?? data?.shortSupplyAdjustment ?? data?.vendorShortSupplyDeduction ?? data?.approvedShortSupplyDeduction ?? 0);
+            return Number.isFinite(n) ? Math.abs(n) : 0;
+        }
+
+        function newBucket(name) {
+            return {name,scanQty:0,scanAmount:0,missQty:0,missAmount:0,penaltyQty:0,penaltyAmount:0,shortQty:0,shortAmount:0,pendingMiss:0,net:0};
+        }
+
+        function buildSummary(claims,orders) {
+            const days = {};
+            const plants = {};
+            const seenPenalty = new Set();
+            const day = key => days[key] ||= newBucket(key);
+            const plant = key => plants[key] ||= newBucket(key);
+
+            claims.forEach(claim => {
+                const d = serviceDate(claim); if (!d) return;
+                const p = plantName(claim);
+                const amountRaw = Number(claim.invoiceClaimAmount ?? claim.vendorClaimAmount ?? claim.nssbSubsidy ?? VERIFIED_SCAN_RATE);
+                const amount = Number.isFinite(amountRaw) ? amountRaw : VERIFIED_SCAN_RATE;
+                day(d).scanQty++; day(d).scanAmount += amount;
+                plant(p).scanQty++; plant(p).scanAmount += amount;
+            });
+
+            orders.forEach(order => {
+                const d = serviceDate(order); if (!d) return;
+                const p = plantName(order);
+                const orderId = String(order.id || order.orderId || `${d}-${order.employeeId || ""}`);
+
+                if (confirmedShortSupply(order)) {
+                    const amount = shortSupplyAmount(order);
+                    day(d).shortQty++; day(d).shortAmount += amount;
+                    plant(p).shortQty++; plant(p).shortAmount += amount;
+                } else if (confirmedMissScan(order)) {
+                    const amountRaw = Number(order.vendorClaimUnclaimed ?? MISS_SCAN_RATE);
+                    const amount = Number.isFinite(amountRaw) ? amountRaw : MISS_SCAN_RATE;
+                    day(d).missQty++; day(d).missAmount += amount;
+                    plant(p).missQty++; plant(p).missAmount += amount;
+                } else if (pendingMissScan(order)) {
+                    day(d).pendingMiss++;
+                    plant(p).pendingMiss++;
+                }
+
+                if (confirmedPenalty(order) && !seenPenalty.has(orderId)) {
+                    seenPenalty.add(orderId);
+                    const amountRaw = Number(order.scanFailureDeduction ?? SCAN_FAILURE_PENALTY);
+                    const amount = Number.isFinite(amountRaw) ? Math.abs(amountRaw) : SCAN_FAILURE_PENALTY;
+                    day(d).penaltyQty++; day(d).penaltyAmount += amount;
+                    plant(p).penaltyQty++; plant(p).penaltyAmount += amount;
+                }
+            });
+
+            Object.values(days).forEach(x => x.net = x.scanAmount + x.missAmount - x.penaltyAmount - x.shortAmount);
+            Object.values(plants).forEach(x => x.net = x.scanAmount + x.missAmount - x.penaltyAmount - x.shortAmount);
+            return {days,plants};
+        }
+
+        function setStatus(message,isError=false) {
+            $("invoiceStatus").style.display = "block";
+            $("invoiceStatus").textContent = message;
+            $("invoiceStatus").style.color = isError ? "var(--danger)" : "var(--navy)";
+        }
+
+        async function generateInvoice() {
+            const session = await sessionReady;
+            if (!session) return;
+
+            const startDate = $("startDate").value;
+            const endDate = $("endDate").value;
+            const dept = $("departmentFilter").value;
+            if (!startDate || !endDate) return alert("Please select start and end dates.");
+            if (startDate > endDate) return alert("Start date cannot be later than end date.");
+
+            $("invoicePreview").style.display = "none";
+            $("printRow").style.display = "none";
+            setStatus(`Generating invoice for ${session.vendorName}...`);
+
+            try {
+                const [claims,orders] = await Promise.all([
+                    getVendorClaims(startDate,endDate,dept),
+                    getVendorSupportOrders(startDate,endDate,dept)
+                ]);
+
+                const {days,plants} = buildSummary(claims,orders);
+                const dailyRows = Object.entries(days).sort((a,b)=>a[0].localeCompare(b[0]));
+
+                if (!dailyRows.length) {
+                    setStatus(`No invoice-eligible records found for ${session.vendorName} in the selected period.`);
+                    return;
+                }
+
+                let scanQty=0,scanTotal=0,missQty=0,missTotal=0,penaltyTotal=0,shortTotal=0,pending=0,net=0;
+                $("dailyBody").innerHTML = "";
+
+                dailyRows.forEach(([date,x]) => {
+                    const deductions = x.penaltyAmount + x.shortAmount;
+                    $("dailyBody").insertAdjacentHTML("beforeend",`
+                        <tr>
+                            <td>${displayDate(date)}</td>
+                            <td>${x.scanQty}</td>
+                            <td class="money">RM ${x.scanAmount.toFixed(2)}</td>
+                            <td>${x.missQty}</td>
+                            <td class="money">RM ${x.missAmount.toFixed(2)}</td>
+                            <td class="deduction">${deductions ? `- RM ${deductions.toFixed(2)}` : "RM 0.00"}</td>
+                            <td class="money">RM ${x.net.toFixed(2)}</td>
+                        </tr>`);
+                    scanQty += x.scanQty; scanTotal += x.scanAmount;
+                    missQty += x.missQty; missTotal += x.missAmount;
+                    penaltyTotal += x.penaltyAmount; shortTotal += x.shortAmount;
+                    pending += x.pendingMiss; net += x.net;
+                });
+
+                $("plantBody").innerHTML = "";
+                Object.values(plants).sort((a,b)=>a.name.localeCompare(b.name)).forEach(x => {
+                    const deductions = x.penaltyAmount + x.shortAmount;
+                    $("plantBody").insertAdjacentHTML("beforeend",`
+                        <tr>
+                            <td>${x.name}</td>
+                            <td>${x.scanQty}</td>
+                            <td>${x.missQty}</td>
+                            <td class="deduction">${deductions ? `- RM ${deductions.toFixed(2)}` : "RM 0.00"}</td>
+                            <td class="money">RM ${x.net.toFixed(2)}</td>
+                        </tr>`);
+                });
+
+                const code = vendorCode(session.vendorName);
+                $("invoiceNumber").textContent = `NSSB-${code}-${startDate.replaceAll("-","")}-${endDate.replaceAll("-","")}`;
+                $("invoiceDate").textContent = displayDate(new Date());
+                $("invoicePeriod").textContent = `${displayDate(startDate)} - ${displayDate(endDate)}`;
+                $("invoiceVendorName").textContent = session.vendorName;
+
+                $("cardScanQty").textContent = scanQty;
+                $("cardMissQty").textContent = missQty;
+                $("cardDeduction").textContent = `RM ${(penaltyTotal+shortTotal).toFixed(2)}`;
+                $("cardNet").textContent = `RM ${net.toFixed(2)}`;
+                $("pendingMissCount").textContent = pending;
+
+                $("scanTotal").textContent = `RM ${scanTotal.toFixed(2)}`;
+                $("missTotal").textContent = `RM ${missTotal.toFixed(2)}`;
+                $("penaltyTotal").textContent = `- RM ${penaltyTotal.toFixed(2)}`;
+                $("shortSupplyTotal").textContent = `- RM ${shortTotal.toFixed(2)}`;
+                $("grandTotal").textContent = `RM ${net.toFixed(2)}`;
+
+                $("invoiceStatus").style.display = "none";
+                $("invoicePreview").style.display = "block";
+                $("printRow").style.display = "flex";
+            } catch (error) {
+                console.error("Invoice generation failed:",error);
+                setStatus("Unable to generate invoice. Please check vendor configuration and Firebase permissions.",true);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded",() => {
+            const end = new Date();
+            const start = new Date(); start.setDate(end.getDate()-13);
+            $("startDate").value = toDateInput(start);
+            $("endDate").value = toDateInput(end);
+
+            $("generateInvoiceBtn").addEventListener("click",generateInvoice);
+            $("printInvoiceBtn").addEventListener("click",()=>window.print());
+
+            $("currentPeriodBtn").addEventListener("click",() => {
+                const e = new Date(); const s = new Date(); s.setDate(e.getDate()-13);
+                $("startDate").value = toDateInput(s); $("endDate").value = toDateInput(e);
+            });
+            $("lastPeriodBtn").addEventListener("click",() => {
+                const e = new Date(); e.setDate(e.getDate()-14);
+                const s = new Date(e); s.setDate(e.getDate()-13);
+                $("startDate").value = toDateInput(s); $("endDate").value = toDateInput(e);
+            });
+        });
+    </script>
+</body>
+</html>

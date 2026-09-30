@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Dashboard</title>
+    
+    <!-- Google Fonts for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --secondary-hover: #0d9488;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 6px -1px rgba(12, 31, 95, 0.05), 0 2px 4px -1px rgba(12, 31, 95, 0.03);
+            --shadow-md: 0 10px 25px -5px rgba(12, 31, 95, 0.1), 0 8px 10px -6px rgba(12, 31, 95, 0.05);
+            --shadow-hover: 0 20px 25px -5px rgba(12, 31, 95, 0.15), 0 8px 10px -6px rgba(12, 31, 95, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(12, 31, 95, 0.04) 0px, transparent 50%);
+            color: var(--text-main);
+            overflow-x: hidden;
+            padding-bottom: 120px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Header --- */
+        .header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 72px;
+            padding: 0 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px rgba(12, 31, 95, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .header img {
+            max-height: 42px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .container {
+            width: min(calc(100% - 32px), 960px);
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+
+        /* --- Welcome Hero --- */
+        .hero-section {
+            margin-bottom: 32px;
+            padding: 0 8px;
+        }
+        .hero-section h1 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+        .hero-section p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* --- Section Titles --- */
+        .section-header {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin: 32px 8px 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Dashboard Grid Cards --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .dashboard-card {
+            background-color: var(--surface-color);
+            padding: 24px 20px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--primary-color);
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: #cbd5e1;
+        }
+
+        .dashboard-card:hover::before {
+            opacity: 1;
+        }
+
+        .dashboard-card .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px;
+            background: #f1f5f9;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover .icon-wrapper {
+            transform: scale(1.1);
+        }
+
+        /* Specific Colors for Icons */
+        .c-scan .icon-wrapper { color: #0ea5e9; background: #f0f9ff; }
+        .c-scan:hover::before { background: #0ea5e9; }
+        
+        .c-view .icon-wrapper { color: #8b5cf6; background: #f5f3ff; }
+        .c-view:hover::before { background: #8b5cf6; }
+
+        .c-claim .icon-wrapper { color: #10b981; background: #ecfdf5; }
+        .c-claim:hover::before { background: #10b981; }
+
+        .c-collect .icon-wrapper { color: #059669; background: #d1fae5; }
+        .c-collect:hover::before { background: #059669; }
+        
+        .c-invoice .icon-wrapper { color: #f59e0b; background: #fffbeb; }
+        .c-invoice:hover::before { background: #f59e0b; }
+
+        .c-menu .icon-wrapper { color: #f43f5e; background: #fff1f2; }
+        .c-menu:hover::before { background: #f43f5e; }
+
+        .c-feedback .icon-wrapper { color: #3b82f6; background: #eff6ff; }
+        .c-feedback:hover::before { background: #3b82f6; }
+
+        .c-waste .icon-wrapper { color: #d97706; background: #fef3c7; }
+        .c-waste:hover::before { background: #d97706; }
+
+        .dashboard-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* --- Rating Widget --- */
+        .rating-widget {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            margin-top: 32px;
+            margin-bottom: 32px;
+        }
+
+        .rating-widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .rating-widget-header h2 {
+            font-size: 1.15rem;
+            color: var(--primary-color);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rating-widget-header input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background: #f8fafc;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .rating-widget-header input[type="date"]:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+        }
+
+        .rating-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .rating-overview {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .stars-display {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 8px;
+            font-size: 24px;
+            color: #e2e8f0;
+        }
+
+        .rating-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .rating-subtitle {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .rating-distribution {
+            font-size: 0.85rem;
+            padding: 10px;
+        }
+
+        .dist-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .dist-row:last-child { margin-bottom: 0; }
+        
+        .dist-label {
+            width: 40px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-main);
+        }
+
+        .dist-bar-container {
+            flex-grow: 1;
+            height: 8px;
+            background: #e2e8f0;
+            margin: 0 12px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .dist-bar {
+            height: 100%;
+            background: #f59e0b;
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .dist-count {
+            width: 30px;
+            text-align: right;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* --- Footer --- */
+        .logo-footer {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            opacity: 0.6;
+            filter: grayscale(100%);
+            transition: 0.3s;
+        }
+        .logo-footer:hover {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+        .logo-footer img {
+            width: 140px;
+            height: auto;
+        }
+
+        /* --- App Navigation --- */
+        .nav-container {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: max(16px, env(safe-area-inset-bottom));
+            width: calc(100% - 32px);
+            max-width: 500px;
+            height: 70px;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            background: rgba(12, 31, 95, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(12, 31, 95, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1200;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 18px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item i { font-size: 18px; transition: 0.3s; }
+        
+        .nav-item:hover { 
+            color: #ffffff; 
+            background: rgba(255, 255, 255, 0.08); 
+        }
+
+        .nav-item.active {
+            background: var(--secondary-color);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+        }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .header { height: 62px; padding: 0 16px; }
+            .header img { max-height: 38px; }
+            .container { padding-top: 84px; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .dashboard-card { padding: 20px 16px; }
+            .dashboard-card .icon-wrapper { width: 42px; height: 42px; font-size: 20px; margin-bottom: 12px; }
+            .dashboard-card h3 { font-size: 0.85rem; }
+            
+            .rating-content { grid-template-columns: 1fr; gap: 16px; }
+            .rating-widget-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .rating-widget-header input[type="date"] { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header (Tanpa Back Button) -->
+    <div class="header">
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Welcome Hero -->
+        <div class="hero-section">
+            <h1 id="greetingText">Good Morning, Canteen Staff</h1>
+            <p>Welcome back to the Canteen Management System.</p>
+        </div>
+
+        <!-- Section: Daily Operations -->
+        <div class="section-header">
+            <i class="fas fa-bolt"></i> Daily Operations
+        </div>
+        <div class="dashboard-grid">
+            <a href="canteen_order_view.html" class="dashboard-card c-view">
+                <div class="icon-wrapper"><i class="fas fa-list-alt"></i></div>
+                <h3>View Orders</h3>
+                <p>Live kitchen queue</p>
+            </a>
+            
+            <a href="orderingfoodscanner.html" class="dashboard-card c-scan">
+                <div class="icon-wrapper"><i class="fas fa-qrcode"></i></div>
+                <h3>Scan QR</h3>
+                <p>Verify staff meals</p>
+            </a>
+
+            <a href="canteen_order_claimed.html" class="dashboard-card c-claim">
+                <div class="icon-wrapper"><i class="fas fa-clipboard-check"></i></div>
+                <h3>Claimed History</h3>
+                <p>Verify collected meals</p>
+            </a>
+
+            <a href="canteencollector.html" class="dashboard-card c-collect">
+                <div class="icon-wrapper"><i class="fas fa-hand-holding-usd"></i></div>
+                <h3>Debt Collection</h3>
+                <p>Receive cash payments</p>
+            </a>
+        </div>
+
+        <!-- Section: Management & Analytics -->
+        <div class="section-header">
+            <i class="fas fa-chart-pie"></i> Management & Analytics
+        </div>
+        <div class="dashboard-grid">
+            <a href="canteen_invoice.html" class="dashboard-card c-invoice">
+                <div class="icon-wrapper"><i class="fas fa-file-invoice-dollar"></i></div>
+                <h3>HR Invoices</h3>
+                <p>Billing summaries</p>
+            </a>
+
+            <a href="canteen_update_menu.html" class="dashboard-card c-menu">
+                <div class="icon-wrapper"><i class="fas fa-utensils"></i></div>
+                <h3>Update Menu</h3>
+                <p>Modify weekly dishes</p>
+            </a>
+
+            <a href="canteen_order_feedback.html" class="dashboard-card c-feedback">
+                <div class="icon-wrapper"><i class="fas fa-comments"></i></div>
+                <h3>Feedback</h3>
+                <p>User reviews & ratings</p>
+            </a>
+
+            <a href="canteen_wastage.html" class="dashboard-card c-waste">
+                <div class="icon-wrapper"><i class="fas fa-leaf"></i></div>
+                <h3>Waste Tracking</h3>
+                <p>Unclaimed meal analytics</p>
+            </a>
+        </div>
+
+        <!-- Rating Analytics Widget -->
+        <div class="rating-widget">
+            <div class="rating-widget-header">
+                <h2 id="ratingBannerTitle"><i class="fas fa-star" style="color: #f59e0b;"></i> Rating Overview</h2>
+                <input type="date" id="ratingDateFilter">
+            </div>
+
+            <div class="rating-content">
+                <div class="rating-overview">
+                    <div class="rating-score" id="ratingScoreText">0.0</div>
+                    <div class="stars-display" id="averageStars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <div class="rating-subtitle" id="ratingCountText">Loading data...</div>
+                </div>
+
+                <div class="rating-distribution" id="ratingDistribution">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">Fetching reviews...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Logo -->
+        <div class="logo-footer">
+            <img src="pictures/nssb_logo_text1.png" alt="NSSB Logo" onerror="this.style.display='none'">
+        </div>
+    </div> 
+    
+    <!-- Navigation Bottom (Only 5 Menu Items) -->
+    <div class="nav-container">
+        <a href="canteen.html" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteencollector.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Collection</span></a>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Dynamic Greeting for Canteen Staff
+        function setGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Good Evening';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 18) greeting = 'Good Afternoon';
+            document.getElementById('greetingText').textContent = `${greeting}, Canteen Staff`;
+        }
+        setGreeting();
+
+
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Date Picker Initialization
+        const datePicker = document.getElementById('ratingDateFilter');
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        
+        const defaultDateStr = yesterday.toISOString().split('T')[0];
+        datePicker.value = defaultDateStr;
+        
+        datePicker.addEventListener('change', (e) => {
+            fetchRatingAverage(e.target.value);
+        });
+
+        async function fetchRatingAverage(dateString) {
+            try {
+                const targetDate = new Date(dateString);
+                targetDate.setHours(0, 0, 0, 0);
+                const endOfDay = new Date(targetDate);
+                endOfDay.setHours(23, 59, 59, 999);
+
+                const isYesterday = (dateString === yesterday.toISOString().split('T')[0]);
+                const displayDate = targetDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                
+                const q = query(
+                    collection(db, "canteen_orders"),
+                    where("orderDate", ">=", Timestamp.fromDate(targetDate)),
+                    where("orderDate", "<=", Timestamp.fromDate(endOfDay))
+                );
+
+                const snapshot = await getDocs(q);
+                
+                let totalStars = 0;
+                let validCount = 0;
+                let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.yesterdayRating && data.yesterdayRating > 0 && data.yesterdayRating <= 5) {
+                        totalStars += data.yesterdayRating;
+                        ratingCounts[data.yesterdayRating]++;
+                        validCount++;
+                    }
+                });
+
+                const averageScore = validCount > 0 ? (totalStars / validCount).toFixed(1) : 0;
+                
+                document.getElementById('ratingScoreText').textContent = validCount > 0 ? averageScore : 'N/A';
+                document.getElementById('ratingCountText').textContent = validCount > 0 ? `Based on ${validCount} review(s) for ${displayDate}` : `No reviews found for ${displayDate}`;
+
+                const starsDiv = document.getElementById('averageStars');
+                starsDiv.innerHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.createElement('i');
+                    star.className = 'fas fa-star';
+                    star.style.color = i <= Math.round(averageScore) ? '#f59e0b' : '#e2e8f0';
+                    starsDiv.appendChild(star);
+                }
+
+                const distContainer = document.getElementById('ratingDistribution');
+                if (validCount > 0) {
+                    const distHtml = [5, 4, 3, 2, 1].map(star => {
+                        const count = ratingCounts[star];
+                        const percentage = (count / validCount) * 100;
+                        return `
+                            <div class="dist-row">
+                                <div class="dist-label">${star} <i class="fas fa-star" style="color:#f59e0b; font-size:0.8rem;"></i></div>
+                                <div class="dist-bar-container">
+                                    <div class="dist-bar" style="width: ${percentage}%;"></div>
+                                </div>
+                                <div class="dist-count">${count}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    distContainer.innerHTML = distHtml;
+                } else {
+                    distContainer.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 10px;">Ratings will appear here once submitted by users.</div>`;
+                }
+
+            } catch (error) {
+                console.error("Error loading ratings:", error);
+                document.getElementById('ratingScoreText').textContent = 'Err';
+                document.getElementById('ratingCountText').textContent = 'System Error: Unable to fetch data.';
+            }
+        }
+
+        // Initialize Fetch
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchRatingAverage(datePicker.value);
+        });
+    </script>
+</body>
+</html>

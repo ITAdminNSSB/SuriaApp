@@ -5,160 +5,512 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claimed Orders - Canteen Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script type="module" src="auth-guard.js"></script>
     <style>
-:root {--primary-color: #454545;--secondary-color: #2dd4bf;--background-color: #f4f4f5;--text-color: #27272a;--white: #ffffff;--border-radius: 15px;--box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);}
-* {margin: 0;padding: 0;box-sizing: border-box;}
-body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;background-color: var(--background-color);color: var(--text-color);line-height: 1.6;padding-bottom: 100px;}
-.container {max-width: 1200px;margin: 0 auto;padding: 20px;}
-.header {display: flex;justify-content: center;align-items: center;padding: 15px 20px;background-color: var(--white);box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);position: fixed;top: 0;left: 0;width: 100%;z-index: 1000;}
-.header .logo1 img {max-height: 50px;object-fit: contain;}
-.filter-container {display: flex;flex-direction: column;gap: 15px;margin: 80px 0 30px;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
-.filter-row {display: flex;gap: 15px;align-items: center;flex-wrap: wrap;}
-.date-picker input,.department-filter select,.location-filter select {padding: 10px;border: 1px solid #e4e4e7;border-radius: 8px;font-size: 16px;transition: all 0.3s ease;min-width: 200px;}
-.date-picker input:focus,.department-filter select:focus,
-.location-filter select:focus {outline: none;border-color: var(--primary-color);box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);}
-.dept-filter-btn,.total-btn,.location-filter-btn {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;min-width: 120px;}
-.dept-filter-btn:hover,.total-btn:hover,.location-filter-btn:hover {background-color: #1a1e9c;}
-.dept-filter-btn.active,.total-btn.active,.location-filter-btn.active {background-color: var(--secondary-color);}
-#fetchOrders {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;display: flex;align-items: center;gap: 10px;}
-#fetchOrders:hover {background-color: #1a1e9c;}
-.time-filter-container {display: flex;justify-content: center;align-items: center;gap: 15px;margin: 20px 0;background-color: var(--white);padding: 20px;border-radius: var(--border-radius);box-shadow: var(--box-shadow);flex-wrap: wrap;}
-.time-filter-buttons {display: flex;gap: 15px;flex-wrap: wrap;}
-.time-filter-btn {background-color: var(--primary-color);color: var(--white);border: none;padding: 10px 20px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;}
-.time-filter-btn:hover {background-color: #1a1e9c;}
-.time-filter-btn.active {background-color: var(--secondary-color);}
-.order-table-container {overflow-x: auto;}
-.order-table {width: 100%;background-color: var(--white);border-radius: var(--border-radius);overflow: hidden;box-shadow: var(--box-shadow);margin-bottom: 30px;}
-.order-table th {background-color: var(--primary-color);color: var(--white);padding: 15px;text-align: left;font-weight: 600;white-space: nowrap;}
-.order-table td {padding: 15px;border-bottom: 1px solid #e4e4e7;}
-.order-table tr:last-child td {border-bottom: none;}
-.order-table tr:nth-child(even) {background-color: #f8fafc;}
-.order-table tr.claimed-order {background-color: #90EE90 !important;}
-.order-table tr.claimed-order:hover {background-color: #7FDD7F !important;}
-.location-badge {display: inline-block;padding: 4px 12px;border-radius: 12px;font-size: 0.85em;font-weight: 600;text-transform: uppercase;}
-.location-pekan {background-color: #dbeafe;color: #1e40af;}
-.location-kristal {background-color: #fce7f3;color: #be185d;}
-.location-unspecified {background-color: #f3f4f6;color: #6b7280;}
-.send-info {background-color: var(--white);border-radius: var(--border-radius);padding: 25px;box-shadow: var(--box-shadow);}
-.send-info h3 {color: var(--primary-color);margin-bottom: 15px;}
-.send-info textarea {width: 100%;padding: 15px;border: 1px solid #e4e4e7;border-radius: 8px;resize: vertical;min-height: 100px;margin-bottom: 15px;}
-.send-info textarea:focus {outline: none;border-color: var(--primary-color);box-shadow: 0 0 0 3px rgba(12, 14, 139, 0.1);}
-#sendButton {background-color: var(--secondary-color);color: var(--white);border: none;padding: 12px 25px;border-radius: 8px;cursor: pointer;font-weight: 600;transition: background-color 0.3s ease, transform 0.1s ease;}
-#sendButton:hover {background-color: #1ebfab;}
-.nav-container {position: fixed;bottom: 20px;left: 50%;transform: translateX(-50%);background: var(--primary-color);padding: 15px 30px;border-radius: 30px;box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);display: flex;align-items: center;justify-content: space-around;gap: 35px;width: calc(100% - 40px);max-width: 1200px;z-index: 1000;}
-.nav-item {color: var(--white);text-decoration: none;display: flex;flex-direction: column;align-items: center;gap: 5px;}
-.nav-item i {font-size: 20px;}
-.nav-item span {font-size: 12px;}
-.total-orders-display {background-color: var(--white);padding: 20px;border-radius: var(--border-radius);margin-bottom: 20px;box-shadow: var(--box-shadow);text-align: center;font-weight: bold;color: var(--primary-color);}
-.legend {text-align: center;margin: 10px 0;padding: 10px;background-color: var(--white);border-radius: var(--border-radius);box-shadow: var(--box-shadow);}
-.legend-item {display: inline-block;margin: 5px;padding: 5px 10px;border-radius: 5px;}
-@media (max-width: 768px) {.filter-container,.time-filter-container {padding: 15px;}
-.filter-row {flex-direction: column;align-items: stretch;}
-.date-picker input,.department-filter select,.location-filter select,.dept-filter-btn,.total-btn,.location-filter-btn,#fetchOrders,.time-filter-btn {width: 100%;}
-.order-table th,.order-table td {padding: 10px 8px;font-size: 14px;}
-.order-table th {font-size: 12px;}
-.location-badge {font-size: 0.75em;padding: 3px 8px;}
-.nav-item span {display: none;}
-.nav-container {gap: 15px;padding: 12px 20px;}
-.legend-item {display: block;margin: 5px 0;font-size: 12px;}}
+        :root {
+            --primary-color: #454545;
+            --primary-hover: #2f2f2f;
+            --secondary-color: #2dd4bf;
+            --secondary-hover: #14b8a6;
+            --background-color: #f4f4f5;
+            --surface-color: #ffffff;
+            --white: #ffffff;
+            --text-main: #27272a;
+            --text-muted: #71717a;
+            --border-color: #e4e4e7;
+            --radius-lg: 15px;
+            --radius-md: 10px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --claimed-bg: #ecfdf5;
+            --claimed-border: #a7f3d0;
+            --claimed-text: #065f46;
+            --unclaimed-bg: #fff1f2;
+            --unclaimed-border: #fecdd3;
+            --unclaimed-text: #9f1239;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; background: var(--background-color); }
+        body {
+            min-height: 100vh;
+            padding-bottom: 120px;
+            background: radial-gradient(circle at 15% 0%, rgba(69, 69, 69, 0.05) 0, transparent 38%), var(--background-color);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 68px;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .header img { max-height: 44px; width: auto; object-fit: contain; }
+
+        .container {
+            width: min(calc(100% - 32px), 1140px);
+            margin: 0 auto;
+            padding-top: 88px;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 20px 24px;
+            margin-bottom: 18px;
+        }
+
+        /* Filter Controls */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        input[type="date"], select, textarea {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.92rem;
+            padding: 0 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.14);
+        }
+
+        /* Multi-Select Department Dropdown */
+        .dropdown-container { position: relative; width: 100%; }
+        .dropdown-toggle {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.92rem;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dropdown-toggle:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.14);
+        }
+        .dropdown-menu-custom {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            max-height: 240px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            display: none;
+            padding: 8px;
+        }
+        .dropdown-menu-custom.show { display: block; }
+        .dropdown-item-custom {
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-main);
+        }
+        .dropdown-item-custom:hover { background: #f8fafc; }
+        .dropdown-item-custom input {
+            accent-color: var(--secondary-color);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .select-all-row {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 4px;
+            padding-bottom: 8px;
+            font-weight: 700;
+        }
+
+        /* Pill Button Groups (dept quick filter + time filter) */
+        .group-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .pill-group {
+            display: inline-flex;
+            background: #f1f5f4;
+            padding: 4px;
+            border-radius: var(--radius-md);
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .pill-btn {
+            border: 0;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .pill-btn.active {
+            background: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #ffffff;
+            padding: 10px 20px;
+            border: 0;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .btn-excel {
+            background: #1D6F42;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: 0;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-excel:hover { background: #14532d; transform: translateY(-1px); }
+        .btn-excel:active { transform: scale(0.97); }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card .label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-top: 4px;
+        }
+        .stat-card.claimed .value { color: #059669; }
+        .stat-card.unclaimed .value { color: #dc2626; }
+        .stat-card.diet .value { color: #b45309; }
+        .stat-card.rate .value { color: var(--secondary-hover); font-size: 1.4rem; }
+
+        /* Table Design */
+        .table-card { padding: 0; overflow: hidden; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; min-width: 900px; border-collapse: collapse; text-align: left; }
+        thead th {
+            background: var(--primary-color);
+            color: #ffffff;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 13px 14px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.88rem;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:nth-child(even) { background-color: #f8fafc; }
+        tbody tr:hover { background: #f0fdfa; transition: background-color 0.2s ease; }
+
+        .location-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.78em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .location-pekan { background-color: #dbeafe; color: #1e40af; }
+        .location-kristal { background-color: #fce7f3; color: #be185d; }
+        .location-unspecified { background-color: #f3f4f6; color: #6b7280; }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        .badge-status.claimed {
+            background: var(--claimed-bg);
+            border: 1px solid var(--claimed-border);
+            color: var(--claimed-text);
+        }
+        .badge-status.unclaimed {
+            background: var(--unclaimed-bg);
+            border: 1px solid var(--unclaimed-border);
+            color: var(--unclaimed-text);
+        }
+
+        .badge-diet {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            border: 1px solid #fde68a;
+        }
+
+        .send-card h3 { font-size: 1.05rem; font-weight: 750; color: var(--primary-color); margin-bottom: 10px; }
+        .send-card textarea { min-height: 90px; margin-bottom: 12px; resize: vertical; }
+
+        /* Bottom Navigation (Suria) */
+        .nav-container {position: fixed;bottom: 20px;left: 50%;transform: translateX(-50%);background: var(--primary-color);padding: 15px 30px;border-radius: 30px;box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);display: flex;align-items: center;justify-content: space-around;gap: 35px;width: calc(100% - 40px);max-width: 1200px;z-index: 1000;}
+        .nav-item {color: var(--white);text-decoration: none;display: flex;flex-direction: column;align-items: center;gap: 5px;}
+        .nav-item i {font-size: 20px;}
+        .nav-item span {font-size: 12px;}
+
+        @media (max-width: 768px) {
+            .container { padding-top: 76px; }
+            .card { padding: 16px; }
+            .action-row { flex-direction: column; align-items: stretch; }
+            .pill-group { width: 100%; justify-content: center; }
+            .btn-primary { width: 100%; justify-content: center; }
+            thead th, tbody td { padding: 10px 8px; font-size: 12px; }
+            .location-badge { font-size: 0.7em; padding: 3px 8px; }
+            .nav-item span { display: none; }
+            .nav-container { gap: 15px; padding: 12px 20px; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <span class="logo1"><img src="pictures/new_logo.png" alt="Company Logo" width="200" height="47"></span>
+        <img src="pictures/new_logo.png" alt="Company Logo">
     </div>
 
     <div class="container">
-        <div class="filter-container">
-            <div class="filter-row">
-                <div class="date-picker">
-                    <input type="date" id="datePicker" />
+        <!-- Filter & Search Controls -->
+        <div class="card">
+            <div class="filter-grid">
+                <div>
+                    <input type="date" id="datePicker">
                 </div>
-                <div class="department-filter">
-                    <select id="departmentFilter">
-                        <option value="">All Departments</option>
-                        <option value="HRA">HRA</option>
-                        <option value="FNA">FNA</option>
-                        <option value="MDO">MDO</option>
-                        <option value="BD&Project">BD&Project</option>
-                        <option value="SALES">SALES</option>
-                        <option value="PVD">PVD</option>
-                        <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
-                        <option value="QMS">QMS</option>
-                        <option value="QAQC">QAQC</option>
-                        <option value="PE/LPS">PE/LPS</option>
-                        <option value="MAINTENANCE">MAINTENANCE</option>
-                        <option value="PROD">PROD</option>
-                        <option value="PPCL">PPCL</option>
-                        <option value="SYNERGY">SYNERGY</option>
-                        <option value="SGTSB">SGTSB</option>
-                    </select>
-                    
-                    <select id="claimStatusFilter">
-                        <option value="all">All Statuses</option>
-                        <option value="claimed">Claimed Only</option>
-                        <option value="unclaimed">Unclaimed Only</option>
-                    </select>
-
-                    <select id="mealTypeFilter">
-                        <option value="all">All Meals</option>
-                        <option value="diet">Diet Only</option>
-                        <option value="regular">Regular Only</option>
-                    </select>
+                <div>
+                    <!-- Multi-Select Department Dropdown -->
+                    <div class="dropdown-container" id="deptDropdownContainer">
+                        <button type="button" class="dropdown-toggle" id="deptDropdownToggle">
+                            <span id="deptToggleText">All Departments</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu-custom" id="deptDropdownMenu">
+                            <div class="dropdown-item-custom select-all-row">
+                                <label style="display:flex; align-items:center; gap:10px; width:100%; cursor:pointer;">
+                                    <input type="checkbox" id="selectAllDepts" checked> <strong>Select All Departments</strong>
+                                </label>
+                            </div>
+                            <div id="deptCheckboxesList">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="location-filter">
+                <div>
                     <select id="locationFilter">
                         <option value="">All Locations</option>
                         <option value="PEKAN SUBANG">PEKAN SUBANG</option>
                         <option value="SUBANG KRISTAL">SUBANG KRISTAL</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="filter-row">
-                <div class="department-buttons">
-                    <button id="stampingBtn" class="dept-filter-btn">Stamping</button>
-                    <button id="mainCanteenBtn" class="dept-filter-btn">Main Canteen</button>
-                    <button id="totalBtn" class="total-btn">Total</button>
+                <div>
+                    <select id="claimStatusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="claimed">Claimed Only</option>
+                        <option value="unclaimed">Unclaimed Only</option>
+                    </select>
                 </div>
-                <button id="fetchOrders">
-                    <i class="fas fa-search"></i> Fetch Orders
-                </button>
+                <div>
+                    <select id="mealTypeFilter">
+                        <option value="all">All Meals</option>
+                        <option value="regular">Regular Only</option>
+                        <option value="diet">Diet Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="group-row">
+                <div class="pill-group">
+                    <button type="button" class="pill-btn" id="stampingBtn">Stamping</button>
+                    <button type="button" class="pill-btn" id="mainCanteenBtn">Main Canteen</button>
+                    <button type="button" class="pill-btn" id="totalBtn">Total</button>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <div class="pill-group">
+                    <button type="button" class="pill-btn" data-time="morning" id="morningTimeBtn">Morning (4 AM - 10 AM)</button>
+                    <button type="button" class="pill-btn" data-time="evening" id="eveningTimeBtn">Night (4 PM - 9 PM)</button>
+                    <button type="button" class="pill-btn active" data-time="all" id="allTimeBtn">All Times</button>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" id="fetchOrders">
+                        <i class="fas fa-sync-alt"></i> Fetch Orders
+                    </button>
+                    <button type="button" class="btn-excel" id="exportExcelBtn">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="time-filter-container">
-            <div class="time-filter-buttons">
-                <button id="morningTimeBtn" class="time-filter-btn">Morning (6 AM - 10 AM)</button>
-                <button id="eveningTimeBtn" class="time-filter-btn">Night (4 PM - 9 PM)</button>
-                <button id="allTimeBtn" class="time-filter-btn active">All Times</button>
+        <!-- Statistical Counters -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Orders</div>
+                <div class="value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card claimed">
+                <div class="label">Claimed</div>
+                <div class="value" id="statClaimed">0</div>
+            </div>
+            <div class="stat-card unclaimed">
+                <div class="label">Unclaimed</div>
+                <div class="value" id="statUnclaimed">0</div>
+            </div>
+            <div class="stat-card unclaimed">
+                <div class="label">Total Wasted (RM)</div>
+                <div class="value" id="statWastedRM" style="font-size: 1.4rem;">RM 0.00</div>
+            </div>
+            <div class="stat-card diet">
+                <div class="label">Claimed Diet</div>
+                <div class="value" id="statClaimedDiet">0</div>
+            </div>
+            <div class="stat-card diet">
+                <div class="label">Unclaimed Diet</div>
+                <div class="value" id="statUnclaimedDiet">0</div>
+            </div>
+            <div class="stat-card rate">
+                <div class="label">Claimed Rate</div>
+                <div class="value" id="statRate">0%</div>
             </div>
         </div>
 
-        <div class="order-table-container">
-            <table class="order-table" id="orderTable">
-                <thead>
-                    <tr>
-                        <th>NO.</th>
-                        <th>Employee Name</th>
-                        <th>Employee ID</th>
-                        <th>Department</th>
-                        <th>Location</th>
-                        <th>Order Status</th>
-                        <th>Order Time</th>
-                        <th>Selection</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+        <!-- Orders Table -->
+        <div class="card table-card">
+            <div class="table-responsive">
+                <table id="orderTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 45px; text-align: center;">NO.</th>
+                            <th>Employee Name</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Location</th>
+                            <th>Order Status</th>
+                            <th>Order Time</th>
+                            <th>Selection</th>
+                            <th style="text-align: center;">Claim Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 28px; color: var(--text-muted);">
+                                Loading orders...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="send-info">
+        <!-- Send Admin Notice -->
+        <div class="card send-card">
             <h3>Send Information to Admin</h3>
             <textarea id="infoTextarea" placeholder="Enter additional comments or instructions here..."></textarea>
-            <button id="sendButton">Send</button>
+            <button type="button" class="btn-primary" id="sendButton">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
         </div>
     </div>
 
@@ -187,15 +539,15 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            query, 
-            where, 
-            onSnapshot, 
-            Timestamp, 
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            onSnapshot,
+            Timestamp,
             getDocs,
-            addDoc 
+            addDoc
         } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -209,204 +561,353 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const ordersRef = collection(db, "canteen_orders");
 
-        const ordersRef = collection(db, "orders");
-        const claimedRef = collection(db, "claimed");
-
+        // --- Department quick-filter groups (existing Suria setup) ---
         const stampingDepartments = ['PROD-STAMPING', 'PPIC-STAMPING', 'PROD-STAMPING-DIEMTCE'];
         const mainCanteenDepartments = ['IT', 'HCD', 'PROD', 'PPIC', 'QC', 'PURCH', 'MKTG', 'ME', 'ED', 'FNA', 'ENG', 'MDO', 'SHE', 'TPS', 'QA'];
         const totalsdepart = ['IT', 'HCD', 'PROD', 'PPIC', 'QC', 'PURCH', 'MKTG', 'ME', 'ED', 'FNA', 'ENG', 'MDO', 'SHE', 'TPS', 'QA', 'PROD-STAMPING', 'PPIC-STAMPING', 'PROD-STAMPING-DIEMTCE', 'NPSB'];
+        // Static fallback list, used only if no departments can be loaded dynamically from Firestore
+        const fallbackDepartments = ['HRA', 'FNA', 'MDO', 'BD&Project', 'SALES', 'PVD', 'SPECIAL PROJECT', 'QMS', 'QAQC', 'PE/LPS', 'MAINTENANCE', 'PROD', 'PPCL', 'SYNERGY', 'SGTSB'];
+
+        let allSystemDepartments = [];
+        let rawSnapshotOrders = [];
+        let cachedClaimedMap = new Map();
+        let currentUnsubscribe = null;
+        let lastRenderedRows = [];
+
+        // Same fixed meal price used in wastage_leaderboard.html
+        const MEAL_PRICE_RM = 6.50;
 
         // --- LOCATION BADGE HELPER ---
         function getLocationBadge(location) {
             if (!location) return '<span class="location-badge location-unspecified">Not Specified</span>';
-            
+
             const cleanLoc = String(location).trim().toUpperCase();
-            
+
             if (cleanLoc === 'PEKAN SUBANG') {
                 return '<span class="location-badge location-pekan">PEKAN SUBANG</span>';
             } else if (cleanLoc === 'SUBANG KRISTAL') {
                 return '<span class="location-badge location-kristal">SUBANG KRISTAL</span>';
             }
-            
+
             return `<span class="location-badge" style="background-color: #e5e7eb; color: #374151;">${cleanLoc}</span>`;
         }
 
-        async function getClaimedOrders(selectedDate) {
+        // --- CLAIM TIME FORMATTER ---
+        function formatClaimTime(claimMeta) {
+            if (!claimMeta) return '';
+            if (claimMeta.timestamp) {
+                return claimMeta.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+            }
+            if (claimMeta.scannedTime) {
+                let t = String(claimMeta.scannedTime).trim();
+                if (t.includes('.')) {
+                    const parts = t.split('.');
+                    if (parts.length >= 2) {
+                        let h = parseInt(parts[0], 10);
+                        const m = parts[1];
+                        if (!isNaN(h)) {
+                            const ampm = h >= 12 ? 'PM' : 'AM';
+                            h = h % 12 || 12;
+                            return `${String(h).padStart(2, '0')}:${m} ${ampm}`;
+                        }
+                    }
+                }
+                return t;
+            }
+            return 'Claimed';
+        }
+
+        // --- FETCH CLAIMED ORDERS (with claim time metadata) ---
+        async function fetchClaimedMap(dateStr, startOfDay, endOfDay) {
+            const claimedRef = collection(db, "canteen_claimed");
+            const [snapByTimestamp, snapByDateStr] = await Promise.all([
+                getDocs(query(claimedRef, where("timestamp", ">=", Timestamp.fromDate(startOfDay)), where("timestamp", "<=", Timestamp.fromDate(endOfDay)))),
+                getDocs(query(claimedRef, where("scannedDate", "==", dateStr)))
+            ]);
+
+            const map = new Map();
+            const parseDoc = (d) => {
+                const data = d.data();
+                if (!data.employeeId) return;
+                const empId = String(data.employeeId).trim();
+                map.set(empId, {
+                    scannedTime: data.scannedTime || null,
+                    timestamp: data.timestamp || null
+                });
+            };
+
+            snapByTimestamp.forEach(parseDoc);
+            snapByDateStr.forEach(parseDoc);
+            return map;
+        }
+
+        // --- ACTIVE DIET PROFILES (Permanent Setup from Epoch Start) ---
+        async function getActiveDietEmpIds() {
+            const epochStart = new Date('2026-06-22T00:00:00+08:00');
+            const activeDietQuery = query(
+                collection(db, "fit_program_users"),
+                where("registeredAt", ">=", Timestamp.fromDate(epochStart))
+            );
+            const activeDietSnap = await getDocs(activeDietQuery);
+            const activeDietEmpIds = new Set();
+            activeDietSnap.forEach(doc => {
+                activeDietEmpIds.add(String(doc.data().employeeId).trim());
+            });
+            return activeDietEmpIds;
+        }
+
+        // --- DEPARTMENTS (dynamic, with static fallback) ---
+        async function fetchAllDepartments() {
+            const deptsSet = new Set();
+            try {
+                const usersSnap = await getDocs(collection(db, 'users'));
+                usersSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.department) deptsSet.add(String(data.department).trim());
+                });
+            } catch (err) {
+                console.error("Error fetching departments from users:", err);
+            }
+            if (deptsSet.size === 0) {
+                fallbackDepartments.forEach(d => deptsSet.add(d));
+            }
+            return Array.from(deptsSet).sort();
+        }
+
+        function renderDepartmentCheckboxes() {
+            const container = document.getElementById('deptCheckboxesList');
+            if (!container) return;
+
+            container.innerHTML = '';
+            allSystemDepartments.forEach(dept => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item-custom';
+                item.innerHTML = `
+                    <label style="display:flex; align-items:center; gap:10px; width:100%; cursor:pointer;">
+                        <input type="checkbox" class="dept-checkbox" value="${dept}" checked> ${dept}
+                    </label>
+                `;
+                container.appendChild(item);
+            });
+
+            document.querySelectorAll('.dept-checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    clearGroupButtons();
+                    updateSelectAllState();
+                    processAndRenderOrders();
+                });
+            });
+
+            const selectAll = document.getElementById('selectAllDepts');
+            if (selectAll) selectAll.checked = true;
+
+            updateSelectAllState();
+        }
+
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.dept-checkbox');
+            const selectAll = document.getElementById('selectAllDepts');
+            const toggleText = document.getElementById('deptToggleText');
+
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const totalCount = checkboxes.length;
+
+            if (checkedCount === totalCount && totalCount > 0) {
+                if (selectAll) { selectAll.checked = true; selectAll.indeterminate = false; }
+                toggleText.textContent = "All Departments";
+            } else if (checkedCount === 0) {
+                if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+                toggleText.textContent = "No Department Selected";
+            } else {
+                if (selectAll) { selectAll.checked = false; selectAll.indeterminate = true; }
+                toggleText.textContent = `${checkedCount} Department(s) Selected`;
+            }
+        }
+
+        function clearGroupButtons() {
+            document.getElementById('stampingBtn').classList.remove('active');
+            document.getElementById('mainCanteenBtn').classList.remove('active');
+            document.getElementById('totalBtn').classList.remove('active');
+        }
+
+        function applyGroupSelection(list) {
+            const checkboxes = document.querySelectorAll('.dept-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = list.includes(cb.value);
+            });
+            updateSelectAllState();
+            processAndRenderOrders();
+        }
+
+        // --- CORE FILTER + RENDER ---
+        function processAndRenderOrders() {
+            const selectedDeptCheckboxes = document.querySelectorAll('.dept-checkbox:checked');
+            const selectedDepts = new Set(Array.from(selectedDeptCheckboxes).map(cb => cb.value));
+            const selectedLocation = document.getElementById('locationFilter').value;
+            const claimStatus = document.getElementById('claimStatusFilter').value;
+            const mealType = document.getElementById('mealTypeFilter').value;
+
+            let totalCount = 0;
+            let claimedCount = 0;
+            let unclaimedCount = 0;
+            let claimedDietCount = 0;
+            let unclaimedDietCount = 0;
+            const finalRows = [];
+
+            rawSnapshotOrders.forEach(item => {
+                const order = item.order;
+                const dept = String(order.department || '').trim();
+                if (!selectedDepts.has(dept)) return;
+
+                if (selectedLocation) {
+                    const selLoc = selectedLocation.trim().toUpperCase();
+                    if (String(order.location || '').trim().toUpperCase() !== selLoc) return;
+                }
+
+                const empId = item.empId;
+                const isClaimed = cachedClaimedMap.has(empId);
+                const claimMeta = cachedClaimedMap.get(empId);
+                const isDiet = item.isDiet;
+
+                totalCount++;
+                if (isClaimed) claimedCount++; else unclaimedCount++;
+                if (isDiet) {
+                    if (isClaimed) claimedDietCount++; else unclaimedDietCount++;
+                }
+
+                if (claimStatus === 'claimed' && !isClaimed) return;
+                if (claimStatus === 'unclaimed' && isClaimed) return;
+                if (mealType === 'diet' && !isDiet) return;
+                if (mealType === 'regular' && isDiet) return;
+
+                finalRows.push({ order, empId, isClaimed, claimMeta, mealLabel: item.mealLabel, isDiet });
+            });
+
+            document.getElementById('statTotal').textContent = totalCount;
+            document.getElementById('statClaimed').textContent = claimedCount;
+            document.getElementById('statUnclaimed').textContent = unclaimedCount;
+            document.getElementById('statClaimedDiet').textContent = claimedDietCount;
+            document.getElementById('statUnclaimedDiet').textContent = unclaimedDietCount;
+            const rate = totalCount > 0 ? ((claimedCount / totalCount) * 100).toFixed(1) : 0;
+            document.getElementById('statRate').textContent = `${rate}%`;
+            const wastedRM = (unclaimedCount * MEAL_PRICE_RM).toFixed(2);
+            document.getElementById('statWastedRM').textContent = `RM ${wastedRM}`;
+
+            lastRenderedRows = finalRows;
+
+            const tbody = document.querySelector('#orderTable tbody');
+            tbody.innerHTML = '';
+
+            if (finalRows.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 32px; color: var(--text-muted);">
+                            No orders found for the selected criteria
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            finalRows.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                const orderTime = item.order.orderDate.toDate();
+                const formattedTime = orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const formattedClaimTime = item.isClaimed ? formatClaimTime(item.claimMeta) : '';
+
+                tr.innerHTML = `
+                    <td style="text-align: center; color: var(--text-muted);">${index + 1}</td>
+                    <td><strong>${item.order.name || 'N/A'}</strong></td>
+                    <td>${item.empId}</td>
+                    <td>${item.order.department || 'N/A'}</td>
+                    <td>${getLocationBadge(item.order.location)}</td>
+                    <td>${item.order.orderStatus || 'Pending'}</td>
+                    <td>${formattedTime}</td>
+                    <td>${item.isDiet ? `<span class="badge-diet"><i class="fas fa-leaf"></i> ${item.mealLabel}</span>` : item.mealLabel}</td>
+                    <td style="text-align: center;">
+                        ${item.isClaimed
+                            ? `<span class="badge-status claimed"><i class="fas fa-check-circle"></i> Claimed (${formattedClaimTime})</span>`
+                            : `<span class="badge-status unclaimed"><i class="fas fa-clock"></i> Not Yet</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- DATA LOAD (per date + time-of-day window) ---
+        async function loadData() {
+            const selectedDate = document.getElementById('datePicker').value;
+            if (!selectedDate) {
+                alert("Please select a date");
+                return;
+            }
+
             const startOfDay = new Date(selectedDate);
             startOfDay.setHours(0, 0, 0, 0);
             const endOfDay = new Date(selectedDate);
             endOfDay.setHours(23, 59, 59, 999);
 
-            const claimedQuery = query(
-                claimedRef,
-                where("timestamp", ">=", Timestamp.fromDate(startOfDay)),
-                where("timestamp", "<=", Timestamp.fromDate(endOfDay))
-            );
+            let timeStart = new Date(selectedDate);
+            let timeEnd = new Date(selectedDate);
 
-            try {
-                const claimedSnapshot = await getDocs(claimedQuery);
-                const claimedSet = new Set();
-                claimedSnapshot.docs.forEach(doc => {
-                    const empId = doc.data().employeeId;
-                    claimedSet.add(String(empId).trim());
-                });
-                return claimedSet;
-            } catch (error) {
-                console.error("Error fetching claimed orders:", error);
-                return new Set();
-            }
-        }
+            const morningTimeBtn = document.getElementById('morningTimeBtn');
+            const eveningTimeBtn = document.getElementById('eveningTimeBtn');
 
-        function displayTotalOrders(orders, claimedCount = 0, claimedDietCount = 0, unclaimedDietCount = 0) {
-            const existingTotal = document.querySelector('.total-orders-display');
-            if (existingTotal) {
-                existingTotal.remove();
+            if (morningTimeBtn.classList.contains('active')) {
+                timeStart.setHours(4, 0, 0, 0);
+                timeEnd.setHours(10, 0, 0, 0);
+            } else if (eveningTimeBtn.classList.contains('active')) {
+                timeStart.setHours(16, 0, 0, 0);
+                timeEnd.setHours(21, 0, 0, 0);
+            } else {
+                timeStart.setHours(0, 0, 0, 0);
+                timeEnd.setHours(23, 59, 59, 999);
             }
 
-            const total = orders.length;
-            const unclaimedCount = total - claimedCount;
-            const percentageClaimed = total > 0 ? ((claimedCount / total) * 100).toFixed(1) : 0;
-
-            const totalElement = document.createElement('div');
-            totalElement.classList.add('total-orders-display');
-            totalElement.innerHTML = `
-                <div style="font-size: 20px; margin-bottom: 15px;">Daily Orders Summary</div>
-                <div style="display: flex; justify-content: center; gap: 30px; font-size: 16px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <div>Total Orders: <span style="color: var(--text-color);">${total}</span></div>
-                    <div>Claimed: <span style="color: #2e7d32;">${claimedCount}</span></div>
-                    <div>Unclaimed: <span style="color: #d32f2f;">${unclaimedCount}</span></div>
-                    <div>Claimed Diet: <span style="color: #2e7d32;">${claimedDietCount}</span></div>
-                    <div>Unclaimed Diet: <span style="color: #d32f2f;">${unclaimedDietCount}</span></div>
-                </div>
-                <div style="font-size: 18px; color: var(--secondary-color);">
-                    Claimed Percentage: ${percentageClaimed}%
-                </div>
-                <div style="font-size: 14px; color: #666; margin-top: 10px; font-weight: normal;">
-                    Updated at: ${new Date().toLocaleTimeString()}
-                </div>
-            `;
-            
-            document.querySelector('.order-table-container').insertAdjacentElement('beforebegin', totalElement);
-        }
-
-        async function getOrdersByFilter(customDepartments = null) {
             try {
-                const selectedDate = document.getElementById('datePicker').value;
-                const selectedDepartment = document.getElementById('departmentFilter').value;
-                const selectedLocation = document.getElementById('locationFilter').value;
-                const morningTimeBtn = document.getElementById('morningTimeBtn');
-                const eveningTimeBtn = document.getElementById('eveningTimeBtn');
+                const [claimedMap, activeDietEmpIds] = await Promise.all([
+                    fetchClaimedMap(selectedDate, startOfDay, endOfDay),
+                    getActiveDietEmpIds()
+                ]);
+                cachedClaimedMap = claimedMap;
 
-                if (!selectedDate) {
-                    alert("Please select a date");
-                    return;
+                if (allSystemDepartments.length === 0) {
+                    allSystemDepartments = await fetchAllDepartments();
+                    renderDepartmentCheckboxes();
                 }
 
-                // 1. Fetch Claimed Orders
-                const claimedOrders = await getClaimedOrders(selectedDate);
-
-                // 2. Fetch Active Diet Profiles (Permanent Setup from Epoch Start)
-                const epochStart = new Date('2026-06-22T00:00:00+08:00');
-                const activeDietQuery = query(
-                    collection(db, "fit_program_users"),
-                    where("registeredAt", ">=", Timestamp.fromDate(epochStart))
+                const q = query(
+                    ordersRef,
+                    where("orderDate", ">=", Timestamp.fromDate(timeStart)),
+                    where("orderDate", "<=", Timestamp.fromDate(timeEnd))
                 );
-                
-                const activeDietSnap = await getDocs(activeDietQuery);
-                const activeDietEmpIds = new Set();
-                activeDietSnap.forEach(doc => {
-                    activeDietEmpIds.add(String(doc.data().employeeId).trim());
-                });
 
-                let timeStart = new Date(selectedDate);
-                let timeEnd = new Date(selectedDate);
-
-                if (morningTimeBtn.classList.contains('active')) {
-                    timeStart.setHours(4, 0, 0, 0);
-                    timeEnd.setHours(10, 0, 0, 0);
-                } else if (eveningTimeBtn.classList.contains('active')) {
-                    timeStart.setHours(16, 0, 0, 0);
-                    timeEnd.setHours(21, 0, 0, 0);
-                } else {
-                    timeStart.setHours(0, 0, 0, 0);
-                    timeEnd.setHours(23, 59, 59, 999);
+                if (currentUnsubscribe) {
+                    currentUnsubscribe();
+                    currentUnsubscribe = null;
                 }
 
-                let q;
-                if (customDepartments) {
-                    q = query(ordersRef,
-                        where("department", "in", customDepartments),
-                        where("orderDate", ">=", Timestamp.fromDate(timeStart)),
-                        where("orderDate", "<=", Timestamp.fromDate(timeEnd))
-                    );
-                } else if (selectedDepartment) {
-                    q = query(ordersRef,
-                        where("department", "==", selectedDepartment),
-                        where("orderDate", ">=", Timestamp.fromDate(timeStart)),
-                        where("orderDate", "<=", Timestamp.fromDate(timeEnd))
-                    );
-                } else {
-                    q = query(ordersRef,
-                        where("orderDate", ">=", Timestamp.fromDate(timeStart)),
-                        where("orderDate", "<=", Timestamp.fromDate(timeEnd))
-                    );
-                }
-
-                const unsubscribe = onSnapshot(q, (querySnapshot) => {
-                    const orderTableBody = document.querySelector('#orderTable tbody');
-                    orderTableBody.innerHTML = '';
-                    let orderNumber = 1;
-                    
-                    let claimedCount = 0;
-                    let claimedDietCount = 0;
-                    let unclaimedDietCount = 0;
-
-                    if (querySnapshot.empty) {
-                        const newRow = orderTableBody.insertRow();
-                        const cell = newRow.insertCell(0);
-                        cell.colSpan = 8;
-                        cell.textContent = "No orders found for the selected criteria";
-                        cell.style.textAlign = "center";
-                        displayTotalOrders([], 0, 0, 0);
-                        return;
-                    }
-
+                currentUnsubscribe = onSnapshot(q, (querySnapshot) => {
                     const employeeOrders = new Map();
 
                     querySnapshot.forEach((doc) => {
                         const orderData = doc.data();
                         const orderTime = orderData.orderDate.toDate();
-                        
-                        if (!employeeOrders.has(orderData.employeeId) || 
+
+                        if (!employeeOrders.has(orderData.employeeId) ||
                             orderTime < employeeOrders.get(orderData.employeeId).orderDate.toDate()) {
                             employeeOrders.set(orderData.employeeId, orderData);
                         }
                     });
 
-                    let sortedOrders = Array.from(employeeOrders.values())
+                    const sortedOrders = Array.from(employeeOrders.values())
                         .sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
 
-                    if (selectedLocation) {
-                        const selLoc = selectedLocation.trim().toUpperCase();
-                        sortedOrders = sortedOrders.filter(order =>
-                            String(order.location || '').trim().toUpperCase() === selLoc
-                        );
-                    }
-                    
-                    const claimFilterValue = document.getElementById('claimStatusFilter').value;
-                    const mealFilterValue = document.getElementById('mealTypeFilter').value; 
+                    rawSnapshotOrders = sortedOrders.map(orderData => {
+                        const empId = String(orderData.employeeId).trim();
 
-                    sortedOrders.forEach((orderData) => {
-                        const orderTime = orderData.orderDate.toDate();
-                        const formattedTime = orderTime.toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-
-                        const employeeId = String(orderData.employeeId).trim();
-                        const isClaimed = claimedOrders.has(employeeId);
-                        
                         let displaySelection = orderData.mealSet || 'Normal';
                         if (displaySelection === 'A' || displaySelection === 'B') {
                             displaySelection = 'Normal';
@@ -430,63 +931,62 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
                             else displaySelection = 'Normal';
                         }
 
-                        // STRICT DIET CHECK AND OVERRIDE
                         let isDiet = displaySelection.toLowerCase().includes('diet');
-
-                        // Option A validation guard check based on Permanent Registration
-                        if (isDiet && !activeDietEmpIds.has(employeeId)) {
+                        if (isDiet && !activeDietEmpIds.has(empId)) {
                             displaySelection = 'Normal';
-                            isDiet = false; // System resets them to regular
+                            isDiet = false;
                         }
 
-                        // Counters update
-                        if (isDiet) {
-                            if (isClaimed) claimedDietCount++;
-                            else unclaimedDietCount++;
-                        }
-
-                        if (isClaimed) {
-                            claimedCount++;
-                        }
-
-                        // --- APPLY FILTERS HERE ---
-                        if (claimFilterValue === 'claimed' && !isClaimed) return;   
-                        if (claimFilterValue === 'unclaimed' && isClaimed) return;  
-                        
-                        if (mealFilterValue === 'diet' && !isDiet) return;          
-                        if (mealFilterValue === 'regular' && isDiet) return;        
-
-                        // Render row
-                        const newRow = orderTableBody.insertRow();
-                        
-                        if (isClaimed) {
-                            newRow.classList.add('claimed-order');
-                        }
-
-                        newRow.insertCell(0).textContent = orderNumber++;
-                        newRow.insertCell(1).textContent = orderData.name || 'N/A';
-                        newRow.insertCell(2).textContent = orderData.employeeId || 'N/A';
-                        newRow.insertCell(3).textContent = orderData.department || 'N/A';
-                        newRow.insertCell(4).innerHTML = getLocationBadge(orderData.location);
-                        newRow.insertCell(5).textContent = orderData.orderStatus || 'Pending';
-                        newRow.insertCell(6).textContent = formattedTime;
-                        
-                        const mealSetCell = newRow.insertCell(7);
-                        mealSetCell.textContent = displaySelection;
+                        return {
+                            order: orderData,
+                            empId,
+                            mealLabel: displaySelection,
+                            isDiet
+                        };
                     });
 
-                    displayTotalOrders(sortedOrders, claimedCount, claimedDietCount, unclaimedDietCount);
+                    processAndRenderOrders();
+                }, (err) => {
+                    console.error("Orders listener failed:", err);
                 });
 
-                if (window._currentUnsubscribe) {
-                    window._currentUnsubscribe();
-                }
-                window._currentUnsubscribe = unsubscribe;
-
             } catch (error) {
-                console.error("Error in getOrdersByFilter:", error);
+                console.error("Error setting up data feed:", error);
                 alert("An error occurred while fetching orders. Please try again.");
             }
+        }
+
+        function exportToExcel() {
+            if (lastRenderedRows.length === 0) {
+                alert("No data to export. Fetch orders first.");
+                return;
+            }
+
+            const exportRows = lastRenderedRows.map((item, index) => {
+                const orderTime = item.order.orderDate.toDate();
+                const formattedTime = orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const formattedClaimTime = item.isClaimed ? formatClaimTime(item.claimMeta) : '';
+
+                return {
+                    "NO.": index + 1,
+                    "Employee Name": item.order.name || 'N/A',
+                    "Employee ID": item.empId,
+                    "Department": item.order.department || 'N/A',
+                    "Location": item.order.location || 'Not Specified',
+                    "Order Status": item.order.orderStatus || 'Pending',
+                    "Order Time": formattedTime,
+                    "Selection": item.mealLabel,
+                    "Claim Status": item.isClaimed ? 'Claimed' : 'Not Yet',
+                    "Time Claimed": formattedClaimTime
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportRows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Claimed Orders");
+
+            const selectedDate = document.getElementById('datePicker').value || 'export';
+            XLSX.writeFile(workbook, `Claimed_Orders_${selectedDate}.xlsx`);
         }
 
         async function sendInformationToAdmin() {
@@ -510,92 +1010,93 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            const datePicker = document.getElementById('datePicker');
-            datePicker.value = formatDate(today);
-            datePicker.max = formatDate(today);
-            
-            document.getElementById('claimStatusFilter').addEventListener('change', () => getOrdersByFilter());
-            document.getElementById('mealTypeFilter').addEventListener('change', () => getOrdersByFilter());
-
-            getOrdersByFilter();
-
-            document.getElementById('fetchOrders').addEventListener('click', () => getOrdersByFilter());
-            document.getElementById('departmentFilter').addEventListener('change', () => {
-                document.getElementById('stampingBtn').classList.remove('active');
-                document.getElementById('mainCanteenBtn').classList.remove('active');
-                document.getElementById('totalBtn').classList.remove('active');
-                getOrdersByFilter();
-            });
-            document.getElementById('locationFilter').addEventListener('change', () => {
-                getOrdersByFilter();
-            });
-            datePicker.addEventListener('change', () => getOrdersByFilter());
-
-            const stampingBtn = document.getElementById('stampingBtn');
-            const mainCanteenBtn = document.getElementById('mainCanteenBtn');
-            const totalBtn = document.getElementById('totalBtn');
-
-            stampingBtn.addEventListener('click', () => {
-                document.getElementById('departmentFilter').value = '';
-                mainCanteenBtn.classList.remove('active');
-                totalBtn.classList.remove('active');
-                stampingBtn.classList.toggle('active');
-                getOrdersByFilter(stampingBtn.classList.contains('active') ? stampingDepartments : null);
-            });
-
-            mainCanteenBtn.addEventListener('click', () => {
-                document.getElementById('departmentFilter').value = '';
-                stampingBtn.classList.remove('active');
-                totalBtn.classList.remove('active');
-                mainCanteenBtn.classList.toggle('active');
-                getOrdersByFilter(mainCanteenBtn.classList.contains('active') ? mainCanteenDepartments : null);
-            });
-
-            totalBtn.addEventListener('click', () => {
-                document.getElementById('departmentFilter').value = '';
-                stampingBtn.classList.remove('active');
-                mainCanteenBtn.classList.remove('active');
-                totalBtn.classList.toggle('active');
-                getOrdersByFilter(totalBtn.classList.contains('active') ? totalsdepart : null);
-            });
-
-            const timeButtons = {
-                morning: document.getElementById('morningTimeBtn'),
-                evening: document.getElementById('eveningTimeBtn'),
-                all: document.getElementById('allTimeBtn')
-            };
-
-            Object.entries(timeButtons).forEach(([key, button]) => {
-                button.addEventListener('click', function() {
-                    Object.values(timeButtons).forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    getOrdersByFilter();
-                });
-            });
-
-            document.getElementById('sendButton').addEventListener('click', sendInformationToAdmin);
-
-            const legend = document.createElement('div');
-            legend.classList.add('legend');
-            legend.innerHTML = `
-                <span class="legend-item" style="background-color: #90EE90;">Green rows indicate claimed orders</span>
-            `;
-            document.querySelector('.order-table-container').insertAdjacentElement('beforebegin', legend);
-        });
-
         function formatDate(date) {
             const d = new Date(date);
             let month = '' + (d.getMonth() + 1);
             let day = '' + d.getDate();
             const year = d.getFullYear();
-
             if (month.length < 2) month = '0' + month;
             if (day.length < 2) day = '0' + day;
-
             return [year, month, day].join('-');
         }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date();
+            const datePicker = document.getElementById('datePicker');
+            datePicker.value = formatDate(today);
+            datePicker.max = formatDate(today);
+
+            // Multi-select dropdown toggle
+            const dropdownToggle = document.getElementById('deptDropdownToggle');
+            const dropdownMenu = document.getElementById('deptDropdownMenu');
+            dropdownToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('deptDropdownContainer').contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Select All Departments
+            const selectAllDepts = document.getElementById('selectAllDepts');
+            selectAllDepts.addEventListener('change', () => {
+                const checkboxes = document.querySelectorAll('.dept-checkbox');
+                checkboxes.forEach(cb => cb.checked = selectAllDepts.checked);
+                clearGroupButtons();
+                updateSelectAllState();
+                processAndRenderOrders();
+            });
+
+            // Quick department group buttons
+            const stampingBtn = document.getElementById('stampingBtn');
+            const mainCanteenBtn = document.getElementById('mainCanteenBtn');
+            const totalBtn = document.getElementById('totalBtn');
+
+            stampingBtn.addEventListener('click', () => {
+                clearGroupButtons();
+                stampingBtn.classList.add('active');
+                applyGroupSelection(stampingDepartments);
+            });
+            mainCanteenBtn.addEventListener('click', () => {
+                clearGroupButtons();
+                mainCanteenBtn.classList.add('active');
+                applyGroupSelection(mainCanteenDepartments);
+            });
+            totalBtn.addEventListener('click', () => {
+                clearGroupButtons();
+                totalBtn.classList.add('active');
+                applyGroupSelection(totalsdepart);
+            });
+
+            // Time-of-day pills
+            const timeButtons = {
+                morning: document.getElementById('morningTimeBtn'),
+                evening: document.getElementById('eveningTimeBtn'),
+                all: document.getElementById('allTimeBtn')
+            };
+            Object.values(timeButtons).forEach(button => {
+                button.addEventListener('click', function () {
+                    Object.values(timeButtons).forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    loadData();
+                });
+            });
+
+            document.getElementById('locationFilter').addEventListener('change', processAndRenderOrders);
+            document.getElementById('claimStatusFilter').addEventListener('change', processAndRenderOrders);
+            document.getElementById('mealTypeFilter').addEventListener('change', processAndRenderOrders);
+            document.getElementById('fetchOrders').addEventListener('click', loadData);
+            document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+            datePicker.addEventListener('change', loadData);
+
+            document.getElementById('sendButton').addEventListener('click', sendInformationToAdmin);
+
+            allSystemDepartments = await fetchAllDepartments();
+            renderDepartmentCheckboxes();
+            loadData();
+        });
     </script>
 </body>
 </html>

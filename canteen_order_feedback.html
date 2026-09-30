@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Feedback - Canteen</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #172033;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-sm: 0 2px 8px rgba(12, 31, 95, 0.04);
+            --shadow-md: 0 8px 24px rgba(12, 31, 95, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at 15% 0%, #e8f0ff 0, transparent 38%), var(--background-color); 
+            color: var(--text-main); 
+            padding-bottom: 120px; 
+            min-height: 100vh;
+        }
+        
+        /* --- Header --- */
+        .header { 
+            position: fixed; inset: 0 0 auto 0; height: 72px; padding: 0 24px; 
+            background: rgba(255,255,255,0.94); border-bottom: 1px solid var(--border-color); 
+            box-shadow: 0 4px 18px rgba(12,31,95,0.05); backdrop-filter: blur(14px); 
+            display: flex; align-items: center; justify-content: center; z-index: 1100; 
+        }
+        .header img { max-height: 44px; object-fit: contain; }
+        .back-btn { 
+            position: absolute; left: 24px; color: var(--primary-color); 
+            font-size: 1.25rem; text-decoration: none; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9;
+        }
+        .back-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+        
+        .container { width: min(calc(100% - 32px), 760px); margin: 0 auto; padding-top: 100px; }
+
+        .page-title { margin-bottom: 24px; padding: 0 4px; }
+        .page-title h1 { color: var(--primary-color); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+        .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
+
+        .filter-card { 
+            background: var(--surface-color); padding: 20px; border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 24px; 
+            display: flex; gap: 12px; 
+        }
+        .filter-select { 
+            flex: 1; padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid #cbd5e1; 
+            outline: none; font-family: inherit; font-size: 0.95rem; background: #f8fafc; cursor: pointer; transition: 0.2s; 
+        }
+        .filter-select:focus { border-color: var(--secondary-color); background: white; box-shadow: 0 0 0 3px rgba(20,184,166,0.15); }
+
+        #loader { text-align: center; padding: 40px; color: var(--primary-color); font-weight: 600; }
+        
+        .feedback-card { 
+            background: var(--surface-color); border-radius: var(--radius-lg); padding: 24px; 
+            margin-bottom: 20px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); 
+        }
+        .feedback-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .category-tag { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .rating { color: #f59e0b; font-size: 1.1rem; }
+        
+        .feedback-content { font-size: 1rem; line-height: 1.6; color: var(--text-main); margin-bottom: 16px; }
+        .feedback-photo { width: 100%; max-width: 400px; height: auto; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border-color); display: block; box-shadow: var(--shadow-sm); }
+        
+        .feedback-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); padding-top: 16px; border-top: 1px dashed #cbd5e1; }
+        .meta-user { font-weight: 600; color: var(--primary-color); }
+
+        .reply-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--background-color); }
+        .existing-reply { background: #f0fdfa; padding: 16px; border-radius: 12px; border-left: 4px solid var(--secondary-color); margin-bottom: 10px; font-size: 0.95rem; }
+        .existing-reply strong { color: #0f766e; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        
+        .reply-input-group { display: flex; flex-direction: column; gap: 12px; }
+        .reply-input-group textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 80px; outline: none; background: #f8fafc; }
+        .reply-input-group textarea:focus { border-color: var(--secondary-color); background: white; }
+        .send-reply-btn { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.2s; align-self: flex-end; }
+        .send-reply-btn:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
+        .send-reply-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        /* --- Bottom Navigation (Strictly 5 Items) --- */
+        .nav-container { 
+            position: fixed; left: 50%; transform: translateX(-50%); 
+            bottom: max(16px, env(safe-area-inset-bottom)); 
+            width: calc(100% - 32px); max-width: 500px; height: 70px; padding: 8px; 
+            display: flex; justify-content: space-between; background: rgba(12, 31, 95, 0.95); 
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(12, 31, 95, 0.4); backdrop-filter: blur(20px); z-index: 1200; 
+        }
+        .nav-item { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            gap: 6px; border-radius: 18px; color: #94a3b8; text-decoration: none; font-size: 10px; 
+            font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .nav-item i { font-size: 18px; transition: 0.3s; }
+        .nav-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+        .nav-item.active { background: var(--secondary-color); color: #ffffff; box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4); }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .header { height: 62px; padding: 0 16px; }
+            .container { padding-top: 84px; }
+            .filter-card { flex-direction: column; padding: 16px; }
+            .send-reply-btn { align-self: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>Customer Feedback</h1>
+            <p>Review and reply to user feedback and ratings.</p>
+        </div>
+
+        <div class="filter-card">
+            <select id="dayFilter" class="filter-select">
+                <option value="All">All Dates</option>
+            </select>
+            <select id="categoryFilter" class="filter-select">
+                <option value="All">All Categories</option>
+                <option value="Food">Food</option>
+                <option value="Service">Service</option>
+                <option value="App">App</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div id="loader"><i class="fas fa-spinner fa-spin"></i> Fetching user feedback...</div>
+        <div id="feedbackContainer"></div>
+    </div>
+
+    <!-- Navigation Bar (Strictly 5 Items) -->
+    <div class="nav-container">
+        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteencollector.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Collection</span></a>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+        
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const container = document.getElementById('feedbackContainer');
+        const loader = document.getElementById('loader');
+        const dayFilter = document.getElementById('dayFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+
+        let allFeedbackData = [];
+
+        function generateStarRating(rating) {
+            if (!rating || rating === 0) return `<span style="color:#94a3b8; font-size:0.85rem;">No Rating</span>`;
+            return Array(5).fill(0).map((_, i) => `<i class="fa${i < rating ? 's' : 'r'} fa-star"></i>`).join('');
+        }
+
+        async function loadFeedback() {
+            try {
+                // TUKAR: Menggunakan koleksi canteen_feedback baharu
+                const q = query(collection(db, "canteen_feedback"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                allFeedbackData = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
+                    
+                    let effectiveDate = new Date(dateObj);
+                    let isYesterdayRating = false;
+                    
+                    if (data.source === "order_page") {
+                        effectiveDate.setDate(effectiveDate.getDate() - 1);
+                        isYesterdayRating = true;
+                    }
+
+                    const displayDateString = `${String(effectiveDate.getDate()).padStart(2, '0')}/${String(effectiveDate.getMonth() + 1).padStart(2, '0')}/${effectiveDate.getFullYear()}`;
+                    const submittedDisplayDate = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
+
+                    return {
+                        id: doc.id,
+                        dayString: displayDateString,
+                        submittedDate: submittedDisplayDate,
+                        timestamp: dateObj,
+                        email: data.email || "Unknown User",
+                        category: data.category || "General",
+                        rating: data.rating || 0,
+                        feedback: data.feedback || "",
+                        photoData: data.photoData || "", 
+                        adminReply: data.adminReply || "",
+                        isYesterdayRating: isYesterdayRating
+                    };
+                });
+
+                const currentSelectedDay = dayFilter.value;
+                const uniqueDays = [...new Set(allFeedbackData.map(item => item.dayString))];
+                
+                dayFilter.innerHTML = '<option value="All">All Dates</option>';
+                uniqueDays.forEach(day => {
+                    const option = document.createElement('option');
+                    option.value = day; option.textContent = day;
+                    dayFilter.appendChild(option);
+                });
+
+                if (uniqueDays.includes(currentSelectedDay)) dayFilter.value = currentSelectedDay;
+                handleFilterChange();
+
+            } catch (error) {
+                console.error("Error loading feedback:", error);
+                loader.innerHTML = '<span style="color:#dc2626;">Failed to load data. Please refresh.</span>';
+            }
+        }
+
+        function handleFilterChange() {
+            const selectedDay = dayFilter.value;
+            const selectedCategory = categoryFilter.value;
+
+            const filteredData = allFeedbackData.filter(item => {
+                const matchesDay = selectedDay === 'All' || item.dayString === selectedDay;
+                const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory || (selectedCategory === 'Other' && item.category.startsWith('Other'));
+                return matchesDay && matchesCategory;
+            });
+
+            renderCards(filteredData);
+        }
+
+        dayFilter.addEventListener('change', handleFilterChange);
+        categoryFilter.addEventListener('change', handleFilterChange);
+
+        function renderCards(data) {
+            loader.style.display = 'none';
+            container.innerHTML = ''; 
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="text-align:center; padding:40px; color:var(--text-muted); background:white; border-radius:18px;">No feedback matches these filters.</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'feedback-card';
+                
+                let photoHtml = item.photoData ? `<img src="data:image/jpeg;base64,${item.photoData}" class="feedback-photo" alt="Feedback Photo">` : '';
+                let mealContextHtml = item.isYesterdayRating ? `<div style="color:var(--secondary-color); font-weight:700; margin-top:4px;">(Rating for ${item.dayString}'s Meal)</div>` : "";
+
+                let html = `
+                    <div class="feedback-header">
+                        <span class="category-tag">${item.category}</span>
+                        <span class="rating">${generateStarRating(item.rating)}</span>
+                    </div>
+                    <div class="feedback-content">"${item.feedback}"</div>
+                    ${photoHtml}
+                    <div class="feedback-meta">
+                        <span class="meta-user"><i class="fas fa-user-circle"></i> ${item.email}</span>
+                        <span style="text-align:right;">
+                            <i class="far fa-calendar-alt"></i> ${item.submittedDate} at ${item.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            ${mealContextHtml}
+                        </span>
+                    </div>
+                    <div class="reply-section">
+                `;
+
+                if (item.adminReply && item.adminReply.trim() !== "") {
+                    html += `
+                        <div class="existing-reply">
+                            <strong><i class="fas fa-reply-all"></i> Admin Response:</strong>
+                            ${item.adminReply}
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="reply-input-group" id="reply-group-${item.id}">
+                            <textarea id="reply-text-${item.id}" placeholder="Write a response to this user..."></textarea>
+                            <button class="send-reply-btn" data-id="${item.id}" id="btn-${item.id}"><i class="fas fa-paper-plane"></i> Send Reply</button>
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+
+            document.querySelectorAll('.send-reply-btn').forEach(btn => {
+                btn.addEventListener('click', function() { sendReply(this.getAttribute('data-id')); });
+            });
+        }
+
+        window.sendReply = async function(docId) {
+            const textArea = document.getElementById(`reply-text-${docId}`);
+            const btn = document.getElementById(`btn-${docId}`);
+            const replyText = textArea.value.trim();
+
+            if (!replyText) return alert("Please enter a reply first.");
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true; textArea.disabled = true;
+
+            try {
+                // TUKAR: Mengemaskini dokumen dalam koleksi canteen_feedback baharu
+                const docRef = doc(db, "canteen_feedback", docId);
+                await updateDoc(docRef, { adminReply: replyText });
+
+                alert("Reply sent successfully!");
+                loader.style.display = 'block'; 
+                container.innerHTML = '';
+                loadFeedback(); 
+            } catch (error) {
+                console.error(error);
+                alert("Failed to send reply.");
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reply';
+                btn.disabled = false; textArea.disabled = false;
+            }
+        };
+
+        loadFeedback();
+    </script>
+</body>
+</html>

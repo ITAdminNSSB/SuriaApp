@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claimed Orders Verification - Canteen Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="auth-guard.js"></script>
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --secondary-hover: #0d9488;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #172033;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(12, 31, 95, 0.04);
+            --shadow-md: 0 8px 24px rgba(12, 31, 95, 0.08);
+            --claimed-bg: #ecfdf5;
+            --claimed-border: #a7f3d0;
+            --claimed-text: #065f46;
+            --unclaimed-bg: #fff1f2;
+            --unclaimed-border: #fecdd3;
+            --unclaimed-text: #9f1239;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; background: var(--background-color); }
+        body {
+            min-height: 100vh;
+            padding-bottom: 120px;
+            background: radial-gradient(circle at 15% 0%, #e8f0ff 0, transparent 38%), var(--background-color);
+            color: var(--text-main);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: 68px;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 18px rgba(12, 31, 95, 0.05);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .header img { max-height: 44px; width: auto; object-fit: contain; }
+
+        .container {
+            width: min(calc(100% - 32px), 1140px);
+            margin: 0 auto;
+            padding-top: 88px;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 20px 24px;
+            margin-bottom: 18px;
+        }
+
+        /* Location Tabs Switcher */
+        .location-switch-wrapper {
+            margin-bottom: 20px;
+        }
+        .location-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #e2e8f0;
+            border-radius: 16px;
+            padding: 6px;
+            gap: 6px;
+        }
+        .loc-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 16px;
+            border: 0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .loc-btn i { font-size: 1.1rem; }
+        .loc-btn.active {
+            background: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(12, 31, 95, 0.25);
+        }
+
+        .location-info-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 18px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 10px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        .location-info-banner strong { color: var(--primary-color); }
+
+        /* Filter Controls */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        input[type="date"], select, textarea {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.92rem;
+            padding: 0 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+        }
+
+        /* Multi-Select Custom Dropdown */
+        .dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+        .dropdown-toggle {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.92rem;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dropdown-toggle:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+        }
+        .dropdown-menu-custom {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            max-height: 240px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            display: none;
+            padding: 8px;
+        }
+        .dropdown-menu-custom.show {
+            display: block;
+        }
+        .dropdown-item-custom {
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-main);
+        }
+        .dropdown-item-custom:hover {
+            background: #f8fafc;
+        }
+        .dropdown-item-custom input {
+            accent-color: var(--secondary-color);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .select-all-row {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 4px;
+            padding-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .time-pill-group {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: var(--radius-md);
+            gap: 4px;
+        }
+        .time-pill {
+            border: 0;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .time-pill.active {
+            background: #ffffff;
+            color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(12, 31, 95, 0.08);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #ffffff;
+            padding: 10px 20px;
+            border: 0;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card .label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-top: 4px;
+        }
+        .stat-card.claimed .value { color: #059669; }
+        .stat-card.unclaimed .value { color: #dc2626; }
+        .stat-card.rate .value { color: var(--secondary-color); font-size: 1.45rem; }
+
+        /* Table Design */
+        .table-card {
+            padding: 0;
+            overflow: hidden;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            min-width: 820px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        thead th {
+            background: #0f2468;
+            color: #ffffff;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 13px 14px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.88rem;
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.2px;
+        }
+        .badge-status.claimed {
+            background: var(--claimed-bg);
+            border: 1px solid var(--claimed-border);
+            color: var(--claimed-text);
+        }
+        .badge-status.unclaimed {
+            background: var(--unclaimed-bg);
+            border: 1px solid var(--unclaimed-border);
+            color: var(--unclaimed-text);
+        }
+
+        .badge-diet {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            border: 1px solid #fde68a;
+        }
+
+        .send-card h3 {
+            font-size: 1.05rem;
+            font-weight: 750;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .send-card textarea {
+            min-height: 90px;
+            margin-bottom: 12px;
+            resize: vertical;
+        }
+
+        /* Bottom App Navigation */
+        .nav-container {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: max(12px, env(safe-area-inset-bottom));
+            width: calc(100% - 24px);
+            max-width: 580px;
+            height: 68px;
+            padding: 7px;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 4px;
+            background: rgba(12, 31, 95, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 21px;
+            box-shadow: 0 14px 34px rgba(12, 31, 95, 0.3);
+            backdrop-filter: blur(14px);
+            z-index: 1200;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border-radius: 15px;
+            color: #cbd7f2;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .nav-item i { font-size: 18px; line-height: 18px; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .nav-item.active { background: var(--secondary-color); color: #ffffff; box-shadow: 0 5px 12px rgba(20, 184, 166, 0.3); }
+
+        @media (max-width: 768px) {
+            .container { padding-top: 76px; }
+            .card { padding: 16px; }
+            .action-row { flex-direction: column; align-items: stretch; }
+            .time-pill-group { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; }
+            .btn-primary { width: 100%; justify-content: center; }
+            .location-info-banner { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="pictures/new_logo.png" alt="Company Logo">
+    </div>
+
+    <div class="container">
+        <!-- Location Switcher Section -->
+        <div class="location-switch-wrapper">
+            <div class="location-switch">
+                <button type="button" class="loc-btn active" id="btnLocNssb" data-location="nssb">
+                    <i class="fas fa-building"></i> NSSB (Main Canteen)
+                </button>
+                <button type="button" class="loc-btn" id="btnLocSuria" data-location="suria">
+                    <i class="fas fa-industry"></i> SURIA (Stamping)
+                </button>
+            </div>
+            <div class="location-info-banner">
+                <div>
+                    <span id="locationNoticePrefix">Viewing:</span>
+                    <strong id="locationTitle">NSSB (Main Canteen)</strong>
+                    <span id="locationScopeInfo">— All general departments (excluding stamping zones)</span>
+                </div>
+                <small id="locationScopeBadge" style="color: var(--secondary-color); font-weight:700;">Default Zone</small>
+            </div>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="card">
+            <div class="filter-grid">
+                <div>
+                    <input type="date" id="datePicker">
+                </div>
+                <div>
+                    <!-- Multi-Select Department Dropdown -->
+                    <div class="dropdown-container" id="deptDropdownContainer">
+                        <button type="button" class="dropdown-toggle" id="deptDropdownToggle">
+                            <span id="deptToggleText">All Departments</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu-custom" id="deptDropdownMenu">
+                            <div class="dropdown-item-custom select-all-row">
+                                <label style="display:flex; align-items:center; gap:10px; width:100%; cursor:pointer;">
+                                    <input type="checkbox" id="selectAllDepts" checked> <strong>Select All Departments</strong>
+                                </label>
+                            </div>
+                            <div id="deptCheckboxesList">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <select id="claimStatusFilter">
+                        <option value="all">All Statuses (Claimed & Unclaimed)</option>
+                        <option value="claimed">Claimed Only</option>
+                        <option value="unclaimed">Unclaimed Only</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="mealTypeFilter">
+                        <option value="all">All Meals</option>
+                        <option value="regular">Regular Only</option>
+                        <option value="diet">Diet Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <div class="time-pill-group">
+                    <button type="button" class="time-pill" data-time="morning">Morning (4 AM - 10 AM)</button>
+                    <button type="button" class="time-pill" data-time="evening">Night (4 PM - 9 PM)</button>
+                    <button type="button" class="time-pill active" data-time="all">All Shifts</button>
+                </div>
+                <button type="button" class="btn-primary" id="btnRefresh">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistical Counters -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Orders</div>
+                <div class="value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card claimed">
+                <div class="label">Total Claimed</div>
+                <div class="value" id="statClaimed">0</div>
+            </div>
+            <div class="stat-card unclaimed">
+                <div class="label">Unclaimed</div>
+                <div class="value" id="statUnclaimed">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Diet Orders</div>
+                <div class="value" id="statDiet">0</div>
+            </div>
+            <div class="stat-card rate">
+                <div class="label">Claimed Rate</div>
+                <div class="value" id="statRate">0%</div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="card table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 45px; text-align: center;">NO.</th>
+                            <th>Employee Name</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Order Time</th>
+                            <th>Meal Details</th>
+                            <th style="text-align: center;">Claim Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 28px; color: var(--text-muted);">
+                                Loading orders...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Send Admin Notice -->
+        <div class="card send-card">
+            <h3>Send Information / Canteen Report to Admin</h3>
+            <textarea id="adminMessageInput" placeholder="Enter comments, discrepancy remarks, or canteen notes..."></textarea>
+            <button type="button" class="btn-primary" id="btnSendAdmin">
+                <i class="fas fa-paper-plane"></i> Submit to Admin
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-container">
+        <a href="canteen_home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-utensils"></i><span>Orders</span></a>
+        <a href="canteen_claimed.html" class="nav-item active"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteen_menu_update.html" class="nav-item"><i class="fas fa-sync"></i><span>Menu</span></a>
+        <a href="canteen_feedback.html" class="nav-item"><i class="fas fa-comment-dots"></i><span>Feedback</span></a>
+    </div>
+
+    <script type="module">
+        import './auth-guard.js';
+        import { auth, db } from './firebaseConfig.js';
+        import {
+            collection,
+            query,
+            where,
+            onSnapshot,
+            Timestamp,
+            getDocs,
+            addDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Stamping departments for SURIA
+        const SURIA_STAMPING_DEPTS = [
+            'PPIC-STAMPING',
+            'PROD-STAMPING',
+            'PROD-STAMPING-DIEMTCE',
+            'QC-STAMPING'
+        ];
+
+        let activeLocation = 'nssb'; // 'nssb' | 'suria'
+        let currentUnsubscribe = null;
+        let cachedDietEmpIds = null;
+        let allSystemDepartments = [];
+        let rawSnapshotOrders = [];
+        let cachedClaimedMap = new Map();
+
+        function getLocalDateString(d = new Date()) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function parseDayBounds(dateStr) {
+            if (!dateStr) return null;
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return {
+                start: new Date(y, m - 1, d, 0, 0, 0, 0),
+                end: new Date(y, m - 1, d, 23, 59, 59, 999),
+                y, m, d
+            };
+        }
+
+        function isSuriaDepartment(dept = '') {
+            const normalized = String(dept).trim().toUpperCase();
+            if (normalized.includes('STAMPING') || SURIA_STAMPING_DEPTS.some(d => d.toUpperCase() === normalized)) {
+                return true;
+            }
+            return false;
+        }
+
+        function formatClaimTime(claimMeta) {
+            if (!claimMeta) return '';
+            if (claimMeta.timestamp) {
+                return claimMeta.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+            }
+            if (claimMeta.scannedTime) {
+                let t = String(claimMeta.scannedTime).trim();
+                if (t.includes('.')) {
+                    const parts = t.split('.');
+                    if (parts.length >= 2) {
+                        let h = parseInt(parts[0], 10);
+                        const m = parts[1];
+                        if (!isNaN(h)) {
+                            const ampm = h >= 12 ? 'PM' : 'AM';
+                            h = h % 12 || 12;
+                            return `${String(h).padStart(2, '0')}:${m} ${ampm}`;
+                        }
+                    }
+                }
+                return t;
+            }
+            return 'Claimed';
+        }
+
+        async function getDietUsers() {
+            if (cachedDietEmpIds) return cachedDietEmpIds;
+            cachedDietEmpIds = new Set();
+            try {
+                const dietUsersSnap = await getDocs(query(collection(db, 'fit_program_users')));
+                dietUsersSnap.forEach(d => {
+                    const row = d.data();
+                    if (row.registeredAt && row.employeeId) {
+                        cachedDietEmpIds.add(String(row.employeeId).trim());
+                    }
+                });
+            } catch (err) {
+                console.error("Error loading diet users:", err);
+            }
+            return cachedDietEmpIds;
+        }
+
+        async function fetchAllDepartments() {
+            const deptsSet = new Set();
+            try {
+                const usersSnap = await getDocs(collection(db, 'users'));
+                usersSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.department) deptsSet.add(String(data.department).trim());
+                });
+            } catch (err) {
+                console.error("Error fetching departments from users:", err);
+            }
+            return Array.from(deptsSet).sort();
+        }
+
+        function renderDepartmentCheckboxes() {
+            const container = document.getElementById('deptCheckboxesList');
+            if (!container) return;
+            
+            const filteredDepts = allSystemDepartments.filter(dept => {
+                const isSuria = isSuriaDepartment(dept);
+                return activeLocation === 'suria' ? isSuria : !isSuria;
+            });
+
+            container.innerHTML = '';
+            filteredDepts.forEach(dept => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item-custom';
+                item.innerHTML = `
+                    <label style="display:flex; align-items:center; gap:10px; width:100%; cursor:pointer;">
+                        <input type="checkbox" class="dept-checkbox" value="${dept}" checked> ${dept}
+                    </label>
+                `;
+                container.appendChild(item);
+            });
+
+            document.querySelectorAll('.dept-checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    updateSelectAllState();
+                    processAndRenderOrders();
+                });
+            });
+
+            const selectAll = document.getElementById('selectAllDepts');
+            if (selectAll) selectAll.checked = true;
+
+            updateSelectAllState();
+        }
+
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.dept-checkbox');
+            const selectAll = document.getElementById('selectAllDepts');
+            const toggleText = document.getElementById('deptToggleText');
+            
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const totalCount = checkboxes.length;
+
+            if (checkedCount === totalCount && totalCount > 0) {
+                if (selectAll) {
+                    selectAll.checked = true;
+                    selectAll.indeterminate = false;
+                }
+                toggleText.textContent = "All Departments";
+            } else if (checkedCount === 0) {
+                if (selectAll) {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = false;
+                }
+                toggleText.textContent = "No Department Selected";
+            } else {
+                if (selectAll) {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = true;
+                }
+                toggleText.textContent = `${checkedCount} Department(s) Selected`;
+            }
+        }
+
+        async function fetchClaimedMap(dateStr, startOfDay, endOfDay) {
+            const claimedRef = collection(db, 'claimed');
+            const [snapByTimestamp, snapByDateStr] = await Promise.all([
+                getDocs(query(claimedRef, where("timestamp", ">=", Timestamp.fromDate(startOfDay)), where("timestamp", "<=", Timestamp.fromDate(endOfDay)))),
+                getDocs(query(claimedRef, where("scannedDate", "==", dateStr)))
+            ]);
+
+            const map = new Map();
+            const parseDoc = (d) => {
+                const data = d.data();
+                if (!data.employeeId) return;
+                const empId = String(data.employeeId).trim();
+                map.set(empId, {
+                    scannedTime: data.scannedTime || null,
+                    timestamp: data.timestamp || null
+                });
+            };
+
+            snapByTimestamp.forEach(parseDoc);
+            snapByDateStr.forEach(parseDoc);
+            return map;
+        }
+
+        function processAndRenderOrders() {
+            const selectedDeptCheckboxes = document.querySelectorAll('.dept-checkbox:checked');
+            const selectedDepts = new Set(Array.from(selectedDeptCheckboxes).map(cb => cb.value));
+            const claimStatus = document.getElementById('claimStatusFilter').value;
+            const mealType = document.getElementById('mealTypeFilter').value;
+
+            const locationFilteredOrders = rawSnapshotOrders.filter(item => {
+                const isSuriaDept = isSuriaDepartment(item.order.department);
+                return activeLocation === 'suria' ? isSuriaDept : !isSuriaDept;
+            });
+
+            let totalCount = 0;
+            let claimedCount = 0;
+            let unclaimedCount = 0;
+            let dietCount = 0;
+            const finalRows = [];
+
+            locationFilteredOrders.forEach(item => {
+                const order = item.order;
+                const dept = String(order.department || '').trim();
+
+                if (!selectedDepts.has(dept)) return;
+
+                const empId = item.empId;
+                const isClaimed = cachedClaimedMap.has(empId);
+                const claimMeta = cachedClaimedMap.get(empId);
+
+                let isDiet = item.isDiet;
+                let mealLabel = item.mealLabel;
+
+                totalCount++;
+                if (isClaimed) claimedCount++;
+                else unclaimedCount++;
+                if (isDiet) dietCount++;
+
+                if (claimStatus === 'claimed' && !isClaimed) return;
+                if (claimStatus === 'unclaimed' && isClaimed) return;
+                if (mealType === 'diet' && !isDiet) return;
+                if (mealType === 'regular' && isDiet) return;
+
+                finalRows.push({
+                    order,
+                    empId,
+                    isClaimed,
+                    claimMeta,
+                    mealLabel,
+                    isDiet
+                });
+            });
+
+            document.getElementById('statTotal').textContent = totalCount;
+            document.getElementById('statClaimed').textContent = claimedCount;
+            document.getElementById('statUnclaimed').textContent = unclaimedCount;
+            document.getElementById('statDiet').textContent = dietCount;
+            const rate = totalCount > 0 ? ((claimedCount / totalCount) * 100).toFixed(1) : 0;
+            document.getElementById('statRate').textContent = `${rate}%`;
+
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+
+            if (finalRows.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">
+                            No orders found matching this location and filter criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            finalRows.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                const orderDateObj = item.order.orderDate.toDate();
+                const orderDateTimeStr = orderDateObj.toLocaleString([], { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true 
+                });
+
+                const formattedClaimTime = item.isClaimed ? formatClaimTime(item.claimMeta) : '';
+
+                tr.innerHTML = `
+                    <td style="text-align: center; color: var(--text-muted);">${index + 1}</td>
+                    <td><strong>${item.order.name || 'N/A'}</strong></td>
+                    <td>${item.empId}</td>
+                    <td><span style="font-weight: 600;">${item.order.department || 'N/A'}</span></td>
+                    <td>${orderDateTimeStr}</td>
+                    <td>
+                        ${item.isDiet ? `<span class="badge-diet"><i class="fas fa-leaf"></i> Diet</span>` : item.mealLabel}
+                    </td>
+                    <td style="text-align: center;">
+                        ${item.isClaimed 
+                            ? `<span class="badge-status claimed"><i class="fas fa-check-circle"></i> Claimed (${formattedClaimTime})</span>` 
+                            : `<span class="badge-status unclaimed"><i class="fas fa-clock"></i> Not Yet</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function loadData() {
+            const dateInput = document.getElementById('datePicker').value;
+            if (!dateInput) return;
+
+            const bounds = parseDayBounds(dateInput);
+            if (!bounds) return;
+
+            let startTime = new Date(bounds.y, bounds.m - 1, bounds.d, 0, 0, 0, 0);
+            let endTime = new Date(bounds.y, bounds.m - 1, bounds.d, 23, 59, 59, 999);
+
+            const activeTimeBtn = document.querySelector('.time-pill.active');
+            const timeFilter = activeTimeBtn ? activeTimeBtn.getAttribute('data-time') : 'all';
+
+            if (timeFilter === 'morning') {
+                startTime.setHours(4, 0, 0, 0);
+                endTime.setHours(10, 0, 0, 0);
+            } else if (timeFilter === 'evening') {
+                startTime.setHours(16, 0, 0, 0);
+                endTime.setHours(21, 0, 0, 0);
+            }
+
+            try {
+                const [claimedMap, verifiedDietEmpIds] = await Promise.all([
+                    fetchClaimedMap(dateInput, bounds.start, bounds.end),
+                    getDietUsers()
+                ]);
+                cachedClaimedMap = claimedMap;
+
+                if (allSystemDepartments.length === 0) {
+                    allSystemDepartments = await fetchAllDepartments();
+                    renderDepartmentCheckboxes();
+                }
+
+                const ordersRef = collection(db, 'orders');
+                const baseQuery = query(
+                    ordersRef,
+                    where("orderDate", ">=", Timestamp.fromDate(startTime)),
+                    where("orderDate", "<=", Timestamp.fromDate(endTime))
+                );
+
+                if (currentUnsubscribe) {
+                    currentUnsubscribe();
+                    currentUnsubscribe = null;
+                }
+
+                currentUnsubscribe = onSnapshot(baseQuery, (snapshot) => {
+                    const deptsSet = new Set();
+                    const earliestOrdersMap = new Map();
+
+                    snapshot.forEach(docSnap => {
+                        const order = docSnap.data();
+                        if (!order.employeeId || !order.orderDate) return;
+                        if (order.department) {
+                            deptsSet.add(String(order.department).trim());
+                        }
+
+                        const empId = String(order.employeeId).trim();
+                        const orderDateObj = order.orderDate.toDate();
+
+                        if (!earliestOrdersMap.has(empId) || orderDateObj < earliestOrdersMap.get(empId).orderDate.toDate()) {
+                            earliestOrdersMap.set(empId, order);
+                        }
+                    });
+
+                    allSystemDepartments = Array.from(deptsSet).sort();
+                    renderDepartmentCheckboxes();
+
+                    const rawOrders = Array.from(earliestOrdersMap.values())
+                        .sort((a, b) => a.orderDate.toDate() - b.orderDate.toDate());
+
+                    rawSnapshotOrders = rawOrders.map(order => {
+                        const empId = String(order.employeeId).trim();
+                        const isSuria = isSuriaDepartment(order.department);
+
+                        let mealLabel = order.mealSet || 'Normal';
+                        if (mealLabel === 'Custom') {
+                            if (order.customBroth) mealLabel = 'Extra Broth';
+                            else if (order.customMoreRice) mealLabel = 'More Rice';
+                            else if (order.customLessRice) mealLabel = 'Less Rice';
+                            else if (order.customAllergy) mealLabel = 'Allergy';
+                            else mealLabel = 'Normal';
+                        }
+
+                        let isDiet = mealLabel.toLowerCase().includes('diet');
+                        if (isDiet && !verifiedDietEmpIds.has(empId)) {
+                            mealLabel = 'Normal';
+                            isDiet = false;
+                        }
+
+                        return {
+                            order,
+                            empId,
+                            isSuria,
+                            mealLabel,
+                            isDiet
+                        };
+                    });
+
+                    processAndRenderOrders();
+                }, (err) => {
+                    console.error("Orders listener failed:", err);
+                });
+
+            } catch (error) {
+                console.error("Error setting up data feed:", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const datePicker = document.getElementById('datePicker');
+            datePicker.value = getLocalDateString();
+
+            // Setup custom dropdown toggle
+            const dropdownToggle = document.getElementById('deptDropdownToggle');
+            const dropdownMenu = document.getElementById('deptDropdownMenu');
+
+            dropdownToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('deptDropdownContainer').contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Select All Checkbox Handler
+            const selectAllDepts = document.getElementById('selectAllDepts');
+            selectAllDepts.addEventListener('change', () => {
+                const checkboxes = document.querySelectorAll('.dept-checkbox');
+                checkboxes.forEach(cb => cb.checked = selectAllDepts.checked);
+                updateSelectAllState();
+                processAndRenderOrders();
+            });
+
+            const btnNssb = document.getElementById('btnLocNssb');
+            const btnSuria = document.getElementById('btnLocSuria');
+            const locTitle = document.getElementById('locationTitle');
+            const locScope = document.getElementById('locationScopeInfo');
+
+            btnNssb.addEventListener('click', () => {
+                if (activeLocation === 'nssb') return;
+                activeLocation = 'nssb';
+                btnNssb.classList.add('active');
+                btnSuria.classList.remove('active');
+                locTitle.textContent = "NSSB (Main Canteen)";
+                locScope.textContent = "— All staff (including general QC) EXCEPT Stamping departments";
+                renderDepartmentCheckboxes();
+                processAndRenderOrders();
+            });
+
+            btnSuria.addEventListener('click', () => {
+                if (activeLocation === 'suria') return;
+                activeLocation = 'suria';
+                btnSuria.classList.add('active');
+                btnNssb.classList.remove('active');
+                locTitle.textContent = "SURIA (Stamping)";
+                locScope.textContent = "— EXCLUSIVELY for PPIC-STAMPING, PROD-STAMPING, PROD-STAMPING-DIEMTCE & QC-STAMPING";
+                renderDepartmentCheckboxes();
+                processAndRenderOrders();
+            });
+
+            document.querySelectorAll('.time-pill').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-pill').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    loadData();
+                });
+            });
+
+            document.getElementById('claimStatusFilter').addEventListener('change', processAndRenderOrders);
+            document.getElementById('mealTypeFilter').addEventListener('change', processAndRenderOrders);
+            datePicker.addEventListener('change', loadData);
+            document.getElementById('btnRefresh').addEventListener('click', loadData);
+
+            document.getElementById('btnSendAdmin').addEventListener('click', async () => {
+                const textarea = document.getElementById('adminMessageInput');
+                const text = textarea.value.trim();
+                if (!text) {
+                    alert("Please write a message before submitting.");
+                    return;
+                }
+
+                try {
+                    await addDoc(collection(db, "adminMessages"), {
+                        message: text,
+                        location: activeLocation,
+                        locationName: activeLocation === 'suria' ? 'SURIA (Stamping)' : 'NSSB (Main Canteen)',
+                        timestamp: serverTimestamp(),
+                        status: "unread",
+                        source: "canteen_claimed.html"
+                    });
+                    alert("Message successfully sent to Admin!");
+                    textarea.value = "";
+                } catch (err) {
+                    console.error("Admin submit error:", err);
+                    alert("Could not deliver message. Please retry.");
+                }
+            });
+
+            allSystemDepartments = await fetchAllDepartments();
+            renderDepartmentCheckboxes();
+            loadData();
+        });
+    </script>
+</body>
+</html>

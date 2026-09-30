@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Menu - Canteen</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 6px -1px rgba(12, 31, 95, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(12, 31, 95, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at 15% 0%, #e8f0ff 0, transparent 38%), var(--background-color);
+            color: var(--text-main); 
+            padding-bottom: 120px; 
+            min-height: 100vh;
+        }
+        
+        /* --- Header --- */
+        .header { 
+            position: fixed; inset: 0 0 auto 0; height: 72px; padding: 0 24px; 
+            background: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(226, 232, 240, 0.8); 
+            box-shadow: 0 4px 20px rgba(12, 31, 95, 0.04); backdrop-filter: blur(16px); 
+            display: flex; align-items: center; justify-content: center; z-index: 1100; 
+        }
+        .header img { max-height: 42px; object-fit: contain; }
+        .back-btn { 
+            position: absolute; left: 24px; color: var(--primary-color); 
+            font-size: 1.25rem; text-decoration: none; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9;
+        }
+        .back-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+        
+        .container { width: min(calc(100% - 32px), 900px); margin: 0 auto; padding-top: 100px; }
+        
+        /* --- Page Title --- */
+        .page-title { margin-bottom: 24px; padding: 0 4px; }
+        .page-title h1 { color: var(--primary-color); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+        .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
+
+        /* --- Day Tabs Navigation --- */
+        .day-tabs { 
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 16px; 
+            margin-bottom: 20px; scrollbar-width: none; 
+        }
+        .day-tabs::-webkit-scrollbar { display: none; }
+        .day-tab { 
+            padding: 12px 24px; background: var(--surface-color); border: 1px solid var(--border-color); 
+            border-radius: var(--radius-md); cursor: pointer; font-weight: 600; white-space: nowrap; 
+            color: var(--text-muted); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: var(--shadow-sm); 
+        }
+        .day-tab:hover { border-color: #cbd5e1; transform: translateY(-2px); }
+        .day-tab.active { 
+            background: var(--primary-color); color: white; border-color: var(--primary-color); 
+            box-shadow: 0 8px 16px rgba(12,31,95,0.25); transform: translateY(-2px);
+        }
+
+        /* --- Menu Sections --- */
+        .menu-section { 
+            background: var(--surface-color); border-radius: var(--radius-lg); padding: 28px 24px; 
+            box-shadow: var(--shadow-md); border: 1px solid var(--border-color); margin-bottom: 24px; 
+            display: none; animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .menu-section.active { display: block; }
+        
+        .section-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--background-color); 
+        }
+        .section-header h2 { font-size: 1.25rem; color: var(--primary-color); font-weight: 800; }
+
+        /* --- Buttons --- */
+        .btn { 
+            padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; 
+            border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; 
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(12,31,95,0.2); }
+        
+        .btn-success { background: var(--secondary-color); color: white; width: 100%; justify-content: center; padding: 16px; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 4px 15px rgba(20,184,166,0.3); }
+        .btn-success:hover { background: #0d9488; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(20,184,166,0.4); }
+        
+        /* --- Menu Items --- */
+        .menu-item { 
+            display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; 
+            border: 1px solid var(--border-color); border-radius: 14px; margin-bottom: 12px; 
+            background: #f8fafc; transition: all 0.2s; 
+        }
+        .menu-item:hover { border-color: var(--secondary-color); background: white; box-shadow: var(--shadow-sm); transform: translateX(4px); }
+        
+        .item-info { font-weight: 600; color: var(--text-main); font-size: 1.05rem; }
+        .item-price { color: var(--secondary-color); font-weight: 800; margin-left: 8px; font-size: 0.95rem; background: #f0fdfa; padding: 4px 10px; border-radius: 8px; border: 1px solid #ccfbf1; }
+        
+        .action-btns { display: flex; gap: 8px; }
+        .action-btns button { padding: 10px 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-edit { background: #e0f2fe; color: #0284c7; }
+        .btn-edit:hover { background: #bae6fd; transform: scale(1.05); }
+        .btn-delete { background: #fee2e2; color: #dc2626; }
+        .btn-delete:hover { background: #fecaca; transform: scale(1.05); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 1rem; background: #f8fafc; border-radius: 14px; border: 2px dashed #cbd5e1; font-weight: 500; }
+        .empty-state i { font-size: 32px; color: #cbd5e1; margin-bottom: 12px; display: block; }
+
+        /* --- Modal --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(12,31,95,0.6); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 440px; padding: 32px 28px; border-radius: var(--radius-lg); box-shadow: 0 24px 48px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease; }
+        .modal-content h3 { margin-bottom: 24px; color: var(--primary-color); font-size: 1.4rem; font-weight: 800; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; font-family: inherit; font-size: 1rem; background: #f8fafc; transition: 0.2s; }
+        .form-group input:focus { border-color: var(--secondary-color); background: white; box-shadow: 0 0 0 4px rgba(20,184,166,0.15); }
+        
+        .modal-actions { display: flex; gap: 12px; margin-top: 32px; }
+        .modal-actions button { flex: 1; padding: 14px; font-size: 1rem; }
+        .btn-cancel { background: #f1f5f9; color: #475569; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .btn-cancel:hover { background: #e2e8f0; }
+
+        /* --- Bottom Navigation --- */
+        .nav-container {
+            position: fixed; left: 50%; transform: translateX(-50%);
+            bottom: max(16px, env(safe-area-inset-bottom));
+            width: calc(100% - 32px); max-width: 500px; height: 70px; padding: 8px;
+            display: flex; justify-content: space-between;
+            background: rgba(12, 31, 95, 0.95); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px; box-shadow: 0 20px 40px rgba(12, 31, 95, 0.4);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1200;
+        }
+
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; border-radius: 18px; color: #94a3b8; text-decoration: none;
+            font-size: 10px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item i { font-size: 18px; transition: 0.3s; }
+        .nav-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+        .nav-item.active { background: var(--secondary-color); color: #ffffff; box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4); }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        /* --- Loader --- */
+        #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 3000; align-items: center; justify-content: center; flex-direction: column; color: var(--primary-color); font-weight: 700; font-size: 1.1rem; }
+        .spinner { width: 48px; height: 48px; border: 4px solid #e2e8f0; border-top-color: var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .header { height: 62px; padding: 0 16px; }
+            .container { padding-top: 84px; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .section-header .btn { width: 100%; justify-content: center; }
+            .menu-item { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .action-btns { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Saving Menu Updates...</p>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="page-title">
+            <h1>Menu Management</h1>
+            <p>Modify and update the weekly lunch menu for staff orders.</p>
+        </div>
+
+        <!-- Day Tabs -->
+        <div class="day-tabs" id="dayTabs">
+            <div class="day-tab active" data-day="monday">Monday</div>
+            <div class="day-tab" data-day="tuesday">Tuesday</div>
+            <div class="day-tab" data-day="wednesday">Wednesday</div>
+            <div class="day-tab" data-day="thursday">Thursday</div>
+            <div class="day-tab" data-day="friday">Friday</div>
+            <div class="day-tab" data-day="saturday">Saturday</div>
+            <div class="day-tab" data-day="sunday">Sunday</div>
+        </div>
+
+        <!-- Menu Content Wrapper -->
+        <div id="menuContainer"></div>
+
+        <!-- Global Save Button -->
+        <button class="btn btn-success" onclick="saveAllMenus()">
+            <i class="fas fa-save"></i> Save Global Menu Changes
+        </button>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Add Menu Item</h3>
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="itemName" placeholder="e.g. Nasi Ayam Penyet">
+            </div>
+            <div class="form-group">
+                <label>Price (RM)</label>
+                <input type="number" id="itemPrice" step="0.01" min="0" placeholder="e.g. 6.50">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveItem()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bottom (Strictly 5 Items) -->
+    <div class="nav-container">
+        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteencollector.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Collection</span></a>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+        
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // App State
+        const appState = {
+            menuData: { monday:[], tuesday:[], wednesday:[], thursday:[], friday:[], saturday:[], sunday:[] },
+            currentDay: 'monday',
+            editingIndex: null
+        };
+
+        const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+
+        function showLoader(show, text = 'Processing...') { 
+            const loader = document.getElementById('loadingOverlay');
+            loader.querySelector('p').textContent = text;
+            loader.style.display = show ? 'flex' : 'none'; 
+        }
+
+        async function loadMenu() {
+            showLoader(true, 'Fetching Menu Data...');
+            try {
+                // TUKAR: Menggunakan koleksi canteen_menu
+                const docRef = doc(db, "canteen_menu", "weeklyLunch");
+                const snap = await getDoc(docRef);
+                
+                if (snap.exists()) {
+                    const data = snap.data();
+                    days.forEach(d => { if(data[d]) appState.menuData[d] = data[d]; });
+                }
+                renderAllSections();
+            } catch (err) {
+                console.error(err);
+                alert("Failed to load menu. Please check your connection.");
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function renderAllSections() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = '';
+            
+            days.forEach(day => {
+                const section = document.createElement('div');
+                section.className = `menu-section ${day === appState.currentDay ? 'active' : ''}`;
+                section.id = `section-${day}`;
+                
+                const capitalizeDay = day.charAt(0).toUpperCase() + day.slice(1);
+
+                let itemsHtml = appState.menuData[day].length === 0 
+                    ? `<div class="empty-state"><i class="fas fa-concierge-bell"></i>No menu items set for ${capitalizeDay}</div>`
+                    : appState.menuData[day].map((item, i) => `
+                        <div class="menu-item">
+                            <div class="item-info">${item.name} <span class="item-price">RM ${parseFloat(item.price).toFixed(2)}</span></div>
+                            <div class="action-btns">
+                                <button class="btn-edit" onclick="openModal('${day}', ${i})"><i class="fas fa-pen"></i></button>
+                                <button class="btn-delete" onclick="deleteItem('${day}', ${i})"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                section.innerHTML = `
+                    <div class="section-header">
+                        <h2>${capitalizeDay} Menu</h2>
+                        <button class="btn btn-primary" onclick="openModal('${day}')"><i class="fas fa-plus"></i> Add Item</button>
+                    </div>
+                    <div>${itemsHtml}</div>
+                `;
+                container.appendChild(section);
+            });
+        }
+
+        // Global functions for inline onclick handlers
+        window.openModal = function(day, index = null) {
+            appState.currentDay = day;
+            appState.editingIndex = index;
+            document.getElementById('modalTitle').textContent = index !== null ? 'Edit Menu Item' : 'Add Menu Item';
+            
+            if (index !== null) {
+                document.getElementById('itemName').value = appState.menuData[day][index].name;
+                document.getElementById('itemPrice').value = appState.menuData[day][index].price;
+            } else {
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemPrice').value = '';
+            }
+            document.getElementById('menuModal').style.display = 'flex';
+        };
+
+        window.closeModal = function() { 
+            document.getElementById('menuModal').style.display = 'none'; 
+        };
+
+        window.saveItem = function() {
+            const name = document.getElementById('itemName').value.trim();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            
+            if (!name || isNaN(price) || price < 0) {
+                alert("Please enter a valid item name and valid price (RM).");
+                return;
+            }
+
+            if (appState.editingIndex !== null) {
+                appState.menuData[appState.currentDay][appState.editingIndex] = { name, price };
+            } else {
+                appState.menuData[appState.currentDay].push({ name, price });
+            }
+            
+            renderAllSections();
+            closeModal();
+        };
+
+        window.deleteItem = function(day, index) {
+            if(confirm("Are you sure you want to remove this dish from the menu?")) {
+                appState.menuData[day].splice(index, 1);
+                renderAllSections();
+            }
+        };
+
+        window.saveAllMenus = async function() {
+            showLoader(true, 'Saving Global Menu...');
+            try {
+                // TUKAR: Simpan ke koleksi canteen_menu
+                await setDoc(doc(db, "canteen_menu", "weeklyLunch"), appState.menuData);
+                alert("Weekly menu updated and saved successfully!");
+            } catch (err) {
+                console.error(err);
+                alert("Error saving menu. Please try again.");
+            } finally {
+                showLoader(false);
+            }
+        };
+
+        // Tab Switch Logic
+        document.querySelectorAll('.day-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active'));
+                
+                tab.classList.add('active');
+                appState.currentDay = tab.dataset.day;
+                document.getElementById(`section-${appState.currentDay}`).classList.add('active');
+            });
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('menuModal');
+            if (e.target === modal) closeModal();
+        });
+
+        // Initialize Load
+        loadMenu();
+    </script>
+</body>
+</html>

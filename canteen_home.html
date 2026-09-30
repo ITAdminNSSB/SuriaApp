@@ -23,10 +23,9 @@ body {font-family: 'Helvetica', sans-serif;background-color: #f0f0f0;overflow-x:
 .slide p {padding: 15px;font-size: 16px;color: #333;}
 .logo-container {display: flex;justify-content: center;margin-top: 20px;}
 .logo-container img {width: 200px;height: auto;}
-.nav-container {position: fixed;bottom: 20px;left: 50%;transform: translateX(-50%);background: #0C0E8B;padding: 15px 30px;border-radius: 30px;box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);display: flex;align-items: center;gap: 35px;width: calc(100% - 40px);}
-.nav-item {display: flex;flex-direction: column;align-items: center;text-decoration: none;color: #FFFFFF;transition: 0.3s;cursor: pointer;}
-.nav-item:hover {color: #2dd4bf;}
-.nav-item i {font-size: 20px;margin-bottom: 5px;}
+.nav-container {position: fixed;bottom: 20px;left: 50%;transform: translateX(-50%);background: #0C0E8B;padding: 15px 30px;border-radius: 30px;box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);display: flex;align-items: center;justify-content: space-around;gap: 35px;width: calc(100% - 40px);max-width: 1200px;z-index: 1000;}
+.nav-item {color: #FFFFFF;text-decoration: none;display: flex;flex-direction: column;align-items: center;gap: 5px;}
+.nav-item i {font-size: 20px;}
 .nav-item span {font-size: 12px;}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -41,7 +40,7 @@ body {font-family: 'Helvetica', sans-serif;background-color: #f0f0f0;overflow-x:
             <img src="pictures/order_Food_icon.png" alt="Track">
             <h3>View Orders</h3>
         </a>
-        <a href="canteen_claimed_pg.html" class="card">
+        <a href="canteen_claimed_old.html" class="card">
             <img src="pictures/claimed_icon.png" alt="Goals">
             <h3>claimed orders</h3>
         </a>
@@ -53,9 +52,17 @@ body {font-family: 'Helvetica', sans-serif;background-color: #f0f0f0;overflow-x:
             <img src="pictures/scan_blue.png" alt="Goals">
             <h3>Scan Qr</h3>
         </a>
-        <a href="wastage_leaderboard.html" class="card">
+        <a href="wastage_leaderboard_old.html" class="card">
             <img src="pictures/waste_image.png" alt="Sahur">
             <h3>Waste leaderboard</h3>
+        </a>
+        <a href="view_feedback_pg.html" class="card">
+            <img src="pictures/menu_blue.png" alt="Feedback">
+            <h3>View Feedback</h3>
+        </a>
+        <a href="Analytics_dashboard_pg.html" class="card">
+            <img src="pictures/invoice.png" alt="Feedback">
+            <h3>Invoices</h3>
         </a>
     </div>
 
@@ -105,7 +112,7 @@ body {font-family: 'Helvetica', sans-serif;background-color: #f0f0f0;overflow-x:
             <i class="fas fa-utensils"></i>
             <span>View Orders</span>
         </a>
-        <a href="canteen_claimed_pg.html" class="nav-item">
+        <a href="canteen_claimed_old.html" class="nav-item">
             <i class="fas fa-clipboard-check"></i>
             <span>Claimed Orders</span>
         </a>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script type="module" src="auth-guard.js"></script>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Suria - Order Food</title>
+    <style>
+        :root {
+            /* Matched to ramadan_code.html Suria Blue */
+            --app-navy: #0C0E8B;
+            --app-navy-2: #1416a0;
+            --app-teal: #14b8a6;
+            --app-bg: #f3f7fc;
+            --app-card: #ffffff;
+            --app-text: #17213c;
+            --app-muted: #68738d;
+            --app-line: #dfe7f2;
+            --app-radius: 24px;
+            --app-shadow: 0 12px 32px rgba(12, 14, 139, 0.08);
+            --app-shadow-hover: 0 16px 40px rgba(12, 14, 139, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", "Helvetica", sans-serif; }
+        
+        body {
+            background-color: var(--app-bg);
+            color: var(--app-text);
+            overflow-x: hidden;
+            padding-bottom: 120px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 12% 12%, rgba(20, 184, 166, 0.05) 0 2px, transparent 3px),
+                radial-gradient(circle at 88% 24%, rgba(12, 14, 139, 0.04) 0 2px, transparent 3px),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(239, 245, 255, 0.8));
+            background-size: 42px 42px, 54px 54px, 100% 100%;
+        }
+
+        .app-header {
+            position: fixed; inset: 0 0 auto; width: 100%; height: 68px;
+            padding: 0 clamp(18px, 4vw, 52px); display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.96); border-bottom: 1px solid var(--app-line);
+            box-shadow: 0 5px 20px rgba(12, 14, 139, 0.07); z-index: 2000; backdrop-filter: blur(14px);
+        }
+        .app-header img { display: block; width: auto; height: 34px; max-width: 150px; object-fit: contain; }
+
+        .container, .customization-container {
+            width: min(calc(100% - 32px), 500px);
+            margin: 20px auto 25px;
+            background: var(--app-card);
+            border-radius: var(--app-radius);
+            box-shadow: var(--app-shadow);
+            padding: 28px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .container + .container, 
+        .container + .customization-container {
+            margin-top: 0;
+        }
+
+        .calendar-container { margin-bottom: 20px; text-align: center; }
+        .calendar-container h2 { color: var(--app-navy); font-size: 1.4rem; margin-bottom: 12px; font-weight: 800; }
+        #calendar {
+            font-size: 1.15rem; color: var(--app-navy); font-weight: 600;
+            padding: 14px; background: rgba(12, 14, 139, 0.04);
+            border-radius: 16px; border: 1px solid var(--app-line);
+        }
+
+        .order-section { text-align: center; }
+        .order-question { font-size: 1.25rem; color: var(--app-text); margin-bottom: 24px; font-weight: 700; line-height: 1.4; }
+        
+        .order-buttons { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; }
+        .order-buttons button {
+            flex: 1; padding: 14px 24px; font-size: 1.05rem; border: none; border-radius: 16px;
+            cursor: pointer; transition: all 0.3s ease; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .yes-btn { background: var(--app-teal); color: white; box-shadow: 0 6px 20px rgba(20, 184, 166, 0.25); }
+        .yes-btn:hover { background: #0d9488; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.35); }
+        .no-btn { background: #fff; color: #ef4444; border: 2px solid #fecaca; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1); }
+        .no-btn:hover { background: #fef2f2; border-color: #ef4444; transform: translateY(-2px); }
+
+        #time-message {
+            margin-top: 15px; font-size: 0.9rem; padding: 12px; border-radius: 12px;
+            background-color: #fef2f2; color: #ef4444; font-weight: 600; display: none; border: 1px solid #fecaca;
+        }
+        #time-message.info { background-color: rgba(12, 14, 139, 0.05); color: var(--app-navy); border-color: var(--app-line); }
+
+        .customization-container h2 { color: var(--app-navy); font-size: 1.5rem; margin-bottom: 10px; font-weight: 800; text-align: center;}
+        .customization-container > p { color: var(--app-muted); font-size: 0.95rem; margin-bottom: 25px; text-align: center; font-weight: 500;}
+        
+        .diet-btn {
+            width: 100%; padding: 16px; border: none; border-radius: 16px; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .diet-btn-red { background: linear-gradient(135deg, #dc3545, #f86b7d); color: white; box-shadow: 0 6px 20px rgba(220,53,69, 0.25); }
+        .diet-btn-red:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(220,53,69, 0.35); }
+        
+        .diet-btn-navy { background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2)); color: white; box-shadow: 0 6px 20px rgba(12, 14, 139, 0.25); }
+        .diet-btn-navy:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(12, 14, 139, 0.35); }
+
+        .btn-secondary {
+            background: #fff; color: var(--app-text); padding: 14px; border: 2px solid var(--app-line);
+            border-radius: 16px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; width: 100%; margin-top: 15px;
+        }
+        .btn-secondary:hover { background: var(--app-bg); border-color: #cbd5e1; }
+
+        .rating-group {
+            margin-bottom: 25px; padding: 20px; background: var(--app-bg); border: 1px solid var(--app-line);
+            border-radius: 18px; display: none; text-align: center;
+        }
+        .rating-group label { font-weight: 700; color: var(--app-navy); font-size: 1rem; display: block; margin-bottom: 12px; }
+        .star-rating { display: flex; justify-content: center; gap: 10px; font-size: 32px; color: #cbd5e1; cursor: pointer; }
+        .star-rating i.selected, .star-rating i.hovered { color: #f59e0b; transition: color 0.2s; }
+        #ratingFeedback { font-size: 0.9rem; color: var(--app-text); margin-top: 10px; font-weight: 600; min-height: 20px; }
+        #ratingComment {
+            width: 100%; padding: 14px; border: 1px solid var(--app-line); border-radius: 14px;
+            font-family: inherit; resize: none; transition: all 0.3s ease; font-size: 0.95rem; margin-top: 15px; min-height: 80px; background: #fff; outline: none;
+        }
+        #ratingComment:focus { border-color: var(--app-teal); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+
+        .preferences-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
+        .preference-label {
+            display: flex; align-items: center; justify-content: space-between; background: #fff;
+            border: 1px solid var(--app-line); padding: 16px 20px; border-radius: 16px;
+            cursor: pointer; transition: all 0.2s ease; font-weight: 600; color: var(--app-text); font-size: 0.95rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .preference-label:hover { border-color: var(--app-teal); background: #f0fdfa; }
+        .preference-label input[type="radio"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--app-teal); }
+        
+        #allergyDropdown {
+            width: 100%; padding: 14px; margin-top: 12px; border: 1px solid var(--app-line);
+            border-radius: 14px; font-family: inherit; font-size: 0.95rem; color: var(--app-text);
+            outline: none; display: none; transition: all 0.3s ease; background-color: #fff; font-weight: 500;
+        }
+        #allergyDropdown:focus { border-color: var(--app-teal); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+
+        .btn-primary {
+            background: var(--app-teal); color: white; padding: 16px 20px; border: none;
+            border-radius: 16px; font-size: 1.05rem; font-weight: 700; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 6px 15px rgba(20, 184, 166, 0.3); text-transform: uppercase; letter-spacing: 0.5px; width: 100%;
+        }
+        .btn-primary:hover { background: #0d9488; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(20, 184, 166, 0.4); }
+
+        .thank-you-container {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--app-card); padding: 30px 20px; border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(12, 14, 139, 0.3); text-align: center; display: none;
+            z-index: 1000; width: 90%; max-width: 380px; max-height: 90vh; overflow-y: auto; 
+            border: 1px solid var(--app-line);
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        .thank-you-container h2 { color: var(--app-navy); margin-bottom: 8px; font-weight: 800; font-size: 1.5rem; }
+        .thank-you-container p { color: var(--app-muted); margin-bottom: 15px; font-weight: 500; font-size: 0.9rem; line-height: 1.4;}
+        .thank-you-container .check-icon { color: var(--app-teal); font-size: 48px; margin-bottom: 12px; display: block; }
+
+        .meal-set-display { margin-bottom: 15px; font-size: 0.95rem; font-weight: 600; color: var(--app-text); width: 100%; }
+        .meal-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; margin-top: 6px; }
+        .meal-badge-a { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .meal-badge-diet { background-color: #ffe4e6; color: #dc3545; border: 1px solid #fecdd3; }
+
+        .diet-qr-wrapper {
+            border: 3px solid #dc3545; border-radius: 20px; padding: 15px; margin: 10px auto;
+            width: fit-content; background: #fff1f2; display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .diet-qr-label {
+            display: inline-flex; align-items: center; gap: 6px; background: #dc3545; color: #fff;
+            font-weight: 800; font-size: 11px; letter-spacing: 0.5px; padding: 5px 12px; border-radius: 20px; margin-bottom: 10px;
+        }
+        
+        #qrcode {
+            margin: 15px auto; padding: 12px; background: white; border-radius: 16px;
+            width: 200px; height: 200px; min-width: 200px; min-height: 200px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--app-line); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        #qrcode img, #qrcode canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+        #dietQrCode {
+            margin: 0 auto; padding: 8px; background: white; border-radius: 12px;
+            width: 190px; height: 190px; min-width: 190px; min-height: 190px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        #dietQrCode img, #dietQrCode canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+        .qr-instruction { color: var(--app-muted); font-size: 0.85em; margin: 12px 0 16px; font-weight: 600; }
+        .download-btn {
+            background: var(--app-navy); color: white; border: none; padding: 12px 20px;
+            border-radius: 14px; cursor: pointer; transition: background 0.3s ease; font-weight: 700; width: 100%;
+        }
+        .download-btn:hover { background: var(--app-navy-2); }
+
+        .loading-spinner {
+            display: none; width: 44px; height: 44px; margin: 25px auto;
+            border: 4px solid rgba(20, 184, 166, 0.2); border-top: 4px solid var(--app-teal);
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 14, 139, 0.5); display: none; z-index: 999; backdrop-filter: blur(4px); }
+
+        .back-btn-custom {
+            margin: 90px auto 10px max(16px, calc((100% - 500px) / 2)) !important;
+            min-height: 42px !important; padding: 8px 16px !important;
+            color: var(--app-navy) !important; background: var(--app-card) !important;
+            border: 1px solid var(--app-line) !important; border-radius: 14px !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important; display: inline-flex !important; align-items: center !important; gap: 8px !important;
+            font-weight: 700 !important; font-size: 14px !important; cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+        }
+        .back-btn-custom:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.08) !important; }
+
+        .nav-container {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            background: rgba(12, 14, 139, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            width: min(calc(100% - 40px), 580px); height: 72px; padding: 8px 10px;
+            display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 36px; box-shadow: 0 20px 40px rgba(12, 14, 139, 0.3); z-index: 3000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-decoration: none; color: rgba(255, 255, 255, 0.6); border-radius: 20px;
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .nav-item.active { background: var(--app-teal); color: #fff; box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2); }
+        .nav-item:hover:not(.active) { color: #fff; transform: translateY(-2px); }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item span { font-size: 10px; font-weight: 700; text-align: center; }
+
+        .app-fab {
+            position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%);
+            width: 54px; height: 54px; border: 4px solid var(--app-bg); border-radius: 50%;
+            background: var(--app-teal); color: #fff; box-shadow: 0 10px 25px rgba(20, 184, 166, 0.4);
+            z-index: 3001; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .app-fab.active { transform: translateX(-50%) rotate(45deg); background: #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); }
+        .floating-menu {
+            position: fixed; bottom: 175px; left: 50%; transform: translateX(-50%) scale(0.8);
+            background: var(--app-card); padding: 16px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(12, 14, 139, 0.2); display: flex; gap: 24px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; pointer-events: none; border: 1px solid var(--app-line); z-index: 3000;
+        }
+        .floating-menu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: all; }
+        .menu-item { display: flex; flex-direction: column; align-items: center; color: var(--app-muted); text-decoration: none; transition: 0.2s; font-weight: 600; gap: 6px; }
+        .menu-item:hover { color: var(--app-navy); transform: translateY(-2px); }
+        .menu-item i { font-size: 24px; color: var(--app-teal); }
+        .menu-item span { font-size: 11px; }
+
+        #submitOrder { display: none; width: 100%; opacity: 0.5; pointer-events: none; }
+        #submitOrder.meal-selected { display: inline-block; opacity: 1; pointer-events: auto; }
+
+        @media (max-width: 480px) {
+            .container, .customization-container { width: calc(100% - 32px); padding: 24px 20px; margin-top: 20px; }
+            .back-btn-custom { margin-top: 80px !important; }
+            .order-buttons { flex-direction: column; gap: 12px; }
+            .order-buttons button { width: 100%; }
+            .nav-container { width: calc(100% - 20px); bottom: 15px; padding: 6px; height: 64px; }
+            .nav-item { padding: 4px 0; }
+            .nav-item i { font-size: 18px; }
+            .nav-item span { font-size: 9px; }
+            .app-fab { bottom: 95px; width: 50px; height: 50px; font-size: 22px; }
+            .floating-menu { bottom: 160px; padding: 14px; gap: 18px; }
+            .thank-you-container { padding: 25px 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="app-header">
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <button onclick="window.location.href='home.html'" class="back-btn-custom">
+        <i class="fas fa-arrow-left"></i> <span data-translate="back">Back</span>
+    </button>
+
+    <div class="container" id="calendarContainerWrapper">
+        <div class="calendar-container">
+            <h2 data-translate="todaysDate">Today's Date</h2>
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- MAIN ORDER SCREEN -->
+    <div class="container" id="mainOrderContainer">
+        <div class="order-section">
+            <p class="order-question" data-translate="OrderQuestion">Do you want to order food today?</p>
+            <div class="order-buttons" id="orderActionButtons">
+                <button class="yes-btn" onclick="handleYesClick()" data-translate="yes">Yes</button>
+                <button class="no-btn"  onclick="handleNoClick()"  data-translate="no">No</button>
+            </div>
+            <p id="time-message"></p>
+            <div class="loading-spinner" id="loadingSpinner"></div>
+        </div>
+    </div>
+
+    <!-- FIT Program Diet vs Regular Choice -->
+    <div class="customization-container" id="dietChoiceScreen" style="display:none; text-align:center;">
+        <h2>Choose Your Menu</h2>
+        <p>You are registered in the FIT program. Which meal would you like today?</p>
+        
+        <div style="display:flex; flex-direction:column; gap:15px; margin-bottom:25px;">
+            <button id="btnChooseDiet" class="diet-btn diet-btn-red">
+                <i class="fas fa-heartbeat"></i> Diet Menu (FIT Program)
+            </button>
+            <button id="btnChooseRegular" class="diet-btn diet-btn-navy">
+                <i class="fas fa-utensils"></i> Regular Menu
+            </button>
+        </div>
+        <button id="backFromDietChoice" class="btn-secondary">⬅ Back</button>
+    </div>
+
+    <!-- CUSTOMIZATION SCREEN -->
+    <div class="customization-container" id="customizationScreen" style="display:none;">
+        <h2 data-translate="rateAndCustomize" style="text-align: center;">Rate &amp; Customize</h2>
+        <p data-translate="giveFeedback">Give feedback and adjust preferences for today.</p>
+
+        <div class="rating-group" id="ratingGroupSection">
+            <label>
+                <span data-translate="rateYesterdayMeal">Rate Yesterday's Meal</span><span id="yesterdayMealText"></span>
+                <span style="color: #ef4444;">*</span>
+            </label>
+            <div class="star-rating" id="starRating">
+                <i class="fas fa-star" data-rating="1"></i>
+                <i class="fas fa-star" data-rating="2"></i>
+                <i class="fas fa-star" data-rating="3"></i>
+                <i class="fas fa-star" data-rating="4"></i>
+                <i class="fas fa-star" data-rating="5"></i>
+            </div>
+            <p id="ratingFeedback"></p>
+            <textarea id="ratingComment" placeholder="Any comments about yesterday's meal? (Optional)"></textarea>
+        </div>
+
+        <div class="preferences-group">
+            <label style="display:block; font-weight:700; color:var(--app-navy); margin-bottom:12px; font-size:1rem;" data-translate="todaysMealPreference">Today's Meal Preference</label>
+            <label class="preference-label">
+                <span data-translate="normal">Normal</span>
+                <input type="radio" name="mealModifier" id="normalMeal" checked>
+            </label>
+            
+            <!-- These 3 options will be hidden automatically if the user selects the Diet Menu -->
+            <div id="riceBrothOptions">
+                <label class="preference-label" style="margin-top: 12px;">
+                    <span data-translate="Extra Broth (kuah lebih)">Extra broth</span>
+                    <input type="radio" name="mealModifier" id="extraBroth">
+                </label>
+                <label class="preference-label" style="margin-top: 12px;">
+                    <span data-translate="moreRice">More rice</span>
+                    <input type="radio" name="mealModifier" id="moreRice">
+                </label>
+                <label class="preference-label" style="margin-top: 12px;">
+                    <span data-translate="lessRice">Less rice</span>
+                    <input type="radio" name="mealModifier" id="lessRice">
+                </label>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; margin-top: 12px;">
+                <label class="preference-label" style="margin-bottom: 0;">
+                    <span data-translate="allergyForToday">Allergy for today's menu</span>
+                    <input type="radio" name="mealModifier" id="Allergy">
+                </label>
+                <select id="allergyDropdown">
+                    <option value="" disabled selected hidden>Select your allergy</option>
+                    <option value="Fish">Fish</option>
+                    <option value="Chicken">Chicken</option>
+                    <option value="Beef">Beef</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <button id="submitOrder" class="btn-primary" style="display: none;">Submit (Hidden)</button>
+            <button id="confirmCustomize" class="btn-primary" data-translate="confirmPlaceOrder">Next: Location Choice ➔</button>
+            <button id="backToMenu" class="btn-secondary" data-translate="backToMenu">⬅ Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- LOCATION SELECTION SCREEN -->
+    <div class="customization-container" id="locationScreen" style="display:none;">
+        <h2 data-translate="deliveryLocation">Delivery Location</h2>
+        <p data-translate="whereToSend">Where should we send your food? (Required)</p>
+
+        <div class="preferences-group">
+            <label class="preference-label">
+                <span>Pekan Subang</span>
+                <input type="radio" name="deliveryLocation" value="Pekan Subang" checked>
+            </label>
+            <label class="preference-label">
+                <span>Subang Kristal</span>
+                <input type="radio" name="deliveryLocation" value="Subang Kristal">
+            </label>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <button id="finalSubmitOrder" class="btn-primary" data-translate="submitOrder">Confirm &amp; Place Order ➔</button>
+            <button id="backToCustomization" class="btn-secondary" data-translate="back">⬅ Back</button>
+        </div>
+    </div>
+
+    <!-- QR CODE MODAL -->
+    <div class="thank-you-container" id="thankYouMessage">
+        <i class="fas fa-check-circle check-icon"></i>
+        <h2 data-translate="ThankYou">Thank You!</h2>
+        <p data-translate="SuccessMessage">Your order has been successfully placed.</p>
+        
+        <div class="meal-set-display" id="mealSetDisplay" style="display:none; margin-bottom: 15px;">
+            <span data-translate="SelectedMeal">Your Selected Meal: </span>
+            <span id="selectedMealText"></span>
+        </div>
+
+        <div id="dietQrWrapper" class="diet-qr-wrapper">
+            <div class="diet-qr-label"><i class="fas fa-heartbeat"></i> FIT PROGRAM — DIET MEAL</div>
+            <div id="dietQrCode"></div>
+        </div>
+
+        <div id="qrcode"></div>
+
+        <p class="qr-instruction" data-translate="ShowQr">Show this QR code when collecting your food</p>
+        <button class="download-btn" id="downloadQR" data-translate="DownloadQr">Download QR Code</button>
+    </div>
+
+    <div class="floating-menu" id="floatingMenu">
+        <a href="about.html" class="menu-item"><i class="fas fa-info-circle"></i><span data-translate="aboutUs">About Us</span></a>
+        <a href="contactus_pg.html" class="menu-item"><i class="fas fa-phone-alt"></i><span data-translate="contactUs">Contact</span></a>
+        <a href="submit_feedback.html" class="menu-item"><i class="fas fa-comment-dots"></i><span data-translate="feedback">Feedback</span></a>
+    </div>
+
+    <button class="app-fab" id="plusButton" aria-label="Open quick menu"><i class="fas fa-plus"></i></button>
+
+    <div class="nav-container">
+      <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span data-translate="bottomHome">Home</span></a>
+      <a href="orderingfood.html" class="nav-item active"><i class="fas fa-utensils"></i><span data-translate="bottomOrder">Order</span></a>
+      <a href="menu_pg.html" class="nav-item"><i class="fas fa-book"></i><span data-translate="bottomMenu">Menu</span></a>
+      <a href="profile_pg.html" class="nav-item"><i class="fas fa-user"></i><span data-translate="bottomProfile">Profile</span></a>
+      <a href="#" id="logout-btn" class="nav-item logout-action"><i class="fas fa-sign-out-alt"></i><span data-translate="bottomLogout">Logout</span></a>
+    </div>
+
+    <script type="module">
+        import { initializeWithDetection } from './translation.js';
+        import { initializeApp, getApps }  from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import {
+            getFirestore, doc, getDoc, updateDoc, addDoc, collection,
+            serverTimestamp, query, where, getDocs, deleteDoc, Timestamp, runTransaction
+        } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // SURIA FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+
+        const app  = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        const MALAYSIA_TIME_ZONE = "Asia/Kuala_Lumpur";
+        
+        // TESTING MODE ENABLED
+        const TESTING_DISABLE_ORDER_TIME_LOCK = true; // Turn to false for production
+
+        const submitButton       = document.getElementById('submitOrder');
+        const thankYouMessage    = document.getElementById('thankYouMessage');
+        const overlay            = document.getElementById('overlay');
+        const loadingSpinner     = document.getElementById('loadingSpinner');
+        const timeMessage        = document.getElementById('time-message');
+        const calendarEl         = document.getElementById('calendar');
+        const plusButton         = document.getElementById('plusButton');
+        const floatingMenu       = document.getElementById('floatingMenu');
+        const selectedMealTxt    = document.getElementById('selectedMealText');
+        const mealSetDisplay     = document.getElementById('mealSetDisplay');
+        const allergyRadio       = document.getElementById('Allergy');
+        const allergyDropdown    = document.getElementById('allergyDropdown');
+        const mealModifiers      = document.querySelectorAll('input[name="mealModifier"]');
+
+        mealModifiers.forEach(r => r.addEventListener('change', () => {
+            allergyDropdown.style.display = allergyRadio.checked ? 'block' : 'none';
+        }));
+
+        let currentRating    = 0;
+        const stars          = document.querySelectorAll('#starRating i');
+        const ratingFeedback = document.getElementById('ratingFeedback');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function () {
+                const r = this.dataset.rating;
+                stars.forEach(s => s.classList.toggle('hovered', s.dataset.rating <= r));
+            });
+            star.addEventListener('mouseout', () => stars.forEach(s => s.classList.remove('hovered')));
+            star.addEventListener('click', function () {
+                currentRating = parseInt(this.dataset.rating);
+                stars.forEach(s => s.classList.toggle('selected', s.dataset.rating <= currentRating));
+                ratingFeedback.textContent = ["Poor","Fair","Good","Very Good","Excellent"][currentRating - 1];
+            });
+        });
+
+        function activateSubmitButton() {
+            if (!submitButton) return;
+            submitButton.disabled = false;
+            submitButton.style.display = 'inline-block';
+            submitButton.classList.add('meal-selected');
+        }
+        function deactivateSubmitButton() {
+            if (!submitButton) return;
+            submitButton.disabled = true;
+            submitButton.classList.remove('meal-selected');
+            submitButton.style.display = 'none';
+        }
+        deactivateSubmitButton();
+
+        function getCurrentServerTime() {
+            return new Date();
+        }
+
+        function getMalaysiaDateParts(dateObj = new Date()) {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: MALAYSIA_TIME_ZONE,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hourCycle: 'h23'
+            }).formatToParts(dateObj);
+
+            const values = {};
+            parts.forEach(part => {
+                if (part.type !== 'literal') values[part.type] = part.value;
+            });
+
+            return {
+                year: Number(values.year),
+                month: Number(values.month),
+                day: Number(values.day),
+                hour: Number(values.hour),
+                minute: Number(values.minute)
+            };
+        }
+
+        function getMalaysiaDateKey(dateObj = new Date()) {
+            const p = getMalaysiaDateParts(dateObj);
+            return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+        }
+
+        function getOrderDateObject(value) {
+            if (!value) return null;
+            if (value instanceof Date) return value;
+            if (typeof value.toDate === 'function') return value.toDate();
+            if (typeof value === 'string' || typeof value === 'number') {
+                const parsed = new Date(value);
+                return Number.isNaN(parsed.getTime()) ? null : parsed;
+            }
+            if (typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+            return null;
+        }
+
+        function getOrderServiceDate(orderData) {
+            if (orderData && typeof orderData.serviceDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(orderData.serviceDate)) {
+                return orderData.serviceDate;
+            }
+            const dateObj = getOrderDateObject(orderData ? orderData.orderDate : null);
+            return dateObj ? getMalaysiaDateKey(dateObj) : getMalaysiaDateKey();
+        }
+
+        function buildDailyOrderDocId(userId, serviceDate) {
+            const safeUserId = encodeURIComponent(String(userId));
+            return `${safeUserId}_${serviceDate.replace(/-/g, '')}`;
+        }
+
+        function isOrderingTime() {
+            const malaysiaNow = getMalaysiaDateParts(getCurrentServerTime());
+            const currentMinutes = (malaysiaNow.hour * 60) + malaysiaNow.minute;
+
+            const morningStart = 4 * 60;
+            const morningEnd   = 10 * 60;
+            const eveningStart = 16 * 60;
+            const eveningEnd   = 21 * 60; // Set to 9 PM based on ramadan_code
+
+            const isMorningShift = currentMinutes >= morningStart && currentMinutes <= morningEnd;
+            const isNightShift   = currentMinutes >= eveningStart && currentMinutes <= eveningEnd;
+
+            return {
+                isValid: isMorningShift || isNightShift,
+                isClosedDay: false,
+                isMorningShift,
+                isNightShift
+            };
+        }
+
+        function displayTimeMessage(message, isInfo = false) {
+            if (message) {
+                timeMessage.textContent = message;
+                timeMessage.className   = isInfo ? 'info' : '';
+                timeMessage.style.display = 'block';
+            } else {
+                timeMessage.textContent   = '';
+                timeMessage.style.display = 'none';
+            }
+        }
+
+        function updateCalendarDisplay() {
+            const today = getCurrentServerTime();
+            calendarEl.textContent = today.toLocaleDateString('en-US', {
+                timeZone: MALAYSIA_TIME_ZONE,
+                weekday:'long', year:'numeric', month:'long', day:'numeric'
+            });
+        }
+
+        function displayMealSetText(mealSet) {
+            if (mealSet && selectedMealTxt && mealSetDisplay) {
+                const isDiet = mealSet.startsWith("DIET");
+                selectedMealTxt.innerHTML =
+                    `<span class="meal-badge ${isDiet ? 'meal-badge-diet' : 'meal-badge-a'}">${mealSet}</span>`;
+                mealSetDisplay.style.display = 'block';
+            } else if (mealSetDisplay) {
+                mealSetDisplay.style.display = 'none';
+            }
+        }
+
+        function generateQRCode(data, isDiet) {
+            const dietWrapper  = document.getElementById('dietQrWrapper');
+            const dietQrDiv    = document.getElementById('dietQrCode');
+            const regularQrDiv = document.getElementById('qrcode');
+
+            if (dietQrDiv)    dietQrDiv.innerHTML    = '';
+            if (regularQrDiv) regularQrDiv.innerHTML = '';
+
+            if (isDiet) {
+                dietWrapper.style.display  = 'flex';
+                regularQrDiv.style.display = 'none';
+            } else {
+                dietWrapper.style.display  = 'none';
+                regularQrDiv.style.display = 'block';
+            }
+
+            const targetDiv = isDiet ? dietQrDiv : regularQrDiv;
+            const serviceDate = getOrderServiceDate(data);
+
+            // Matching the exact QR payload expected from ramadan_code.html
+            const qrData = {
+                employeeId:     data.employeeId || '',
+                orderDate:      serviceDate,
+                orderTimestamp: data.orderTimestamp || new Date().toISOString(),
+                orderStatus:    data.orderStatus || 'ordered',
+                mealSet:        data.mealSet || ''
+            };
+
+            displayMealSetText(data.mealSet);
+
+            try {
+                if (typeof QRCode === 'undefined') {
+                    throw new Error('QRCode library is not available.');
+                }
+
+                new QRCode(targetDiv, {
+                    text:         JSON.stringify(qrData),
+                    width:        170,
+                    height:       170,
+                    colorDark:    "#000000",
+                    colorLight:   "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+
+                thankYouMessage.style.display = 'flex';
+
+                const dlBtn = document.getElementById('downloadQR');
+                if (dlBtn) {
+                    dlBtn.style.display = 'block';
+                    dlBtn.onclick = () => {
+                        const originalCanvas = targetDiv.querySelector('canvas');
+                        const originalImg    = targetDiv.querySelector('img');
+
+                        if (originalCanvas) {
+                            const padding = 24;
+                            const scale = 2;
+                            const newCanvas = document.createElement('canvas');
+
+                            newCanvas.width  = (originalCanvas.width + padding * 2) * scale;
+                            newCanvas.height = (originalCanvas.height + padding * 2) * scale;
+
+                            const ctx = newCanvas.getContext('2d');
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                            ctx.drawImage(
+                                originalCanvas,
+                                0, 0, originalCanvas.width, originalCanvas.height,
+                                padding * scale, padding * scale, originalCanvas.width * scale, originalCanvas.height * scale
+                            );
+
+                            const link = document.createElement('a');
+                            link.href = newCanvas.toDataURL("image/png");
+                            link.download = `order-qr-${Date.now()}.png`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else if (originalImg && originalImg.src) {
+                            const link = document.createElement('a');
+                            link.href = originalImg.src;
+                            link.download = `order-qr-${Date.now()}.png`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
+                    };
+                }
+            } catch (err) {
+                console.error("Error generating QR code:", err);
+                thankYouMessage.style.display = 'flex';
+                targetDiv.innerHTML = '<p style="color:#ef4444;font-weight:700;padding:20px;text-align:center;">QR could not be generated. Please refresh and try again.</p>';
+            }
+        }
+
+        function storeOrderData(orderData, userId) {
+            const orderDateObj = getOrderDateObject(orderData.orderDate);
+            const parsedDate = orderDateObj ? orderDateObj.toISOString() : new Date().toISOString();
+            const serviceDate = getOrderServiceDate(orderData);
+                
+            const toStore = {
+                ...orderData,
+                userId,
+                serviceDate,
+                orderDate: parsedDate,
+                orderTimestamp: parsedDate 
+            };
+            // Keys kept matching orderingfood.html's original structure
+            localStorage.setItem(`canteenOrderData_${userId}`, JSON.stringify(toStore));
+            localStorage.setItem(`canteenOrderDate_${userId}`, serviceDate);
+        }
+
+        function isStoredOrderFromToday(userId) {
+            const stored = localStorage.getItem(`canteenOrderDate_${userId}`);
+            if (!stored) return false;
+
+            const todayKey = getMalaysiaDateKey();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(stored)) return stored === todayKey;
+
+            const legacyDate = new Date(stored);
+            if (Number.isNaN(legacyDate.getTime())) return false;
+            return getMalaysiaDateKey(legacyDate) === todayKey;
+        }
+
+        function clearStoredOrderData(userId) {
+            localStorage.removeItem(`canteenOrderData_${userId}`);
+            localStorage.removeItem(`canteenOrderDate_${userId}`);
+        }
+
+        async function restoreOrderDisplayForUser(userId) {
+            let od = null;
+            let orderFound = false;
+
+            try {
+                const todayKey = getMalaysiaDateKey();
+                const q = query(collection(db, "canteen_orders"), where("userId", "==", userId));
+                const qs = await getDocs(q);
+                
+                qs.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (getOrderServiceDate(data) === todayKey) {
+                        od = { ...data, id: docSnap.id };
+                        orderFound = true;
+                    }
+                });
+
+                if (orderFound && od) {
+                    storeOrderData(od, userId);
+                } else {
+                    clearStoredOrderData(userId);
+                }
+            } catch (error) {
+                console.error("Error checking database for existing order:", error);
+            }
+
+            if (!orderFound || !od) {
+                const isCustomizing = document.getElementById('customizationScreen').style.display === 'block';
+                const isLocating    = document.getElementById('locationScreen').style.display === 'block';
+                const isDiet        = document.getElementById('dietChoiceScreen').style.display === 'block';
+                
+                if (!isCustomizing && !isLocating && !isDiet) {
+                    document.getElementById('mainOrderContainer').style.display = 'block';
+                }
+                
+                thankYouMessage.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('mainOrderContainer').style.display  = 'none';
+            document.getElementById('customizationScreen').style.display = 'none';
+            document.getElementById('dietChoiceScreen').style.display    = 'none';
+            document.getElementById('locationScreen').style.display      = 'none';
+            
+            deactivateSubmitButton();
+            generateQRCode(od, od.mealSet && od.mealSet.startsWith("DIET"));
+        }
+
+        async function setupRatingSection(userId) {
+            const ratingGroup       = document.getElementById('ratingGroupSection');
+            const yesterdayMealText = document.getElementById('yesterdayMealText');
+            const currentTime       = getCurrentServerTime();
+            const currentDay        = currentTime.getDay();
+
+            if (currentDay >= 2 && currentDay <= 5) {
+                let claimed = false;
+                try {
+                    const uSnap = await getDoc(doc(db, "users", userId));
+                    let empId   = userId;
+                    if (uSnap.exists() && uSnap.data().employeeId) empId = uSnap.data().employeeId;
+
+                    const yStart = new Date(currentTime);
+                    yStart.setDate(currentTime.getDate() - 1); yStart.setHours(0,0,0,0);
+                    const yEnd = new Date(currentTime);
+                    yEnd.setDate(currentTime.getDate() - 1);   yEnd.setHours(23,59,59,999);
+
+                    // Reverted back to the original orderingfood "canteen_claimed" collection
+                    const q = query(collection(db, "canteen_claimed"), where("employeeId", "==", empId));
+                    const qs = await getDocs(q);
+                    qs.forEach(docSnap => {
+                        const data = docSnap.data();
+                        if (data.timestamp) {
+                            const scanTime = data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp.seconds * 1000);
+                            if (scanTime >= yStart && scanTime <= yEnd) claimed = true;
+                        } else if (data.scannedDate) {
+                            claimed = true;
+                        }
+                    });
+                } catch (err) { console.error("Error checking claimed:", err.message); }
+
+                if (claimed) {
+                    ratingGroup.style.display = 'block';
+                    window.ratingIsRequired   = true;
+                    try {
+                        const wlSnap = await getDoc(doc(db, 'food', 'weeklyLunch'));
+                        if (wlSnap.exists()) {
+                            const data     = wlSnap.data();
+                            const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+                            let yi = currentDay - 1; if (yi < 0) yi = 6;
+                            const items = data[dayNames[yi]];
+                            yesterdayMealText.textContent = items && items.length
+                                ? `\n(${items.map(i => i.name).join(', ')})` : '';
+                        }
+                    } catch (e) { yesterdayMealText.textContent = ''; }
+                } else {
+                    ratingGroup.style.display = 'none';
+                    window.ratingIsRequired   = false;
+                }
+            } else {
+                ratingGroup.style.display = 'none';
+                window.ratingIsRequired   = false;
+            }
+        }
+
+        async function findExistingOrderForMalaysiaDate(userID, serviceDate) {
+            const q = query(collection(db, "canteen_orders"), where("userId", "==", userID));
+            const qs = await getDocs(q);
+
+            let existingOrder = null;
+            qs.forEach(docSnap => {
+                const data = docSnap.data();
+                if (!existingOrder && getOrderServiceDate(data) === serviceDate) {
+                    existingOrder = { ...data, id: docSnap.id };
+                }
+            });
+            return existingOrder;
+        }
+
+        async function processOrder(userID, selectedLocation) {
+            if (window.isSubmittingOrder) return;
+
+            const timeStatus = isOrderingTime();
+            if (!TESTING_DISABLE_ORDER_TIME_LOCK && !timeStatus.isValid) {
+                alert("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
+                return;
+            }
+
+            window.isSubmittingOrder = true;
+            const serviceDate = getMalaysiaDateKey();
+
+            let customChoice = window.tempMealSet || "Normal";
+
+            if (window.tempMealSet === "DIET") {
+                if (window.customAllergy) {
+                    customChoice = "DIET - Allergy: " + allergyDropdown.value;
+                }
+            } else {
+                if (window.customBroth)         customChoice = "Extra broth";
+                else if (window.customMoreRice) customChoice = "More rice";
+                else if (window.customLessRice) customChoice = "Less rice";
+                else if (window.customAllergy)  customChoice = "Allergy - " + allergyDropdown.value;
+            }
+
+            try {
+                overlay.style.display        = 'block';
+                loadingSpinner.style.display = 'block';
+
+                const existingTodayOrder = await findExistingOrderForMalaysiaDate(userID, serviceDate);
+                if (existingTodayOrder) {
+                    document.getElementById('mainOrderContainer').style.display   = 'none';
+                    document.getElementById('customizationScreen').style.display = 'none';
+                    document.getElementById('dietChoiceScreen').style.display    = 'none';
+                    document.getElementById('locationScreen').style.display      = 'none';
+
+                    generateQRCode(existingTodayOrder, existingTodayOrder.mealSet && existingTodayOrder.mealSet.startsWith("DIET"));
+                    deactivateSubmitButton();
+                    storeOrderData(existingTodayOrder, userID);
+                    return;
+                }
+
+                let userData = window.tempUserData || null;
+                if (!userData) {
+                    const userRefForRead = doc(db, "users", userID);
+                    const userDoc = await getDoc(userRefForRead);
+                    if (!userDoc.exists()) throw new Error("Could not get user info");
+                    userData = userDoc.data();
+                    window.tempUserData = userData;
+                }
+
+                const commentBox   = document.getElementById('ratingComment');
+                const finalComment = commentBox && commentBox.value ? commentBox.value.trim() : "";
+
+                const orderDetails = {
+                    ...userData,
+                    orderDate:        serverTimestamp(),
+                    serviceDate:      serviceDate,
+                    userId:           userID,
+                    orderStatus:      "ordered",
+                    mealSet:          customChoice,
+                    location:         selectedLocation,
+                    yesterdayRating:  window.ratingIsRequired ? window.selectedRating : null,
+                    yesterdayComment: (window.ratingIsRequired === true && finalComment.length > 0) ? finalComment : null
+                };
+
+                const deterministicOrderId = buildDailyOrderDocId(userID, serviceDate);
+                const orderRef = doc(db, "canteen_orders", deterministicOrderId);
+
+                const txResult = await runTransaction(db, async (transaction) => {
+                    const existingSnap = await transaction.get(orderRef);
+                    if (existingSnap.exists()) {
+                        return { existed: true, data: existingSnap.data() };
+                    }
+                    transaction.set(orderRef, orderDetails);
+                    return { existed: false, data: null };
+                });
+
+                const orderForDisplay = txResult && txResult.existed
+                    ? { ...txResult.data, id: orderRef.id }
+                    : {
+                        ...orderDetails,
+                        orderDate: new Date(),
+                        id: orderRef.id
+                    };
+
+                document.getElementById('mainOrderContainer').style.display   = 'none';
+                document.getElementById('customizationScreen').style.display = 'none';
+                document.getElementById('dietChoiceScreen').style.display    = 'none';
+                document.getElementById('locationScreen').style.display      = 'none';
+
+                generateQRCode(orderForDisplay, customChoice.startsWith("DIET"));
+                deactivateSubmitButton();
+                storeOrderData(orderForDisplay, userID);
+
+                overlay.style.display        = 'none';
+                loadingSpinner.style.display = 'none';
+
+                if (window.ratingIsRequired === true && finalComment.length > 0) {
+                    addDoc(collection(db, "new feedback"), {
+                        email:      userData.email || (auth.currentUser && auth.currentUser.email) || "No Email",
+                        category:   "Food",
+                        rating:     window.selectedRating,
+                        feedback:   finalComment,
+                        timestamp:  serverTimestamp(),
+                        source:     "order_page",
+                        adminReply: ""
+                    }).catch((e) => console.error("Error sending feedback:", e));
+                }
+
+            } catch (error) {
+                console.error("Error processing order:", error);
+                alert("There was an error processing your order. Please try again.");
+                thankYouMessage.style.display = 'none';
+            } finally {
+                window.isSubmittingOrder = false;
+                overlay.style.display        = 'none';
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        window.handleYesClick = async function () {
+            const user = auth.currentUser;
+            if (!user) { alert("Please log in to continue"); return; }
+
+            const timeStatus = isOrderingTime();
+            if (!TESTING_DISABLE_ORDER_TIME_LOCK && !timeStatus.isValid) {
+                displayTimeMessage("Order is closed. Please order between 4 AM - 10 AM or 4 PM - 9 PM.");
+                deactivateSubmitButton();
+                return;
+            }
+            displayTimeMessage(""); 
+
+            try {
+                overlay.style.display        = 'block';
+                loadingSpinner.style.display = 'block';
+
+                let userData = window.tempUserData || null;
+                if (!userData) {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        userData = userDoc.data();
+                        window.tempUserData = userData;
+                    }
+                }
+
+                let isDietUser = false;
+                const employeeId = userData && userData.employeeId != null ? String(userData.employeeId).trim() : "";
+
+                if (employeeId) {
+                    const fitSnap = await getDocs(query(
+                        collection(db, "fit_program_users"),
+                        where("employeeId", "==", employeeId)
+                    ));
+
+                    fitSnap.forEach(d => {
+                        if (d.data().registeredAt) isDietUser = true;
+                    });
+                }
+                
+                window.isDietUser = isDietUser;
+
+                if (isDietUser) {
+                    document.getElementById('mainOrderContainer').style.display = 'none';
+                    document.getElementById('dietChoiceScreen').style.display = 'block';
+                    overlay.style.display        = 'none';
+                    loadingSpinner.style.display = 'none';
+                    return;
+                }
+            } catch (err) {
+                console.error("Error checking diet status:", err);
+            } finally {
+                if (overlay.style.display === 'block') {
+                    overlay.style.display        = 'none';
+                    loadingSpinner.style.display = 'none';
+                }
+            }
+
+            document.getElementById('mainOrderContainer').style.display  = 'none';
+            document.getElementById('customizationScreen').style.display = 'block';
+            window.tempMealSet = null;
+            await setupRatingSection(user.uid);
+        };
+
+        document.getElementById('btnChooseDiet').addEventListener('click', async (e) => {
+            e.preventDefault();
+            window.tempMealSet = "DIET"; 
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            
+            const riceBrothDiv = document.getElementById('riceBrothOptions');
+            if (riceBrothDiv) riceBrothDiv.style.display = 'none';
+            
+            document.getElementById('customizationScreen').style.display = 'block';
+            await setupRatingSection(auth.currentUser.uid);
+        });
+
+        document.getElementById('btnChooseRegular').addEventListener('click', async (e) => {
+            e.preventDefault();
+            window.tempMealSet = null;
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            
+            const riceBrothDiv = document.getElementById('riceBrothOptions');
+            if (riceBrothDiv) riceBrothDiv.style.display = 'block';
+
+            document.getElementById('customizationScreen').style.display = 'block';
+            await setupRatingSection(auth.currentUser.uid);
+        });
+
+        document.getElementById('backFromDietChoice').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('dietChoiceScreen').style.display = 'none';
+            document.getElementById('mainOrderContainer').style.display = 'block';
+        });
+
+        window.handleNoClick = async function () {
+            const user = auth.currentUser;
+            if (!user) { alert("Please log in to continue"); return; }
+
+            const timeStatus = isOrderingTime();
+            if (!TESTING_DISABLE_ORDER_TIME_LOCK && !timeStatus.isValid) {
+                displayTimeMessage("'No Eating' submission is only available between 4 AM - 10 AM or 4 PM - 9 PM.");
+                return;
+            }
+            displayTimeMessage(""); 
+
+            const confirmDialog = document.createElement('div');
+            confirmDialog.innerHTML = `
+                <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(12,14,139,0.6);backdrop-filter:blur(3px);z-index:10000;display:flex;justify-content:center;align-items:center;padding:20px;">
+                    <div style="background:white;padding:30px;border-radius:24px;text-align:center;max-width:320px;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+                        <i class="fas fa-exclamation-circle" style="font-size:40px;color:#f59e0b;margin-bottom:15px;"></i>
+                        <p style="margin-bottom:25px;color:#1e293b;font-weight:600;font-size:1.1rem;line-height:1.4;">Are you sure you don't want to order food today?</p>
+                        <div style="display:flex;gap:15px;justify-content:center;">
+                            <button id="confirmNo"  style="flex:1;padding:12px;background:#fff;color:#ef4444;border:2px solid #fecaca;border-radius:14px;font-weight:700;cursor:pointer;transition:all 0.2s;">Cancel</button>
+                            <button id="confirmYes" style="flex:1;padding:12px;background:var(--app-navy);color:white;border:none;border-radius:14px;font-weight:700;cursor:pointer;transition:all 0.2s;">Yes, skip</button>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.appendChild(confirmDialog);
+
+            const handleConfirmation = async (confirmed) => {
+                if (confirmed) {
+                    try {
+                        overlay.style.display        = 'block';
+                        loadingSpinner.style.display = 'block';
+                        const userDoc = await getDoc(doc(db, "users", user.uid));
+                        if (!userDoc.exists()) throw new Error("Could not get user info");
+                        
+                        // Reverted to original orderingfood canteen_no_eating collection
+                        await addDoc(collection(db, "canteen_no_eating"), {
+                            ...userDoc.data(),
+                            userId:       user.uid,
+                            noEatingDate: serverTimestamp()
+                        });
+                        alert('Thank you for letting us know!');
+                        window.location.href = 'home.html';
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("There was an error. Please try again.");
+                    } finally {
+                        overlay.style.display        = 'none';
+                        loadingSpinner.style.display = 'none';
+                    }
+                }
+                confirmDialog.remove();
+            };
+            confirmDialog.querySelector('#confirmYes').addEventListener('click', () => handleConfirmation(true));
+            confirmDialog.querySelector('#confirmNo').addEventListener('click',  () => handleConfirmation(false));
+        };
+
+        document.getElementById('backToMenu').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('customizationScreen').style.display = 'none';
+            
+            if (window.isDietUser) {
+                document.getElementById('dietChoiceScreen').style.display = 'block';
+            } else {
+                document.getElementById('mainOrderContainer').style.display  = 'block';
+            }
+        });
+
+        document.getElementById('confirmCustomize').addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            if (window.ratingIsRequired && currentRating === 0) {
+                alert("Please provide a star rating for yesterday's meal before proceeding.");
+                return;
+            }
+            const isAllergyChecked = allergyRadio.checked;
+            if (isAllergyChecked && allergyDropdown.value === "") {
+                alert("Please select your allergy from the dropdown before proceeding.");
+                return;
+            }
+
+            window.customBroth    = document.getElementById('extraBroth').checked;
+            window.customMoreRice = document.getElementById('moreRice').checked;
+            window.customLessRice = document.getElementById('lessRice').checked;
+            window.customAllergy  = isAllergyChecked;
+            window.selectedRating = currentRating;
+
+            document.getElementById('customizationScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'block';
+        });
+
+        document.getElementById('backToCustomization').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('locationScreen').style.display = 'none';
+            document.getElementById('customizationScreen').style.display = 'block';
+        });
+
+        document.getElementById('finalSubmitOrder').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const locRadio = document.querySelector('input[name="deliveryLocation"]:checked');
+            const selectedLocation = locRadio ? locRadio.value : "Pekan Subang";
+
+            document.getElementById('locationScreen').style.display = 'none';
+            await processOrder(auth.currentUser.uid, selectedLocation);
+        });
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.replace("login_pg.html");
+                return;
+            }
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) window.tempUserData = userDoc.data();
+            } catch(e) { console.error(e); }
+            
+            await restoreOrderDisplayForUser(user.uid);
+        });
+
+        if (plusButton) {
+            plusButton.addEventListener('click', () => {
+                plusButton.classList.toggle('active');
+                floatingMenu.classList.toggle('active');
+            });
+        }
+        document.addEventListener('click', (e) => {
+            if (plusButton && floatingMenu &&
+                !plusButton.contains(e.target) &&
+                !floatingMenu.contains(e.target)) {
+                plusButton.classList.remove('active');
+                floatingMenu.classList.remove('active');
+            }
+        });
+
+        document.querySelectorAll('.logout-action').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                signOut(auth).then(() => {
+                    window.location.href = 'login_pg.html';
+                }).catch((error) => console.error('Sign out error', error));
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeWithDetection();
+            updateCalendarDisplay();
+        });
+
+        setInterval(() => {
+            const now    = getCurrentServerTime();
+            const eod    = new Date(now);
+            eod.setHours(23,59,59,999);
+            const user = auth.currentUser;
+            if (now >= eod && user && !isStoredOrderFromToday(user.uid)) {
+                clearStoredOrderData(user.uid);
+                location.reload();
+            }
+        }, 60000);
+    </script>
+</body>
+</html>

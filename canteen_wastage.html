@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Leaderboard - Canteen</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #0c1f5f;
+            --primary-hover: #142f83;
+            --secondary-color: #14b8a6;
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+            --success-color: #16a34a;
+            --background-color: #f4f7fb;
+            --surface-color: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 6px -1px rgba(12, 31, 95, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(12, 31, 95, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at 15% 0%, #e8f0ff 0, transparent 38%), var(--background-color);
+            color: var(--text-main); 
+            padding-bottom: 120px; 
+            min-height: 100vh;
+        }
+        
+        /* --- Header --- */
+        .header { 
+            position: fixed; inset: 0 0 auto 0; height: 72px; padding: 0 24px; 
+            background: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(226, 232, 240, 0.8); 
+            box-shadow: 0 4px 20px rgba(12, 31, 95, 0.04); backdrop-filter: blur(16px); 
+            display: flex; align-items: center; justify-content: center; z-index: 1100; 
+        }
+        .header img { max-height: 42px; object-fit: contain; }
+        .back-btn { 
+            position: absolute; left: 24px; color: var(--primary-color); 
+            font-size: 1.25rem; text-decoration: none; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9;
+        }
+        .back-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+        
+        .container { width: min(calc(100% - 32px), 1140px); margin: 0 auto; padding-top: 100px; }
+
+        .card { 
+            background: var(--surface-color); border: 1px solid var(--border-color); 
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); 
+            padding: 24px; margin-bottom: 24px; 
+        }
+
+        .page-title { margin-bottom: 20px; }
+        .page-title h1 { color: var(--primary-color); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+        .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
+        
+        .filter-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 16px; align-items: end; margin-bottom: 20px; 
+        }
+        .input-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+        input[type="month"], select { 
+            width: 100%; min-height: 48px; border: 1px solid #cbd5e1; border-radius: var(--radius-md); 
+            background: #f8fafc; padding: 0 16px; font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s; 
+        }
+        input:focus, select:focus { border-color: var(--secondary-color); background: white; box-shadow: 0 0 0 4px rgba(20,184,166,0.15); }
+        
+        .action-row { display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 0.95rem; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(12,31,95,0.2); }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-warning:hover { background: #d97706; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,158,11,0.2); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); border-left: 5px solid var(--primary-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--primary-color); }
+        .stat-card.danger .value { color: var(--danger-color); }
+
+        .table-responsive { width: 100%; overflow-x: auto; border-radius: var(--radius-md); }
+        table { width: 100%; min-width: 900px; border-collapse: collapse; text-align: left; }
+        thead th { background: #0f2468; color: white; font-size: 0.9rem; font-weight: 700; padding: 16px; cursor: pointer; user-select: none; transition: 0.2s; }
+        thead th:hover { background: #142f83; }
+        tbody td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        tbody tr:hover { background: #f8fafc; }
+        
+        .top-award-row { background: #ecfdf5 !important; border-left: 4px solid #10b981; }
+        .rate-badge { padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: inline-block; min-width: 60px; text-align: center; }
+        .rate-good { background: #d1fae5; color: #065f46; }
+        .rate-warn { background: #fef3c7; color: #92400e; }
+        .rate-bad { background: #fee2e2; color: #991b1b; }
+
+        /* --- Bottom Navigation (Strictly 5 Items) --- */
+        .nav-container {
+            position: fixed; left: 50%; transform: translateX(-50%);
+            bottom: max(16px, env(safe-area-inset-bottom));
+            width: calc(100% - 32px); max-width: 500px; height: 70px; padding: 8px;
+            display: flex; justify-content: space-between;
+            background: rgba(12, 31, 95, 0.95); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px; box-shadow: 0 20px 40px rgba(12, 31, 95, 0.4);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1200;
+        }
+
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; border-radius: 18px; color: #94a3b8; text-decoration: none;
+            font-size: 10px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item i { font-size: 18px; transition: 0.3s; }
+        .nav-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+        .nav-item.active { background: var(--secondary-color); color: #ffffff; box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4); }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        #loadingOverlay { display: none; text-align: center; padding: 60px; color: var(--primary-color); font-size: 1.1rem; font-weight: 700; }
+        .fa-spinner { margin-right: 8px; }
+
+        @media (max-width: 768px) {
+            .container { padding-top: 84px; }
+            .action-row { flex-direction: column; align-items: stretch; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="page-title">
+                <h1>Waste Leaderboard</h1>
+                <p>Track unclaimed meals and monitor canteen food wastage analytics.</p>
+            </div>
+            <div class="filter-grid">
+                <div class="input-group">
+                    <label>Select Month</label>
+                    <input type="month" id="targetMonth" required>
+                </div>
+                <div class="input-group">
+                    <label>Filter Department</label>
+                    <select id="deptFilter">
+                        <option value="ALL">All Departments</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Minimum Orders</label>
+                    <select id="minOrdersFilter">
+                        <option value="1">At least 1 Order</option>
+                        <option value="5">Minimum 5 Orders</option>
+                        <option value="10">Minimum 10 Orders</option>
+                    </select>
+                </div>
+            </div>
+            <div class="action-row">
+                <button id="loadDataBtn" class="btn btn-primary"><i class="fas fa-search"></i> Generate Board</button>
+                <button id="bestClaimerBtn" class="btn btn-warning"><i class="fas fa-trophy"></i> Top Claimers</button>
+            </div>
+        </div>
+
+        <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i> Fetching records for selected month...</div>
+
+        <div id="initialPrompt" style="text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem; background: white; border-radius: var(--radius-lg); border: 2px dashed #cbd5e1;">
+            <i class="fas fa-calendar-alt" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px; display: block;"></i>
+            Please select a month and click Generate to view the wastage leaderboard.
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Valid Orders</h3>
+                    <div class="value" id="totalCompanyOrders">0</div>
+                </div>
+                <div class="stat-card danger">
+                    <h3>Total Wasted Meals</h3>
+                    <div class="value" id="totalCompanyWaste">0</div>
+                </div>
+                <div class="stat-card success">
+                    <h3>Company Claim Rate</h3>
+                    <div class="value" style="color:var(--success-color);" id="companyClaimRate">0%</div>
+                </div>
+            </div>
+
+            <div class="card table-card" style="padding: 0;">
+                <div class="table-responsive">
+                    <table id="leaderboardTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Employee Name</th>
+                                <th>ID</th>
+                                <th>Dept</th>
+                                <th onclick="sortTable('total')">Total Orders <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('waste')">Unclaimed (Waste) <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('rate')">Claim Rate <i class="fas fa-sort"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar (Strictly 5 Items) -->
+    <div class="nav-container">
+        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteencollector.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Collection</span></a>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+        authDomain: "suria-food-ordering-system.firebaseapp.com",
+        projectId: "suria-food-ordering-system",
+        storageBucket: "suria-food-ordering-system.firebasestorage.app",
+        messagingSenderId: "204528329291",
+        appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+        
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allEmployeesData = []; 
+        let currentSortColumn = 'waste';
+        let sortAscending = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            document.getElementById('targetMonth').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            populateDepartments();
+        });
+
+        async function populateDepartments() {
+            try {
+                const snap = await getDocs(collection(db, 'users'));
+                const depts = new Set();
+                snap.forEach(d => { if(d.data().department) depts.add(d.data().department); });
+                const filter = document.getElementById('deptFilter');
+                Array.from(depts).sort().forEach(dept => {
+                    const opt = document.createElement('option');
+                    opt.value = dept; opt.textContent = dept;
+                    filter.appendChild(opt);
+                });
+            } catch(e) {}
+        }
+
+        function getStartOfDayTime(date) {
+            const d = new Date(date); d.setHours(0,0,0,0); return d.getTime();
+        }
+
+        async function processLeaderboard() {
+            const monthVal = document.getElementById('targetMonth').value;
+            if (!monthVal) return alert("Please select a month first.");
+
+            const [year, month] = monthVal.split('-').map(Number);
+            const startTimestamp = Timestamp.fromDate(new Date(year, month - 1, 1, 0, 0, 0));
+            const endTimestamp = Timestamp.fromDate(new Date(year, month, 0, 23, 59, 59, 999));
+
+            document.getElementById('initialPrompt').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'none';
+
+            try {
+                const [ordersSnap, claimsSnap] = await Promise.all([
+                    getDocs(query(collection(db, "canteen_orders"), where("orderDate", ">=", startTimestamp), where("orderDate", "<=", endTimestamp))),
+                    getDocs(query(collection(db, "canteen_claimed"), where("timestamp", ">=", startTimestamp), where("timestamp", "<=", endTimestamp)))
+                ]);
+
+                const claimsSet = new Set();
+                claimsSnap.forEach(doc => {
+                    const data = doc.data();
+                    if(data.timestamp) claimsSet.add(`${data.employeeId}_${getStartOfDayTime(data.timestamp.toDate())}`);
+                });
+
+                const employeesMap = new Map();
+                ordersSnap.forEach(doc => {
+                    const data = doc.data();
+                    if(!data.employeeId) return; 
+
+                    const orderDate = data.orderDate.toDate();
+                    const dayKey = getStartOfDayTime(orderDate);
+
+                    if (!employeesMap.has(data.employeeId)) {
+                        employeesMap.set(data.employeeId, { id: data.employeeId, name: data.name, dept: data.department, uniqueOrders: new Map() });
+                    }
+
+                    const empProfile = employeesMap.get(data.employeeId);
+                    if (!empProfile.uniqueOrders.has(dayKey) || orderDate < empProfile.uniqueOrders.get(dayKey).orderDate.toDate()) {
+                        empProfile.uniqueOrders.set(dayKey, data);
+                    }
+                });
+
+                allEmployeesData = [];
+                let globalTotalOrders = 0, globalTotalClaimed = 0;
+
+                employeesMap.forEach(emp => {
+                    let totalOrders = emp.uniqueOrders.size;
+                    let claimedOrders = 0;
+                    emp.uniqueOrders.forEach((orderData, dayKey) => { if (claimsSet.has(`${emp.id}_${dayKey}`)) claimedOrders++; });
+                    
+                    let waste = totalOrders - claimedOrders;
+                    let rate = totalOrders > 0 ? Math.round((claimedOrders / totalOrders) * 100) : 0;
+
+                    allEmployeesData.push({ id: emp.id, name: emp.name, dept: emp.dept, total: totalOrders, claimed: claimedOrders, waste, rate });
+                    globalTotalOrders += totalOrders;
+                    globalTotalClaimed += claimedOrders;
+                });
+
+                document.getElementById('totalCompanyOrders').textContent = globalTotalOrders;
+                document.getElementById('totalCompanyWaste').textContent = globalTotalOrders - globalTotalClaimed;
+                document.getElementById('companyClaimRate').textContent = `${globalTotalOrders > 0 ? Math.round((globalTotalClaimed / globalTotalOrders) * 100) : 0}%`;
+
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                renderTable();
+
+            } catch (error) {
+                console.error(error);
+                alert("Failed to process data.");
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        window.sortTable = function(column) {
+            if (currentSortColumn === column) sortAscending = !sortAscending; 
+            else { currentSortColumn = column; sortAscending = column === 'rate'; }
+            renderTable();
+        }
+
+        function renderTable() {
+            const tableBody = document.querySelector('#leaderboardTable tbody');
+            const deptFilter = document.getElementById('deptFilter').value;
+            const minOrders = parseInt(document.getElementById('minOrdersFilter').value);
+
+            let filteredData = allEmployeesData.filter(emp => (deptFilter === 'ALL' || emp.dept === deptFilter) && emp.total >= minOrders);
+
+            filteredData.sort((a, b) => {
+                if (currentSortColumn === 'best') return b.rate !== a.rate ? b.rate - a.rate : b.total - a.total;
+                let valA = a[currentSortColumn], valB = b[currentSortColumn];
+                if (currentSortColumn === 'rate' && valA === valB) return b.waste - a.waste; 
+                return sortAscending ? valA - valB : valB - valA;
+            });
+
+            tableBody.innerHTML = filteredData.length === 0 
+                ? '<tr><td colspan="7" style="text-align: center; padding: 40px; color:#64748b;">No employees match filters.</td></tr>'
+                : filteredData.map((emp, index) => {
+                    let rateClass = emp.rate < 50 ? 'rate-bad' : (emp.rate < 80 ? 'rate-warn' : 'rate-good');
+                    let isTop = (currentSortColumn === 'best' && index === 0 && emp.total > 0);
+                    return `
+                        <tr class="${isTop ? 'top-award-row' : ''}">
+                            <td><strong>${isTop ? '<i class="fas fa-trophy" style="color:#10b981;"></i> ' : ''}#${index + 1}</strong></td>
+                            <td><strong>${emp.name}</strong></td>
+                            <td>${emp.id}</td>
+                            <td>${emp.dept}</td>
+                            <td>${emp.total}</td>
+                            <td style="color:${emp.waste > 0 ? 'var(--danger-color)' : 'inherit'}; font-weight:${emp.waste > 0 ? '800' : '500'}">${emp.waste}</td>
+                            <td><span class="rate-badge ${rateClass}">${emp.rate}%</span></td>
+                        </tr>
+                    `;
+                }).join('');
+        }
+
+        document.getElementById('loadDataBtn').addEventListener('click', processLeaderboard);
+        document.getElementById('deptFilter').addEventListener('change', renderTable);
+        document.getElementById('minOrdersFilter').addEventListener('change', renderTable);
+        document.getElementById('bestClaimerBtn').addEventListener('click', () => { currentSortColumn = 'best'; renderTable(); });
+
+    </script>
+</body>
+</html>

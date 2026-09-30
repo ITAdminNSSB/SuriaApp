@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Vendor Voting</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+
+    <style>
+        /* ENTERPRISE DESIGN SYSTEM - NAVY & TEAL */
+        :root {
+            --app-navy: #0c1f5f;
+            --app-navy-2: #162d78;
+            --app-teal: #14b8a6;
+            --app-teal-hover: #0d9488;
+            --app-bg: #f8fafc;
+            --app-card: #ffffff;
+            --app-text: #1e293b;
+            --app-muted: #64748b;
+            --app-line: #e2e8f0;
+            --app-radius: 28px;
+            --app-shadow: 0 10px 40px -10px rgba(12, 31, 95, 0.08);
+            --app-shadow-hover: 0 20px 40px -10px rgba(12, 31, 95, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+        
+        body {
+            background-color: var(--app-bg);
+            color: var(--app-text);
+            padding-bottom: 60px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(20, 184, 166, 0.04) 0 2.5px, transparent 3px),
+                radial-gradient(circle at 85% 30%, rgba(12, 31, 95, 0.03) 0 2.5px, transparent 3px),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(241, 245, 249, 0.9));
+            background-size: 48px 48px, 64px 64px, 100% 100%;
+        }
+
+        /* HEADER */
+        .app-header {
+            position: fixed; inset: 0 0 auto 0; width: 100%; height: 72px;
+            padding: 0 24px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.92); border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px rgba(12, 31, 95, 0.04); z-index: 2000; backdrop-filter: blur(16px);
+        }
+        .app-header img { height: 42px; width: auto; object-fit: contain; }
+        
+        .header-back-btn {
+            position: absolute; left: 24px;
+            background: var(--app-card); border: 1px solid var(--app-line);
+            color: var(--app-navy); padding: 10px 18px; border-radius: 14px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; gap: 8px; text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .header-back-btn:hover { 
+            background: var(--app-teal); color: white; border-color: var(--app-teal); 
+            transform: translateX(-4px); box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+        }
+
+        .container {
+            width: min(calc(100% - 40px), 1100px);
+            margin: 100px auto 40px;
+            position: relative;
+        }
+
+        /* BANNER */
+        .phase-banner {
+            background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2));
+            color: white; padding: 40px; border-radius: var(--app-radius);
+            box-shadow: 0 20px 40px rgba(12, 31, 95, 0.15); margin-bottom: 40px; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; gap: 16px; text-align: center; align-items: center;
+        }
+        .phase-banner::before {
+            content: ""; position: absolute; left: -50px; top: -50px; width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+        }
+        .phase-banner::after {
+            content: ""; position: absolute; right: -80px; bottom: -80px; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(20,184,166,0.15) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+        }
+        .phase-tag {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;
+            background: rgba(255,255,255,0.1); border-radius: 24px; font-size: 0.8rem;
+            font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(12px); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .phase-banner h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 4px; line-height: 1.2; letter-spacing: -0.5px; z-index: 1;}
+        .phase-banner p { font-size: 1.05rem; opacity: 0.9; line-height: 1.6; font-weight: 500; max-width: 650px; z-index: 1;}
+
+        .criteria-box {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 24px; margin-top: 16px; backdrop-filter: blur(12px); width: 100%; z-index: 1;
+        }
+        .criteria-box h4 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; color: #ccfbf1; font-weight: 800; }
+        .criteria-flex {
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+        }
+        .criteria-item { 
+            font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s;
+        }
+        .criteria-item:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
+        .criteria-item span:last-child { color: #5eead4; font-weight: 800; background: rgba(20,184,166,0.2); padding: 2px 8px; border-radius: 8px;}
+
+        /* VENDORS GRID (PROFILE DESIGN) */
+        .vendor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .vendor-card {
+            background: var(--app-card); border-radius: var(--app-radius); 
+            border: 1px solid var(--app-line); box-shadow: var(--app-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; display: flex; flex-direction: column;
+        }
+        .vendor-card:hover { transform: translateY(-8px); box-shadow: var(--app-shadow-hover); border-color: rgba(20, 184, 166, 0.3); }
+        .vendor-card.locked { opacity: 0.85; filter: grayscale(0.5); pointer-events: none; }
+        .vendor-card.voting-selected { border: 3px solid var(--app-teal); box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2); }
+        
+        .v-banner {
+            width: 100%; height: 120px; position: relative; border-radius: var(--app-radius) var(--app-radius) 0 0;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            background-image: radial-gradient(#94a3b8 1px, transparent 1px);
+            background-size: 20px 20px; border-bottom: 1px solid var(--app-line); overflow: hidden;
+        }
+        .v-banner::after {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.05));
+        }
+        
+        .v-status {
+            position: absolute; top: 16px; left: 16px; z-index: 10;
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 14px;
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+        }
+        .v-status.locked { background: rgba(255,255,255,0.9); color: #64748b; border: 1px solid #cbd5e1;}
+        .v-status.ongoing { background: rgba(240,253,250,0.95); color: #0f766e; border: 1px solid #5eead4; animation: pulseGlow 2s infinite;}
+        .v-status.ended { background: rgba(240,249,255,0.95); color: #0369a1; border: 1px solid #bae6fd;}
+        
+        .v-avatar-wrapper {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 0 24px; margin-top: -50px; position: relative; z-index: 2;
+        }
+        .v-avatar {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 4px solid var(--app-card); object-fit: cover; object-position: top center;
+            background: white; box-shadow: 0 8px 20px rgba(12, 31, 95, 0.12);
+        }
+        
+        .btn-info {
+            background: white; color: var(--app-navy); border: 1px solid var(--app-line);
+            padding: 8px 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; 
+            font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; 
+            margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .btn-info:hover { background: var(--app-teal); color: white; border-color: var(--app-teal); transform: translateY(-2px); }
+
+        .v-content { padding: 16px 24px 24px; display: flex; flex-direction: column; flex-grow: 1; }
+        .v-title { font-size: 1.6rem; font-weight: 800; color: var(--app-navy); line-height: 1.2; margin-bottom: 16px;}
+
+        .v-details { font-size: 0.85rem; color: var(--app-muted); margin-bottom: 16px; font-weight: 600; display: flex; flex-direction: column; gap: 10px; }
+        .v-details span { display: flex; align-items: center; gap: 8px; }
+        .v-details i { color: var(--app-teal); font-size: 1.1rem; background: #e0f2fe; padding: 6px; border-radius: 8px; width: 28px; text-align: center; }
+        .v-details strong { color: var(--app-text); font-size: 0.9rem;}
+        
+        .v-desc { font-size: 0.95rem; color: var(--app-text); line-height: 1.6; margin-bottom: 24px; flex-grow: 1; padding: 16px; background: #f8fafc; border-radius: 16px; border: 1px solid var(--app-line);}
+
+        .btn-action {
+            width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 700;
+            font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; position: relative; overflow: hidden;
+        }
+        .btn-action::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-20deg); transition: 0.5s; }
+        .btn-action:hover::after { left: 150%; }
+
+        .btn-feedback { background: linear-gradient(135deg, var(--app-teal), #0f766e); color: white; box-shadow: 0 8px 20px rgba(20,184,166,0.25); }
+        .btn-feedback:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(20,184,166,0.35); }
+        .btn-vote { background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2)); color: white; box-shadow: 0 8px 20px rgba(12,31,95,0.25); }
+        .btn-vote:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(12,31,95,0.35); }
+        .btn-voted { background: #f0fdf4; color: #16a34a; border: 2px solid #bbf7d0; cursor: default; }
+
+        /* LIVE RESULTS SECTION */
+        .results-container {
+            background: var(--app-card); padding: 40px; border-radius: var(--app-radius);
+            box-shadow: var(--app-shadow); border: 1px solid var(--app-line); margin-top: 40px; display: none;
+        }
+        .results-header { text-align: center; margin-bottom: 32px; }
+        .results-header h2 { color: var(--app-navy); font-weight: 800; font-size: 1.8rem; margin-bottom: 12px; letter-spacing: -0.5px;}
+        .results-header p { color: var(--app-muted); font-size: 1.05rem; font-weight: 600; }
+        
+        .result-bar-wrapper { margin-bottom: 24px; }
+        .result-info { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: var(--app-text); }
+        .result-track { width: 100%; height: 18px; background: #f1f5f9; border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
+        .result-fill { height: 100%; background: linear-gradient(90deg, var(--app-teal), #34d399); border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative;}
+        .result-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, transparent 100%); }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(12, 31, 95, 0.75); backdrop-filter: blur(8px);
+            z-index: 4000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.25s ease-out; }
+        .modal-card {
+            background: white; width: 100%; max-width: 600px; border-radius: 32px;
+            overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.3); border: 1px solid var(--app-line);
+            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        
+        .modal-header { background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2)); color: white; padding: 32px; position: relative; }
+        .modal-header h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; padding-right: 40px; letter-spacing: -0.5px;}
+        .modal-header p { font-size: 1rem; opacity: 0.9; font-weight: 500;}
+        .btn-close { position: absolute; top: 24px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: white; width: 40px; height: 40px; border-radius: 14px; cursor: pointer; transition: 0.2s; font-size: 1.3rem; backdrop-filter: blur(4px);}
+        .btn-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        
+        .modal-body { padding: 32px; max-height: 65vh; overflow-y: auto; }
+        .modal-body::-webkit-scrollbar { width: 8px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Star Rating */
+        .star-rating { display: flex; justify-content: center; gap: 16px; font-size: 48px; color: #e2e8f0; cursor: pointer; margin: 20px 0 30px; }
+        .star-rating i { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .star-rating i.active, .star-rating i.hovered { color: #f59e0b; text-shadow: 0 6px 15px rgba(245,158,11,0.35); transform: scale(1.15); }
+        
+        textarea.feedback-input {
+            width: 100%; padding: 20px; border: 2px solid var(--app-line); border-radius: 20px;
+            font-family: inherit; font-size: 1rem; resize: none; min-height: 140px;
+            background: #f8fafc; transition: all 0.3s; outline: none; font-weight: 500; color: var(--app-text);
+        }
+        textarea.feedback-input:focus { border-color: var(--app-teal); background: white; box-shadow: 0 0 0 4px rgba(20,184,166,0.15); }
+
+        /* DAILY RATING CARD */
+        .daily-card {
+            border-radius: var(--app-radius); padding: 24px 28px; margin-bottom: 32px;
+            display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between;
+            border: 2px solid var(--app-line); box-shadow: var(--app-shadow); background: #fff;
+        }
+        .daily-card.pending { border-color: #fcd34d; background: #fffbeb; }
+        .daily-card.done { border-color: #bbf7d0; background: #f0fdf4; }
+        .daily-card.off { border-color: var(--app-line); background: #f8fafc; }
+        .daily-main { flex: 1 1 320px; min-width: 0; }
+        .daily-title { font-size: 1.2rem; font-weight: 800; color: var(--app-navy); display: flex; align-items: center; gap: 10px; line-height: 1.3; }
+        .daily-card.pending .daily-title i { color: #d97706; }
+        .daily-card.done .daily-title i { color: #16a34a; }
+        .daily-card.off .daily-title i { color: var(--app-muted); }
+        .daily-sub { color: var(--app-muted); font-weight: 600; font-size: 0.92rem; margin-top: 6px; line-height: 1.5; }
+        .day-dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+        .day-dot {
+            width: 26px; height: 26px; border-radius: 8px; font-size: 0.68rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #64748b;
+        }
+        .day-dot.done { background: var(--app-teal); color: #fff; }
+        .day-dot.missed { background: #fee2e2; color: #dc2626; }
+        .day-dot.today { outline: 2px solid var(--app-navy); outline-offset: 2px; }
+        .day-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 0.75rem; font-weight: 700; color: var(--app-muted); }
+        .day-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .day-legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; background: #e2e8f0; }
+        .day-legend i.done { background: var(--app-teal); }
+        .day-legend i.missed { background: #fecaca; }
+        .daily-cta { width: auto; padding: 16px 30px; flex: 0 0 auto; }
+        .btn-feedback.attention { animation: pulseGlow 2s infinite; }
+        .btn-action:disabled { cursor: not-allowed; }
+        .btn-off { background: #f1f5f9; color: var(--app-muted); border: 1px solid var(--app-line); }
+
+        #loadingOverlay {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .spinner {
+            width: 54px; height: 54px; border: 4px solid #e2e8f0;
+            border-top-color: var(--app-teal); border-radius: 50%; animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-bottom: 20px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); } 70% { box-shadow: 0 0 0 8px rgba(20,184,166,0); } 100% { box-shadow: 0 0 0 0 rgba(20,184,166,0); } }
+
+        @media (max-width: 768px) {
+            .header-back-btn span { display: none; }
+            .header-back-btn { padding: 10px; border-radius: 12px; }
+            .phase-banner { padding: 32px 24px; }
+            .phase-banner h1 { font-size: 1.6rem; }
+            .v-avatar { width: 85px; height: 85px; margin-top: -42.5px; border-width: 3px;}
+            .btn-info { font-size: 0.8rem; padding: 6px 12px; }
+            .modal-header { padding: 24px; }
+            .modal-body { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <strong style="color: var(--app-navy); font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;">Authenticating Secure Portal...</strong>
+    </div>
+
+    <div class="app-header">
+        <a href="home.html" class="header-back-btn" title="Back to Home">
+            <i class="fas fa-arrow-left"></i> <span>Back to Home</span>
+        </a>
+        <img src="pictures/new.png" alt="Company Logo">
+    </div>
+
+    <div id="testModeBanner" style="display:none; position:fixed; top:72px; left:0; width:100%; z-index:1999; background:#f59e0b; color:#1e1300; text-align:center; padding:8px 12px; font-weight:800; font-size:0.85rem; letter-spacing:0.5px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+        <i class="fas fa-flask"></i> TEST MODE — simulating <span id="testModeDateLabel"></span>. Not live data. Remember to set TEST_MODE_DATE to null before deploying.
+    </div>
+
+    <div class="container" id="appContainer" style="display: none;">
+
+        <!-- Banner Phase -->
+        <div class="phase-banner" id="phaseBanner">
+            <div class="phase-tag" id="phaseTag"><i class="fas fa-spinner fa-spin"></i> Loading Phase...</div>
+            <h1 id="phaseTitle">NSSB Canteen Selection</h1>
+            <p id="phaseDesc">Evaluate vendors during their trial month. Final voting will open once all trials conclude.</p>
+            
+            <div class="criteria-box">
+                <h4><i class="fas fa-clipboard-check"></i> 100% Evaluation Criteria</h4>
+                <div class="criteria-flex">
+                    <div class="criteria-item">Food Quality & Taste <span>20%</span></div>
+                    <div class="criteria-item">Consistency <span>15%</span></div>
+                    <div class="criteria-item">Portion & Value <span>15%</span></div>
+                    <div class="criteria-item">Hygiene (KKM) <span>15%</span></div>
+                    <div class="criteria-item">Menu Variety <span>10%</span></div>
+                    <div class="criteria-item">Punctuality <span>10%</span></div>
+                    <div class="criteria-item">Staff Feedback <span>10%</span></div>
+                    <div class="criteria-item">Responsiveness <span>5%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Rating Reminder (Phase 1 only, filled by JS) -->
+        <div class="daily-card" id="dailyCard" style="display:none;"></div>
+
+        <!-- Vendor Grid (Includes the Final Voting button card in the grid when trials conclude) -->
+        <div class="vendor-grid" id="vendorGrid">
+            <!-- Cards injected via JS -->
+        </div>
+
+        <!-- Voting Action Screen (Shown when on the Final Voting Page) -->
+        <div class="results-container" id="votingActionContainer" style="text-align: center; border: 2px solid var(--app-teal); background: #f0fdfa; display: none; margin-top: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <button class="btn-info" onclick="window.closeFinalVotingPage()"><i class="fas fa-arrow-left"></i> Back to Vendors</button>
+                <span style="font-weight: 800; color: var(--app-teal);">Final Voting Stage</span>
+            </div>
+            <div style="width: 64px; height: 64px; background: #ccfbf1; color: var(--app-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px;">
+                <i class="fas fa-vote-yea"></i>
+            </div>
+            <h2 style="color: var(--app-teal); font-weight: 800; font-size: 2rem; margin-bottom: 16px; letter-spacing: -0.5px;">Cast Your Final Vote</h2>
+            <p style="color: var(--app-text); font-size: 1.05rem; margin-bottom: 30px; font-weight: 500; max-width: 500px; margin-left: auto; margin-right: auto;">Selected Vendor: <strong id="selectedVendorNameDisplay" style="color: var(--app-navy);">None Selected</strong></p>
+            <textarea id="voteRemarks" class="feedback-input" style="background: white; margin-bottom: 24px; max-width: 650px; margin-left: auto; margin-right: auto; display: block;" placeholder="Reason for your choice (Optional)"></textarea>
+            <button class="btn-action btn-vote" id="btnSubmitVote" style="max-width: 350px; margin: 0 auto; background: linear-gradient(135deg, var(--app-teal), #0f766e); font-size: 1.1rem; padding: 18px;"><i class="fas fa-paper-plane"></i> Submit Final Vote</button>
+        </div>
+
+        <!-- Live Results -->
+        <div class="results-container" id="liveResults">
+            <div class="results-header">
+                <h2><i class="fas fa-chart-bar" style="color: var(--app-teal);"></i> Live Leaderboard</h2>
+                <p>Total Votes Cast: <strong style="color: var(--app-teal); font-size: 1.2rem;" id="totalVotesCount">0</strong> / 420 Employees</p>
+            </div>
+            <div id="resultsBars">
+                <!-- Bars injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Info Modal -->
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <button class="btn-close" onclick="closeModal('infoModal')"><i class="fas fa-times"></i></button>
+                <h2 id="infoTitle">Vendor Name</h2>
+                <p id="infoPic">PIC: Name</p>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 28px;">
+                    <strong style="color: var(--app-navy); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 1.05rem;"><i class="fas fa-star" style="color: #f59e0b;"></i> Highlight</strong>
+                    <p id="infoHighlight" style="color: var(--app-text); font-size: 1rem; line-height: 1.6; background: #f8fafc; padding: 16px; border-radius: 16px; border: 1px solid var(--app-line);"></p>
+                </div>
+                <div style="margin-bottom: 28px;">
+                    <strong style="color: var(--app-navy); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 1.05rem;"><i class="fas fa-award" style="color: var(--app-teal);"></i> Experience</strong>
+                    <p id="infoExp" style="color: var(--app-text); font-size: 1rem; line-height: 1.6;"></p>
+                </div>
+                <div style="padding: 20px; background: #fffbeb; border-radius: 20px; border: 1px solid #fde68a; margin-bottom: 28px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; right: -20px; top: -20px; opacity: 0.1; font-size: 100px; color: #d97706; pointer-events: none;"><i class="fas fa-utensils"></i></div>
+                    <strong style="color: #d97706; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-utensils"></i> Signature Menu</strong>
+                    <p id="infoMenu" style="color: var(--app-text); font-weight: 700; margin-top: 10px; font-size: 1.05rem; line-height: 1.5;"></p>
+                </div>
+                <div style="padding: 20px; background: #f0fdfa; border-radius: 20px; border: 1px solid #ccfbf1;">
+                    <strong style="color: var(--app-teal); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-fire-burner"></i> Cuisine Style</strong>
+                    <p id="infoStyle" style="color: var(--app-text); font-weight: 800; margin-top: 10px; font-size: 1.05rem;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal-card">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--app-teal), #0f766e);">
+                <button class="btn-close" onclick="closeModal('feedbackModal')"><i class="fas fa-times"></i></button>
+                <h2>Rate Today's Meal</h2>
+                <p id="feedbackVendorName">For Vendor Name</p>
+            </div>
+            <div class="modal-body" style="text-align: center; padding-top: 36px; padding-bottom: 36px;">
+                <label style="font-weight: 800; color: var(--app-navy); font-size: 1.2rem; display: block; margin-bottom: 8px;">How was today's meal?</label>
+                <div class="star-rating" id="feedbackStars">
+                    <i class="fas fa-star" data-val="1"></i>
+                    <i class="fas fa-star" data-val="2"></i>
+                    <i class="fas fa-star" data-val="3"></i>
+                    <i class="fas fa-star" data-val="4"></i>
+                    <i class="fas fa-star" data-val="5"></i>
+                </div>
+                
+                <textarea id="feedbackText" class="feedback-input" placeholder="How was the food quality? Portion? Hygiene? Let us know your detailed thoughts here..." style="margin-bottom: 28px;"></textarea>
+                
+                <button class="btn-action btn-vote" id="btnSubmitFeedback" style="background: linear-gradient(135deg, var(--app-teal), #0f766e); font-size: 1.1rem; padding: 18px;">
+                    <i class="fas fa-paper-plane"></i> Submit Rating
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // State Variables
+        let currentUserProfile = null;
+        let hasVoted = false;
+        let selectedVendorForVote = null;
+        let activeFeedbackVendor = null;
+        let currentRating = 0;
+        let allVotes = {};
+        let myRatings = {};        
+        let vendorRatings = {};    
+        let autoPrompted = false;  
+        let viewingFinalVotingPage = false; 
+
+        // ---------------------------------------------------------
+        // VENDORS DATA
+        // ---------------------------------------------------------
+        const VENDORS = [
+            {
+                id: 'al-arbai', name: 'Al Arbai', pic: 'En. Shahul',
+                image: 'pictures/alarbai.jpeg',
+                desc: 'Runner-up in NSSB\'s canteen selection about 2 years ago. They are the only mamak-style operator among the candidates.',
+                highlight: 'The sole mamak-style culinary operator in this lineup.',
+                menu: 'Nasi Kandar, Roti Canai, Mee Goreng Mamak, Ayam Goreng Berempah, Teh Tarik',
+                exp: "Secured runner-up position in NSSB's canteen selection about 2 years ago.",
+                style: 'Authentic mamak-style dishes and beverages',
+                trialPeriod: '1 Oct - 30 Oct 2026', startDate: '2026-10-01T00:00:00', endDate: '2026-10-30T23:59:59',
+                workingDays: '23 Working Days'
+            },
+            {
+                id: 'mirasa', name: 'Mirasa', pic: 'Pn. Siti Suryani Misnan',
+                image: 'pictures/mirasa.jpeg',
+                desc: 'Owners of Jemari Restaurant. Their catering experience includes Malaysia Airlines Berhad projects and multiple catering services.',
+                highlight: 'Extensive catering background including Malaysia Airlines Berhad projects.',
+                menu: 'Nasi Minyak, Ayam Masak Merah, Daging Salai Masak Lemak, Premium Corporate Lunch Boxes',
+                exp: 'Running Jemari Restaurant alongside large-scale corporate catering.',
+                style: 'Corporate and large-scale dining excellence',
+                trialPeriod: '1 Nov - 30 Nov 2026', startDate: '2026-11-01T00:00:00', endDate: '2026-11-30T23:59:59',
+                workingDays: '22 Working Days'
+            },
+            {
+                id: 'sireh-legasi', name: 'Sireh Legasi', pic: 'Kak Nabilah',
+                image: 'pictures/sirehlegasi.jpeg',
+                desc: 'Previously operated NSSB canteen through Sujitarah; now continuing under Sireh Legasi. They deeply understand our exact daily food preferences.',
+                highlight: 'Deeply understands the exact daily food preferences of our NSSB workforce.',
+                menu: 'Nasi Campur, Ikan Bakar, Asam Pedas, Sambal Belacan & Ulam, Kuih Muih Tradisional',
+                exp: 'Successfully managed the NSSB canteen operations in past terms.',
+                style: 'Traditional Malay & comforting local homestyle food',
+                trialPeriod: '1 Dec - 31 Dec 2026', startDate: '2026-12-01T00:00:00', endDate: '2026-12-31T23:59:59',
+                workingDays: '23 Working Days'
+            },
+            {
+                id: 'bang-med', name: 'Bang Med Holdings', pic: 'Pn. Ishah',
+                image: 'pictures/bangmed.jpeg',
+                desc: 'Chef and caterer with their kitchen conveniently located nearby around Super Seven / Suria Green Technology.',
+                highlight: 'Super convenient nearby location ensuring ultra-fresh and fast meal delivery.',
+                menu: 'Nasi Ayam Penyet, Western Grill Chicken Chop, Spaghetti Bolognese, Fresh Cut Fruits',
+                exp: 'Professional chef-led catering focusing on speed and premium quality.',
+                style: 'Fresh gourmet meals with swift service',
+                trialPeriod: '1 Jan - 29 Jan 2027', startDate: '2027-01-01T00:00:00', endDate: '2027-01-29T23:59:59',
+                workingDays: '20 Working Days'
+            }
+        ];
+
+        // ---------------------------------------------------------
+        // 🧪 TEST MODE
+        // ---------------------------------------------------------
+        const TEST_MODE_DATE = '2026-10-01'; 
+
+        const WORKING_WEEKDAYS = [1, 2, 3, 4, 5]; 
+        const HOLIDAYS = [];                      
+
+        function getTodayKey() {
+            if (TEST_MODE_DATE) {
+                const p = new URLSearchParams(location.search).get('testDate');
+                return /^\d{4}-\d{2}-\d{2}$/.test(p || '') ? p : TEST_MODE_DATE;
+            }
+            return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kuala_Lumpur' }).format(new Date());
+        }
+        const TODAY = getTodayKey();
+
+        function keyToDate(k) { const [y, m, d] = k.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); }
+        function isWorkingDay(k) { return WORKING_WEEKDAYS.includes(keyToDate(k).getUTCDay()) && !HOLIDAYS.includes(k); }
+        function workingDaysBetween(startKey, endKey) {
+            const out = [];
+            for (let t = keyToDate(startKey).getTime(); t <= keyToDate(endKey).getTime(); t += 86400000) {
+                const k = new Date(t).toISOString().slice(0, 10);
+                if (isWorkingDay(k)) out.push(k);
+            }
+            return out;
+        }
+        function fmtDay(k) {
+            return keyToDate(k).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+        }
+        function nextWorkingDay(fromKey) {
+            for (let i = 1; i <= 14; i++) {
+                const k = new Date(keyToDate(fromKey).getTime() + i * 86400000).toISOString().slice(0, 10);
+                if (isWorkingDay(k)) return k;
+            }
+            return null;
+        }
+
+        function getVendorStatus(start, end) {
+            if (TODAY < start.slice(0, 10)) return 'LOCKED';
+            if (TODAY > end.slice(0, 10)) return 'ENDED';
+            return 'ONGOING';
+        }
+
+        const isVotingPhase = VENDORS.every(v => getVendorStatus(v.startDate, v.endDate) === 'ENDED');
+        const activeVendor = VENDORS.find(v => getVendorStatus(v.startDate, v.endDate) === 'ONGOING') || null;
+
+        // ---------------------------------------------------------
+        // INITIALIZATION
+        // ---------------------------------------------------------
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if(userDoc.exists()){
+                        currentUserProfile = { uid: user.uid, ...userDoc.data() };
+                    } else {
+                        currentUserProfile = { uid: user.uid, employeeId: 'Staff', name: user.email, department: 'N/A', nationality: 'Malaysian' };
+                    }
+
+                    const voteDoc = await getDoc(doc(db, "votes", currentUserProfile.employeeId));
+                    if (voteDoc.exists()) {
+                        hasVoted = true;
+                        selectedVendorForVote = voteDoc.data().vendorId;
+                    }
+
+                    await fetchLiveVotes();
+                    await fetchVendorRatings();
+                    await fetchMyRatings();
+
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+
+                    if (TEST_MODE_DATE) {
+                        const banner = document.getElementById('testModeBanner');
+                        banner.style.display = 'block';
+                        document.getElementById('testModeDateLabel').textContent =
+                            new Date(TEST_MODE_DATE).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+                        document.getElementById('appContainer').style.marginTop = '40px';
+                    }
+
+                    renderApp();
+
+                    if (!isVotingPhase && activeVendor && isWorkingDay(TODAY) && !myRatings[TODAY] && !autoPrompted) {
+                        autoPrompted = true;
+                        setTimeout(() => window.openFeedback(activeVendor.id), 600);
+                    }
+
+                } catch (err) {
+                    console.error("Error loading profile:", err);
+                    alert("System error loading profile.");
+                }
+            } else {
+                window.location.href = 'login_pg.html';
+            }
+        });
+
+        async function fetchMyRatings() {
+            myRatings = {};
+            const empId = currentUserProfile && currentUserProfile.employeeId;
+            if (!activeVendor || !empId || empId === 'Staff') return;
+            try {
+                const snap = await getDocs(query(
+                    collection(db, 'vendor_feedback'),
+                    where('staffId', '==', empId),
+                    where('vendorId', '==', activeVendor.id)
+                ));
+                snap.forEach(d => {
+                    const x = d.data();
+                    if (x.date) myRatings[x.date] = { rating: x.rating, feedback: x.feedback || '' };
+                });
+            } catch (e) {
+                console.error("Failed fetching my ratings", e);
+            }
+        }
+
+        async function fetchVendorRatings() {
+            try {
+                const snapshot = await getDocs(collection(db, 'vendor_feedback'));
+                const tallies = {};
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const vId = data.vendorId;
+                    const rating = Number(data.rating) || 0;
+                    if (vId) {
+                        if (!tallies[vId]) tallies[vId] = { sum: 0, count: 0 };
+                        tallies[vId].sum += rating;
+                        tallies[vId].count += 1;
+                    }
+                });
+                vendorRatings = {};
+                Object.keys(tallies).forEach(vId => {
+                    const t = tallies[vId];
+                    vendorRatings[vId] = {
+                        avg: t.count > 0 ? (t.sum / t.count).toFixed(1) : '0.0',
+                        count: t.count
+                    };
+                });
+            } catch (e) {
+                console.error("Failed fetching overall vendor ratings", e);
+            }
+        }
+
+        async function fetchLiveVotes() {
+            try {
+                const snapshot = await getDocs(collection(db, 'votes'));
+                allVotes = { 'al-arbai': 0, 'mirasa': 0, 'sireh-legasi': 0, 'bang-med': 0 };
+                snapshot.forEach(doc => {
+                    const vId = doc.data().vendorId;
+                    if (allVotes[vId] !== undefined) allVotes[vId]++;
+                });
+            } catch (e) {
+                console.error("Failed fetching live votes", e);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // RENDER LOGIC
+        // ---------------------------------------------------------
+        function renderApp() {
+            const pTag = document.getElementById('phaseTag');
+            const pTitle = document.getElementById('phaseTitle');
+            const pDesc = document.getElementById('phaseDesc');
+            const actionContainer = document.getElementById('votingActionContainer');
+
+            if (!isVotingPhase) {
+                pTag.innerHTML = '<i class="fas fa-clock"></i> Phase 1: Trial & Evaluation';
+                pTitle.textContent = "NSSB Canteen Selection";
+                pDesc.textContent = "Evaluate vendors during their trial month. Overall ratings update live from all staff reviews.";
+                actionContainer.style.display = 'none';
+            } else if (hasVoted) {
+                pTag.innerHTML = '<i class="fas fa-check-circle"></i> Voting Completed';
+                pTag.style.background = 'rgba(20, 184, 166, 0.2)';
+                pTag.style.borderColor = 'rgba(20, 184, 166, 0.4)';
+                pTitle.textContent = "Thank You For Voting";
+                pDesc.textContent = "Your vote has been recorded securely. Review the live standing below.";
+                actionContainer.style.display = 'none';
+                document.getElementById('liveResults').style.display = 'block';
+            } else {
+                pTag.innerHTML = '<i class="fas fa-vote-yea"></i> Phase 2: Final Selection';
+                pTag.style.background = 'rgba(20, 184, 166, 0.2)';
+                pTag.style.borderColor = 'rgba(20, 184, 166, 0.4)';
+                pTitle.textContent = "Final Voting is OPEN";
+                pDesc.textContent = "All trials have concluded. Select your preferred vendor from the grid below or click Proceed to Final Voting.";
+
+                if (viewingFinalVotingPage) {
+                    actionContainer.style.display = 'block';
+                } else {
+                    actionContainer.style.display = 'none';
+                }
+            }
+
+            // Setup Grid
+            const grid = document.getElementById('vendorGrid');
+            grid.innerHTML = '';
+
+            VENDORS.forEach(v => {
+                const status = getVendorStatus(v.startDate, v.endDate);
+                const isSelectedVote = selectedVendorForVote === v.id;
+                const vRating = vendorRatings[v.id] || { avg: '0.0', count: 0 };
+                
+                let statusHtml = '';
+                if (status === 'ONGOING') statusHtml = `<span class="v-status ongoing"><i class="fas fa-spinner fa-spin"></i> Ongoing Trial</span>`;
+                else if (status === 'LOCKED') statusHtml = `<span class="v-status locked"><i class="fas fa-lock"></i> Locked</span>`;
+                else statusHtml = `<span class="v-status ended"><i class="fas fa-check"></i> Trial Ended</span>`;
+
+                let actionHtml = '';
+                if (!isVotingPhase) {
+                    if (status === 'ONGOING') {
+                        if (!isWorkingDay(TODAY)) {
+                            actionHtml = `<button class="btn-action btn-off" disabled><i class="fas fa-mug-hot"></i> No rating needed today</button>`;
+                        } else if (myRatings[TODAY]) {
+                            actionHtml = `<button class="btn-action btn-voted" style="cursor:pointer;" onclick="window.openFeedback('${v.id}')"><i class="fas fa-check-circle"></i> Rated today · Edit</button>`;
+                        } else {
+                            actionHtml = `<button class="btn-action btn-feedback attention" onclick="window.openFeedback('${v.id}')"><i class="fas fa-star"></i> Rate Today's Meal</button>`;
+                        }
+                    } else if (status === 'LOCKED') {
+                        actionHtml = `<div style="text-align:center; font-size:0.9rem; color:var(--app-muted); font-weight:700; background:#f1f5f9; padding:16px; border-radius:16px;"><i class="fas fa-calendar-alt"></i> Opens: ${v.trialPeriod.split(' - ')[0]}</div>`;
+                    } else {
+                        actionHtml = `<div style="text-align:center; font-size:0.9rem; color:var(--app-teal); font-weight:700; background:#f0fdfa; border: 1px solid #ccfbf1; padding:16px; border-radius:16px;"><i class="fas fa-check-circle"></i> Trial Completed</div>`;
+                    }
+                } else {
+                    if (hasVoted) {
+                        if (isSelectedVote) {
+                            actionHtml = `<button class="btn-action btn-voted" disabled><i class="fas fa-check-circle"></i> Voted</button>`;
+                        }
+                    } else {
+                        const btnClass = selectedVendorForVote === v.id ? 'btn-vote' : '';
+                        const btnStyle = selectedVendorForVote === v.id ? '' : 'background: white; color: var(--app-navy); border: 2px solid var(--app-line);';
+                        const btnText = selectedVendorForVote === v.id ? '<i class="fas fa-check"></i> Selected for Vote' : 'Select This Vendor';
+                        actionHtml = `<button class="btn-action ${btnClass}" style="${btnStyle}" onclick="window.selectVendor('${v.id}')">${btnText}</button>`;
+                    }
+                }
+
+                // Injecting Vendor Card + Overall Rating Badge Right Below It
+                grid.innerHTML += `
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="vendor-card ${status === 'LOCKED' && !isVotingPhase ? 'locked' : ''} ${selectedVendorForVote === v.id ? 'voting-selected' : ''}" style="flex-grow: 1;">
+                            <div class="v-banner">
+                                ${statusHtml}
+                            </div>
+                            <div class="v-avatar-wrapper">
+                                <img src="${v.image}" alt="${v.name}" class="v-avatar" onerror="this.src='pictures/new.png'; this.style.objectFit='contain'; this.style.padding='15px';">
+                                <button class="btn-info" onclick="window.openInfo('${v.id}')" title="More Info"><i class="fas fa-info-circle"></i> Info</button>
+                            </div>
+                            <div class="v-content">
+                                <h3 class="v-title">${v.name}</h3>
+                                <div class="v-details">
+                                    <span><i class="fas fa-user-tie"></i> <strong>PIC:</strong> ${v.pic}</span>
+                                    <span><i class="fas fa-calendar-alt"></i> <strong>Trial:</strong> ${v.trialPeriod} <span style="font-weight: 500; color: var(--app-muted); font-size: 0.8rem;">(${v.workingDays})</span></span>
+                                </div>
+                                <p class="v-desc">${v.desc}</p>
+                                <div style="margin-top: auto;">${actionHtml}</div>
+                            </div>
+                        </div>
+                        <!-- Overall Rating Badge Appears Right Below Each Card -->
+                        <div style="background: white; border: 1px solid var(--app-line); padding: 12px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--app-navy); display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-star" style="color: #f59e0b;"></i> Overall Rating
+                            </span>
+                            <span style="font-size: 0.9rem; font-weight: 800; color: var(--app-teal);">
+                                ${vRating.avg} / 5.0 <span style="color: var(--app-muted); font-weight: 600; font-size: 0.8rem;">(${vRating.count} ${vRating.count === 1 ? 'review' : 'reviews'})</span>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // If trials are finished and user hasn't voted yet, render the "Proceed to Final Voting" card right inside the grid (matching your red circle spot)
+            if (isVotingPhase && !hasVoted) {
+                grid.innerHTML += `
+                    <div style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1); border: 2px dashed var(--app-teal); border-radius: var(--app-radius); padding: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: var(--app-shadow); min-height: 400px;">
+                        <div style="width: 60px; height: 60px; background: white; color: var(--app-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(20,184,166,0.25);">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h3 style="color: var(--app-navy); font-size: 1.4rem; font-weight: 800; margin-bottom: 12px;">All Trials Concluded</h3>
+                        <p style="color: var(--app-text); font-size: 0.95rem; margin-bottom: 24px; font-weight: 500; line-height: 1.5;">Ready to cast your final ballot? Click below to proceed to final voting.</p>
+                        <button class="btn-action btn-vote" onclick="window.openFinalVotingPage()" style="background: linear-gradient(135deg, var(--app-teal), #0f766e); font-size: 1rem; padding: 16px 24px;"><i class="fas fa-vote-yea"></i> Proceed to Final Voting Page <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                `;
+            }
+
+            renderDailyCard();
+
+            if (hasVoted && isVotingPhase) {
+                renderLiveResults();
+            }
+        }
+
+        function renderDailyCard() {
+            const el = document.getElementById('dailyCard');
+            if (isVotingPhase || !activeVendor) { el.style.display = 'none'; return; }
+
+            const days = workingDaysBetween(activeVendor.startDate.slice(0, 10), activeVendor.endDate.slice(0, 10));
+            const passed = days.filter(d => d <= TODAY);
+            const ratedCount = passed.filter(d => myRatings[d]).length;
+            const missed = passed.filter(d => d < TODAY && !myRatings[d]).length;
+            const working = isWorkingDay(TODAY);
+            const ratedToday = !!myRatings[TODAY];
+
+            let cls, icon, title, sub, cta = '';
+            if (!working) {
+                const nxt = nextWorkingDay(TODAY);
+                cls = 'off'; icon = 'fa-mug-hot';
+                title = 'No rating needed today';
+                sub = `Today is not a working day.${nxt ? ' Next rating: ' + fmtDay(nxt) + '.' : ''}`;
+            } else if (ratedToday) {
+                cls = 'done'; icon = 'fa-circle-check';
+                title = `Thanks! You've rated today's meal (${myRatings[TODAY].rating}/5)`;
+                sub = 'You can still change it until the end of today.';
+                cta = `<button class="btn-action btn-voted daily-cta" style="cursor:pointer;" onclick="window.openFeedback('${activeVendor.id}')"><i class="fas fa-pen"></i> Edit Today's Rating</button>`;
+            } else {
+                cls = 'pending'; icon = 'fa-bell';
+                title = `You haven't rated today's meal yet`;
+                sub = `Tell us how ${activeVendor.name}'s food was today. It takes about 10 seconds.`;
+                cta = `<button class="btn-action btn-feedback attention daily-cta" onclick="window.openFeedback('${activeVendor.id}')"><i class="fas fa-star"></i> Rate Now</button>`;
+            }
+
+            const progress = `<strong>${ratedCount}</strong> of <strong>${passed.length}</strong> working day${passed.length === 1 ? '' : 's'} rated so far`
+                + (missed > 0 ? ` · <span style="color:#dc2626;">${missed} missed</span>` : '');
+
+            const dots = days.map(d => {
+                const rated = !!myRatings[d];
+                const isMissed = d < TODAY && !rated;
+                const c = ['day-dot', rated ? 'done' : '', isMissed ? 'missed' : '', d === TODAY ? 'today' : ''].join(' ');
+                const label = rated ? '<i class="fas fa-check"></i>' : isMissed ? '<i class="fas fa-xmark"></i>' : parseInt(d.slice(8), 10);
+                const tip = fmtDay(d) + (rated ? ' - rated' : isMissed ? ' - missed' : d === TODAY ? ' - today' : '');
+                return `<div class="${c}" title="${tip}">${label}</div>`;
+            }).join('');
+
+            el.className = 'daily-card ' + cls;
+            el.style.display = 'flex';
+            el.innerHTML = `
+                <div class="daily-main">
+                    <div class="daily-title"><i class="fas ${icon}"></i> ${title}</div>
+                    <div class="daily-sub">${sub}</div>
+                    <div class="daily-sub" style="margin-top:10px;">${activeVendor.name} trial: ${progress}</div>
+                    <div class="day-dots">${dots}</div>
+                    <div class="day-legend"><span><i class="done"></i> Rated</span><span><i class="missed"></i> Missed</span><span><i></i> Upcoming</span></div>
+                </div>
+                ${cta}`;
+        }
+
+        function renderLiveResults() {
+            const total = Object.values(allVotes).reduce((a,b) => a+b, 0);
+            document.getElementById('totalVotesCount').textContent = total;
+            const container = document.getElementById('resultsBars');
+            container.innerHTML = '';
+
+            VENDORS.forEach(v => {
+                const count = allVotes[v.id] || 0;
+                const pct = total > 0 ? Math.round((count/total)*100) : 0;
+                
+                container.innerHTML += `
+                    <div class="result-bar-wrapper">
+                        <div class="result-info">
+                            <span>${v.name}</span>
+                            <span style="color:var(--app-teal);">${count} Votes (${pct}%)</span>
+                        </div>
+                        <div class="result-track">
+                            <div class="result-fill" style="width: ${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ---------------------------------------------------------
+        // GLOBALS FOR UI
+        // ---------------------------------------------------------
+        window.selectVendor = function(id) {
+            selectedVendorForVote = id;
+            const v = VENDORS.find(x => x.id === id);
+            const nameEl = document.getElementById('selectedVendorNameDisplay');
+            if (nameEl) nameEl.textContent = v ? v.name : 'None Selected';
+            renderApp();
+        };
+
+        window.openFinalVotingPage = function() {
+            if (!selectedVendorForVote) {
+                alert("Please select a vendor from the cards above first before proceeding!");
+                return;
+            }
+            viewingFinalVotingPage = true;
+            renderApp();
+            window.scrollTo({ top: document.getElementById('votingActionContainer').offsetTop - 100, behavior: 'smooth' });
+        };
+
+        window.closeFinalVotingPage = function() {
+            viewingFinalVotingPage = false;
+            renderApp();
+        };
+
+        window.openInfo = function(id) {
+            const v = VENDORS.find(x => x.id === id);
+            document.getElementById('infoTitle').textContent = v.name;
+            document.getElementById('infoPic').textContent = `PIC: ${v.pic} | Trial: ${v.trialPeriod} (${v.workingDays})`;
+            document.getElementById('infoHighlight').textContent = v.highlight;
+            document.getElementById('infoExp').textContent = v.exp;
+            document.getElementById('infoMenu').textContent = v.menu; 
+            document.getElementById('infoStyle').textContent = v.style;
+            document.getElementById('infoModal').classList.add('active');
+        };
+
+        window.openFeedback = function(id) {
+            const v = VENDORS.find(x => x.id === id);
+            if (!isWorkingDay(TODAY)) return alert("Today is not a working day, so no rating is needed.");
+            activeFeedbackVendor = v;
+            const existing = myRatings[TODAY];
+            document.getElementById('feedbackVendorName').textContent = `${v.name} · ${fmtDay(TODAY)}`;
+            currentRating = existing ? existing.rating : 0;
+            updateStars();
+            document.getElementById('feedbackText').value = existing ? existing.feedback : '';
+            document.getElementById('btnSubmitFeedback').innerHTML =
+                `<i class="fas fa-paper-plane"></i> ${existing ? 'Update Rating' : 'Submit Rating'}`;
+            document.getElementById('feedbackModal').classList.add('active');
+        };
+
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        const stars = document.querySelectorAll('#feedbackStars i');
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                const r = this.dataset.val;
+                stars.forEach(s => s.classList.toggle('hovered', s.dataset.val <= r));
+            });
+            star.addEventListener('mouseout', () => stars.forEach(s => s.classList.remove('hovered')));
+            star.addEventListener('click', function() {
+                currentRating = parseInt(this.dataset.val);
+                updateStars();
+            });
+        });
+        function updateStars() {
+            stars.forEach(s => s.classList.toggle('active', s.dataset.val <= currentRating));
+        }
+
+        // ---------------------------------------------------------
+        // SUBMISSIONS
+        // ---------------------------------------------------------
+        
+        document.getElementById('btnSubmitFeedback').addEventListener('click', async () => {
+            if (currentRating === 0) return alert("Please select a star rating.");
+            const btn = document.getElementById('btnSubmitFeedback');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+                const empId = currentUserProfile.employeeId;
+                if (!empId || empId === 'Staff') throw new Error("Missing Employee ID in profile.");
+                const v = activeFeedbackVendor;
+                const feedback = document.getElementById('feedbackText').value.trim();
+
+                const docId = `${v.id}_${empId}_${TODAY}`.replace(/[\/\s]/g, '_');
+                await setDoc(doc(db, 'vendor_feedback', docId), {
+                    vendorId: v.id,
+                    vendorName: v.name,
+                    staffId: empId,
+                    date: TODAY,
+                    rating: currentRating,
+                    feedback: feedback,
+                    timestamp: serverTimestamp(),
+                    ...(TEST_MODE_DATE ? { isTest: true } : {})
+                });
+
+                const wasUpdate = !!myRatings[TODAY];
+                myRatings[TODAY] = { rating: currentRating, feedback: feedback };
+                
+                await fetchVendorRatings();
+
+                window.closeModal('feedbackModal');
+                renderApp();
+                alert(wasUpdate ? "Today's rating updated." : "Thank you! Today's rating has been recorded.");
+            } catch (e) {
+                alert("Failed to submit rating: " + e.message);
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-paper-plane"></i> ${myRatings[TODAY] ? 'Update Rating' : 'Submit Rating'}`;
+            }
+        });
+
+        document.getElementById('btnSubmitVote').addEventListener('click', async () => {
+            if (!selectedVendorForVote) return alert("Please select a vendor from the list first.");
+            if (!confirm("Are you sure? Your vote is final and cannot be changed.")) return;
+            
+            const btn = document.getElementById('btnSubmitVote');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+                const empId = currentUserProfile.employeeId;
+                if (!empId || empId === 'Staff') throw new Error("Missing Employee ID in profile.");
+
+                await setDoc(doc(db, 'votes', empId), {
+                    employeeId: empId,
+                    name: currentUserProfile.name || 'Unknown',
+                    department: currentUserProfile.department || 'N/A',
+                    nationality: currentUserProfile.nationality || 'Unknown',
+                    vendorId: selectedVendorForVote,
+                    remarks: document.getElementById('voteRemarks').value.trim(),
+                    timestamp: new Date().toISOString()
+                });
+
+                hasVoted = true;
+                viewingFinalVotingPage = false;
+                await fetchLiveVotes(); 
+                renderApp();
+
+            } catch (e) {
+                alert("Error recording vote: " + e.message);
+                console.error(e);
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Final Vote';
+            }
+        });
+
+    </script>
+</body>
+</html>
