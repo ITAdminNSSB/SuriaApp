@@ -29,7 +29,7 @@
             --app-shadow-hover: 0 20px 40px -10px rgba(12, 31, 95, 0.15);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body {
             background-color: var(--app-bg);
@@ -100,9 +100,7 @@
             border-radius: 20px; padding: 24px; margin-top: 16px; backdrop-filter: blur(12px); width: 100%; z-index: 1;
         }
         .criteria-box h4 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; color: #ccfbf1; font-weight: 800; }
-        .criteria-flex {
-            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
-        }
+        .criteria-flex { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
         .criteria-item { 
             font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
             background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
@@ -111,7 +109,7 @@
         .criteria-item:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
         .criteria-item span:last-child { color: #5eead4; font-weight: 800; background: rgba(20,184,166,0.2); padding: 2px 8px; border-radius: 8px;}
 
-        /* VENDORS GRID (PROFILE DESIGN) */
+        /* VENDORS GRID */
         .vendor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
         .vendor-card {
             background: var(--app-card); border-radius: var(--app-radius); 
@@ -128,9 +126,7 @@
             background-image: radial-gradient(#94a3b8 1px, transparent 1px);
             background-size: 20px 20px; border-bottom: 1px solid var(--app-line); overflow: hidden;
         }
-        .v-banner::after {
-            content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.05));
-        }
+        .v-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.05)); }
         
         .v-status {
             position: absolute; top: 16px; left: 16px; z-index: 10;
@@ -174,9 +170,6 @@
             width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 700;
             font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; position: relative; overflow: hidden;
         }
-        .btn-action::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-20deg); transition: 0.5s; }
-        .btn-action:hover::after { left: 150%; }
-
         .btn-feedback { background: linear-gradient(135deg, var(--app-teal), #0f766e); color: white; box-shadow: 0 8px 20px rgba(20,184,166,0.25); }
         .btn-feedback:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(20,184,166,0.35); }
         .btn-vote { background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2)); color: white; box-shadow: 0 8px 20px rgba(12,31,95,0.25); }
@@ -196,7 +189,6 @@
         .result-info { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: var(--app-text); }
         .result-track { width: 100%; height: 18px; background: #f1f5f9; border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
         .result-fill { height: 100%; background: linear-gradient(90deg, var(--app-teal), #34d399); border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative;}
-        .result-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, transparent 100%); }
 
         /* MODALS */
         .modal-overlay {
@@ -207,29 +199,22 @@
         .modal-card {
             background: white; width: 100%; max-width: 600px; border-radius: 32px;
             overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.3); border: 1px solid var(--app-line);
-            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .modal-overlay.active .modal-card { transform: scale(1); }
-        
         .modal-header { background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2)); color: white; padding: 32px; position: relative; }
-        .modal-header h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; padding-right: 40px; letter-spacing: -0.5px;}
-        .modal-header p { font-size: 1rem; opacity: 0.9; font-weight: 500;}
-        .btn-close { position: absolute; top: 24px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: white; width: 40px; height: 40px; border-radius: 14px; cursor: pointer; transition: 0.2s; font-size: 1.3rem; backdrop-filter: blur(4px);}
+        .modal-header h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; padding-right: 40px; }
+        .modal-header p { font-size: 1rem; opacity: 0.9; }
+        .btn-close { position: absolute; top: 24px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: white; width: 40px; height: 40px; border-radius: 14px; cursor: pointer; transition: 0.2s; font-size: 1.3rem; }
         .btn-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
-        
         .modal-body { padding: 32px; max-height: 65vh; overflow-y: auto; }
-        .modal-body::-webkit-scrollbar { width: 8px; }
-        .modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        /* Star Rating */
         .star-rating { display: flex; justify-content: center; gap: 16px; font-size: 48px; color: #e2e8f0; cursor: pointer; margin: 20px 0 30px; }
-        .star-rating i { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .star-rating i.active, .star-rating i.hovered { color: #f59e0b; text-shadow: 0 6px 15px rgba(245,158,11,0.35); transform: scale(1.15); }
+        .star-rating i { transition: all 0.2s; }
+        .star-rating i.active, .star-rating i.hovered { color: #f59e0b; transform: scale(1.15); }
         
         textarea.feedback-input {
             width: 100%; padding: 20px; border: 2px solid var(--app-line); border-radius: 20px;
             font-family: inherit; font-size: 1rem; resize: none; min-height: 140px;
-            background: #f8fafc; transition: all 0.3s; outline: none; font-weight: 500; color: var(--app-text);
+            background: #f8fafc; outline: none; font-weight: 500; color: var(--app-text);
         }
         textarea.feedback-input:focus { border-color: var(--app-teal); background: white; box-shadow: 0 0 0 4px rgba(20,184,166,0.15); }
 
@@ -244,9 +229,6 @@
         .daily-card.off { border-color: var(--app-line); background: #f8fafc; }
         .daily-main { flex: 1 1 320px; min-width: 0; }
         .daily-title { font-size: 1.2rem; font-weight: 800; color: var(--app-navy); display: flex; align-items: center; gap: 10px; line-height: 1.3; }
-        .daily-card.pending .daily-title i { color: #d97706; }
-        .daily-card.done .daily-title i { color: #16a34a; }
-        .daily-card.off .daily-title i { color: var(--app-muted); }
         .daily-sub { color: var(--app-muted); font-weight: 600; font-size: 0.92rem; margin-top: 6px; line-height: 1.5; }
         .day-dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
         .day-dot {
@@ -263,7 +245,6 @@
         .day-legend i.missed { background: #fecaca; }
         .daily-cta { width: auto; padding: 16px 30px; flex: 0 0 auto; }
         .btn-feedback.attention { animation: pulseGlow 2s infinite; }
-        .btn-action:disabled { cursor: not-allowed; }
         .btn-off { background: #f1f5f9; color: var(--app-muted); border: 1px solid var(--app-line); }
 
         #loadingOverlay {
@@ -272,29 +253,16 @@
         }
         .spinner {
             width: 54px; height: 54px; border: 4px solid #e2e8f0;
-            border-top-color: var(--app-teal); border-radius: 50%; animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-bottom: 20px;
+            border-top-color: var(--app-teal); border-radius: 50%; animation: spin 1s infinite; margin-bottom: 20px;
         }
-
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); } 70% { box-shadow: 0 0 0 8px rgba(20,184,166,0); } 100% { box-shadow: 0 0 0 0 rgba(20,184,166,0); } }
-
-        @media (max-width: 768px) {
-            .header-back-btn span { display: none; }
-            .header-back-btn { padding: 10px; border-radius: 12px; }
-            .phase-banner { padding: 32px 24px; }
-            .phase-banner h1 { font-size: 1.6rem; }
-            .v-avatar { width: 85px; height: 85px; margin-top: -42.5px; border-width: 3px;}
-            .btn-info { font-size: 0.8rem; padding: 6px 12px; }
-            .modal-header { padding: 24px; }
-            .modal-body { padding: 24px; }
-        }
     </style>
 </head>
 <body>
     <div id="loadingOverlay">
         <div class="spinner"></div>
-        <strong style="color: var(--app-navy); font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px;">Authenticating Secure Portal...</strong>
+        <strong style="color: var(--app-navy); font-size: 1.2rem; font-weight: 800;">Connecting to Database...</strong>
     </div>
 
     <div class="app-header">
@@ -304,13 +272,7 @@
         <img src="pictures/new.png" alt="Company Logo">
     </div>
 
-    <div id="testModeBanner" style="display:none; position:fixed; top:72px; left:0; width:100%; z-index:1999; background:#f59e0b; color:#1e1300; text-align:center; padding:8px 12px; font-weight:800; font-size:0.85rem; letter-spacing:0.5px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
-        <i class="fas fa-flask"></i> TEST MODE — simulating <span id="testModeDateLabel"></span>. Not live data. Remember to set TEST_MODE_DATE to null before deploying.
-    </div>
-
     <div class="container" id="appContainer" style="display: none;">
-
-        <!-- Banner Phase -->
         <div class="phase-banner" id="phaseBanner">
             <div class="phase-tag" id="phaseTag"><i class="fas fa-spinner fa-spin"></i> Loading Phase...</div>
             <h1 id="phaseTitle">NSSB Canteen Selection</h1>
@@ -331,38 +293,27 @@
             </div>
         </div>
 
-        <!-- Daily Rating Reminder (Phase 1 only, filled by JS) -->
         <div class="daily-card" id="dailyCard" style="display:none;"></div>
 
-        <!-- Vendor Grid (Includes the Final Voting button card in the grid when trials conclude) -->
-        <div class="vendor-grid" id="vendorGrid">
-            <!-- Cards injected via JS -->
-        </div>
+        <div class="vendor-grid" id="vendorGrid"></div>
 
-        <!-- Voting Action Screen (Shown when on the Final Voting Page) -->
         <div class="results-container" id="votingActionContainer" style="text-align: center; border: 2px solid var(--app-teal); background: #f0fdfa; display: none; margin-top: 40px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <button class="btn-info" onclick="window.closeFinalVotingPage()"><i class="fas fa-arrow-left"></i> Back to Vendors</button>
                 <span style="font-weight: 800; color: var(--app-teal);">Final Voting Stage</span>
             </div>
-            <div style="width: 64px; height: 64px; background: #ccfbf1; color: var(--app-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px;">
-                <i class="fas fa-vote-yea"></i>
-            </div>
-            <h2 style="color: var(--app-teal); font-weight: 800; font-size: 2rem; margin-bottom: 16px; letter-spacing: -0.5px;">Cast Your Final Vote</h2>
-            <p style="color: var(--app-text); font-size: 1.05rem; margin-bottom: 30px; font-weight: 500; max-width: 500px; margin-left: auto; margin-right: auto;">Selected Vendor: <strong id="selectedVendorNameDisplay" style="color: var(--app-navy);">None Selected</strong></p>
+            <h2 style="color: var(--app-teal); font-weight: 800; font-size: 2rem; margin-bottom: 16px;">Cast Your Final Vote</h2>
+            <p style="color: var(--app-text); font-size: 1.05rem; margin-bottom: 30px; font-weight: 500;">Selected Vendor: <strong id="selectedVendorNameDisplay" style="color: var(--app-navy);">None Selected</strong></p>
             <textarea id="voteRemarks" class="feedback-input" style="background: white; margin-bottom: 24px; max-width: 650px; margin-left: auto; margin-right: auto; display: block;" placeholder="Reason for your choice (Optional)"></textarea>
             <button class="btn-action btn-vote" id="btnSubmitVote" style="max-width: 350px; margin: 0 auto; background: linear-gradient(135deg, var(--app-teal), #0f766e); font-size: 1.1rem; padding: 18px;"><i class="fas fa-paper-plane"></i> Submit Final Vote</button>
         </div>
 
-        <!-- Live Results -->
         <div class="results-container" id="liveResults">
             <div class="results-header">
                 <h2><i class="fas fa-chart-bar" style="color: var(--app-teal);"></i> Live Leaderboard</h2>
-                <p>Total Votes Cast: <strong style="color: var(--app-teal); font-size: 1.2rem;" id="totalVotesCount">0</strong> / 420 Employees</p>
+                <p>Total Votes Cast: <strong style="color: var(--app-teal); font-size: 1.2rem;" id="totalVotesCount">0</strong> / <span id="totalCompanyStaffCount">0</span> Total Company Employees</p>
             </div>
-            <div id="resultsBars">
-                <!-- Bars injected via JS -->
-            </div>
+            <div id="resultsBars"></div>
         </div>
     </div>
 
@@ -383,10 +334,9 @@
                     <strong style="color: var(--app-navy); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 1.05rem;"><i class="fas fa-award" style="color: var(--app-teal);"></i> Experience</strong>
                     <p id="infoExp" style="color: var(--app-text); font-size: 1rem; line-height: 1.6;"></p>
                 </div>
-                <div style="padding: 20px; background: #fffbeb; border-radius: 20px; border: 1px solid #fde68a; margin-bottom: 28px; position: relative; overflow: hidden;">
-                    <div style="position: absolute; right: -20px; top: -20px; opacity: 0.1; font-size: 100px; color: #d97706; pointer-events: none;"><i class="fas fa-utensils"></i></div>
+                <div style="padding: 20px; background: #fffbeb; border-radius: 20px; border: 1px solid #fde68a; margin-bottom: 28px;">
                     <strong style="color: #d97706; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-utensils"></i> Signature Menu</strong>
-                    <p id="infoMenu" style="color: var(--app-text); font-weight: 700; margin-top: 10px; font-size: 1.05rem; line-height: 1.5;"></p>
+                    <p id="infoMenu" style="color: var(--app-text); font-weight: 700; margin-top: 10px; font-size: 1.05rem;"></p>
                 </div>
                 <div style="padding: 20px; background: #f0fdfa; border-radius: 20px; border: 1px solid #ccfbf1;">
                     <strong style="color: var(--app-teal); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-fire-burner"></i> Cuisine Style</strong>
@@ -413,9 +363,7 @@
                     <i class="fas fa-star" data-val="4"></i>
                     <i class="fas fa-star" data-val="5"></i>
                 </div>
-                
                 <textarea id="feedbackText" class="feedback-input" placeholder="How was the food quality? Portion? Hygiene? Let us know your detailed thoughts here..." style="margin-bottom: 28px;"></textarea>
-                
                 <button class="btn-action btn-vote" id="btnSubmitFeedback" style="background: linear-gradient(135deg, var(--app-teal), #0f766e); font-size: 1.1rem; padding: 18px;">
                     <i class="fas fa-paper-plane"></i> Submit Rating
                 </button>
@@ -426,22 +374,21 @@
     <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, serverTimestamp, getDocs, query, where, documentId } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-            authDomain: "suria-food-ordering-system.firebaseapp.com",
-            projectId: "suria-food-ordering-system",
-            storageBucket: "suria-food-ordering-system.firebasestorage.app",
-            messagingSenderId: "204528329291",
-            appId: "1:204528329291:web:cba270a2968e6d159963ce"
+            apiKey:            "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
+            authDomain:        "test-login2-e4c7f.firebaseapp.com",
+            projectId:         "test-login2-e4c7f",
+            storageBucket:     "test-login2-e4c7f.appspot.com",
+            messagingSenderId: "698181085162",
+            appId:             "1:698181085162:web:3b91954eb1779a05894cd2"
         };
         const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // State Variables
         let currentUserProfile = null;
         let hasVoted = false;
         let selectedVendorForVote = null;
@@ -452,10 +399,8 @@
         let vendorRatings = {};    
         let autoPrompted = false;  
         let viewingFinalVotingPage = false; 
+        let totalCompanyStaff = 0;
 
-        // ---------------------------------------------------------
-        // VENDORS DATA
-        // ---------------------------------------------------------
         const VENDORS = [
             {
                 id: 'al-arbai', name: 'Al Arbai', pic: 'En. Shahul',
@@ -503,11 +448,7 @@
             }
         ];
 
-        // ---------------------------------------------------------
-        // 🧪 TEST MODE
-        // ---------------------------------------------------------
-        const TEST_MODE_DATE = '2026-10-01'; 
-
+        const TEST_MODE_DATE = null; 
         const WORKING_WEEKDAYS = [1, 2, 3, 4, 5]; 
         const HOLIDAYS = [];                      
 
@@ -550,21 +491,44 @@
         const isVotingPhase = VENDORS.every(v => getVendorStatus(v.startDate, v.endDate) === 'ENDED');
         const activeVendor = VENDORS.find(v => getVendorStatus(v.startDate, v.endDate) === 'ONGOING') || null;
 
-        // ---------------------------------------------------------
-        // INITIALIZATION
-        // ---------------------------------------------------------
+        // AUTH & DATABASE SYNC
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 try {
+                    // 1. Fetch user profile from the database 'users' collection
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if(userDoc.exists()){
                         currentUserProfile = { uid: user.uid, ...userDoc.data() };
                     } else {
-                        currentUserProfile = { uid: user.uid, employeeId: 'Staff', name: user.email, department: 'N/A', nationality: 'Malaysian' };
+                        currentUserProfile = { uid: user.uid, employeeId: user.uid, name: user.email, department: 'N/A' };
                     }
 
-                    const voteDoc = await getDoc(doc(db, "votes", currentUserProfile.employeeId));
-                    if (voteDoc.exists()) {
+                    // 2. Fetch total company employee count dynamically from 'users' collection
+                    try {
+                        const usersSnap = await getDocs(collection(db, "users"));
+                        totalCompanyStaff = usersSnap.size || 1;
+                    } catch (e) {
+                        console.error("Error fetching total users count", e);
+                        totalCompanyStaff = 1;
+                    }
+
+                    // 3. Robust Vote Checking (checks both employeeId and auth uid, and queries by field to prevent missing votes)
+                    const empId = currentUserProfile.employeeId;
+                    const authUid = user.uid;
+                    
+                    let voteDoc = await getDoc(doc(db, "votes", empId));
+                    if (!voteDoc.exists() && authUid && authUid !== empId) {
+                        voteDoc = await getDoc(doc(db, "votes", authUid));
+                    }
+                    if (!voteDoc.exists()) {
+                        const qEmp = query(collection(db, "votes"), where("employeeId", "==", empId));
+                        const qSnap = await getDocs(qEmp);
+                        if (!qSnap.empty) {
+                            voteDoc = qSnap.docs[0];
+                        }
+                    }
+
+                    if (voteDoc && voteDoc.exists()) {
                         hasVoted = true;
                         selectedVendorForVote = voteDoc.data().vendorId;
                     }
@@ -576,14 +540,6 @@
                     document.getElementById('loadingOverlay').style.display = 'none';
                     document.getElementById('appContainer').style.display = 'block';
 
-                    if (TEST_MODE_DATE) {
-                        const banner = document.getElementById('testModeBanner');
-                        banner.style.display = 'block';
-                        document.getElementById('testModeDateLabel').textContent =
-                            new Date(TEST_MODE_DATE).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-                        document.getElementById('appContainer').style.marginTop = '40px';
-                    }
-
                     renderApp();
 
                     if (!isVotingPhase && activeVendor && isWorkingDay(TODAY) && !myRatings[TODAY] && !autoPrompted) {
@@ -592,8 +548,8 @@
                     }
 
                 } catch (err) {
-                    console.error("Error loading profile:", err);
-                    alert("System error loading profile.");
+                    console.error("Error loading user profile or database data:", err);
+                    alert("System error loading profile and database connections.");
                 }
             } else {
                 window.location.href = 'login_pg.html';
@@ -603,7 +559,7 @@
         async function fetchMyRatings() {
             myRatings = {};
             const empId = currentUserProfile && currentUserProfile.employeeId;
-            if (!activeVendor || !empId || empId === 'Staff') return;
+            if (!activeVendor || !empId) return;
             try {
                 const snap = await getDocs(query(
                     collection(db, 'vendor_feedback'),
@@ -659,9 +615,7 @@
             }
         }
 
-        // ---------------------------------------------------------
         // RENDER LOGIC
-        // ---------------------------------------------------------
         function renderApp() {
             const pTag = document.getElementById('phaseTag');
             const pTitle = document.getElementById('phaseTitle');
@@ -675,16 +629,12 @@
                 actionContainer.style.display = 'none';
             } else if (hasVoted) {
                 pTag.innerHTML = '<i class="fas fa-check-circle"></i> Voting Completed';
-                pTag.style.background = 'rgba(20, 184, 166, 0.2)';
-                pTag.style.borderColor = 'rgba(20, 184, 166, 0.4)';
                 pTitle.textContent = "Thank You For Voting";
-                pDesc.textContent = "Your vote has been recorded securely. Review the live standing below.";
+                pDesc.textContent = "Your vote has been recorded securely in the database. Review the live standing below.";
                 actionContainer.style.display = 'none';
                 document.getElementById('liveResults').style.display = 'block';
             } else {
                 pTag.innerHTML = '<i class="fas fa-vote-yea"></i> Phase 2: Final Selection';
-                pTag.style.background = 'rgba(20, 184, 166, 0.2)';
-                pTag.style.borderColor = 'rgba(20, 184, 166, 0.4)';
                 pTitle.textContent = "Final Voting is OPEN";
                 pDesc.textContent = "All trials have concluded. Select your preferred vendor from the grid below or click Proceed to Final Voting.";
 
@@ -695,7 +645,6 @@
                 }
             }
 
-            // Setup Grid
             const grid = document.getElementById('vendorGrid');
             grid.innerHTML = '';
 
@@ -737,13 +686,10 @@
                     }
                 }
 
-                // Injecting Vendor Card + Overall Rating Badge Right Below It
                 grid.innerHTML += `
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         <div class="vendor-card ${status === 'LOCKED' && !isVotingPhase ? 'locked' : ''} ${selectedVendorForVote === v.id ? 'voting-selected' : ''}" style="flex-grow: 1;">
-                            <div class="v-banner">
-                                ${statusHtml}
-                            </div>
+                            <div class="v-banner">${statusHtml}</div>
                             <div class="v-avatar-wrapper">
                                 <img src="${v.image}" alt="${v.name}" class="v-avatar" onerror="this.src='pictures/new.png'; this.style.objectFit='contain'; this.style.padding='15px';">
                                 <button class="btn-info" onclick="window.openInfo('${v.id}')" title="More Info"><i class="fas fa-info-circle"></i> Info</button>
@@ -752,26 +698,24 @@
                                 <h3 class="v-title">${v.name}</h3>
                                 <div class="v-details">
                                     <span><i class="fas fa-user-tie"></i> <strong>PIC:</strong> ${v.pic}</span>
-                                    <span><i class="fas fa-calendar-alt"></i> <strong>Trial:</strong> ${v.trialPeriod} <span style="font-weight: 500; color: var(--app-muted); font-size: 0.8rem;">(${v.workingDays})</span></span>
+                                    <span><i class="fas fa-calendar-alt"></i> <strong>Trial:</strong> ${v.trialPeriod}</span>
                                 </div>
                                 <p class="v-desc">${v.desc}</p>
                                 <div style="margin-top: auto;">${actionHtml}</div>
                             </div>
                         </div>
-                        <!-- Overall Rating Badge Appears Right Below Each Card -->
                         <div style="background: white; border: 1px solid var(--app-line); padding: 12px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--app-navy); display: flex; align-items: center; gap: 6px;">
                                 <i class="fas fa-star" style="color: #f59e0b;"></i> Overall Rating
                             </span>
                             <span style="font-size: 0.9rem; font-weight: 800; color: var(--app-teal);">
-                                ${vRating.avg} / 5.0 <span style="color: var(--app-muted); font-weight: 600; font-size: 0.8rem;">(${vRating.count} ${vRating.count === 1 ? 'review' : 'reviews'})</span>
+                                ${vRating.avg} / 5.0 <span style="color: var(--app-muted); font-weight: 600; font-size: 0.8rem;">(${vRating.count} reviews)</span>
                             </span>
                         </div>
                     </div>
                 `;
             });
 
-            // If trials are finished and user hasn't voted yet, render the "Proceed to Final Voting" card right inside the grid (matching your red circle spot)
             if (isVotingPhase && !hasVoted) {
                 grid.innerHTML += `
                     <div style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1); border: 2px dashed var(--app-teal); border-radius: var(--app-radius); padding: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: var(--app-shadow); min-height: 400px;">
@@ -787,7 +731,7 @@
 
             renderDailyCard();
 
-            if (hasVoted && isVotingPhase) {
+            if (hasVoted || isVotingPhase) {
                 renderLiveResults();
             }
         }
@@ -805,10 +749,9 @@
 
             let cls, icon, title, sub, cta = '';
             if (!working) {
-                const nxt = nextWorkingDay(TODAY);
                 cls = 'off'; icon = 'fa-mug-hot';
                 title = 'No rating needed today';
-                sub = `Today is not a working day.${nxt ? ' Next rating: ' + fmtDay(nxt) + '.' : ''}`;
+                sub = `Today is not a working day.`;
             } else if (ratedToday) {
                 cls = 'done'; icon = 'fa-circle-check';
                 title = `Thanks! You've rated today's meal (${myRatings[TODAY].rating}/5)`;
@@ -817,20 +760,16 @@
             } else {
                 cls = 'pending'; icon = 'fa-bell';
                 title = `You haven't rated today's meal yet`;
-                sub = `Tell us how ${activeVendor.name}'s food was today. It takes about 10 seconds.`;
+                sub = `Tell us how ${activeVendor.name}'s food was today.`;
                 cta = `<button class="btn-action btn-feedback attention daily-cta" onclick="window.openFeedback('${activeVendor.id}')"><i class="fas fa-star"></i> Rate Now</button>`;
             }
 
-            const progress = `<strong>${ratedCount}</strong> of <strong>${passed.length}</strong> working day${passed.length === 1 ? '' : 's'} rated so far`
-                + (missed > 0 ? ` · <span style="color:#dc2626;">${missed} missed</span>` : '');
-
+            const progress = `<strong>${ratedCount}</strong> of <strong>${passed.length}</strong> working days rated so far`;
             const dots = days.map(d => {
                 const rated = !!myRatings[d];
                 const isMissed = d < TODAY && !rated;
                 const c = ['day-dot', rated ? 'done' : '', isMissed ? 'missed' : '', d === TODAY ? 'today' : ''].join(' ');
-                const label = rated ? '<i class="fas fa-check"></i>' : isMissed ? '<i class="fas fa-xmark"></i>' : parseInt(d.slice(8), 10);
-                const tip = fmtDay(d) + (rated ? ' - rated' : isMissed ? ' - missed' : d === TODAY ? ' - today' : '');
-                return `<div class="${c}" title="${tip}">${label}</div>`;
+                return `<div class="${c}">${rated ? '<i class="fas fa-check"></i>' : isMissed ? '<i class="fas fa-xmark"></i>' : parseInt(d.slice(8), 10)}</div>`;
             }).join('');
 
             el.className = 'daily-card ' + cls;
@@ -841,26 +780,28 @@
                     <div class="daily-sub">${sub}</div>
                     <div class="daily-sub" style="margin-top:10px;">${activeVendor.name} trial: ${progress}</div>
                     <div class="day-dots">${dots}</div>
-                    <div class="day-legend"><span><i class="done"></i> Rated</span><span><i class="missed"></i> Missed</span><span><i></i> Upcoming</span></div>
                 </div>
                 ${cta}`;
         }
 
         function renderLiveResults() {
-            const total = Object.values(allVotes).reduce((a,b) => a+b, 0);
-            document.getElementById('totalVotesCount').textContent = total;
+            const totalVotes = Object.values(allVotes).reduce((a,b) => a+b, 0);
+            
+            document.getElementById('totalVotesCount').textContent = totalVotes;
+            document.getElementById('totalCompanyStaffCount').textContent = totalCompanyStaff;
+
             const container = document.getElementById('resultsBars');
             container.innerHTML = '';
 
             VENDORS.forEach(v => {
                 const count = allVotes[v.id] || 0;
-                const pct = total > 0 ? Math.round((count/total)*100) : 0;
+                const pct = totalCompanyStaff > 0 ? Math.round((count / totalCompanyStaff) * 100) : 0;
                 
                 container.innerHTML += `
                     <div class="result-bar-wrapper">
                         <div class="result-info">
                             <span>${v.name}</span>
-                            <span style="color:var(--app-teal);">${count} Votes (${pct}%)</span>
+                            <span style="color:var(--app-teal);">${count} Votes (${pct}% of company staff)</span>
                         </div>
                         <div class="result-track">
                             <div class="result-fill" style="width: ${pct}%;"></div>
@@ -868,11 +809,10 @@
                     </div>
                 `;
             });
+            document.getElementById('liveResults').style.display = 'block';
         }
 
-        // ---------------------------------------------------------
         // GLOBALS FOR UI
-        // ---------------------------------------------------------
         window.selectVendor = function(id) {
             selectedVendorForVote = id;
             const v = VENDORS.find(x => x.id === id);
@@ -941,10 +881,7 @@
             stars.forEach(s => s.classList.toggle('active', s.dataset.val <= currentRating));
         }
 
-        // ---------------------------------------------------------
         // SUBMISSIONS
-        // ---------------------------------------------------------
-        
         document.getElementById('btnSubmitFeedback').addEventListener('click', async () => {
             if (currentRating === 0) return alert("Please select a star rating.");
             const btn = document.getElementById('btnSubmitFeedback');
@@ -952,7 +889,7 @@
 
             try {
                 const empId = currentUserProfile.employeeId;
-                if (!empId || empId === 'Staff') throw new Error("Missing Employee ID in profile.");
+                if (!empId) throw new Error("Missing Employee ID in profile.");
                 const v = activeFeedbackVendor;
                 const feedback = document.getElementById('feedbackText').value.trim();
 
@@ -964,8 +901,7 @@
                     date: TODAY,
                     rating: currentRating,
                     feedback: feedback,
-                    timestamp: serverTimestamp(),
-                    ...(TEST_MODE_DATE ? { isTest: true } : {})
+                    timestamp: serverTimestamp()
                 });
 
                 const wasUpdate = !!myRatings[TODAY];
@@ -975,7 +911,7 @@
 
                 window.closeModal('feedbackModal');
                 renderApp();
-                alert(wasUpdate ? "Today's rating updated." : "Thank you! Today's rating has been recorded.");
+                alert(wasUpdate ? "Today's rating updated successfully." : "Thank you! Today's rating has been recorded.");
             } catch (e) {
                 alert("Failed to submit rating: " + e.message);
                 console.error(e);
@@ -994,13 +930,12 @@
 
             try {
                 const empId = currentUserProfile.employeeId;
-                if (!empId || empId === 'Staff') throw new Error("Missing Employee ID in profile.");
+                if (!empId) throw new Error("Missing Employee ID in profile.");
 
                 await setDoc(doc(db, 'votes', empId), {
                     employeeId: empId,
                     name: currentUserProfile.name || 'Unknown',
                     department: currentUserProfile.department || 'N/A',
-                    nationality: currentUserProfile.nationality || 'Unknown',
                     vendorId: selectedVendorForVote,
                     remarks: document.getElementById('voteRemarks').value.trim(),
                     timestamp: new Date().toISOString()
@@ -1017,7 +952,6 @@
                 btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Final Vote';
             }
         });
-
     </script>
 </body>
 </html>

@@ -457,15 +457,15 @@
 
     <!-- Bottom Navigation -->
     <div class="nav-container">
-        <a href="canteen_home.html" class="nav-item">
+        <a href="canteen.html" class="nav-item">
             <i class="fas fa-home"></i>
             <span>Home</span>
         </a>
-        <a href="canteen_view_order.html" class="nav-item">
+        <a href="canteen_order_view.html" class="nav-item">
             <i class="fas fa-utensils"></i>
             <span>View Orders</span>
         </a>
-        <a href="canteen_claimed_pg.html" class="nav-item">
+        <a href="canteen_order_claimed.html" class="nav-item">
             <i class="fas fa-clipboard-check"></i>
             <span>Claimed Orders</span>
         </a>
@@ -749,18 +749,16 @@ function closeDuplicateModal() {
     modal.style.display = 'none';
     modal.classList.remove('success-modal');
     isProcessingScan = false;
-    if (html5QrcodeScanner && html5QrcodeScanner.getState && html5QrcodeScanner.getState() === 2) {
-        try { html5QrcodeScanner.resume(); } catch(e) {}
-    }
+    // Was checking getState() === 2 (SCANNING) before resuming — but the camera
+    // is actually PAUSED (state 3) at this point, so resume() never fired.
+    try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e) {}
 }
 
 function closePaymentConfirmModal() {
     document.getElementById('paymentConfirmModal').style.display = 'none';
     window.pendingScanData = null;
     isProcessingScan = false;
-    if (html5QrcodeScanner && html5QrcodeScanner.getState && html5QrcodeScanner.getState() === 2) {
-        try { html5QrcodeScanner.resume(); } catch(e) {}
-    }
+    try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e) {}
 }
 
 // QR Scanner Setup and Camera Logic
@@ -1177,13 +1175,13 @@ window.submitScanPayment = async function(selectedPaymentMethod) {
         }
     } finally {
         window.pendingScanData = null;
-        // Resume scanner if duplicate modal wasn't shown
-        if (document.getElementById('duplicateModal').style.display !== 'flex') {
-            setTimeout(() => { 
-                isProcessingScan = false;
-                try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e) {}
-            }, 500);
-        }
+        // Always resume — the previous check (skip resuming while the
+        // shared modal was visible) also blocked resuming after a *successful*
+        // claim, since the success message reuses the same modal element.
+        setTimeout(() => { 
+            isProcessingScan = false;
+            try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e) {}
+        }, 500);
     }
 };
 
