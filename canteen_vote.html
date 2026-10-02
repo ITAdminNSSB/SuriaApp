@@ -275,7 +275,7 @@
     <div class="container" id="appContainer" style="display: none;">
         <div class="phase-banner" id="phaseBanner">
             <div class="phase-tag" id="phaseTag"><i class="fas fa-spinner fa-spin"></i> Loading Phase...</div>
-            <h1 id="phaseTitle">NSSB Canteen Selection</h1>
+            <h1 id="phaseTitle">SCMSB Canteen Selection</h1>
             <p id="phaseDesc">Evaluate vendors during their trial month. Final voting will open once all trials conclude.</p>
             
             <div class="criteria-box">
@@ -378,12 +378,12 @@
         import { getFirestore, doc, getDoc, setDoc, collection, serverTimestamp, getDocs, query, where, documentId } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey:            "AIzaSyCno2NNkzt3gLdC4CfZ4TlhwESQJgI_IXk",
-            authDomain:        "test-login2-e4c7f.firebaseapp.com",
-            projectId:         "test-login2-e4c7f",
-            storageBucket:     "test-login2-e4c7f.appspot.com",
-            messagingSenderId: "698181085162",
-            appId:             "1:698181085162:web:3b91954eb1779a05894cd2"
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
         };
         const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -405,10 +405,10 @@
             {
                 id: 'al-arbai', name: 'Al Arbai', pic: 'En. Shahul',
                 image: 'pictures/alarbai.jpeg',
-                desc: 'Runner-up in NSSB\'s canteen selection about 2 years ago. They are the only mamak-style operator among the candidates.',
+                desc: 'Runner-up in SCMSB\'s canteen selection about 2 years ago. They are the only mamak-style operator among the candidates.',
                 highlight: 'The sole mamak-style culinary operator in this lineup.',
                 menu: 'Nasi Kandar, Roti Canai, Mee Goreng Mamak, Ayam Goreng Berempah, Teh Tarik',
-                exp: "Secured runner-up position in NSSB's canteen selection about 2 years ago.",
+                exp: "Secured runner-up position in SCMSB's canteen selection about 2 years ago.",
                 style: 'Authentic mamak-style dishes and beverages',
                 trialPeriod: '1 Oct - 30 Oct 2026', startDate: '2026-10-01T00:00:00', endDate: '2026-10-30T23:59:59',
                 workingDays: '23 Working Days'
@@ -427,10 +427,10 @@
             {
                 id: 'sireh-legasi', name: 'Sireh Legasi', pic: 'Kak Nabilah',
                 image: 'pictures/sirehlegasi.jpeg',
-                desc: 'Previously operated NSSB canteen through Sujitarah; now continuing under Sireh Legasi. They deeply understand our exact daily food preferences.',
-                highlight: 'Deeply understands the exact daily food preferences of our NSSB workforce.',
+                desc: 'Previously operated SCMSB canteen through Sujitarah; now continuing under Sireh Legasi. They deeply understand our exact daily food preferences.',
+                highlight: 'Deeply understands the exact daily food preferences of our SCMSB workforce.',
                 menu: 'Nasi Campur, Ikan Bakar, Asam Pedas, Sambal Belacan & Ulam, Kuih Muih Tradisional',
-                exp: 'Successfully managed the NSSB canteen operations in past terms.',
+                exp: 'Successfully managed the SCMSB canteen operations in past terms.',
                 style: 'Traditional Malay & comforting local homestyle food',
                 trialPeriod: '1 Dec - 31 Dec 2026', startDate: '2026-12-01T00:00:00', endDate: '2026-12-31T23:59:59',
                 workingDays: '23 Working Days'
@@ -624,7 +624,7 @@
 
             if (!isVotingPhase) {
                 pTag.innerHTML = '<i class="fas fa-clock"></i> Phase 1: Trial & Evaluation';
-                pTitle.textContent = "NSSB Canteen Selection";
+                pTitle.textContent = "SCMSB Canteen Selection";
                 pDesc.textContent = "Evaluate vendors during their trial month. Overall ratings update live from all staff reviews.";
                 actionContainer.style.display = 'none';
             } else if (hasVoted) {
