@@ -612,11 +612,13 @@ async function getEmployeeProfile(employeeId) {
             }
         }
 
-        const snap = await db.collection('users').where('employeeId', '==', empKey).limit(1).get();
-        if (!snap.empty) {
-            const profile = extractProfileData(snap.docs[0].data());
-            profileCache.set(empKey, profile);
-            return profile;
+        for (const idVariant of idVariants(empKey)) {
+            const snap = await db.collection('users').where('employeeId', '==', idVariant).limit(1).get();
+            if (!snap.empty) {
+                const profile = extractProfileData(snap.docs[0].data());
+                profileCache.set(empKey, profile);
+                return profile;
+            }
         }
 
         const num = Number(empKey);
@@ -642,6 +644,12 @@ async function getEmployeeProfile(employeeId) {
     return fallback;
 }
 
+// Returns the clean ID plus common messy variants (leading/trailing space)
+function idVariants(cleanId) {
+    const id = String(cleanId || '').trim();
+    return [id, ' ' + id, id + ' '];
+}
+
 async function findOrderForScannedQr(employeeData) {
     await waitForAuthenticatedUser();
 
@@ -664,19 +672,21 @@ async function findOrderForScannedQr(employeeData) {
         return { id: directSnap.id, ref: directRef, data };
     }
 
-    const snap = await db.collection('canteen_orders')
-        .where('employeeId', '==', empId)
-        .get();
-
     let match = null;
-    snap.forEach(docSnap => {
-        if (match) return;
-        const data = docSnap.data();
-        const storedServiceDate = getOrderServiceDate(data);
-        if (storedServiceDate === qrServiceDate) {
-            match = { id: docSnap.id, ref: docSnap.ref, data };
-        }
-    });
+    for (const idVariant of idVariants(empId)) {
+        if (match) break;
+        const snap = await db.collection('canteen_orders')
+            .where('employeeId', '==', idVariant)
+            .get();
+        snap.forEach(docSnap => {
+            if (match) return;
+            const data = docSnap.data();
+            const storedServiceDate = getOrderServiceDate(data);
+            if (storedServiceDate === qrServiceDate) {
+                match = { id: docSnap.id, ref: docSnap.ref, data };
+            }
+        });
+    }
     return match;
 }
 
@@ -684,12 +694,15 @@ async function checkDuplicateFast(empId) {
     try {
         await waitForAuthenticatedUser();
         const todayStr = getStrictDateString();
-        const snap = await db.collection('canteen_claimed')
-            .where('employeeId', '==', empId)
-            .where('scannedDate', '==', todayStr)
-            .limit(1)
-            .get();
-        return !snap.empty;
+        for (const idVariant of idVariants(empId)) {
+            const snap = await db.collection('canteen_claimed')
+                .where('employeeId', '==', idVariant)
+                .where('scannedDate', '==', todayStr)
+                .limit(1)
+                .get();
+            if (!snap.empty) return true;
+        }
+        return false;
     } catch (e) {
         return false;
     }
@@ -928,7 +941,12 @@ async function onScanSuccess(decodedText, decodedResult) {
 
         let employeeData;
         try {
-            employeeData = JSON.parse(String(decodedText).trim());
+            const cleanedText = String(decodedText)
+                .replace(/[\u201C\u201D\u201E\u201F\u2033]/g, '"')
+                .replace(/[\u2018\u2019\u2032]/g, "'")
+                .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ')
+                .trim();
+            employeeData = JSON.parse(cleanedText);
         } catch (e) {
             updateResultDisplay('Invalid QR Code format.', false);
             throw new Error('Invalid JSON');
