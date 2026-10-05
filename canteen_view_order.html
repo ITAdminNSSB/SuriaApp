@@ -283,7 +283,7 @@ body {font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
         const db = getFirestore(app);
         
         // Updated to use the canteen_orders collection
-        const ordersRef = collection(db, "canteen_orders");
+        const ordersRef = collection(db, "orders");
 
         function getLocationBadge(location) {
             if (!location || location.trim() === '') {
