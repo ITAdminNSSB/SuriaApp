@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee QR Scanner - Canteen</title>
+    <!-- Auth Guard -->
+    <script type="module" src="auth-guard.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+          --primary-color: #0c1f5f !important;
+          --primary-hover: #142f83;
+          --secondary-color: #14b8a6 !important;
+          --background-color: #f4f7fb !important;
+          --white: #ffffff;
+          --text-color: #172033 !important;
+          --text-secondary: #667085;
+          --border-color: #e4eaf2;
+          --border-radius: 16px !important;
+          --box-shadow: 0 8px 24px rgba(15, 31, 71, .08) !important;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; width: 100%; background: var(--background-color); }
+        body {
+          min-height: 100vh;
+          margin: 0 !important;
+          padding-bottom: 112px !important;
+          background: linear-gradient(180deg, #edf3ff 0, var(--background-color) 260px) fixed !important;
+          color: var(--text-color) !important;
+          font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+          -webkit-font-smoothing: antialiased;
+          overflow-x: hidden;
+        }
+        
+        .header {
+          position: fixed !important;
+          inset: 0 0 auto 0 !important;
+          width: 100% !important;
+          height: 68px !important;
+          min-height: 68px !important;
+          padding: 10px 24px !important;
+          border: 0 !important;
+          border-bottom: 1px solid rgba(228, 234, 242, .9) !important;
+          background: rgba(255, 255, 255, .94) !important;
+          color: var(--text-color) !important;
+          box-shadow: 0 4px 18px rgba(15, 31, 71, .06) !important;
+          backdrop-filter: blur(14px);
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          z-index: 1100 !important;
+        }
+        .header img { max-height: 46px !important; width: auto !important; object-fit: contain !important; }
+        .back-btn { 
+            position: absolute; left: 24px; color: var(--primary-color); 
+            font-size: 1.25rem; text-decoration: none; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9;
+        }
+        .back-btn:hover { background: #e2e8f0; transform: scale(1.05); }
+        
+        .container {
+          width: min(calc(100% - 32px), 940px) !important;
+          margin: 0 auto !important;
+          padding: 92px 0 28px !important;
+        }
+        
+        h1 {
+          font-size: 2rem;
+          font-weight: 750;
+          text-align: center;
+          margin-bottom: 1.5rem;
+          color: var(--primary-color);
+          letter-spacing: -0.025em;
+        }
+        h2 { font-size: 1.3rem; font-weight: 600; color: var(--text-color); margin-bottom: 10px; }
+        
+        .mode-toggle {
+          display: flex;
+          justify-content: center;
+          background: #e9eff8;
+          border-radius: 30px;
+          padding: 5px;
+          margin-bottom: 20px;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .mode-toggle input[type="radio"] { display: none; }
+        .mode-toggle label {
+          flex: 1;
+          text-align: center;
+          padding: 12px 20px;
+          cursor: pointer;
+          border-radius: 25px;
+          font-weight: 600;
+          color: #64748b;
+          transition: all 0.25s ease;
+          font-size: 0.9rem;
+        }
+        .mode-toggle input[type="radio"]:checked + label {
+          background: var(--primary-color);
+          color: white;
+          box-shadow: 0 4px 10px rgba(12, 31, 95, 0.2);
+        }
+        
+        #scannerStatus {
+          background: white;
+          border: 2px dashed var(--primary-color);
+          border-radius: var(--border-radius);
+          padding: 35px 20px;
+          text-align: center;
+          margin-bottom: 20px;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          box-shadow: var(--box-shadow);
+        }
+        #scannerStatus i { font-size: 55px; color: var(--primary-color); margin-bottom: 12px; }
+        #scannerStatus h2 { color: var(--primary-color); margin-bottom: 8px; }
+        #scannerStatus p { color: #667085; font-size: 1rem; font-weight: bold; }
+        
+        #reader {
+          width: 100%;
+          display: none;
+          margin-bottom: 20px;
+          border-radius: var(--border-radius);
+          overflow: hidden;
+          border: 2px dashed var(--primary-color);
+          background: white;
+        }
+        
+        .search-wrapper {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 18px;
+          background: #ffffff;
+          padding: 8px;
+          border-radius: 12px;
+          border: 1px solid var(--border-color);
+          box-shadow: 0 2px 6px rgba(15, 31, 71, 0.04);
+        }
+        .search-wrapper input {
+          flex: 1;
+          border: 1px solid #d7dfeb !important;
+          padding: 0 14px;
+          font-size: 0.95rem;
+          border-radius: 8px !important;
+          min-height: 44px;
+          color: var(--text-color);
+        }
+        .search-wrapper input:focus {
+          outline: none;
+          border-color: var(--secondary-color) !important;
+          box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+        }
+        .search-wrapper button {
+          background-color: var(--primary-color);
+          color: #ffffff;
+          padding: 0 20px;
+          border: 0;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 700;
+          transition: background 0.2s ease;
+        }
+        .search-wrapper button:hover { background-color: var(--primary-hover); }
+        
+        #result {
+          padding: 12px;
+          border-radius: 10px;
+          text-align: center;
+          font-weight: 600;
+          margin-bottom: 20px;
+          transition: opacity 0.4s ease;
+        }
+        .fade-out { opacity: 0; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .table-container {
+          width: 100%;
+          border: 1px solid var(--border-color);
+          border-radius: var(--border-radius);
+          background: #fff;
+          box-shadow: var(--box-shadow);
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .scan-table {
+          width: 100%;
+          min-width: 900px;
+          border-collapse: separate;
+          border-spacing: 0;
+        }
+        .scan-table th {
+          background-color: var(--primary-color);
+          color: white;
+          padding: 12px 10px;
+          text-align: left;
+          font-size: 0.88rem;
+          font-weight: 650;
+          white-space: nowrap;
+        }
+        .scan-table td {
+          padding: 12px 10px;
+          border-bottom: 1px solid #edf0f5;
+          font-size: 0.88rem;
+          color: var(--text-color);
+        }
+        .scan-table tbody tr:hover { background-color: #f8fafc; }
+        .claimed-success-row {
+          background-color: #90EE90 !important;
+          color: #0b3d0b;
+        }
+        .claimed-success-row td {
+          border-bottom: 1px solid #7ecc7e;
+        }
+
+        .payment-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .payment-badge.debt { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+        .payment-badge.cash { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .payment-badge.qr { background: #fef08a; color: #854d0e; border-color: #fde047; }
+        .payment-badge.card { background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+        
+        .modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+          z-index: 2000;
+          justify-content: center;
+          align-items: center;
+          backdrop-filter: blur(4px);
+        }
+        .modal-content {
+          position: relative;
+          background-color: #fff;
+          padding: 26px 20px;
+          border: 1px solid #d7dfeb;
+          width: 88%;
+          max-width: 480px;
+          border-radius: var(--border-radius);
+          text-align: center;
+          box-shadow: 0 14px 34px rgba(12, 31, 95, 0.2);
+          animation: modalSlideIn 0.25s ease-out;
+        }
+        @keyframes modalSlideIn { from { transform: translateY(-16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content h2 { margin-bottom: 8px; font-size: 1.35rem; color: var(--primary-color); }
+        .modal-content p { color: #475467; font-size: 0.95rem; white-space: pre-line; line-height: 1.4;}
+        .close-modal { position: absolute; right: 14px; top: 10px; font-size: 24px; cursor: pointer; color: #98a2b3; }
+        .modal-button {
+          background-color: var(--primary-color);
+          color: white;
+          padding: 10px 24px;
+          border: 0;
+          border-radius: 8px;
+          cursor: pointer;
+          margin-top: 16px;
+          font-weight: 700;
+          transition: background 0.2s ease;
+        }
+        .modal-button:hover { background-color: var(--primary-hover); }
+        .success-modal .modal-content { border-left: 6px solid #16a34a; background-color: #f0fdf4; }
+        .success-modal h2 { color: #15803d; }
+        
+        .payment-btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .payment-action-btn {
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .payment-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .btn-debt { background: #e0f2fe; color: #0369a1; border: 2px solid #bae6fd; }
+        .btn-cash { background: #dcfce7; color: #166534; border: 2px solid #bbf7d0; }
+        .btn-qr { background: #fef08a; color: #854d0e; border: 2px solid #fde047; }
+        .btn-card { background: #e0e7ff; color: #3730a3; border: 2px solid #c7d2fe; }
+
+        .nav-container {
+          position: fixed !important;
+          left: 50% !important;
+          right: auto !important;
+          bottom: max(12px, env(safe-area-inset-bottom)) !important;
+          transform: translateX(-50%) !important;
+          width: calc(100% - 24px) !important;
+          max-width: 580px !important;
+          height: 68px !important;
+          min-height: 68px !important;
+          margin: 0 !important;
+          box-sizing: border-box !important;
+          padding: 7px !important;
+          display: grid !important;
+          grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+          gap: 4px !important;
+          background: rgba(12,31,95,.97) !important;
+          border: 1px solid rgba(255,255,255,.14) !important;
+          border-radius: 21px !important;
+          box-shadow: 0 14px 34px rgba(12,31,95,.28) !important;
+          backdrop-filter: blur(14px);
+          z-index: 1200 !important;
+        }
+        .nav-item {
+          width: 100% !important;
+          height: 54px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 4px !important;
+          border-radius: 15px !important;
+          color: #cbd7f2 !important;
+          text-decoration: none !important;
+        }
+        .nav-item i { font-size: 18px !important; line-height: 18px !important; }
+        .nav-item span { display: block !important; font-size: 9px !important; line-height: 11px !important; white-space: nowrap !important; }
+        .nav-item:hover { background: rgba(255,255,255,.08) !important; color: #fff !important; }
+        .nav-item.active { background: var(--secondary-color) !important; color: #fff !important; box-shadow: 0 5px 12px rgba(20,184,166,.28) !important; }
+        
+        @media (max-width: 699px) {
+          .header { height: 62px !important; min-height: 62px !important; }
+          .header img { max-height: 38px !important; }
+          .container { padding-top: 76px !important; }
+          .nav-container { width: calc(100% - 16px) !important; height: 64px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <img src="pictures/new.png" alt="App Logo">
+    </div>
+
+    <div class="container">
+        <h1>Employee QR Scanner</h1>
+        
+        <div class="mode-toggle">
+            <input type="radio" id="modeScanner" name="scanMode" value="scanner" checked>
+            <label for="modeScanner"><i class="fas fa-barcode"></i> SCANNER MODE</label>
+            
+            <input type="radio" id="modeCamera" name="scanMode" value="camera">
+            <label for="modeCamera"><i class="fas fa-camera"></i> CAMERA MODE</label>
+        </div>
+
+        <div id="scannerStatus">
+            <i class="fas fa-barcode"></i>
+            <h2>Scanner Ready</h2>
+            <p>Tap here once to enable sound, then scan an employee's phone.</p>
+        </div>
+
+        <div id="reader"></div>
+        <div id="result"></div>
+        
+        <div class="search-wrapper">
+            <input type="text" id="employeeSearchInput" placeholder="Enter Employee ID to verify...">
+            <button type="button" id="btnSearchEmployee"><i class="fas fa-search"></i> Check</button>
+        </div>
+
+        <div id="scanHistory">
+            <h2>Today's Scan History</h2>
+            <div class="table-container">
+                <table class="scan-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">NO.</th>
+                            <th>Employee Name</th>
+                            <th>Employee ID</th>
+                            <th>Department</th>
+                            <th>Scanned Date</th>
+                            <th>Timestamp</th>
+                            <th>Order Time</th>
+                            <th>Meal Set</th>
+                            <th>Payment Method</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scanHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duplicate Modal -->
+    <div id="duplicateModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDuplicateModal()">&times;</span>
+            <h2 id="modalTitle">Duplicate Scan</h2>
+            <p id="modalMessage">This employee has already been scanned today.</p>
+            <button class="modal-button" onclick="closeDuplicateModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Payment Confirmation Modal for Canteen Owner -->
+    <div id="paymentConfirmModal" class="modal">
+        <div class="modal-content" style="max-width: 520px; padding: 30px 24px;">
+            <span class="close-modal" onclick="closePaymentConfirmModal()">&times;</span>
+            <h2 style="color: var(--primary-color); margin-bottom: 20px; font-size: 1.5rem;">Confirm Received Payment</h2>
+            
+            <div id="confirmScanInfo" style="text-align: left; background: #f8fafc; padding: 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.95rem; border: 1px solid #e2e8f0; line-height: 1.6;">
+                <!-- Info inserted via JS -->
+            </div>
+            
+            <h3 style="font-size: 1.05rem; margin-bottom: 12px; color: var(--text-color); text-align: left;">Sila sahkan kaedah pembayaran yang diterima:</h3>
+            
+            <div class="payment-btn-grid">
+                <button class="payment-action-btn btn-debt" onclick="submitScanPayment('Debt')">
+                    <i class="fas fa-file-invoice-dollar"></i> Potong Gaji (Debt)
+                </button>
+                <button class="payment-action-btn btn-cash" onclick="submitScanPayment('Cash Payment')">
+                    <i class="fas fa-money-bill-wave"></i> Bayar Cash
+                </button>
+                <button class="payment-action-btn btn-qr" onclick="submitScanPayment('QR Payment')">
+                    <i class="fas fa-qrcode"></i> QR Pay
+                </button>
+                <button class="payment-action-btn btn-card" onclick="submitScanPayment('Card Payment')">
+                    <i class="fas fa-credit-card"></i> Card
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar (Strictly 5 Items) -->
+    <div class="nav-container">
+        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
+        <a href="orderingfoodscanner.html" class="nav-item active"><i class="fas fa-qrcode"></i><span>Scan</span></a>
+        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
+        <a href="canteencollector.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Collection</span></a>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
+            authDomain: "suria-food-ordering-system.firebaseapp.com",
+            projectId: "suria-food-ordering-system",
+            storageBucket: "suria-food-ordering-system.firebasestorage.app",
+            messagingSenderId: "204528329291",
+            appId: "1:204528329291:web:cba270a2968e6d159963ce"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const MALAYSIA_TIME_ZONE = 'Asia/Kuala_Lumpur';
+
+        let authenticatedUserPromise = null;
+        const profileCache = new Map();
+
+        window.pendingScanData = null;
+
+        function waitForAuthenticatedUser() {
+            if (auth.currentUser) return Promise.resolve(auth.currentUser);
+            if (authenticatedUserPromise) return authenticatedUserPromise;
+
+            authenticatedUserPromise = new Promise((resolve, reject) => {
+                const timeoutId = setTimeout(() => {
+                    unsubscribe();
+                    authenticatedUserPromise = null;
+                    reject(new Error('Authentication timeout.'));
+                }, 5000);
+
+                const unsubscribe = auth.onAuthStateChanged((user) => {
+                    clearTimeout(timeoutId);
+                    unsubscribe();
+                    authenticatedUserPromise = null;
+                    if (user) resolve(user);
+                    else reject(new Error('Unauthenticated user.'));
+                }, (error) => {
+                    clearTimeout(timeoutId);
+                    unsubscribe();
+                    authenticatedUserPromise = null;
+                    reject(error);
+                });
+            });
+
+            return authenticatedUserPromise;
+        }
+
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const statusText = document.querySelector('#scannerStatus p');
+            if (statusText) statusText.textContent = "Sound Enabled. Ready to scan.";
+        }
+
+        document.getElementById('scannerStatus').addEventListener('click', initAudio);
+        document.body.addEventListener('touchstart', initAudio, { once: true });
+
+        function playTone(type) {
+            try {
+                if (!audioCtx) initAudio();
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + 0.12);
+                } else {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch(e) {}
+        }
+
+        function extractProfileData(d) {
+            if (!d) return { name: 'N/A', department: 'N/A' };
+            const name = d.name || d.fullName || d.userName || d.employeeName || d.username || d.nama || d.Name || 'N/A';
+            const department = d.department || d.dept || d.Department || d.bahagian || 'N/A';
+            return { name, department };
+        }
+
+        async function getEmployeeProfile(employeeId) {
+            if (!employeeId) return { name: 'N/A', department: 'N/A' };
+            const empKey = String(employeeId).trim();
+            if (profileCache.has(empKey)) return profileCache.get(empKey);
+
+            try {
+                const docDirect = await db.collection('users').doc(empKey).get();
+                if (docDirect.exists) {
+                    const profile = extractProfileData(docDirect.data());
+                    if (profile.name !== 'N/A' || profile.department !== 'N/A') {
+                        profileCache.set(empKey, profile);
+                        return profile;
+                    }
+                }
+
+                const snap = await db.collection('users').where('employeeId', '==', empKey).limit(1).get();
+                if (!snap.empty) {
+                    const profile = extractProfileData(snap.docs[0].data());
+                    profileCache.set(empKey, profile);
+                    return profile;
+                }
+
+                const num = Number(empKey);
+                if (!isNaN(num)) {
+                    const numSnap = await db.collection('users').where('employeeId', '==', num).limit(1).get();
+                    if (!numSnap.empty) {
+                        const profile = extractProfileData(numSnap.docs[0].data());
+                        profileCache.set(empKey, profile);
+                        return profile;
+                    }
+                }
+
+                const idSnap = await db.collection('users').where('id', '==', empKey).limit(1).get();
+                if (!idSnap.empty) {
+                    const profile = extractProfileData(idSnap.docs[0].data());
+                    profileCache.set(empKey, profile);
+                    return profile;
+                }
+            } catch (err) {}
+
+            const fallback = { name: 'N/A', department: 'N/A' };
+            profileCache.set(empKey, fallback);
+            return fallback;
+        }
+
+        let scanBuffer = "";
+        let lastKeyTime = Date.now();
+        let isProcessingScan = false;
+        const SCANNER_GAP_MS = 60;
+
+        document.addEventListener("keydown", function(e) {
+            if (document.getElementById('modeCamera').checked) return;
+            if (document.activeElement && document.activeElement.id === 'employeeSearchInput') return;
+
+            let now = Date.now();
+            if (now - lastKeyTime > SCANNER_GAP_MS) {
+                scanBuffer = "";
+            }
+            lastKeyTime = now;
+
+            if (e.key === "Enter") {
+                if (scanBuffer.length > 0) {
+                    e.preventDefault();
+                    const payload = scanBuffer.trim();
+                    scanBuffer = "";
+                    onScanSuccess(payload);
+                }
+            } else if (e.key.length === 1) {
+                scanBuffer += e.key;
+            }
+        });
+
+        let html5QrcodeScanner = null;
+        function startCameraScanner() {
+            if (!html5QrcodeScanner) html5QrcodeScanner = new Html5Qrcode("reader");
+            
+            const config = {
+                fps: 20,
+                qrbox: (viewfinderWidth, viewfinderHeight) => {
+                    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                    return { width: Math.floor(minEdge * 0.75), height: Math.floor(minEdge * 0.75) };
+                },
+                aspectRatio: 1.0,
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+            };
+
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                async (text) => {
+                    if (isProcessingScan) return;
+                    await onScanSuccess(text);
+                },
+                () => {}
+            ).catch(err => updateResultDisplay("Failed to start camera.", false));
+        }
+
+        function stopCameraScanner() {
+            if (html5QrcodeScanner) {
+                try { html5QrcodeScanner.stop().catch(() => {}); } catch(e) {}
+            }
+        }
+
+        document.getElementById('modeScanner').addEventListener('change', function() {
+            if (this.checked) {
+                stopCameraScanner();
+                document.getElementById('reader').style.display = 'none';
+                document.getElementById('scannerStatus').style.display = 'block';
+            }
+        });
+
+        document.getElementById('modeCamera').addEventListener('change', function() {
+            if (this.checked) {
+                initAudio();
+                document.getElementById('scannerStatus').style.display = 'none';
+                document.getElementById('reader').style.display = 'block';
+                startCameraScanner();
+            }
+        });
+
+        function getMalaysiaDateParts(d = new Date()) {
+            const formatter = new Intl.DateTimeFormat('en-GB', {
+                timeZone: MALAYSIA_TIME_ZONE,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const parts = formatter.formatToParts(d);
+            const values = {};
+            parts.forEach(part => {
+                if (part.type !== 'literal') values[part.type] = part.value;
+            });
+            return values;
+        }
+
+        function getStrictDateString(d = new Date()) {
+            const parts = getMalaysiaDateParts(d);
+            return `${parts.year}-${parts.month}-${parts.day}`;
+        }
+
+        function getMalaysiaTimeString(d = new Date()) {
+            return d.toLocaleTimeString('en-MY', {
+                timeZone: MALAYSIA_TIME_ZONE,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+        }
+
+        function parseTimestamp(orderTimestamp) {
+            try {
+                if (orderTimestamp && typeof orderTimestamp === 'object' && typeof orderTimestamp.toDate === 'function') {
+                    return orderTimestamp.toDate();
+                }
+                if (orderTimestamp && typeof orderTimestamp === 'object' && 'seconds' in orderTimestamp) {
+                    return new Date(orderTimestamp.seconds * 1000);
+                }
+                if (orderTimestamp) {
+                    const parsed = new Date(orderTimestamp);
+                    return isNaN(parsed) ? null : parsed;
+                }
+                return null;
+            } catch (e) { return null; }
+        }
+
+        function getOrderServiceDate(orderData) {
+            if (orderData && typeof orderData.serviceDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(orderData.serviceDate)) {
+                return orderData.serviceDate;
+            }
+            if (orderData && typeof orderData.orderDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(orderData.orderDate)) {
+                return orderData.orderDate;
+            }
+            const orderDateObj = parseTimestamp(orderData ? orderData.orderDate : null);
+            return orderDateObj ? getStrictDateString(orderDateObj) : null;
+        }
+
+        function formatDate(d) {
+            if (!d || isNaN(d)) return 'N/A';
+            return d.toLocaleString('en-US', {
+                timeZone: MALAYSIA_TIME_ZONE,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+        }
+
+        async function findOrderForScannedQr(employeeData) {
+            await waitForAuthenticatedUser();
+
+            const empId = String(employeeData.employeeId || '').trim();
+            const qrOrderId = String(employeeData.orderId || '').trim();
+            const qrServiceDate = employeeData.serviceDate || employeeData.orderDate || getStrictDateString();
+
+            // New/current QR: resolve the exact order directly by orderId.
+            if (qrOrderId) {
+                const directRef = db.collection('canteen_orders').doc(qrOrderId);
+                const directSnap = await directRef.get();
+                if (!directSnap.exists) return null;
+
+                const data = directSnap.data();
+                const storedEmpId = String(data.employeeId || '').trim();
+                const storedServiceDate = getOrderServiceDate(data);
+
+                if (storedEmpId && storedEmpId !== empId) return null;
+                if (storedServiceDate && qrServiceDate && storedServiceDate !== qrServiceDate) return null;
+
+                return { id: directSnap.id, ref: directRef, data };
+            }
+
+            // Backward compatibility for older QR codes that did not contain orderId.
+            // Query by employeeId only, then compare service date in JavaScript to avoid new indexes.
+            const snap = await db.collection('canteen_orders')
+                .where('employeeId', '==', empId)
+                .get();
+
+            let match = null;
+            snap.forEach(docSnap => {
+                if (match) return;
+                const data = docSnap.data();
+                const storedServiceDate = getOrderServiceDate(data);
+                if (storedServiceDate === qrServiceDate) {
+                    match = { id: docSnap.id, ref: docSnap.ref, data };
+                }
+            });
+            return match;
+        }
+
+        function getPaymentBadge(method) {
+            if (!method) method = 'Debt';
+            let className = 'payment-badge';
+            const mLower = method.toLowerCase();
+            
+            if (mLower.includes('debt')) className += ' debt';
+            else if (mLower.includes('cash')) className += ' cash';
+            else if (mLower.includes('qr')) className += ' qr';
+            else if (mLower.includes('card')) className += ' card';
+            
+            return `<span class="${className}">${method}</span>`;
+        }
+
+        async function checkDuplicateFast(empId) {
+            try {
+                await waitForAuthenticatedUser();
+                const todayStr = getStrictDateString();
+                const snap = await db.collection('canteen_claimed')
+                    .where('employeeId', '==', empId)
+                    .where('scannedDate', '==', todayStr)
+                    .limit(1)
+                    .get();
+                return !snap.empty;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function showModal(title, message, isSuccess = false) {
+            const modal = document.getElementById('duplicateModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').innerHTML = message;
+            if (isSuccess) {
+                modal.classList.add('success-modal');
+            } else {
+                modal.classList.remove('success-modal');
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeDuplicateModal() {
+            const modal = document.getElementById('duplicateModal');
+            modal.style.display = 'none';
+            modal.classList.remove('success-modal');
+            isProcessingScan = false;
+        }
+
+        function closePaymentConfirmModal() {
+            const modal = document.getElementById('paymentConfirmModal');
+            modal.style.display = 'none';
+            window.pendingScanData = null;
+            isProcessingScan = false;
+        }
+
+        function updateResultDisplay(msg, isSuccess = true) {
+            const res = document.getElementById('result');
+            if (!res) return;
+            res.className = isSuccess ? 'success' : 'error';
+            res.textContent = msg;
+            res.style.opacity = '1';
+            if (isSuccess) {
+                setTimeout(() => {
+                    res.classList.add('fade-out');
+                    setTimeout(() => { res.textContent = ''; res.className = ''; }, 300);
+                }, 2000);
+            }
+        }
+
+        function renumberHistoryRows() {
+            const body = document.getElementById('scanHistoryBody');
+            if (!body) return;
+            const rows = body.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                const firstCell = row.cells[0];
+                if (firstCell && firstCell.getAttribute('colspan') === null) {
+                    firstCell.textContent = index + 1;
+                }
+            });
+        }
+
+        async function loadTodaysScanHistory() {
+            const body = document.getElementById('scanHistoryBody');
+            if (!body) return;
+            try {
+                await waitForAuthenticatedUser();
+                const todayStr = getStrictDateString();
+
+                let queryRef = db.collection('canteen_claimed').where('scannedDate', '==', todayStr);
+                const snap = await queryRef.limit(25).get();
+
+                if (snap.empty) {
+                    body.innerHTML = '<tr><td colspan="9" style="text-align:center;">No scans found for today</td></tr>';
+                    return;
+                }
+
+                const list = [];
+                snap.forEach(doc => {
+                    list.push(doc.data());
+                });
+                list.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                body.innerHTML = '';
+                for (let index = 0; index < list.length; index++) {
+                    const data = list[index];
+                    const scanDate = data.timestamp ? new Date(data.timestamp.seconds * 1000) : null;
+                    const orderTime = parseTimestamp(data.orderTimestamp);
+
+                    let empName = data.name;
+                    let empDept = data.department;
+
+                    if ((!empName || empName === 'N/A' || !empDept || empDept === 'N/A') && data.employeeId) {
+                        const prof = await getEmployeeProfile(data.employeeId);
+                        if (!empName || empName === 'N/A') empName = prof.name;
+                        if (!empDept || empDept === 'N/A') empDept = prof.department;
+                    }
+
+                    const paymentMethod = data.paymentMethod || 'Debt';
+
+                    const row = document.createElement('tr');
+                    row.className = 'claimed-success-row';
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td><strong>${empName || 'N/A'}</strong></td>
+                        <td>${data.employeeId || 'N/A'}</td>
+                        <td>${empDept || 'N/A'}</td>
+                        <td>${scanDate ? scanDate.toLocaleDateString() : (data.scannedDate || 'N/A')}</td>
+                        <td>${scanDate ? scanDate.toLocaleTimeString() : (data.scannedTime || 'N/A')}</td>
+                        <td>${formatDate(orderTime)}</td>
+                        <td>${data.mealSet || 'N/A'}</td>
+                        <td>${getPaymentBadge(paymentMethod)}</td>
+                    `;
+                    body.appendChild(row);
+                }
+            } catch (err) {
+                if (!body.querySelector('tr')) {
+                    body.innerHTML = '<tr><td colspan="9" style="text-align:center;">History temporarily unavailable</td></tr>';
+                }
+            }
+        }
+
+        async function searchEmployeeScannedStatus() {
+            const input = document.getElementById('employeeSearchInput');
+            const empId = input ? input.value.trim() : '';
+            if (!empId) return updateResultDisplay('Please enter Employee ID.', false);
+
+            try {
+                await waitForAuthenticatedUser();
+                const todayStr = getStrictDateString();
+                
+                const [snap, profile] = await Promise.all([
+                    db.collection('canteen_claimed').where('employeeId', '==', empId).where('scannedDate', '==', todayStr).limit(1).get(),
+                    getEmployeeProfile(empId)
+                ]);
+
+                if (!snap.empty) {
+                    const data = snap.docs[0].data();
+                    const scanDate = data.timestamp ? new Date(data.timestamp.seconds * 1000) : null;
+                    const timeScanned = data.scannedTime || (scanDate ? scanDate.toLocaleTimeString() : 'Earlier today');
+                    const empName = (data.name && data.name !== 'N/A') ? data.name : profile.name;
+                    const empDept = (data.department && data.department !== 'N/A') ? data.department : profile.department;
+                    const paymentMethod = data.paymentMethod || 'Debt';
+                    
+                    showModal('Already Scanned', `Name: ${empName}<br>Employee ID: ${empId}<br>Department: ${empDept}<br>Scanned At: ${timeScanned}<br>Meal Set: ${data.mealSet || 'N/A'}<br>Payment: ${paymentMethod}`);
+                    updateResultDisplay(`Status: ALREADY SCANNED at ${timeScanned} (${empName})`, false);
+                    playTone('error');
+                } else {
+                    showModal('Not Yet Scanned', `Name: ${profile.name}<br>Employee ID: ${empId}<br>Department: ${profile.department}<br>Status: Has NOT claimed today.`, true);
+                    updateResultDisplay(`Status: NOT SCANNED today (${profile.name})`, true);
+                    playTone('success');
+                }
+            } catch(e) {
+                updateResultDisplay('Connection error checking status.', false);
+            }
+        }
+
+        async function onScanSuccess(decodedText) {
+            if (isProcessingScan) return;
+            isProcessingScan = true;
+
+            try {
+                let employeeData;
+                try {
+                    employeeData = JSON.parse(String(decodedText).trim());
+                } catch (e) {
+                    playTone('error');
+                    updateResultDisplay('Invalid QR Code. Please scan again.', false);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                if (!employeeData || !employeeData.employeeId) {
+                    playTone('error');
+                    updateResultDisplay('Invalid QR: Employee ID missing.', false);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                const todayStr = getStrictDateString(new Date());
+                const qrServiceDate = employeeData.serviceDate || employeeData.orderDate || '';
+
+                if (qrServiceDate && qrServiceDate !== todayStr) {
+                    playTone('error');
+                    showModal('QR Code Expired / Invalid', `QR Code ini telah <strong>tamat tempoh</strong>.<br><br>Tarikh pada QR Code ini: <strong style="color:red;">${qrServiceDate}</strong><br><br>Sila minta staf buka *Order Page* dan tunjuk QR Code untuk hari ini.`);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                // Do not trust QR details alone. Resolve the actual order in Firestore first.
+                const [verifiedOrder, profile] = await Promise.all([
+                    findOrderForScannedQr(employeeData),
+                    getEmployeeProfile(employeeData.employeeId)
+                ]);
+
+                if (!verifiedOrder) {
+                    playTone('error');
+                    showModal('Order Not Found', 'Tiada pesanan sah untuk pekerja ini bagi hari ini. Sila semak Order Page sebelum menyerahkan makanan.');
+                    updateResultDisplay('Order not found / QR does not match Firestore order.', false);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                const orderData = verifiedOrder.data;
+                const storedServiceDate = getOrderServiceDate(orderData);
+                const storedEmployeeId = String(orderData.employeeId || '').trim();
+                const scannedEmployeeId = String(employeeData.employeeId || '').trim();
+                const currentClaimStatus = String(orderData.claimStatus || 'pending').trim().toLowerCase();
+
+                if (storedEmployeeId && storedEmployeeId !== scannedEmployeeId) {
+                    playTone('error');
+                    showModal('Invalid QR Code', 'Employee ID pada QR tidak sepadan dengan pesanan sebenar dalam sistem.');
+                    updateResultDisplay('QR employee does not match the order.', false);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                if (storedServiceDate && storedServiceDate !== todayStr) {
+                    playTone('error');
+                    showModal('Order Date Invalid', `Pesanan ini adalah untuk <strong>${storedServiceDate}</strong>, bukan hari ini.`);
+                    updateResultDisplay('Order is not valid for today.', false);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                if (currentClaimStatus !== 'pending') {
+                    playTone('error');
+                    showModal('Duplicate / Order Already Processed', `Status pesanan ini ialah <strong>${currentClaimStatus.toUpperCase()}</strong>. Pesanan yang sama tidak boleh diimbas semula.`);
+                    updateResultDisplay('Order has already been processed.', false);
+                    isProcessingScan = false;
+                    return;
+                }
+
+                // Existing duplicate check is retained for compatibility with earlier random-ID claim records.
+                const isDuplicate = await checkDuplicateFast(scannedEmployeeId);
+                if (isDuplicate) {
+                    playTone('error');
+                    showModal('Duplicate Scan', 'This employee has already scanned today.');
+                    isProcessingScan = false;
+                    return;
+                }
+
+                const statusBox = document.getElementById('scannerStatus');
+                if (statusBox) {
+                    statusBox.style.background = "#d4edda";
+                    statusBox.style.borderColor = "#28a745";
+                    setTimeout(() => {
+                        statusBox.style.background = "white";
+                        statusBox.style.borderColor = "#0C0E8B";
+                    }, 500);
+                }
+
+                playTone('success');
+
+                let resolvedName = orderData.name || employeeData.name;
+                if (!resolvedName || resolvedName === 'N/A' || String(resolvedName).trim() === '') resolvedName = profile.name;
+
+                let resolvedDept = orderData.department || employeeData.department;
+                if (!resolvedDept || resolvedDept === 'N/A' || String(resolvedDept).trim() === '') resolvedDept = profile.department;
+
+                // From this point onward, use verified Firestore order values as the source of truth.
+                const verifiedEmployeeData = {
+                    orderId: verifiedOrder.id,
+                    employeeId: storedEmployeeId || scannedEmployeeId,
+                    employeeUserId: orderData.userId || '',
+                    orderDate: storedServiceDate || todayStr,
+                    serviceDate: storedServiceDate || todayStr,
+                    orderShift: orderData.orderShift || employeeData.orderShift || '',
+                    mealSet: orderData.mealSet || employeeData.mealSet || 'N/A',
+                    location: orderData.location || employeeData.location || 'N/A',
+                    department: resolvedDept,
+                    name: resolvedName,
+                    orderTimestamp: orderData.orderDate || null,
+                    mealType: orderData.mealType || '',
+                    mealPrice: Number(orderData.mealPrice ?? 7.50),
+                    nssbSubsidy: Number(orderData.nssbSubsidy ?? 5.50),
+                    employeeContribution: Number(orderData.employeeContribution ?? 2.00),
+                    vendorClaimClaimed: Number(orderData.vendorClaimClaimed ?? orderData.nssbSubsidy ?? 5.50),
+                    vendorClaimUnclaimed: Number(orderData.vendorClaimUnclaimed ?? 7.50),
+                    scanFailureDeduction: Number(orderData.scanFailureDeduction ?? 2.00)
+                };
+
+                const infoDiv = document.getElementById('confirmScanInfo');
+                infoDiv.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">Name</span>
+                        <strong style="color:var(--primary-color);">${resolvedName}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">Employee ID</span>
+                        <strong>${verifiedEmployeeData.employeeId}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">Department</span>
+                        <strong>${resolvedDept}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0; padding-top:10px; border-top:1px dashed #cbd5e1;">
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">Menu Pilihan</span>
+                        <span class="payment-badge" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569;font-weight:800;">${verifiedEmployeeData.mealSet}</span>
+                    </div>
+                `;
+
+                window.pendingScanData = {
+                    employeeData: verifiedEmployeeData,
+                    orderId: verifiedOrder.id,
+                    resolvedName,
+                    resolvedDept
+                };
+                document.getElementById('paymentConfirmModal').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Scan validation error:', error);
+                playTone('error');
+                updateResultDisplay('Scan failed. Please scan again.', false);
+                isProcessingScan = false;
+            }
+        }
+
+        window.submitScanPayment = async function(selectedPaymentMethod) {
+            if (!window.pendingScanData) return;
+
+            document.getElementById('paymentConfirmModal').style.display = 'none';
+
+            const { employeeData, orderId, resolvedName, resolvedDept } = window.pendingScanData;
+            const localNow = new Date();
+
+            try {
+                const currentUser = await waitForAuthenticatedUser();
+                const scannerEmail = currentUser.email || 'unknown_vendor';
+                const scannerUid = currentUser.uid;
+
+                if (!orderId) throw new Error('ORDER_ID_MISSING');
+
+                const orderRef = db.collection('canteen_orders').doc(orderId);
+                // One claim document per order. This makes duplicate creation impossible for the new flow.
+                const claimRef = db.collection('canteen_claimed').doc(orderId);
+
+                const isDebt = String(selectedPaymentMethod || '').toLowerCase() === 'debt';
+
+                await db.runTransaction(async (transaction) => {
+                    // All reads are completed before writes.
+                    const orderSnap = await transaction.get(orderRef);
+                    if (!orderSnap.exists) throw new Error('ORDER_NOT_FOUND');
+
+                    const claimSnap = await transaction.get(claimRef);
+                    if (claimSnap.exists) throw new Error('DUPLICATE_CLAIM');
+
+                    const liveOrder = orderSnap.data();
+                    const liveEmployeeId = String(liveOrder.employeeId || '').trim();
+                    const expectedEmployeeId = String(employeeData.employeeId || '').trim();
+                    const liveServiceDate = getOrderServiceDate(liveOrder);
+                    const todayStr = getStrictDateString(localNow);
+                    const liveClaimStatus = String(liveOrder.claimStatus || 'pending').trim().toLowerCase();
+
+                    if (liveEmployeeId && liveEmployeeId !== expectedEmployeeId) throw new Error('EMPLOYEE_MISMATCH');
+                    if (liveServiceDate && liveServiceDate !== todayStr) throw new Error('ORDER_DATE_INVALID');
+                    if (liveClaimStatus !== 'pending') throw new Error('ORDER_ALREADY_PROCESSED');
+
+                    const mealPrice = Number(liveOrder.mealPrice ?? employeeData.mealPrice ?? 7.50);
+                    const nssbSubsidy = Number(liveOrder.nssbSubsidy ?? employeeData.nssbSubsidy ?? 5.50);
+                    const employeeContribution = Number(liveOrder.employeeContribution ?? employeeData.employeeContribution ?? 2.00);
+                    const vendorClaimAmount = Number(liveOrder.vendorClaimClaimed ?? employeeData.vendorClaimClaimed ?? nssbSubsidy);
+                    const employeeDebtAmount = isDebt ? employeeContribution : 0.00;
+                    const employeePaymentAmount = isDebt ? 0.00 : employeeContribution;
+                    const employeePaymentStatus = isDebt ? 'debt' : 'paid_on_spot';
+                    const orderDateObj = parseTimestamp(liveOrder.orderDate) || localNow;
+
+                    const scanData = {
+                        orderId: orderSnap.id,
+                        employeeId: liveEmployeeId || expectedEmployeeId,
+                        employeeUserId: liveOrder.userId || employeeData.employeeUserId || '',
+                        name: liveOrder.name || resolvedName,
+                        department: liveOrder.department || resolvedDept,
+                        location: liveOrder.location || employeeData.location || 'N/A',
+                        mealSet: liveOrder.mealSet || employeeData.mealSet || 'N/A',
+                        mealType: liveOrder.mealType || employeeData.mealType || '',
+                        orderShift: liveOrder.orderShift || employeeData.orderShift || '',
+                        serviceDate: liveServiceDate || todayStr,
+                        orderDate: liveServiceDate || todayStr,
+                        orderTimestamp: orderDateObj.toISOString(),
+
+                        // Scan is the proof of food collection. Payment is recorded separately.
+                        claimStatus: 'claimed',
+                        claimCategory: 'claimed_meal',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        scannedDate: todayStr,
+                        scannedTime: getMalaysiaTimeString(localNow),
+
+                        paymentMethod: selectedPaymentMethod,
+                        employeePaymentStatus: employeePaymentStatus,
+                        employeePaymentAmount: employeePaymentAmount,
+                        employeeDebtAmount: employeeDebtAmount,
+
+                        // Financial references from the approved trial guideline.
+                        mealPrice: mealPrice,
+                        nssbSubsidy: nssbSubsidy,
+                        employeeContribution: employeeContribution,
+                        vendorClaimAmount: vendorClaimAmount,
+                        invoiceClaimAmount: vendorClaimAmount,
+                        scanFailureDeduction: Number(liveOrder.scanFailureDeduction ?? employeeData.scanFailureDeduction ?? 2.00),
+
+                        // Keep existing vendor ownership fields for current invoice filtering.
+                        scannedByEmail: scannerEmail,
+                        scannedByUid: scannerUid,
+                        vendorEmail: scannerEmail,
+                        vendorUserId: scannerUid,
+                        userId: scannerUid
+                    };
+
+                    // Preserve current debt-collection behaviour: only Debt creates RM2 employee liability.
+                    const chargeAmt = isDebt ? employeeContribution : 0.00;
+
+                    transaction.set(claimRef, scanData);
+                    transaction.update(orderRef, {
+                        claimStatus: 'claimed',
+                        finalCharge: chargeAmt,
+                        paymentMethod: selectedPaymentMethod,
+                        employeePaymentStatus: employeePaymentStatus,
+                        employeePaymentAmount: employeePaymentAmount,
+                        employeeDebtAmount: employeeDebtAmount,
+                        mealPrice: mealPrice,
+                        nssbSubsidy: nssbSubsidy,
+                        employeeContribution: employeeContribution,
+                        vendorClaimAmount: vendorClaimAmount,
+                        claimedByUserId: scannerUid,
+                        claimedByEmail: scannerEmail,
+                        claimedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                playTone('success');
+                showModal('Scan & Payment Saved', `Berjaya merekodkan tuntutan makanan.<br><br>Name: <strong>${resolvedName}</strong><br>Payment: <strong>${selectedPaymentMethod}</strong>`, true);
+                updateResultDisplay(`Successfully recorded: ${resolvedName}`);
+
+                const orderDate = parseTimestamp(employeeData.orderTimestamp) || localNow;
+                const body = document.getElementById('scanHistoryBody');
+                if (body) {
+                    if (body.querySelector('td[colspan="9"]')) body.innerHTML = '';
+                    const row = document.createElement('tr');
+                    row.className = 'claimed-success-row';
+                    row.innerHTML = `
+                        <td>1</td>
+                        <td><strong>${resolvedName}</strong></td>
+                        <td>${employeeData.employeeId}</td>
+                        <td>${resolvedDept}</td>
+                        <td>${getStrictDateString(localNow)}</td>
+                        <td>${getMalaysiaTimeString(localNow)}</td>
+                        <td>${formatDate(orderDate)}</td>
+                        <td>${employeeData.mealSet || 'N/A'}</td>
+                        <td>${getPaymentBadge(selectedPaymentMethod)}</td>
+                    `;
+                    body.prepend(row);
+                    renumberHistoryRows();
+                }
+            } catch (error) {
+                console.error('Error saving payment / claim:', error);
+                playTone('error');
+
+                const code = String(error && error.message ? error.message : '');
+                if (code.includes('DUPLICATE_CLAIM') || code.includes('ORDER_ALREADY_PROCESSED')) {
+                    showModal('Duplicate Scan', 'Pesanan ini telah diproses. Tiada transaksi kedua direkodkan.');
+                    updateResultDisplay('Duplicate prevented. Order already processed.', false);
+                } else if (code.includes('ORDER_NOT_FOUND')) {
+                    showModal('Order Not Found', 'Pesanan tidak lagi wujud dalam sistem. Sila semak sebelum menyerahkan makanan.');
+                    updateResultDisplay('Order not found.', false);
+                } else if (code.includes('EMPLOYEE_MISMATCH')) {
+                    showModal('Invalid QR Code', 'Employee ID tidak sepadan dengan pesanan dalam Firestore.');
+                    updateResultDisplay('Employee mismatch.', false);
+                } else if (code.includes('ORDER_DATE_INVALID')) {
+                    showModal('Order Date Invalid', 'Pesanan ini bukan untuk tarikh hari ini.');
+                    updateResultDisplay('Order is not valid for today.', false);
+                } else {
+                    updateResultDisplay('Gagal menyimpan rekod. Sila cuba lagi.', false);
+                }
+            } finally {
+                window.pendingScanData = null;
+                setTimeout(() => { isProcessingScan = false; }, 500);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.onclick = function(e) { 
+                if (e.target === document.getElementById('duplicateModal')) closeDuplicateModal(); 
+                if (e.target === document.getElementById('paymentConfirmModal')) closePaymentConfirmModal(); 
+            };
+
+            const btnSearch = document.getElementById('btnSearchEmployee');
+            const inputSearch = document.getElementById('employeeSearchInput');
+            if (btnSearch) btnSearch.onclick = searchEmployeeScannedStatus;
+            if (inputSearch) {
+                inputSearch.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') searchEmployeeScannedStatus();
+                });
+            }
+
+            loadTodaysScanHistory();
+        });
+    </script>
+</body>
+</html>
