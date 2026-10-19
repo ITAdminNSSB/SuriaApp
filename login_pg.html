@@ -4,30 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0c1f5f">
+    <meta name="theme-color" content="#D91A1A">
     <title>LogIn</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ENTERPRISE DESIGN SYSTEM - DARK BLUE & WHITE WITH DECORATIVE CORAK WALLPAPER */
+        /* ENTERPRISE DESIGN SYSTEM - RED, WHITE & BLACK WITH DECORATIVE CORAK WALLPAPER */
         :root {
-            --app-navy: #0c1f5f;
-            --app-navy-2: #162d78;
-            --app-teal: #14b8a6;
-            --app-bg: #f3f7fc;
+            --app-red: #D91A1A;
+            --app-red-2: #B41C1C;
+            --app-red-dark: #8F1D1E;
+            --app-red-deep: #6B1F20;
+            --app-maroon: #462022;
+            --app-black: #212224;
+            --app-bg: #f4f4f5;
             --app-card: #ffffff;
-            --app-text: #17213c;
-            --app-muted: #68738d;
-            --app-line: #dfe7f2;
+            --app-text: #212224;
+            --app-muted: #71717a;
+            --app-line: #e4e4e7;
             --app-radius: 24px;
-            --app-shadow: 0 20px 45px rgba(12, 31, 95, 0.2);
+            --app-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", "Helvetica", sans-serif; }
         
         body {
-            background-color: var(--app-navy);
+            background-color: var(--app-black);
             color: var(--app-text);
             min-height: 100vh;
             display: flex;
@@ -45,9 +48,9 @@
             position: absolute;
             inset: 0;
             background: 
-                radial-gradient(circle at 10% 15%, rgba(20, 184, 166, 0.22) 0%, transparent 40%),
-                radial-gradient(circle at 90% 85%, rgba(22, 45, 120, 0.6) 0%, transparent 50%),
-                linear-gradient(135deg, #0c1f5f 0%, #060f30 100%);
+                radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.14) 0%, transparent 38%),
+                radial-gradient(circle at 90% 88%, rgba(0, 0, 0, 0.45) 0%, transparent 50%),
+                linear-gradient(135deg, #D91A1A 0%, #B41C1C 20%, #8F1D1E 40%, #6B1F20 60%, #462022 80%, #212224 100%);
             z-index: 0;
             pointer-events: none;
         }
@@ -60,7 +63,7 @@
             left: 0;
             width: 100%;
             height: 220px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2314b8a6' fill-opacity='0.08' d='M0,160L48,170.7C96,181,192,203,288,192C384,181,480,139,576,133.3C672,128,768,160,864,181.3C960,203,1056,213,1152,197.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.07' d='M0,160L48,170.7C96,181,192,203,288,192C384,181,480,139,576,133.3C672,128,768,160,864,181.3C960,203,1056,213,1152,197.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
             background-size: cover;
             background-repeat: no-repeat;
             z-index: 0;
@@ -100,7 +103,7 @@
             text-align: center;
         }
 
-        h2 { color: var(--app-navy); font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+        h2 { color: var(--app-black); font-size: 28px; font-weight: 800; margin-bottom: 6px; }
         h3 { color: var(--app-muted); font-size: 14px; font-weight: 500; margin-bottom: 30px; }        
         
         .input-group { margin-bottom: 18px; text-align: left; }        
@@ -114,38 +117,38 @@
         }        
         .input-group input::placeholder { color: var(--app-muted); }        
         .input-group input:focus {
-            border-color: var(--app-teal);
+            border-color: var(--app-red);
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+            box-shadow: 0 0 0 3px rgba(217, 26, 26, 0.15);
         }        
         
         .forgot-password { text-align: right; margin-bottom: 24px; }        
-        .forgot-password a { color: var(--app-navy); text-decoration: none; font-size: 13px; font-weight: 600; transition: color 0.2s ease; }
-        .forgot-password a:hover { color: var(--app-teal); }
+        .forgot-password a { color: var(--app-red-2); text-decoration: none; font-size: 13px; font-weight: 600; transition: color 0.2s ease; }
+        .forgot-password a:hover { color: var(--app-black); }
         
         .login-button {
             width: 100%; padding: 15px;
-            background: linear-gradient(135deg, var(--app-navy), var(--app-navy-2));
+            background: linear-gradient(135deg, var(--app-red), var(--app-red-dark));
             color: #ffffff; border: none; border-radius: 14px;
             font-size: 15px; font-weight: 700; cursor: pointer;
             transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;
-            box-shadow: 0 8px 20px rgba(12, 31, 95, 0.25); margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(217, 26, 26, 0.3); margin-bottom: 24px;
         }        
         .login-button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(12, 31, 95, 0.35);
-            background: linear-gradient(135deg, var(--app-navy-2), var(--app-navy));
+            box-shadow: 0 12px 25px rgba(217, 26, 26, 0.4);
+            background: linear-gradient(135deg, var(--app-red-dark), var(--app-red));
         }
 
         .signup { padding-top: 20px; border-top: 1px solid var(--app-line); }
         .signup h5 { color: var(--app-muted); font-size: 13px; margin-bottom: 8px; font-weight: 500; }
-        .signup a { color: var(--app-navy); text-decoration: none; font-weight: 700; transition: color 0.2s ease; }
-        .signup a:hover { color: var(--app-teal); }
+        .signup a { color: var(--app-red-2); text-decoration: none; font-weight: 700; transition: color 0.2s ease; }
+        .signup a:hover { color: var(--app-black); }
 
         .footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(6, 15, 48, 0.95); backdrop-filter: blur(10px);
-            color: #cbd7f2; text-align: center; padding: 14px;
+            background: rgba(33, 34, 36, 0.96); backdrop-filter: blur(10px);
+            color: #d4d4d8; text-align: center; padding: 14px;
             z-index: 1000; border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         .footer p { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
