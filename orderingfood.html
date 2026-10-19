@@ -978,7 +978,7 @@
 
                 if (window.ratingIsRequired === true && finalComment.length > 0) {
                     addDoc(collection(db, "new feedback"), {
-                        email:      userData.email || (auth.currentUser && auth.currentUser.email) || "No Email",
+                        email:      userData.email || (window.currentAuthUser && window.currentAuthUser.email) || "No Email",
                         category:   "Food",
                         rating:     window.selectedRating,
                         feedback:   finalComment,
@@ -1000,7 +1000,7 @@
         }
 
         window.handleYesClick = async function () {
-            const user = auth.currentUser;
+            const user = window.currentAuthUser;
             if (!user) { alert("Please log in to continue"); return; }
 
             const timeStatus = isOrderingTime();
@@ -1071,7 +1071,7 @@
             if (riceBrothDiv) riceBrothDiv.style.display = 'none';
             
             document.getElementById('customizationScreen').style.display = 'block';
-            await setupRatingSection(auth.currentUser.uid);
+            await setupRatingSection(window.currentAuthUser.uid);
         });
 
         document.getElementById('btnChooseRegular').addEventListener('click', async (e) => {
@@ -1083,7 +1083,7 @@
             if (riceBrothDiv) riceBrothDiv.style.display = 'block';
 
             document.getElementById('customizationScreen').style.display = 'block';
-            await setupRatingSection(auth.currentUser.uid);
+            await setupRatingSection(window.currentAuthUser.uid);
         });
 
         document.getElementById('backFromDietChoice').addEventListener('click', (e) => {
@@ -1093,7 +1093,7 @@
         });
 
         window.handleNoClick = async function () {
-            const user = auth.currentUser;
+            const user = window.currentAuthUser;
             if (!user) { alert("Please log in to continue"); return; }
 
             const timeStatus = isOrderingTime();
@@ -1193,14 +1193,22 @@
             const selectedLocation = locRadio ? locRadio.value : "Pekan Subang";
 
             document.getElementById('locationScreen').style.display = 'none';
-            await processOrder(auth.currentUser.uid, selectedLocation);
+            await processOrder(window.currentAuthUser.uid, selectedLocation);
         });
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
+                window.currentAuthUser = null;
                 window.location.replace("login_pg.html");
                 return;
             }
+            // This is the only point where Firebase has actually CONFIRMED the
+            // session (auth.currentUser can briefly be null right after page
+            // load, before this callback fires, even for an already-logged-in
+            // user — reading it directly caused intermittent false "please
+            // log in" prompts). Everything else in this file should read
+            // window.currentAuthUser instead of auth.currentUser directly.
+            window.currentAuthUser = user;
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) window.tempUserData = userDoc.data();
@@ -1242,7 +1250,7 @@
             const now    = getCurrentServerTime();
             const eod    = new Date(now);
             eod.setHours(23,59,59,999);
-            const user = auth.currentUser;
+            const user = window.currentAuthUser;
             if (now >= eod && user && !isStoredOrderFromToday(user.uid)) {
                 clearStoredOrderData(user.uid);
                 location.reload();
