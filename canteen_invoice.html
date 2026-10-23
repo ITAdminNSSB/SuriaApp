@@ -1,740 +1,602 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Invoice - NSSB Canteen</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canteen Vendor Invoice | SURIA • Pekan Subang • Subang Kristal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script type="module" src="auth-guard.js"></script>
+<style>
+:root{--navy:#B41C1C;--navy-dark:#462022;--teal:#D91A1A;--ink:#212224;--muted:#6b5f60;--line:#eadfdf;--bg:#f7f3f3;--white:#fff;--green:#15803d;--amber:#a16207;--red:#b42318;--shadow:0 10px 30px rgba(70,32,34,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(125deg,#fbeaea 0,#faf6f6 42%,#f7f3f3 100%);font:15px/1.5 Inter,Arial,sans-serif;color:var(--ink);padding-bottom:100px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}a{color:inherit;text-decoration:none}
+.topbar{background:#fff;box-shadow:0 3px 20px rgba(70,32,34,.10);height:72px;position:sticky;top:0;z-index:15;display:flex;align-items:center;padding:0 max(16px,calc((100vw - 1200px)/2));gap:15px;border-bottom:3px solid #B41C1C}.back{display:grid;place-items:center;width:41px;height:41px;border-radius:12px;background:#fbeaea;color:var(--navy)}.topbar img{height:42px;max-width:160px;object-fit:contain}.brand{display:flex;flex-direction:column;gap:1px}.brand strong{color:var(--navy-dark);font-size:15px}.brand small{color:var(--muted);font-size:11px}.topbar .right{margin-left:auto;font-size:12px;font-weight:800;background:#fbeaea;color:#8F1D1E;padding:8px 12px;border-radius:100px;max-width:35%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shell{width:min(1180px,calc(100% - 30px));margin:25px auto}.hero{margin-bottom:18px}.hero h1{font-size:clamp(24px,3vw,30px);color:var(--navy-dark);margin:0}.hero p{color:var(--muted);margin:6px 0 0}.card{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow)}.filters{padding:24px;margin-bottom:16px}.title-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}.title-row h2{font-size:17px;margin:0;color:var(--navy-dark)}.sub{font-size:12px;color:var(--muted)}.fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px}.field{min-width:0}.field label{display:block;font-size:12px;color:#5a4a4b;font-weight:750;margin-bottom:6px}.field input,.field select{height:45px;border:1px solid #dcc9c9;border-radius:10px;padding:8px 11px;width:100%;color:var(--ink);background:#fff;font-size:14px}.field input:focus,.field select:focus{outline:2px solid #f3b3b3;outline-offset:1px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}.btn{border:0;border-radius:10px;padding:10px 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:13px;min-height:42px}.btn.primary{background:var(--navy);color:white;flex:1;min-width:215px}.btn.ghost{background:#fbeaea;color:var(--navy)}.btn.print{background:var(--teal);color:white}.btn.outline{background:white;color:var(--navy);border:1px solid #dcc9c9}.message{padding:13px 16px;margin-bottom:16px;border-radius:12px;background:#fbeaea;border:1px solid #f0c4c4;color:#B41C1C;font-weight:650;font-size:13px}.message.warning{background:#fff8e8;border-color:#f3d99b;color:#865400}.message.error{background:#fef0ef;border-color:#fbc5c1;color:#a42319}.message[hidden]{display:none}.reportActions{display:none;justify-content:flex-end;gap:9px;margin:0 0 13px;flex-wrap:wrap}
+#report,#accessDenied{display:none}.invoice{padding:30px}.doc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding-bottom:19px;border-bottom:2px solid #e6d6d6}.doc-head h2{font-size:18px;line-height:1.35;color:var(--navy-dark);margin:0 0 6px}.doc-head p{margin:3px 0;color:var(--muted);font-size:12px}.doc-right{text-align:right;max-width:430px}.doc-right h2{font-size:23px;letter-spacing:.5px}.doc-right p strong{color:var(--ink)}.tag{display:inline-block;padding:4px 10px;margin-bottom:8px;border-radius:50px;background:#eafbf3;color:#0b754b;font-size:10px;font-weight:800}.tag.warning{background:#fff4db;color:#925a00}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:22px 0 12px}.stat{border:1px solid #e6d6d6;background:#fcf6f6;border-radius:13px;padding:15px;min-width:0}.stat label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:800;color:var(--muted)}.stat strong{display:block;color:var(--navy-dark);font-size:clamp(20px,2.4vw,26px);margin-top:6px;overflow-wrap:anywhere}.stat.green{background:#eafaf2;border-color:#bcebd0}.stat.green strong{color:#0f7c4b}.stat.amber{background:#fff8e8;border-color:#f8e3ab}.stat.amber strong{color:#995900}.stat.blue{background:#fbeaea;border-color:#f0c4c4}.mini{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 22px;color:#5a4a4b;font-size:12px}.mini span{border-radius:9px;padding:5px 9px;background:#f7eeee}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:23px 0 10px}.section-head h3{margin:0;font-size:16px;color:var(--navy-dark)}.section-head p{margin:0;font-size:12px;color:var(--muted)}.table-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:920px;font-size:13px}th{padding:11px 10px;background:var(--navy-dark);color:white;white-space:nowrap;text-align:center;font-size:12px;line-height:1.3}td{padding:10px;border-bottom:1px solid #efe6e6;text-align:center;white-space:nowrap}td:first-child,th:first-child{text-align:left}tr:nth-child(even) td{background:#fcf6f6}tr:last-child td{border-bottom:0}.num{font-variant-numeric:tabular-nums}.strong{font-weight:800;color:var(--navy-dark)}.warn-cell{color:#a16207;font-weight:800}.yes-cell{color:#15803d;font-weight:750}.tfoot td{background:#f7e1e1!important;border-top:2px solid #e0a9a9;font-weight:800;color:#6B1F20}.money{font-weight:800;color:#0a5e53}.caption{font-size:11px;color:var(--muted);line-height:1.6;margin:8px 0}.alert{margin:12px 0 18px;padding:13px 16px;background:#fff8ea;border:1px solid #f1d393;border-radius:12px;color:#80560b;font-size:12px}.alert.good{background:#edf9f1;border-color:#b9e3c4;color:#19683c}.alert strong{display:block;margin-bottom:3px;font-size:13px}.alert p{margin:0;line-height:1.6}.explain{display:grid;grid-template-columns:1.12fr .88fr;gap:16px;margin:21px 0}.note{background:#faf6f6;border:1px solid var(--line);border-radius:13px;padding:15px}.note strong{font-size:13px;color:var(--navy-dark)}.note p{font-size:12px;color:#6b5a5b;margin:6px 0 0;line-height:1.65}.breakdown{width:100%;min-width:0}.breakdown td{text-align:right;border-bottom:1px solid #efe6e6;padding:8px 3px;background:none!important;font-size:12px}.breakdown td:first-child{text-align:left}.breakdown .total td{font-size:15px;font-weight:800;border-top:2px solid #e0c4c4;color:#0c6554}.footer{border-top:1px solid var(--line);margin-top:20px;padding-top:14px;text-align:center;font-size:11px;color:#7a6a6b}.empty{padding:10px 0;color:var(--muted)}.hidden{display:none!important}#invoiceApp{display:none}#accessDenied{max-width:650px;margin:70px auto;padding:40px;text-align:center}#accessDenied i{font-size:35px;color:#d13326}#accessDenied h2{color:var(--navy-dark)}#accessDenied p{color:#7a6a6b}.nav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:min(510px,calc(100% - 25px));height:65px;background:#212224;border-radius:21px;box-shadow:0 15px 40px #21222455;display:none;padding:6px;z-index:10}.nav a{color:#cad7ec;flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;font-size:10px;font-weight:650;border-radius:16px}.nav i{font-size:17px}.nav a.active{background:#D91A1A;color:#fff}
+@media(max-width:1000px){.fields{grid-template-columns:repeat(3,minmax(0,1fr))}.stats{grid-template-columns:repeat(3,1fr)}.invoice{padding:21px}}@media(max-width:650px){body{font-size:14px}.brand small{display:none}.topbar .right{max-width:40%;font-size:10px;padding:7px}.topbar img{max-width:100px}.shell{width:calc(100% - 22px);margin:16px auto}.filters{padding:16px}.fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fields .field:last-child{grid-column:span 2}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:12px}.doc-head,.explain{grid-template-columns:1fr;display:grid}.doc-right{text-align:left}.actions .btn{flex:1}.reportActions .btn{flex:1}.invoice{padding:15px}.doc-right h2{font-size:20px}.mini{gap:5px}.nav a{font-size:9px}.section-head h3{font-size:14px}}@media print{@page{size:A4 landscape;margin:11mm}body{background:#fff;padding:0;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.topbar,.hero,.filters,.message,.reportActions,.nav,#accessDenied,.not-print{display:none!important}.shell{width:100%;margin:0}.invoice{border:0;box-shadow:none;border-radius:0;padding:0}.doc-head h2{font-size:15px}.doc-right h2{font-size:18px}.stats{grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}.stat{padding:8px}.stat strong{font-size:17px}.section-head{margin:12px 0 6px}.table-wrap{overflow:visible;border-radius:0}table{min-width:0;font-size:8px}th{padding:6px 3px;font-size:8px}td{padding:5px 3px}.mini,.caption,.footer{font-size:9px}.explain{grid-template-columns:1.12fr .88fr}.note{padding:9px}.section-head,.doc-head,.stats,.explain,.alert{break-inside:avoid}tr{break-inside:avoid}.page-break{break-before:page}}
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script type="module" src="auth-guard.js"></script>
-
-    <style>
-        :root {
-            --navy:#0c1f5f;
-            --navy2:#162d78;
-            --teal:#14b8a6;
-            --bg:#f4f7fb;
-            --card:#fff;
-            --text:#172033;
-            --muted:#64748b;
-            --line:#e2e8f0;
-            --danger:#dc2626;
-            --warning:#d97706;
-            --success:#15803d;
-            --radius:18px;
-            --shadow:0 8px 24px rgba(12,31,95,.08);
-        }
-
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body {
-            font-family:'Inter',sans-serif;
-            background:radial-gradient(circle at 15% 0%,#e8f0ff 0,transparent 38%),var(--bg);
-            color:var(--text);
-            min-height:100vh;
-            padding-bottom:110px;
-        }
-
-        .header {
-            position:fixed; inset:0 0 auto 0; height:72px;
-            background:rgba(255,255,255,.96); border-bottom:1px solid var(--line);
-            box-shadow:0 4px 18px rgba(12,31,95,.05); backdrop-filter:blur(14px);
-            display:flex; align-items:center; justify-content:center; z-index:1000;
-        }
-        .header img { max-height:44px; width:auto; }
-        .back-btn {
-            position:absolute; left:24px; width:40px; height:40px; border-radius:50%;
-            display:flex; align-items:center; justify-content:center; text-decoration:none;
-            color:var(--navy); background:#f1f5f9; transition: transform 0.2s ease, background 0.2s ease;
-        }
-        .back-btn:hover {
-            transform: scale(1.05); background: #e2e8f0;
-        }
-
-        .page { width:min(calc(100% - 32px),1080px); margin:0 auto; padding-top:98px; }
-        .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
-
-        .access-card { display:none; padding:34px; text-align:center; max-width:650px; margin:70px auto 0; }
-        .access-card i { font-size:42px; color:var(--danger); margin-bottom:14px; }
-        .access-card h2 { color:var(--navy); margin-bottom:10px; }
-        .access-card p { color:var(--muted); line-height:1.6; }
-
-        #invoiceApp { display:none; }
-
-        .controls { padding:22px; margin-bottom:20px; }
-        .controls-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }
-        .controls h2 { color:var(--navy); font-size:1.28rem; margin-bottom:5px; }
-        .controls .subtitle { color:var(--muted); font-size:.9rem; }
-        .vendor-badge {
-            background:#eef2ff; color:var(--navy); border:1px solid #c7d2fe;
-            padding:9px 12px; border-radius:12px; font-size:.82rem; font-weight:800; white-space:nowrap;
-        }
-
-        .filter-grid { display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:12px; }
-        .field label { display:block; margin-bottom:6px; color:var(--muted); font-size:.8rem; font-weight:700; }
-        .field input,.field select {
-            width:100%; height:44px; border:1px solid #cbd5e1; border-radius:10px;
-            padding:0 12px; background:#fff; color:var(--text); font-family:inherit;
-        }
-        .field input:focus,.field select:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(20,184,166,.12); }
-
-        .action-row { display:flex; gap:10px; margin-top:16px; align-items:center; flex-wrap:wrap; }
-        .btn {
-            border:0; border-radius:10px; padding:11px 16px; font-weight:800; font-family:inherit;
-            cursor:pointer; display:inline-flex; align-items:center; gap:8px;
-        }
-        .btn-primary { background:var(--navy); color:#fff; flex:1; justify-content:center; min-width:220px; }
-        .btn-primary:disabled { opacity:.45; cursor:not-allowed; }
-        .btn-light { background:#eef2ff; color:var(--navy); }
-        .btn-print { background:var(--teal); color:#fff; }
-
-        .status { display:none; padding:14px 18px; margin-bottom:18px; border-radius:12px; background:#fff; border:1px solid var(--line); font-weight:700; color:var(--navy); }
-
-        .invoice { display:none; padding:32px; }
-        .invoice-header { display:flex; justify-content:space-between; gap:28px; padding-bottom:22px; border-bottom:2px solid var(--line); }
-        .company h2 { color:var(--navy); font-size:1.28rem; margin-bottom:7px; }
-        .company p { color:var(--muted); font-size:.84rem; line-height:1.45; }
-        .invoice-meta { text-align:right; min-width:300px; }
-        .invoice-meta h1 { color:var(--navy); font-size:1.55rem; letter-spacing:.8px; margin-bottom:12px; }
-        .invoice-meta p { font-size:.84rem; color:var(--muted); margin:4px 0; }
-        .invoice-meta strong { color:var(--text); }
-        .vendor-name { color:var(--navy); font-weight:800; }
-
-        .summary-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:22px 0; }
-        .summary-card { border:1px solid var(--line); border-radius:14px; padding:16px; background:#fafcff; }
-        .summary-card span { display:block; color:var(--muted); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
-        .summary-card strong { display:block; color:var(--navy); font-size:1.35rem; margin-top:6px; }
-        .summary-card.net { background:#ecfdf5; border-color:#bbf7d0; }
-        .summary-card.net strong { color:var(--success); }
-
-        .section-title { color:var(--navy); font-size:1rem; margin:22px 0 10px; }
-        .table-wrap { width:100%; overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
-        table { width:100%; border-collapse:collapse; min-width:760px; }
-        th { background:#0f2468; color:#fff; text-align:left; padding:11px 12px; font-size:.78rem; white-space:nowrap; }
-        td { padding:11px 12px; border-bottom:1px solid #edf2f7; font-size:.82rem; }
-        tbody tr:last-child td { border-bottom:0; }
-        .money { font-weight:800; color:var(--navy); white-space:nowrap; }
-        .deduction { color:var(--danger); font-weight:800; white-space:nowrap; }
-
-        .bottom-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; margin-top:20px; }
-        .note-box { padding:16px 18px; border:1px solid var(--line); border-radius:12px; background:#f8fafc; }
-        .note-box h4 { color:var(--navy); margin-bottom:8px; font-size:.9rem; }
-        .note-box p { color:var(--muted); font-size:.8rem; line-height:1.55; }
-        .note-box .pending { margin-top:8px; color:var(--warning); font-weight:700; }
-
-        .totals { width:100%; border-collapse:collapse; min-width:0; }
-        .totals td { padding:8px 0; border:0; font-size:.84rem; }
-        .totals td:last-child { text-align:right; font-weight:800; color:var(--navy); white-space:nowrap; }
-        .totals .minus td:last-child { color:var(--danger); }
-        .totals .grand td { border-top:2px solid var(--line); padding-top:12px; font-size:1.03rem; }
-        .totals .grand td:last-child { color:var(--success); font-size:1.22rem; }
-
-        .invoice-footer { margin-top:24px; padding-top:14px; border-top:1px solid var(--line); text-align:center; color:var(--muted); font-size:.75rem; line-height:1.5; }
-
-        .print-row { display:none; justify-content:flex-end; margin:0 0 12px; }
-
-        .nav-container {
-            position:fixed; left:50%; transform:translateX(-50%); bottom:16px;
-            width:calc(100% - 32px); max-width:500px; height:68px; padding:7px;
-            display:flex; background:rgba(12,31,95,.96); border-radius:24px; z-index:1200;
-            box-shadow:0 18px 36px rgba(12,31,95,.32);
-        }
-        .nav-item { flex:1; color:#94a3b8; text-decoration:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:17px; font-size:10px; font-weight:700; }
-        .nav-item i { font-size:17px; }
-        .nav-item.active { background:var(--teal); color:#fff; }
-
-        @media (max-width:800px) {
-            .filter-grid { grid-template-columns:1fr; }
-            .controls-top,.invoice-header { flex-direction:column; }
-            .invoice-meta { text-align:left; min-width:0; }
-            .summary-cards { grid-template-columns:repeat(2,1fr); }
-            .bottom-grid { grid-template-columns:1fr; }
-            .invoice { padding:20px; }
-        }
-        @media print {
-            body { background:#fff; padding:0; }
-            .header,.controls,.status,.print-row,.nav-container,.access-card { display:none!important; }
-            .page { width:100%; padding:0; }
-            .invoice { display:block!important; border:0; box-shadow:none; padding:0; }
-            .table-wrap { overflow:visible; }
-            table { min-width:0; }
-        }
-    </style>
+/* Checkbox multi-select for plant / location */
+.plant-field{position:relative;z-index:9}
+.plant-picker{position:relative}
+.plant-picker-toggle{height:45px;width:100%;border:1px solid #dcc9c9;background:#fff;border-radius:10px;padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;color:var(--ink);font-size:13px}
+.plant-picker-toggle span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+.plant-picker-toggle i{font-size:11px;color:#7a6a6b;transition:transform .18s}
+.plant-picker-toggle[aria-expanded="true"]{border-color:#D91A1A;outline:2px solid #f3b3b3;outline-offset:1px}
+.plant-picker-toggle[aria-expanded="true"] i{transform:rotate(180deg)}
+.plant-picker-menu{position:absolute;top:calc(100% + 7px);left:0;width:max(100%,275px);max-width:min(340px,calc(100vw - 34px));background:#fff;border:1px solid #dcc9c9;box-shadow:0 16px 38px rgba(33,34,36,.18);border-radius:12px;z-index:40;padding:9px;max-height:360px;overflow:auto}
+.plant-picker-menu[hidden]{display:none!important}
+.plant-quick-actions{display:flex;gap:7px;margin-bottom:8px}
+.plant-quick-actions button{flex:1;background:#fbeaea;color:#B41C1C;border:0;border-radius:7px;padding:7px 6px;font-size:11px;font-weight:750;white-space:nowrap}
+.plant-quick-actions button:hover,.plant-quick-actions button:focus-visible{background:#f5d0d0}
+.field .plant-choice{display:flex;align-items:center;gap:11px;cursor:pointer;padding:10px 9px;border-radius:8px;font-size:13px;color:#3b2a2b;font-weight:650;margin:0}
+.field .plant-choice:hover{background:#fbeeee}
+.field .plant-choice input{appearance:auto;accent-color:#D91A1A;width:19px;height:19px;min-width:19px;padding:0;border:0;border-radius:4px;margin:0;cursor:pointer;outline-offset:2px}
+.plant-picker-hint{font-size:11px;color:#7a6a6b;line-height:1.55;border-top:1px solid #eadfdf;padding:8px 7px 2px;margin-top:6px}
+@media(max-width:650px){.plant-picker-menu{left:0;width:max(100%,270px)}.plant-picker-toggle{font-size:12px}}
+</style>
 </head>
 <body>
-    <div class="header">
-        <a href="canteen.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <img src="pictures/new.png" alt="NSSB Logo">
+<header class="topbar"><a href="canteen.html" aria-label="Back to canteen" class="back"><i class="fas fa-arrow-left"></i></a><img src="pictures/new.png" alt="SURIA"><div class="brand"><strong>Canteen Management</strong><small>Vendor Invoice &amp; Claim Reconciliation</small></div><div class="right" id="loggedVendor">Verifying account…</div></header>
+<main class="shell">
+<div id="accessDenied" class="card"><i class="fas fa-lock"></i><h2>Canteen Invoice Access</h2><p id="accessDeniedText">Please sign in with a canteen vendor or authorised administration account.</p><p style="margin-top:12px;font-size:12px">If this is an administration account, please check the role in Firebase users profile.</p></div>
+<div id="invoiceApp">
+<div class="hero"><h1>Vendor Invoice &amp; Order Reconciliation</h1><p>Daily quantities, day/night shifts, ordered meals, scan claims and unclaimed meals — by vendor and plant.</p></div>
+<section class="card filters"><div class="title-row"><div><h2>Generate invoice statement</h2><div class="sub">Select the billing period. The report uses live order and scan records from Firestore.</div></div><span class="sub" id="readyText"></span></div>
+<div id="adminVendorRow" class="field" style="display:none;margin-bottom:15px;max-width:450px"><label for="adminVendor">Select Vendor (Admin Only)</label><select id="adminVendor"><option value="">Select a vendor...</option></select><div class="sub" style="margin-top:5px">Management invoice comparison. Vendor records remain separated by their supplier identity.</div></div>
+<div id="adminScannerRow" class="field" style="display:none;margin:0 0 14px;max-width:450px"><label for="adminScannerEmail">Vendor scanner login email (admin reconciliation)</label><input id="adminScannerEmail" type="email" placeholder="Vendor email in scannedByEmail" autocomplete="off"><div class="sub" style="margin-top:5px">Use the exact <code>scannedByEmail</code> value saved by the scanner; other vendors remain excluded. Leave blank if scans already contain an explicit vendor name.</div></div>
+<div class="fields">
+<div class="field"><label for="startDate">Start Date</label><input id="startDate" type="date"></div>
+<div class="field"><label for="endDate">End Date</label><input id="endDate" type="date"></div>
+<div class="field plant-field"><label id="plantFilterLabel">Plant / Location</label>
+  <div class="plant-picker" id="plantPicker">
+    <button id="plantPickerBtn" type="button" class="plant-picker-toggle" aria-controls="plantPickerMenu" aria-expanded="false" aria-haspopup="true" aria-labelledby="plantFilterLabel plantPickerText">
+      <span id="plantPickerText">Both Locations</span><i class="fas fa-chevron-down" aria-hidden="true"></i>
+    </button>
+    <div id="plantPickerMenu" class="plant-picker-menu" role="group" aria-labelledby="plantFilterLabel" hidden>
+      <div class="plant-quick-actions"><button type="button" id="plantAllBtn">Select both locations</button></div>
+      <label class="plant-choice"><input type="checkbox" name="plantChoice" value="PEKAN SUBANG" checked><span>Pekan Subang</span></label>
+      <label class="plant-choice"><input type="checkbox" name="plantChoice" value="SUBANG KRISTAL" checked><span>Subang Kristal</span></label>
+      <div class="plant-picker-hint">Tick one or both locations. Figures are shown separately per location in the Location Summary.</div>
     </div>
-
-    <div class="page">
-        <div id="accessDenied" class="card access-card">
-            <i class="fas fa-lock"></i>
-            <h2>Vendor Access Required</h2>
-            <p id="accessDeniedText">This invoice page is restricted to authorised canteen vendor accounts.</p>
-        </div>
-
-        <div id="invoiceApp">
-            <div class="card controls">
-                <div class="controls-top">
-                    <div>
-                        <h2>Vendor Invoice</h2>
-                        <p class="subtitle">Invoice data is limited to transactions belonging to the currently logged-in vendor account.</p>
-                    </div>
-                    <div class="vendor-badge" id="loggedVendorBadge">Checking vendor account...</div>
-                </div>
-
-                <div class="filter-grid">
-                    <div class="field">
-                        <label>Start Date</label>
-                        <input type="date" id="startDate">
-                    </div>
-                    <div class="field">
-                        <label>End Date</label>
-                        <input type="date" id="endDate">
-                    </div>
-                    <div class="field">
-                        <label>Department (Optional)</label>
-                        <select id="departmentFilter">
-                            <option value="">All Departments</option>
-                            <option value="HRA">HRA</option>
-                            <option value="FNA">FNA</option>
-                            <option value="MDO">MDO</option>
-                            <option value="BD&Project">BD&Project</option>
-                            <option value="SALES">SALES</option>
-                            <option value="PVD">PVD</option>
-                            <option value="SPECIAL PROJECT">SPECIAL PROJECT</option>
-                            <option value="QMS">QMS</option>
-                            <option value="QAQC">QAQC</option>
-                            <option value="PE/LPS">PE/LPS</option>
-                            <option value="MAINTENANCE">MAINTENANCE</option>
-                            <option value="PROD">PROD</option>
-                            <option value="PPCL">PPCL</option>
-                            <option value="SYNERGY">SYNERGY</option>
-                            <option value="SGTSB">SGTSB</option>
-                            <option value="PPIC-STAMPING">PPIC-STAMPING</option>
-                            <option value="PROD-STAMPING">PROD-STAMPING</option>
-                            <option value="PROD-STAMPING-DIEMTCE">PROD-STAMPING-DIEMTCE</option>
-                            <option value="QC-STAMPING">QC-STAMPING</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="action-row">
-                    <button id="currentPeriodBtn" class="btn btn-light">Current 14 Days</button>
-                    <button id="lastPeriodBtn" class="btn btn-light">Previous 14 Days</button>
-                    <button id="generateInvoiceBtn" class="btn btn-primary" disabled>
-                        <i class="fas fa-file-invoice"></i> Generate Vendor Invoice
-                    </button>
-                </div>
-            </div>
-
-            <div id="invoiceStatus" class="status"></div>
-
-            <div id="printRow" class="print-row">
-                <button id="printInvoiceBtn" class="btn btn-print"><i class="fas fa-print"></i> Print Invoice</button>
-            </div>
-
-            <div id="invoicePreview" class="card invoice">
-                <div class="invoice-header">
-                    <div class="company">
-                        <h2>SURIA COMPONENT MANUFACTURING (M) SDN BHD</h2>
-                        <p>Lot 536, Jalan TUDM, Pekan Subang,</p>
-                        <p>Seksyen U6, 40150, Shah Alam</p>
-                        <p>Tel: 03-7831 9999</p>
-                    </div>
-                    <div class="invoice-meta">
-                        <h1>VENDOR CLAIM INVOICE</h1>
-                        <p><strong>Invoice No.:</strong> <span id="invoiceNumber"></span></p>
-                        <p><strong>Generated:</strong> <span id="invoiceDate"></span></p>
-                        <p><strong>Billing Period:</strong> <span id="invoicePeriod"></span></p>
-                        <p><strong>Caterer / Vendor:</strong> <span id="invoiceVendorName" class="vendor-name"></span></p>
-                    </div>
-                </div>
-
-                <div class="summary-cards">
-                    <div class="summary-card"><span>Verified Meal Scan</span><strong id="cardScanQty">0</strong></div>
-                    <div class="summary-card"><span>Confirmed Miss Scan</span><strong id="cardMissQty">0</strong></div>
-                    <div class="summary-card"><span>Total Deductions</span><strong id="cardDeduction">RM 0.00</strong></div>
-                    <div class="summary-card net"><span>Net Payable</span><strong id="cardNet">RM 0.00</strong></div>
-                </div>
-
-                <h3 class="section-title">Daily Claim Summary</h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Service Date</th>
-                                <th>Verified Scan</th>
-                                <th>Subsidy Claim</th>
-                                <th>Miss Scan</th>
-                                <th>Miss Scan Claim</th>
-                                <th>Deductions</th>
-                                <th>Net Payable</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dailyBody"></tbody>
-                    </table>
-                </div>
-
-                <h3 class="section-title">Plant Summary</h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Plant</th>
-                                <th>Verified Scan</th>
-                                <th>Miss Scan</th>
-                                <th>Deductions</th>
-                                <th>Net Payable</th>
-                            </tr>
-                        </thead>
-                        <tbody id="plantBody"></tbody>
-                    </table>
-                </div>
-
-                <div class="bottom-grid">
-                    <div class="note-box">
-                        <h4>Invoice Basis</h4>
-                        <p>Verified Meal Scan: RM5.50 NSSB subsidy per eligible meal. Confirmed Miss Scan: RM7.50 per verified case. Scan Failure Penalty: RM2.00 deduction per confirmed transaction. Short Supply: approved adjustment only.</p>
-                        <p class="pending">Pending Miss Scan Verification: <span id="pendingMissCount">0</span></p>
-                    </div>
-                    <div>
-                        <table class="totals">
-                            <tr><td>Verified Meal Scan Claim</td><td id="scanTotal">RM 0.00</td></tr>
-                            <tr><td>Confirmed Miss Scan Claim</td><td id="missTotal">RM 0.00</td></tr>
-                            <tr class="minus"><td>Scan Failure Penalty</td><td id="penaltyTotal">- RM 0.00</td></tr>
-                            <tr class="minus"><td>Short Supply Adjustment</td><td id="shortSupplyTotal">- RM 0.00</td></tr>
-                            <tr class="grand"><td><strong>Net Payable</strong></td><td id="grandTotal">RM 0.00</td></tr>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="invoice-footer">
-                    Generated from the authenticated vendor account in the NSSB Canteen Management System.<br>
-                    Employee RM2.00 collections are excluded from the NSSB subsidy claim.
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="nav-container" id="vendorNav" style="display:none;">
-        <a href="canteen.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="canteen_order_view.html" class="nav-item"><i class="fas fa-list-alt"></i><span>Orders</span></a>
-        <a href="orderingfoodscanner.html" class="nav-item"><i class="fas fa-qrcode"></i><span>Scan</span></a>
-        <a href="canteen_order_claimed.html" class="nav-item"><i class="fas fa-clipboard-check"></i><span>Claimed</span></a>
-        <a href="canteen_invoice.html" class="nav-item active"><i class="fas fa-file-invoice"></i><span>Invoice</span></a>
-    </div>
-
-    <script type="module">
-        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-
-        // Updated Firebase config to match the production database
-        const firebaseConfig = {
-            apiKey: "AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA",
-            authDomain: "suria-food-ordering-system.firebaseapp.com",
-            projectId: "suria-food-ordering-system",
-            storageBucket: "suria-food-ordering-system.firebasestorage.app",
-            messagingSenderId: "204528329291",
-            appId: "1:204528329291:web:cba270a2968e6d159963ce"
-        };
-
-        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        const claimedRef = collection(db,"canteen_claimed");
-        const ordersRef = collection(db,"canteen_orders");
-
-        const VERIFIED_SCAN_RATE = 5.50;
-        const MISS_SCAN_RATE = 7.50;
-        const SCAN_FAILURE_PENALTY = 2.00;
-        const ALLOWED_VENDOR_ROLES = new Set(["canteen_trial","vendor","canteen1_admin"]);
-
-        let vendorSession = null;
-        let sessionResolved = false;
-        let resolveSession;
-        const sessionReady = new Promise(resolve => { resolveSession = resolve; });
-
-        const $ = id => document.getElementById(id);
-
-        function canonicalVendorName(...values) {
-            const raw = values.filter(Boolean).join(" ").toLowerCase();
-            const compact = raw.replace(/[^a-z0-9]/g,"");
-            if (compact.includes("alarbai") || compact.includes("arbai")) return "Al Arbai";
-            if (compact.includes("mirasa")) return "Mirasa";
-            if (compact.includes("sirehlegasi") || (compact.includes("sireh") && compact.includes("legasi"))) return "Sireh Legasi";
-            if (compact.includes("bangmedholdings") || compact.includes("bangmed")) return "Bang Med Holdings";
-            return "";
-        }
-
-        function vendorCode(name) {
-            return ({"Al Arbai":"ALARBAI","Mirasa":"MIRASA","Sireh Legasi":"SIREH","Bang Med Holdings":"BANGMED"})[name] || "VENDOR";
-        }
-
-        function denyAccess(message) {
-            $("invoiceApp").style.display = "none";
-            $("vendorNav").style.display = "none";
-            $("accessDeniedText").textContent = message;
-            $("accessDenied").style.display = "block";
-        }
-
-        function resolveVendorSession(value) {
-            if (sessionResolved) return;
-            sessionResolved = true;
-            resolveSession(value);
-        }
-
-        onAuthStateChanged(auth, async user => {
-            if (!user) {
-                denyAccess("Please log in using an authorised canteen vendor account.");
-                resolveVendorSession(null);
-                return;
-            }
-
-            try {
-                const userSnap = await getDoc(doc(db,"users",user.uid));
-                const profile = userSnap.exists() ? userSnap.data() : {};
-                const role = String(profile.role || "").trim().toLowerCase();
-
-                if (!ALLOWED_VENDOR_ROLES.has(role)) {
-                    denyAccess(`Access denied for ${user.email || "this account"}. This page is limited to authorised canteen vendor accounts.`);
-                    resolveVendorSession(null);
-                    return;
-                }
-
-                const vendorName = canonicalVendorName(
-                    profile.vendorName,
-                    profile.companyName,
-                    profile.canteenVendorName,
-                    profile.name,
-                    profile.displayName,
-                    user.displayName,
-                    user.email
-                );
-
-                if (!vendorName) {
-                    denyAccess("This vendor account is authorised, but its vendor name is not configured. Set vendorName/companyName to Al Arbai, Mirasa, Sireh Legasi, or Bang Med Holdings before generating an invoice.");
-                    resolveVendorSession(null);
-                    return;
-                }
-
-                vendorSession = {
-                    uid:user.uid,
-                    email:String(user.email || "").trim().toLowerCase(),
-                    role,
-                    vendorName,
-                    profile
-                };
-
-                $("loggedVendorBadge").textContent = vendorName;
-                $("generateInvoiceBtn").disabled = false;
-                $("invoiceApp").style.display = "block";
-                $("vendorNav").style.display = "flex";
-                $("accessDenied").style.display = "none";
-                resolveVendorSession(vendorSession);
-            } catch (error) {
-                console.error("Vendor access check failed:",error);
-                denyAccess("Unable to verify the vendor account. Please try again.");
-                resolveVendorSession(null);
-            }
-        });
-
-        function malaysiaDateKey(dateObj = new Date()) {
-            const parts = new Intl.DateTimeFormat("en-CA",{
-                timeZone:"Asia/Kuala_Lumpur",year:"numeric",month:"2-digit",day:"2-digit"
-            }).formatToParts(dateObj);
-            const m = Object.fromEntries(parts.map(p => [p.type,p.value]));
-            return `${m.year}-${m.month}-${m.day}`;
-        }
-
-        function toDateInput(dateObj) {
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth()+1).padStart(2,"0");
-            const d = String(dateObj.getDate()).padStart(2,"0");
-            return `${y}-${m}-${d}`;
-        }
-
-        function displayDate(value) {
-            if (!value) return "-";
-            const raw = String(value);
-            const d = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T12:00:00`) : new Date(value);
-            return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
-        }
-
-        function serviceDate(data) {
-            if (typeof data?.serviceDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.serviceDate)) return data.serviceDate;
-            if (typeof data?.scannedDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.scannedDate)) return data.scannedDate;
-            if (typeof data?.orderDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.orderDate)) return data.orderDate;
-            if (data?.orderDate?.toDate) return malaysiaDateKey(data.orderDate.toDate());
-            if (data?.timestamp?.toDate) return malaysiaDateKey(data.timestamp.toDate());
-            return "";
-        }
-
-        function plantName(data) {
-            const loc = String(data?.location || "").toLowerCase();
-            const dept = String(data?.department || "").toUpperCase();
-            return (loc.includes("stamping") || dept.includes("STAMPING")) ? "Stamping Plant" : "Main Plant";
-        }
-
-        function departmentMatches(data,filter) {
-            return !filter || String(data?.department || "") === filter;
-        }
-
-        async function queryOwnedDocuments(ref, uidFields, emailFields) {
-            const session = await sessionReady;
-            if (!session) throw new Error("VENDOR_SESSION_REQUIRED");
-
-            const requests = [];
-            uidFields.forEach(field => requests.push(getDocs(query(ref,where(field,"==",session.uid)))));
-            if (session.email) emailFields.forEach(field => requests.push(getDocs(query(ref,where(field,"==",session.email)))));
-
-            const settled = await Promise.allSettled(requests);
-            const docs = new Map();
-            settled.forEach(result => {
-                if (result.status !== "fulfilled") {
-                    console.warn("Vendor ownership query skipped:",result.reason);
-                    return;
-                }
-                result.value.forEach(snap => docs.set(snap.id,{id:snap.id,...snap.data()}));
-            });
-            return Array.from(docs.values());
-        }
-
-        async function getVendorClaims(startDate,endDate,deptFilter) {
-            // IMPORTANT: do not fetch all claims and filter in the browser.
-            // Only request records explicitly owned by the authenticated scanner/vendor account.
-            const rows = await queryOwnedDocuments(
-                claimedRef,
-                ["scannedByUid","vendorUserId","userId"],
-                ["scannedByEmail","vendorEmail"]
-            );
-
-            return rows.filter(data => {
-                const date = serviceDate(data);
-                return date && date >= startDate && date <= endDate && departmentMatches(data,deptFilter);
-            });
-        }
-
-        async function getVendorSupportOrders(startDate,endDate,deptFilter) {
-            // Miss Scan has no scanner by definition. Therefore it is included only when the
-            // order is explicitly assigned to this vendor or already linked to this vendor by a verified correction.
-            // Unassigned orders are intentionally excluded to prevent cross-vendor leakage.
-            const rows = await queryOwnedDocuments(
-                ordersRef,
-                ["assignedVendorUid","canteenVendorUid","vendorUserId","claimedByUserId"],
-                ["assignedVendorEmail","canteenVendorEmail","vendorEmail","claimedByEmail"]
-            );
-
-            return rows.filter(data => {
-                const date = serviceDate(data);
-                return date && date >= startDate && date <= endDate && departmentMatches(data,deptFilter);
-            });
-        }
-
-        function confirmedMissScan(data) {
-            const status = String(data?.claimStatus || "").toLowerCase();
-            if (status !== "unclaimed") return false;
-            return data?.unclaimedConfirmed === true ||
-                   data?.invoiceUnclaimedConfirmed === true ||
-                   data?.unclaimedEligibleForInvoice === true ||
-                   String(data?.unclaimedVerificationStatus || "").toLowerCase() === "confirmed" ||
-                   String(data?.verificationStatus || "").toLowerCase() === "confirmed";
-        }
-
-        function pendingMissScan(data) {
-            return String(data?.claimStatus || "").toLowerCase() === "unclaimed" && !confirmedMissScan(data);
-        }
-
-        function confirmedPenalty(data) {
-            return data?.scanFailureConfirmed === true ||
-                   data?.invoiceScanFailureConfirmed === true ||
-                   data?.vendorScanFailureConfirmed === true ||
-                   String(data?.scanFailureStatus || "").toLowerCase() === "confirmed";
-        }
-
-        function confirmedShortSupply(data) {
-            return data?.shortSupplyConfirmed === true ||
-                   data?.invoiceShortSupplyConfirmed === true ||
-                   data?.vendorShortSupplyConfirmed === true ||
-                   String(data?.shortSupplyStatus || "").toLowerCase() === "confirmed" ||
-                   String(data?.supplyIssueStatus || "").toLowerCase() === "short_supply";
-        }
-
-        function shortSupplyAmount(data) {
-            const n = Number(data?.shortSupplyDeduction ?? data?.shortSupplyAdjustment ?? data?.vendorShortSupplyDeduction ?? data?.approvedShortSupplyDeduction ?? 0);
-            return Number.isFinite(n) ? Math.abs(n) : 0;
-        }
-
-        function newBucket(name) {
-            return {name,scanQty:0,scanAmount:0,missQty:0,missAmount:0,penaltyQty:0,penaltyAmount:0,shortQty:0,shortAmount:0,pendingMiss:0,net:0};
-        }
-
-        function buildSummary(claims,orders) {
-            const days = {};
-            const plants = {};
-            const seenPenalty = new Set();
-            const day = key => days[key] ||= newBucket(key);
-            const plant = key => plants[key] ||= newBucket(key);
-
-            claims.forEach(claim => {
-                const d = serviceDate(claim); if (!d) return;
-                const p = plantName(claim);
-                const amountRaw = Number(claim.invoiceClaimAmount ?? claim.vendorClaimAmount ?? claim.nssbSubsidy ?? VERIFIED_SCAN_RATE);
-                const amount = Number.isFinite(amountRaw) ? amountRaw : VERIFIED_SCAN_RATE;
-                day(d).scanQty++; day(d).scanAmount += amount;
-                plant(p).scanQty++; plant(p).scanAmount += amount;
-            });
-
-            orders.forEach(order => {
-                const d = serviceDate(order); if (!d) return;
-                const p = plantName(order);
-                const orderId = String(order.id || order.orderId || `${d}-${order.employeeId || ""}`);
-
-                if (confirmedShortSupply(order)) {
-                    const amount = shortSupplyAmount(order);
-                    day(d).shortQty++; day(d).shortAmount += amount;
-                    plant(p).shortQty++; plant(p).shortAmount += amount;
-                } else if (confirmedMissScan(order)) {
-                    const amountRaw = Number(order.vendorClaimUnclaimed ?? MISS_SCAN_RATE);
-                    const amount = Number.isFinite(amountRaw) ? amountRaw : MISS_SCAN_RATE;
-                    day(d).missQty++; day(d).missAmount += amount;
-                    plant(p).missQty++; plant(p).missAmount += amount;
-                } else if (pendingMissScan(order)) {
-                    day(d).pendingMiss++;
-                    plant(p).pendingMiss++;
-                }
-
-                if (confirmedPenalty(order) && !seenPenalty.has(orderId)) {
-                    seenPenalty.add(orderId);
-                    const amountRaw = Number(order.scanFailureDeduction ?? SCAN_FAILURE_PENALTY);
-                    const amount = Number.isFinite(amountRaw) ? Math.abs(amountRaw) : SCAN_FAILURE_PENALTY;
-                    day(d).penaltyQty++; day(d).penaltyAmount += amount;
-                    plant(p).penaltyQty++; plant(p).penaltyAmount += amount;
-                }
-            });
-
-            Object.values(days).forEach(x => x.net = x.scanAmount + x.missAmount - x.penaltyAmount - x.shortAmount);
-            Object.values(plants).forEach(x => x.net = x.scanAmount + x.missAmount - x.penaltyAmount - x.shortAmount);
-            return {days,plants};
-        }
-
-        function setStatus(message,isError=false) {
-            $("invoiceStatus").style.display = "block";
-            $("invoiceStatus").textContent = message;
-            $("invoiceStatus").style.color = isError ? "var(--danger)" : "var(--navy)";
-        }
-
-        async function generateInvoice() {
-            const session = await sessionReady;
-            if (!session) return;
-
-            const startDate = $("startDate").value;
-            const endDate = $("endDate").value;
-            const dept = $("departmentFilter").value;
-            if (!startDate || !endDate) return alert("Please select start and end dates.");
-            if (startDate > endDate) return alert("Start date cannot be later than end date.");
-
-            $("invoicePreview").style.display = "none";
-            $("printRow").style.display = "none";
-            setStatus(`Generating invoice for ${session.vendorName}...`);
-
-            try {
-                const [claims,orders] = await Promise.all([
-                    getVendorClaims(startDate,endDate,dept),
-                    getVendorSupportOrders(startDate,endDate,dept)
-                ]);
-
-                const {days,plants} = buildSummary(claims,orders);
-                const dailyRows = Object.entries(days).sort((a,b)=>a[0].localeCompare(b[0]));
-
-                if (!dailyRows.length) {
-                    setStatus(`No invoice-eligible records found for ${session.vendorName} in the selected period.`);
-                    return;
-                }
-
-                let scanQty=0,scanTotal=0,missQty=0,missTotal=0,penaltyTotal=0,shortTotal=0,pending=0,net=0;
-                $("dailyBody").innerHTML = "";
-
-                dailyRows.forEach(([date,x]) => {
-                    const deductions = x.penaltyAmount + x.shortAmount;
-                    $("dailyBody").insertAdjacentHTML("beforeend",`
-                        <tr>
-                            <td>${displayDate(date)}</td>
-                            <td>${x.scanQty}</td>
-                            <td class="money">RM ${x.scanAmount.toFixed(2)}</td>
-                            <td>${x.missQty}</td>
-                            <td class="money">RM ${x.missAmount.toFixed(2)}</td>
-                            <td class="deduction">${deductions ? `- RM ${deductions.toFixed(2)}` : "RM 0.00"}</td>
-                            <td class="money">RM ${x.net.toFixed(2)}</td>
-                        </tr>`);
-                    scanQty += x.scanQty; scanTotal += x.scanAmount;
-                    missQty += x.missQty; missTotal += x.missAmount;
-                    penaltyTotal += x.penaltyAmount; shortTotal += x.shortAmount;
-                    pending += x.pendingMiss; net += x.net;
-                });
-
-                $("plantBody").innerHTML = "";
-                Object.values(plants).sort((a,b)=>a.name.localeCompare(b.name)).forEach(x => {
-                    const deductions = x.penaltyAmount + x.shortAmount;
-                    $("plantBody").insertAdjacentHTML("beforeend",`
-                        <tr>
-                            <td>${x.name}</td>
-                            <td>${x.scanQty}</td>
-                            <td>${x.missQty}</td>
-                            <td class="deduction">${deductions ? `- RM ${deductions.toFixed(2)}` : "RM 0.00"}</td>
-                            <td class="money">RM ${x.net.toFixed(2)}</td>
-                        </tr>`);
-                });
-
-                const code = vendorCode(session.vendorName);
-                $("invoiceNumber").textContent = `NSSB-${code}-${startDate.replaceAll("-","")}-${endDate.replaceAll("-","")}`;
-                $("invoiceDate").textContent = displayDate(new Date());
-                $("invoicePeriod").textContent = `${displayDate(startDate)} - ${displayDate(endDate)}`;
-                $("invoiceVendorName").textContent = session.vendorName;
-
-                $("cardScanQty").textContent = scanQty;
-                $("cardMissQty").textContent = missQty;
-                $("cardDeduction").textContent = `RM ${(penaltyTotal+shortTotal).toFixed(2)}`;
-                $("cardNet").textContent = `RM ${net.toFixed(2)}`;
-                $("pendingMissCount").textContent = pending;
-
-                $("scanTotal").textContent = `RM ${scanTotal.toFixed(2)}`;
-                $("missTotal").textContent = `RM ${missTotal.toFixed(2)}`;
-                $("penaltyTotal").textContent = `- RM ${penaltyTotal.toFixed(2)}`;
-                $("shortSupplyTotal").textContent = `- RM ${shortTotal.toFixed(2)}`;
-                $("grandTotal").textContent = `RM ${net.toFixed(2)}`;
-
-                $("invoiceStatus").style.display = "none";
-                $("invoicePreview").style.display = "block";
-                $("printRow").style.display = "flex";
-            } catch (error) {
-                console.error("Invoice generation failed:",error);
-                setStatus("Unable to generate invoice. Please check vendor configuration and Firebase permissions.",true);
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded",() => {
-            const end = new Date();
-            const start = new Date(); start.setDate(end.getDate()-13);
-            $("startDate").value = toDateInput(start);
-            $("endDate").value = toDateInput(end);
-
-            $("generateInvoiceBtn").addEventListener("click",generateInvoice);
-            $("printInvoiceBtn").addEventListener("click",()=>window.print());
-
-            $("currentPeriodBtn").addEventListener("click",() => {
-                const e = new Date(); const s = new Date(); s.setDate(e.getDate()-13);
-                $("startDate").value = toDateInput(s); $("endDate").value = toDateInput(e);
-            });
-            $("lastPeriodBtn").addEventListener("click",() => {
-                const e = new Date(); e.setDate(e.getDate()-14);
-                const s = new Date(e); s.setDate(e.getDate()-13);
-                $("startDate").value = toDateInput(s); $("endDate").value = toDateInput(e);
-            });
-        });
-    </script>
+  </div>
+</div>
+<div class="field"><label for="departmentFilter">Department</label><select id="departmentFilter"><option value="">All Departments</option><option value="HRA">HRA</option><option value="FNA">FNA</option><option value="MDO">MDO</option><option value="BD&amp;Project">BD&amp;Project</option><option value="SALES">SALES</option><option value="PVD">PVD</option><option value="SPECIAL PROJECT">SPECIAL PROJECT</option><option value="QMS">QMS</option><option value="QAQC">QAQC</option><option value="PE/LPS">PE/LPS</option><option value="MAINTENANCE">MAINTENANCE</option><option value="PROD">PROD</option><option value="PPCL">PPCL</option><option value="SYNERGY">SYNERGY</option><option value="SGTSB">SGTSB</option><option value="PPIC-STAMPING">PPIC-STAMPING</option><option value="PROD-STAMPING">PROD-STAMPING</option><option value="PROD-STAMPING-DIEMTCE">PROD-STAMPING-DIEMTCE</option><option value="QC-STAMPING">QC-STAMPING</option></select></div>
+<div class="field"><label for="unitRate">Invoice Unit Price (RM)</label><input id="unitRate" inputmode="decimal" type="number" min="0" max="9999" step="0.01" value="5.50"></div>
+</div>
+<div id="legacyVerification" style="display:none;margin-top:14px;padding:12px 14px;background:#fff9eb;border:1px solid #f1d393;border-radius:12px;color:#754c05;font-size:12px"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-weight:750"><input type="checkbox" id="verifiedUnassigned" style="width:18px;height:18px;flex:none;margin-top:1px"> I have checked the vendor service dates, plants and shifts. Include vendor-unassigned legacy orders as PROVISIONAL quantities for this vendor.</label><div style="margin:6px 0 0 27px;line-height:1.5">Management only. This does not alter Firebase records. Never use this option without verifying which vendor supplied those meals.</div></div>
+<div class="actions"><button class="btn ghost" id="firstHalf"><i class="fas fa-calendar-week"></i>1–15 This Month</button><button class="btn ghost" id="secondHalf">16–Month End</button><button class="btn ghost" id="previousHalf">Previous Half</button><button class="btn primary" id="generateBtn" disabled><i class="fas fa-file-invoice"></i>Generate Invoice</button></div>
+</section>
+<div class="message" id="status" hidden role="status"></div>
+<div id="queryNotice" class="alert not-print" style="margin:12px 0 16px;display:none;background:#fff2f2;border-color:#f5b9b9;color:#8a2020"><strong id="queryNoticeTitle">Firebase status</strong><p id="queryNoticeText"></p></div>
+<div class="reportActions" id="reportActions"><button id="downloadSummary" class="btn outline"><i class="fas fa-file-csv"></i>Daily CSV</button><button id="downloadOrders" class="btn outline"><i class="fas fa-file-excel"></i>Order Details CSV</button><button id="printBtn" class="btn print"><i class="fas fa-print"></i>Print / Save PDF</button></div>
+<section class="card invoice" id="report">
+<div class="doc-head"><div><h2>SURIA COMPONENT MANUFACTURING (M) SDN BHD</h2><p>Lot 536, Jalan TUDM, Pekan Subang,</p><p>Seksyen U6, 40150, Shah Alam, Selangor</p><p>Tel: 03-7831 9999</p><p><b>Generated from SURIA Canteen Management System</b></p></div><div class="doc-right"><h2>VENDOR MEAL STATEMENT</h2><div class="tag" id="reportTag">VERIFY BEFORE PAYMENT</div><p><strong>Vendor:</strong> <span id="rVendor"></span></p><p><strong>Statement No.:</strong> <span id="rNo"></span></p><p><strong>Service Period:</strong> <span id="rPeriod"></span></p><p><strong>Plant:</strong> <span id="rPlant"></span></p><p><strong>Created:</strong> <span id="rGenerated"></span></p></div></div>
+<div class="stats"><div class="stat blue"><label>Total Ordered</label><strong id="mOrdered">0</strong></div><div class="stat green"><label>Claimed / Scanned</label><strong id="mClaimed">0</strong></div><div class="stat amber"><label>Not Claimed</label><strong id="mUnclaimed">0</strong></div><div class="stat"><label>Claim Rate</label><strong id="mRate">0%</strong></div><div class="stat green"><label>Invoice Estimate</label><strong id="mAmount">RM 0.00</strong></div></div>
+<div class="mini"><span><strong>Unique staff:</strong> <b id="mStaff">0</b></span><span><strong>Day shift orders:</strong> <b id="mDay">0</b></span><span><strong>Night shift orders:</strong> <b id="mNight">0</b></span><span><strong>Unknown shift:</strong> <b id="mUnknown">0</b></span><span><strong>Unmatched scan records:</strong> <b id="mOrphan">0</b></span></div>
+<div id="coverage" class="alert" role="status"><strong>Checking records...</strong><p></p></div>
+<div id="sourceDiagnostics" class="alert not-print" style="background:#f7f3f3;border-color:#e0c9c9;color:#462022"><strong>Firebase source diagnostics</strong><p id="sourceDiagnosticsText">Waiting for Firebase queries.</p></div>
+<div id="unassignedSection" style="display:none" class="not-print"><div class="section-head"><h3>Unassigned Orders — Admin Review Only</h3><p>No vendor identity; excluded from the invoice and its totals</p></div><div class="table-wrap"><table><thead><tr><th>Service Date</th><th>Plant</th><th>Day Orders</th><th>Night Orders</th><th>Unknown Shift</th><th>Total Unassigned</th></tr></thead><tbody id="unassignedRows"></tbody></table></div><p class="caption">These meals have no verified vendor assignment. They cannot be allocated to this vendor for charging until their supplier is confirmed.</p></div>
+<div class="section-head"><h3>Daily Vendor Invoice — Day &amp; Night Quantities</h3><p>As per the vendor invoice format, with system claim tracking</p></div>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Day Ordered</th><th>Night Ordered</th><th>Unknown Shift</th><th>Total Ordered</th><th>Claimed</th><th>Unclaimed</th><th>Price / Meal</th><th>Total (RM)</th></tr></thead><tbody id="dailyRows"></tbody><tfoot id="dailyFoot" class="tfoot"></tfoot></table></div>
+<p class="caption">Daily Total = Day + Night + Unknown Shift. Claimed = verified scan evidence; Unclaimed = ordered meals with no verified scan. Amount = Total Ordered × selected unit price (before financial policy adjustments).</p>
+<div class="section-head"><h3>Daily Shift &amp; Claim Breakdown</h3><p>Check which shift contains unclaimed meals</p></div>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Shift</th><th>Ordered</th><th>Claimed</th><th>Unclaimed</th><th>Claim Rate</th><th>Amount (RM)</th></tr></thead><tbody id="shiftRows"></tbody></table></div>
+<div class="section-head"><h3>Location Summary</h3><p>Separate plant figures, even for a combined date range</p></div>
+<div class="table-wrap"><table><thead><tr><th>Plant</th><th>Ordered</th><th>Claimed</th><th>Unclaimed</th><th>Day</th><th>Night</th><th>Unknown Shift</th><th>Invoice Amount</th></tr></thead><tbody id="plantRows"></tbody></table></div>
+<div class="section-head"><h3>Reconciliation &amp; Payment Basis</h3></div>
+<div class="explain"><div class="note"><strong>How this statement is calculated</strong><p>Invoice estimate uses ordered quantity × the selected vendor unit price. This matches the quantity × price presentation in the example vendor invoice; it does not automatically confirm payment liability. The existing system's claimed/unclaimed charge estimate is shown separately for review. Actual vendor-supplied quantities and the applicable contract must be verified before payment.</p><p id="reportNotes"></p></div><div class="note"><table class="breakdown"><tbody><tr><td>Ordered Meals × Unit Price</td><td id="bSupply">RM 0.00</td></tr><tr><td>Claimed Meals (system rates)</td><td id="bClaimed">RM 0.00</td></tr><tr><td>Unclaimed Meals (system rates)</td><td id="bUnclaimed">RM 0.00</td></tr><tr><td>Confirmed Scan Penalties</td><td id="bPenalties">– RM 0.00</td></tr><tr><td>Approved Short Supply</td><td id="bShort">– RM 0.00</td></tr><tr class="total"><td>System Settlement Estimate*</td><td id="bSettlement">RM 0.00</td></tr></tbody></table><p class="caption">*System settlement uses saved order rates when available; otherwise default claimed RM5.50 and unclaimed RM7.50. It may differ from supplier invoice total. It is not approval to pay.</p></div></div>
+<div id="exceptionsPanel" class="alert" style="display:none"><strong>Reconciliation exceptions</strong><p id="exceptionsText"></p></div>
+<div class="footer">INTERNAL RECONCILIATION — GENERATED FROM FIRESTORE • NOT THE ORIGINAL SUPPLIER INVOICE • VERIFY WITH VENDOR BEFORE PAYMENT</div>
+</section>
+</div>
+</main>
+<nav class="nav" id="nav"><a href="canteen.html"><i class="fas fa-home"></i>Home</a><a href="canteen_order_view.html"><i class="fas fa-list-alt"></i>Orders</a><a href="orderingfoodscanner.html"><i class="fas fa-qrcode"></i>Scan</a><a href="canteen_order_claimed.html"><i class="fas fa-clipboard-check"></i>Claimed</a><a href="canteen_invoice.html" class="active"><i class="fas fa-file-invoice"></i>Invoice</a></nav>
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+import { getFirestore, collection, query, where, getDocs, getDocsFromCache, getDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+
+// Existing project and collections retained: no Firestore writes, migrations or new collections.
+const firebaseConfig = {
+  apiKey: 'AIzaSyA_eTabpa9spioE_pGOJUZ-wRM4rIvLKGA',
+  authDomain: 'suria-food-ordering-system.firebaseapp.com',
+  projectId: 'suria-food-ordering-system',
+  storageBucket: 'suria-food-ordering-system.firebasestorage.app',
+  messagingSenderId: '204528329291',
+  appId: '1:204528329291:web:cba270a2968e6d159963ce'
+};
+const fbApp = getApps().find(a=>a.options?.projectId===firebaseConfig.projectId) || initializeApp(firebaseConfig);
+const db=getFirestore(fbApp), auth=getAuth(fbApp);
+const ordersRef=collection(db,'canteen_orders'), claimsRef=collection(db,'canteen_claimed');
+const TZ='Asia/Kuala_Lumpur', MAX_DAYS=90;
+const PLANTS=['PEKAN SUBANG','SUBANG KRISTAL'];
+const PLANT_LABELS={
+ 'PEKAN SUBANG':'Pekan Subang',
+ 'SUBANG KRISTAL':'Subang Kristal'
+};
+function selectedPlants(){
+ const checked=new Set([...document.querySelectorAll('input[name="plantChoice"]:checked')].map(el=>el.value));
+ return PLANTS.filter(p=>checked.has(p));
+}
+function plantSelectionLabel(plants){
+ if(plants.length===0)return 'Select location(s)';
+ if(plants.length===PLANTS.length)return 'Both Locations';
+ return plants.map(p=>PLANT_LABELS[p]||p).join(' + ');
+}
+function plantSelectionCode(plants){
+ if(plants.length===PLANTS.length)return 'ALL';
+ return plants.map(p=>p==='SUBANG KRISTAL'?'KRISTAL':'PEKAN').join('-');
+}
+function closePlantPicker(){
+ $('plantPickerMenu').hidden=true;
+ $('plantPickerBtn').setAttribute('aria-expanded','false');
+}
+function updatePlantSelection(){
+ const plants=selectedPlants();
+ $('plantPickerText').textContent=plantSelectionLabel(plants);
+ $('plantPickerBtn').title=plants.length?plantSelectionLabel(plants):'Tick at least one location';
+ hideReport();
+}
+function setPlantSelection(plants){
+ const wanted=new Set(plants);
+ document.querySelectorAll('input[name="plantChoice"]').forEach(el=>{el.checked=wanted.has(el.value)});
+ updatePlantSelection();
+}
+
+const VENDOR_ROLES=new Set(['canteen_trial','vendor']);
+// Management roles can review invoices for multiple vendors; normal staff cannot.
+const ADMIN_ROLES=new Set(['canteen1_admin','canteen_admin','hr_admin','admins','admin']);
+const hasInvoicePermission=profile=>profile.canteenInvoiceAccess===true||profile.permissions?.canteenInvoice===true;
+const DEFAULT_RATES={supplier:5.50,claimed:5.50,unclaimed:7.50,employee:2.00,penalty:2.00};
+// Historic trial roster only. Used as a *provisional* source for untagged orders,
+// never as verified vendor ownership and never as proof of invoice liability.
+const TRIAL_WINDOWS={
+ 'Al Arbai':{start:'2026-10-01',end:'2026-10-30'},
+ 'Mirasa':{start:'2026-11-01',end:'2026-11-30'}
+};
+const VENDOR_ALIASES={
+ 'Al Arbai':['Al Arbai','Alarbai','ALARBAI','AL ARBAI'],
+ 'Mirasa':['Mirasa','MIRASA'],
+ 'Sireh Legasi':['Sireh Legasi','SIREH LEGASI'],
+ 'Bang Med Holdings':['Bang Med Holdings','BANG MED HOLDINGS']
+};
+const $=id=>document.getElementById(id);
+const safe=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>'RM '+Number(v||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const integer=v=>Number(v||0).toLocaleString('en-MY');
+const ratePercent=(a,b)=>b?`${(a/b*100).toFixed(1)}%`:'0.0%';
+const num=(v,def=0)=>v===null||v===undefined||v===''||!Number.isFinite(Number(v))?def:Number(v);
+const posRate=(v,def)=>{const n=num(v,NaN);return Number.isFinite(n)&&n>=0?n:def;};
+const iso=/^\d{4}-\d{2}-\d{2}$/;
+function dateValue(x){if(!x)return null;if(x instanceof Date)return Number.isNaN(x.getTime())?null:x;if(typeof x?.toDate==='function')return dateValue(x.toDate());if(typeof x?.seconds==='number')return dateValue(new Date(x.seconds*1000));if(typeof x==='string'&&/^\d{2}\/\d{2}\/\d{4}$/.test(x)){const [d,m,y]=x.split('/');return dateValue(`${y}-${m}-${d}T12:00:00+08:00`);}const d=new Date(x);return Number.isNaN(d.getTime())?null:d;}
+function dateMY(x=new Date()){const d=dateValue(x);if(!d)return '';const p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'numeric'}).formatToParts(d).map(a=>[a.type,a.value]));return `${p.year}-${p.month}-${p.day}`;}
+function dateField(x){if(x===null||x===undefined||x==='')return '';if(typeof x==='string'){if(iso.test(x))return x;if(/^\d{4}-\d{2}-\d{2}T/.test(x))return x.slice(0,10);if(/^\d{2}\/\d{2}\/\d{4}$/.test(x)){const [d,m,y]=x.split('/');return `${y}-${m}-${d}`;}}return dateMY(x);}
+function addDays(isoDate,n){const d=new Date(`${isoDate}T12:00:00+08:00`);d.setUTCDate(d.getUTCDate()+n);return dateMY(d);}
+function daysBetween(a,b){return Math.round((Date.parse(b+'T00:00:00+08:00')-Date.parse(a+'T00:00:00+08:00'))/86400000)+1;}
+function fmtDate(s){const [y,m,d]=s.split('-');return `${d}/${m}/${y}`;}
+function serviceDay(o){for(const k of ['serviceDate','mealDate','dateForMeal','selectedDate','scannedDate']){const d=dateField(o[k]);if(d)return d;}return dateField(o.orderDate||o.createdAt||o.timestamp);}
+function claimDay(c){for(const k of ['serviceDate','mealDate','scannedDate','orderDate']){const d=dateField(c[k]);if(d)return d;}return dateField(c.claimedAt||c.scannedAt||c.timestamp||c.createdAt);}
+function normalText(x){return String(x??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+function canonicalVendor(s){const n=normalText(s);if(!n)return '';for(const [name,aliases] of Object.entries(VENDOR_ALIASES))if(aliases.some(a=>normalText(a)===n))return name;return String(s).trim();}
+function vendorEqual(a,b){return !!a&&!!b&&normalText(canonicalVendor(a))===normalText(canonicalVendor(b));}
+const vendorFields=['vendorName','canteenVendor','foodVendor','vendor','supplierName','assignedVendorName','catererName','scanVendorName'];
+const orderUidFields=['assignedVendorUid','canteenVendorUid','vendorUserId','claimedByUserId'];
+const orderEmailFields=['assignedVendorEmail','canteenVendorEmail','vendorEmail','claimedByEmail'];
+const scanUidFields=['scannedByUid','scannerUid','vendorUserId','scannedByUserId','vendorUid','canteenVendorUid'];
+const scanEmailFields=['scannedByEmail','vendorEmail','scannerEmail'];
+function assignedVendor(o){return vendorFields.map(k=>o[k]).find(x=>typeof x==='string'&&x.trim())||'';}
+function attribution(obj,session,uidFields,emailFields){
+ const named=assignedVendor(obj);
+ const uids=uidFields.map(f=>String(obj[f]??'').trim()).filter(Boolean);
+ const emails=emailFields.map(f=>String(obj[f]??'').trim().toLowerCase()).filter(Boolean);
+ const hasIdentity=uids.length>0||emails.length>0;
+ const byName=vendorEqual(named,session.vendor);
+ const wrongName=Boolean(named&&!byName);
+ // An admin's login is NOT a vendor identity. Vendor ownership must be established
+ // through an explicit vendor label or a scanner profile resolved to that vendor.
+ if(session.isAdmin)return {owned:byName,foreign:wrongName,unknown:!named};
+ const byIdentity=uids.includes(session.uid)||emails.includes(session.email);
+ const wrongIdentity=hasIdentity&&!byIdentity;
+ // Reject conflicting explicit vendor IDs or names; don't mix vendors.
+ return {owned:!wrongName&&!wrongIdentity&&(byIdentity||byName),foreign:wrongName||wrongIdentity,unknown:!named&&!hasIdentity};
+}
+const orderOwner=(o,s)=>attribution(o,s,orderUidFields,orderEmailFields);
+const scanOwner=(c,s)=>attribution(c,s,scanUidFields,scanEmailFields);
+function plant(o){const raw=[o.location,o.locationName,o.canteenLocation,o.plant,o.site].filter(Boolean).join(' ').toUpperCase();if(raw.includes('KRISTAL'))return 'SUBANG KRISTAL';return 'PEKAN SUBANG';}
+function shiftOf(o){let v=['mealShift','selectedShift','shift','workShift','shiftType','orderShift','mealSession','session','mealType'].map(k=>o[k]).find(x=>x!==null&&x!==undefined&&String(x).trim());let x=String(v??'').trim().toLowerCase();if(!x)return 'Unknown';if(/night|malam|dinner|evening|shift\s*b|shift\s*2|^n$|^pm$|\bns\b/.test(x))return 'Night';if(/day|siang|tengahari|tengah hari|lunch|noon|morning|shift\s*a|shift\s*1|^d$|^am$|\bds\b/.test(x))return 'Day';return 'Unknown';}
+/* Suria orders have no shift field. The ordering page only accepts orders in two windows
+   (04:00-10:00 = morning/Day meal, 16:00-21:00 = evening/Night meal, Malaysia time),
+   so the shift is derived from the time the order was placed (orderDate / orderTimestamp). */
+function shiftFromOrderTime(o){
+ let t=o.orderDate??o.orderTimestamp,d=null;
+ if(t&&typeof t.toDate==='function')d=t.toDate();
+ else if(t&&typeof t.seconds==='number')d=new Date(t.seconds*1000);
+ else if(t instanceof Date)d=t;
+ else if(typeof t==='string'&&/T|:/.test(t)){const p=new Date(t);if(!isNaN(p))d=p;}
+ if(!d||isNaN(d))return 'Unknown';
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kuala_Lumpur',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);
+ const mins=Number(parts.find(p=>p.type==='hour').value)*60+Number(parts.find(p=>p.type==='minute').value);
+ return mins<13*60?'Day':'Night';
+}
+function displayShift(o){const f=shiftOf(o);return f!=='Unknown'?f:shiftFromOrderTime(o);}
+const staff=o=>String(o.employeeId??o.staffId??o.staffID??o.empId??'').trim();
+const uid=o=>String(o.employeeUserId||o.customerUserId||o.userId||'').trim();
+function qtyOf(o){const n=num(o.quantity??o.mealQuantity??o.mealQty??o.qty,1);return Number.isSafeInteger(n)&&n>0&&n<=50?n:1;}
+function active(o){return !['cancelled','canceled','void','deleted','rejected','refunded'].includes(String(o.orderStatus||o.status||'').toLowerCase().trim());}
+function validScan(c){return !['cancelled','canceled','void','deleted','rejected','failed','invalid','pending'].includes(String(c.claimStatus||c.status||'').toLowerCase().trim());}
+function confirmed(o,flags,states){return flags.some(k=>o[k]===true)||states.some(k=>String(o[k]??'').toLowerCase()==='confirmed');}
+function penalties(o){return confirmed(o,['scanFailureConfirmed','invoiceScanFailureConfirmed','vendorScanFailureConfirmed'],['scanFailureStatus'])?posRate(o.scanFailureDeduction,DEFAULT_RATES.penalty):0;}
+function shortSupply(o){return confirmed(o,['shortSupplyConfirmed','invoiceShortSupplyConfirmed','vendorShortSupplyConfirmed'],['shortSupplyStatus'])||String(o.supplyIssueStatus||'').toLowerCase()==='short_supply'?posRate(o.shortSupplyDeduction??o.shortSupplyAdjustment??o.vendorShortSupplyDeduction??o.approvedShortSupplyDeduction,0):0;}
+function createBucket(label){return {label,ordered:0,claimed:0,unclaimed:0,day:0,night:0,unknown:0,supply:0,claimedPay:0,unclaimedPay:0,penalty:0,short:0,staff:new Set(),rows:0};}
+function addBucket(b,r){b.rows++;b.ordered+=r.quantity;b.claimed+=r.claimed;b.unclaimed+=r.unclaimed;b[r.shift.toLowerCase()]+=r.quantity;b.supply+=r.invoiceAmount;b.claimedPay+=r.claimedPay;b.unclaimedPay+=r.unclaimedPay;b.penalty+=r.penalty;b.short+=r.short;if(r.employeeId||r.userId)b.staff.add(r.employeeId||r.userId);}
+function aggregate(rows,label){const b=createBucket(label);rows.forEach(r=>addBucket(b,r));return b;}
+function dedupeOrders(orders){
+ const byKey=new Map(),rejected=[];
+ for(const o of orders){if(!active(o))continue;const day=serviceDay(o);if(!day)continue;const p=staff(o)||uid(o);const s=displayShift(o);
+  // Staff can order one meal per shift/day. Documents with no staff reference are not merged.
+  const key=p?`${day}|${p}|${s}`:`doc:${o.id}`;
+  if(!byKey.has(key)){byKey.set(key,o);continue;}
+  const other=byKey.get(key);
+  const quality=r=>(r.serviceDate?6:0)+(assignedVendor(r)?4:0)+(String(r.claimStatus||'').toLowerCase()==='claimed'?2:0)+(r.orderDate?1:0);
+  const selected=quality(o)>quality(other)?o:other;
+  byKey.set(key,selected);rejected.push(selected===o?other:o);
+ }
+ return {orders:[...byKey.values()],duplicates:rejected.length};
+}
+function indexScan(scans){
+ const ids=new Map(),emps=new Map(),uids=new Map();
+ const add=(map,key,c)=>{if(!key)return;if(!map.has(key))map.set(key,[]);map.get(key).push(c);};
+ for(const c of scans){if(!validScan(c))continue;const day=claimDay(c);const id=String(c.orderId||c.canteenOrderId||c.orderDocId||'').trim();if(id)add(ids,id,c);if(day){if(staff(c))add(emps,`${day}|${staff(c)}`,c);if(uid(c))add(uids,`${day}|${uid(c)}`,c);}}
+ return {ids,emps,uids};
+}
+function compatibleShift(o,c){const so=shiftOf(o),sc=shiftOf(c);return so==='Unknown'||sc==='Unknown'||so===sc;}
+function scanMatches(order,ix,used,ambiguousFallback=false){
+ const day=serviceDay(order),id=String(order.id),e=staff(order),u=uid(order);
+ const primary=(ix.ids.get(id)||[]).filter(c=>!used.has(c.id));
+ if(primary.length)return [...new Map(primary.map(c=>[c.id,c])).values()];
+ if(ambiguousFallback)return []; // Staff/date cannot determine which of multiple meals was scanned.
+ const pool=[...(e?ix.emps.get(`${day}|${e}`)||[]:[]),...(u?ix.uids.get(`${day}|${u}`)||[]:[])];
+ // Never use a scan that explicitly belongs to some other order document.
+ return [...new Map(pool.filter(c=>!used.has(c.id)&&!String(c.orderId||c.canteenOrderId||c.orderDocId||'').trim()&&compatibleShift(order,c)).map(c=>[c.id,c])).values()];
+}
+function reconcile(allOrders,allScans,session,unitRate,from,to){
+ const {orders,duplicates}=dedupeOrders(allOrders);
+ const scans=allScans.filter(validScan),ix=indexScan(scans),used=new Set();
+ const sameStaffDate=new Map();
+ for(const o of orders){const key=staff(o)||uid(o);if(!key)continue;const group=serviceDay(o)+'|'+key;sameStaffDate.set(group,(sameStaffDate.get(group)||0)+1);}
+ const report=[],unassigned=[],exceptions={duplicates,conflicts:0,ambiguous:0,unassigned:0,orderNoScan:0,unknownShift:0,unmatched:0,withoutVendor:0};
+ // Process vendor-attributed orders first to avoid allowing an ambiguous untagged order to consume its scan.
+ orders.sort((a,b)=>Number(orderOwner(b,session).owned)-Number(orderOwner(a,session).owned)||serviceDay(a).localeCompare(serviceDay(b)));
+ for(const o of orders){
+  const day=serviceDay(o);if(day<from||day>to)continue;
+  const owner=orderOwner(o,session);if(owner.foreign)continue;
+  const group=day+'|'+(staff(o)||uid(o));
+  const hasMultiple=(sameStaffDate.get(group)||0)>1;
+  const matched=scanMatches(o,ix,used,hasMultiple);
+  const own=matched.filter(c=>scanOwner(c,session).owned);
+  const foreign=matched.filter(c=>scanOwner(c,session).foreign);
+  const anonymous=matched.filter(c=>scanOwner(c,session).unknown);
+  if(foreign.length){exceptions.conflicts++;continue;}
+  // Order assignment or verified vendor scan is required before the order is billable.
+  const isOurs=owner.owned||own.length>0;
+  if(!isOurs){unassigned.push(o);continue;}
+  // Vendor-tagged scans take priority; for vendor-owned orders, untagged scans can verify a claim.
+  const candidates=own.length?own:(owner.owned?anonymous:[]);
+  let usable=candidates;
+  if(usable.length&&matched.length>1){
+    // Several scans for the same order may be legitimate if explicitly linked to the order.
+    usable=usable.filter(c=>{const orderId=String(c.orderId||c.canteenOrderId||c.orderDocId||'').trim();return !orderId||orderId===String(o.id);});
+  }
+  const quantity=qtyOf(o),shift=displayShift(o);
+  const qtyFromClaims=usable.reduce((s,c)=>{
+    const n=num(c.claimedQuantity??c.quantityClaimed??c.scanQuantity,1);
+    return s+(Number.isSafeInteger(n)&&n>0&&n<=quantity?n:1);
+  },0);
+  const claimed=Math.min(quantity,qtyFromClaims);
+  for(const c of usable)used.add(c.id);
+  const unclaimed=quantity-claimed;
+  if(!claimed&&String(o.claimStatus||'').toLowerCase()==='claimed')exceptions.orderNoScan++;
+  if(shift==='Unknown')exceptions.unknownShift+=quantity;
+  const invoiceAmount=quantity*unitRate;
+  const claimedRate=posRate(o.vendorClaimClaimed??o.nssbSubsidy,DEFAULT_RATES.claimed);
+  const unclaimedRate=posRate(o.vendorClaimUnclaimed??o.mealPrice,DEFAULT_RATES.unclaimed);
+  const penalty=penalties(o),short=shortSupply(o);
+  report.push({id:String(o.id),serviceDate:day,plant:plant(o),department:String(o.department||'Not specified'),employeeId:staff(o),userId:uid(o),shift,quantity,claimed,unclaimed,unitRate,invoiceAmount,claimedRate,unclaimedRate,claimedPay:claimed*claimedRate,unclaimedPay:unclaimed*unclaimedRate,penalty,short,evidence:claimed?(own.length?'Vendor scanner':'Order-linked scanner'):'No confirmed scan',origin:owner.owned?'Order vendor assignment':'Vendor scan matching'});
+ }
+ // Don't turn orphan scans into extra orders; show them as unmatched evidence for review.
+ const uniqueOrphan=new Set();
+ for(const c of scans){if(used.has(c.id)||!scanOwner(c,session).owned)continue;const day=claimDay(c);if(day<from||day>to)continue;const k=[day,staff(c)||uid(c)||c.orderId||c.id].join('|');uniqueOrphan.add(k);}
+ exceptions.unmatched=uniqueOrphan.size;
+ exceptions.unassigned=unassigned.length;
+ report.sort((a,b)=>a.serviceDate.localeCompare(b.serviceDate)||a.plant.localeCompare(b.plant)||a.shift.localeCompare(b.shift)||a.employeeId.localeCompare(b.employeeId));
+ return {report,unassigned,exceptions};
+}
+let session=null,lastReport=[],lastSummary=[],lastFilters=null;
+function status(message,type='info'){$('status').hidden=false;$('status').className='message'+(type==='info'?'':' '+type);$('status').textContent=message;}
+function hideReport(){$('reportActions').style.display='none';$('report').style.display='none';$('status').hidden=true;}
+function errorNotice(title,message){$('queryNoticeTitle').textContent=title;$('queryNoticeText').textContent=message;$('queryNotice').style.display='block';}
+function clearNotice(){$('queryNotice').style.display='none';}
+function isQuotaError(e){return e?.code==='resource-exhausted'||/quota exceeded|resource-exhausted/i.test(String(e?.message||e));}
+function explainFetchError(e){
+ if(isQuotaError(e))return 'Firestore quota exceeded (resource-exhausted). The database is refusing reads right now. Old data may still exist. This HTML cannot reset or bypass a Firebase quota. Check Firebase Console > Firestore > Usage/Billing and retry after quota is available.';
+ if(e?.code==='permission-denied')return 'Firestore denied this query under your security rules (permission-denied). Verify vendor/administrator permissions; do not open data access to all staff.';
+ if(e?.code==='failed-precondition')return 'Firestore requires an index for this query (failed-precondition). Check the browser console for the index link.';
+ return String(e?.message||'Unknown Firestore error');
+}
+
+function deny(message){$('accessDeniedText').textContent=message;$('invoiceApp').style.display='none';$('nav').style.display='none';$('accessDenied').style.display='block';$('loggedVendor').textContent='Access Restricted';}
+function accountVendor(profile,user){
+ const explicit=profile.vendorName||profile.canteenVendorName||profile.companyName||profile.foodVendor;
+ if(explicit)return canonicalVendor(explicit);
+ const text=[profile.name,profile.displayName,user.displayName,user.email].filter(Boolean).join(' ');
+ for(const [name,aliases] of Object.entries(VENDOR_ALIASES))if(aliases.some(a=>normalText(text).includes(normalText(a))))return name;
+ return '';
+}
+// Administrator scanner attribution must be explicit; no N extra user-profile reads.
+// Admin may enter the known scanner account email in the form.
+function resolveScansForAdmin(scans){
+ const verifiedEmail=String($('adminScannerEmail').value||'').trim().toLowerCase();
+ return scans.map(c=>{
+  if(assignedVendor(c))return c;
+  const scannerEmail=String(c.scannedByEmail||c.scannerEmail||'').trim().toLowerCase();
+  return verifiedEmail&&scannerEmail===verifiedEmail?{...c,scanVendorName:session.vendor}:c;
+ });
+}
+onAuthStateChanged(auth,async user=>{
+ if(!user){deny('Please sign in using an authorised canteen vendor or admin account.');return;}
+ try{
+  const snap=await getDoc(doc(db,'users',user.uid));
+  const profile=snap.exists()?snap.data():{};
+  const role=String(profile.role||'').trim().toLowerCase();
+  const isAdmin=ADMIN_ROLES.has(role)||hasInvoicePermission(profile);
+  const isVendor=VENDOR_ROLES.has(role);
+  if(!isAdmin&&!isVendor){deny(`This account has role: ${role||'not set'}. Invoice access requires an authorised canteen/vendor/admin role or a canteenInvoiceAccess permission in the user profile.`);return;}
+  const profileVendor=accountVendor(profile,user);
+  // Vendor accounts are permanently pinned to their own supplier. Admins select one.
+  if(!isAdmin&&!profileVendor){deny('This vendor account has no registered vendorName/companyName in its user profile.');return;}
+  session={uid:user.uid,email:String(user.email||'').trim().toLowerCase(),role,isAdmin,vendor:isAdmin?'':profileVendor};
+  $('adminVendorRow').style.display=isAdmin?'block':'none';
+  $('adminScannerRow').style.display=isAdmin?'block':'none';
+  $('legacyVerification').style.display=isAdmin?'block':'none';
+  if(isAdmin){
+   $('adminVendor').innerHTML='<option value="">Select a vendor...</option>'+Object.keys(VENDOR_ALIASES).map(name=>`<option value="${safe(name)}">${safe(name)}</option>`).join('');
+   $('adminVendor').value=VENDOR_ALIASES[profileVendor]?profileVendor:'';
+   session.vendor=$('adminVendor').value;
+   $('adminScannerEmail').value=session.vendor==='Al Arbai'?'alarbai@gmail.com':'';
+   $('loggedVendor').textContent='Canteen Admin';
+   $('readyText').textContent='Admin access • Choose vendor to review';
+   $('generateBtn').disabled=!session.vendor;
+  }else{
+   $('loggedVendor').textContent=profileVendor;
+   $('readyText').textContent='Signed in as '+profileVendor;
+   $('generateBtn').disabled=false;
+  }
+  $('accessDenied').style.display='none';$('invoiceApp').style.display='block';$('nav').style.display='flex';
+ }catch(e){console.error('Canteen invoice authentication error',e);deny(isQuotaError(e)?'Firestore quota exceeded (resource-exhausted). Account permission cannot be verified until database reads are available. Check Firebase Console > Firestore Usage/Billing.':'Unable to confirm your account permission. Please check Firestore security rules. '+explainFetchError(e));}
+});
+// Source fetch policy: <= 2 server queries on normal invoice generation.
+// Query one service-date range of orders and one scanner-email (vendor) or
+// service-date (admin) range of claims; do attribution and matching in memory.
+// A single fallback is permitted only for truly empty legacy results.
+async function readQuery(q,label,{allowCache=false}={}){
+ try{
+  const snap=await getDocs(q);
+  return {rows:snap.docs.map(d=>({id:d.id,...d.data()})),label,source:snap.metadata.fromCache?'cache':'server'};
+ }catch(e){
+  // Never pretend a failed server query is a zero-record result.
+  if(allowCache){
+   try{
+    const snap=await getDocsFromCache(q);
+    if(snap.size)return {rows:snap.docs.map(d=>({id:d.id,...d.data()})),label,source:'cache',error:e};
+   }catch(_ignored){}
+  }
+  const err=new Error(`${label}: ${explainFetchError(e)}`);err.code=e.code||'unknown';err.cause=e;throw err;
+ }
+}
+async function fetchInvoiceSources(s,from,to){
+ const ordersQ=query(ordersRef,where('serviceDate','>=',from),where('serviceDate','<=',to));
+ const claimsQ=s.isAdmin
+  ?query(claimsRef,where('serviceDate','>=',from),where('serviceDate','<=',to))
+  :query(claimsRef,where('scannedByEmail','==',s.email));
+ // Two queries only. One query returning data and the other failing is NOT success.
+ const res=await Promise.allSettled([
+   readQuery(ordersQ,'canteen_orders / serviceDate',{allowCache:true}),
+   readQuery(claimsQ,s.isAdmin?'canteen_claimed / serviceDate':'canteen_claimed / scannedByEmail',{allowCache:true})
+ ]);
+ const errors=res.filter(x=>x.status==='rejected').map(x=>x.reason);
+ if(errors.length)throw errors[0];
+ const [orderRead,claimRead]=res.map(x=>x.value);
+ let orders=orderRead.rows,claims=claimRead.rows;
+ const warnings=[],sources=[orderRead,claimRead];
+ // Legacy order docs may use Timestamp orderDate instead of serviceDate.
+ // Only ask for that alternative when primary query returned absolutely nothing.
+ if(!orders.length){
+  const low=Timestamp.fromDate(new Date(`${from}T00:00:00+08:00`));
+  const high=Timestamp.fromDate(new Date(`${addDays(to,1)}T00:00:00+08:00`));
+  const alternative=await readQuery(query(ordersRef,where('orderDate','>=',low),where('orderDate','<',high)),
+    'canteen_orders / legacy orderDate',{allowCache:true});
+  sources.push(alternative);orders=alternative.rows;
+ }
+ if(!claims.length&&!s.isAdmin){
+  // Older claim docs sometimes carried scanner UID instead of email.
+  const alternative=await readQuery(query(claimsRef,where('scannedByUid','==',s.uid)),
+    'canteen_claimed / legacy scannedByUid',{allowCache:true});
+  sources.push(alternative);claims=alternative.rows;
+ }
+ const usingCache=sources.some(x=>x.source==='cache');
+ if(usingCache)warnings.push('Some records came from browser cache, NOT a verified up-to-date server read. This is a historical preview only; do not use for payment.');
+ // Narrow client-side date validation; scanner claims can span multiple months.
+ orders=orders.filter(o=>{const day=serviceDay(o);return day>=from&&day<=to;});
+ claims=claims.filter(c=>{const day=claimDay(c);return day>=from&&day<=to;});
+ return {orders,claims,warnings,usingCache,sources};
+}
+function getPreset(mode){const today=dateMY();const month=today.slice(0,7);let from,to;
+ if(mode==='first'){from=month+'-01';to=month+'-15';}
+ else if(mode==='second'){from=month+'-16';const [y,m]=month.split('-').map(Number);to=`${month}-${String(new Date(Date.UTC(y,m,0)).getUTCDate()).padStart(2,'0')}`;}
+ else {const [y,m,d]=today.split('-').map(Number);if(d>=16){from=month+'-01';to=month+'-15';}else{const last=addDays(month+'-01',-1);from=last.slice(0,7)+'-16';to=last;}}
+ $('startDate').value=from;$('endDate').value=to;hideReport();
+}
+function rowDateKeys(start,end){const a=[];for(let x=start;x<=end;x=addDays(x,1))a.push(x);return a;}
+function lineDate(d,b,rate){return `<tr><td class="strong">${fmtDate(d)}</td><td>${integer(b.day)}</td><td>${integer(b.night)}</td><td class="${b.unknown?'warn-cell':''}">${integer(b.unknown)}</td><td class="strong">${integer(b.ordered)}</td><td class="yes-cell">${integer(b.claimed)}</td><td class="${b.unclaimed?'warn-cell':''}">${integer(b.unclaimed)}</td><td>${money(rate)}</td><td class="money">${money(b.supply)}</td></tr>`;}
+function provisionalRow(o,unitRate){
+ const quantity=qtyOf(o),claimed=0,unclaimed=quantity;
+ return {id:String(o.id),serviceDate:serviceDay(o),plant:plant(o),department:String(o.department||'Not specified'),employeeId:staff(o),userId:uid(o),shift:displayShift(o),quantity,claimed,unclaimed,unitRate,invoiceAmount:quantity*unitRate,claimedRate:posRate(o.vendorClaimClaimed??o.nssbSubsidy,DEFAULT_RATES.claimed),unclaimedRate:posRate(o.vendorClaimUnclaimed??o.mealPrice,DEFAULT_RATES.unclaimed),claimedPay:0,unclaimedPay:quantity*posRate(o.vendorClaimUnclaimed??o.mealPrice,DEFAULT_RATES.unclaimed),penalty:penalties(o),short:shortSupply(o),evidence:'No verified vendor scan — manually attributed by management',origin:'ADMIN VERIFIED / PROVISIONAL',assumed:true};
+}
+function render(rows,recon,filters,warnings,meta){
+ const total=aggregate(rows,'Total');
+ const unassignedMap=new Map();
+ if(session.isAdmin)for(const o of recon.unassigned){
+  const day=serviceDay(o),p=plant(o),key=day+'|'+p;
+  if(!unassignedMap.has(key))unassignedMap.set(key,{day,plant:p,dayQty:0,nightQty:0,unknownQty:0});
+  const v=unassignedMap.get(key);const sh=displayShift(o),q=qtyOf(o);
+  if(sh==='Day')v.dayQty+=q;else if(sh==='Night')v.nightQty+=q;else v.unknownQty+=q;
+ }
+ $('unassignedSection').style.display=unassignedMap.size?'block':'none';
+ $('unassignedRows').innerHTML=[...unassignedMap.values()].sort((a,b)=>a.day.localeCompare(b.day)||a.plant.localeCompare(b.plant)).map(b=>`<tr><td>${fmtDate(b.day)}</td><td>${safe(b.plant)}</td><td>${integer(b.dayQty)}</td><td>${integer(b.nightQty)}</td><td>${integer(b.unknownQty)}</td><td class="warn-cell">${integer(b.dayQty+b.nightQty+b.unknownQty)}</td></tr>`).join('');
+ const perDay=new Map(rowDateKeys(filters.from,filters.to).map(d=>[d,createBucket(d)]));
+ const perPlant=new Map(PLANTS.map(p=>[p,createBucket(p)]));
+ const perShift=new Map();
+ rows.forEach(r=>{
+  addBucket(perDay.get(r.serviceDate),r);addBucket(perPlant.get(r.plant),r);
+  const k=r.serviceDate+'|'+r.shift;
+  if(!perShift.has(k))perShift.set(k,createBucket(k));addBucket(perShift.get(k),r);
+ });
+ const dayEntries=[...perDay.entries()];
+ $('dailyRows').innerHTML=dayEntries.map(([d,b])=>lineDate(d,b,filters.rate)).join('')||'<tr><td colspan="9">No dates</td></tr>';
+ $('dailyFoot').innerHTML=`<tr><td>TOTAL</td><td>${integer(total.day)}</td><td>${integer(total.night)}</td><td>${integer(total.unknown)}</td><td>${integer(total.ordered)}</td><td>${integer(total.claimed)}</td><td>${integer(total.unclaimed)}</td><td>${money(filters.rate)}</td><td>${money(total.supply)}</td></tr>`;
+ const shifts=['Day','Night','Unknown'];
+ $('shiftRows').innerHTML=dayEntries.flatMap(([d])=>shifts.map(s=>{const b=perShift.get(d+'|'+s);if(!b||!b.ordered)return '';return `<tr><td>${fmtDate(d)}</td><td>${safe(s)}</td><td class="strong">${integer(b.ordered)}</td><td class="yes-cell">${integer(b.claimed)}</td><td class="${b.unclaimed?'warn-cell':''}">${integer(b.unclaimed)}</td><td>${ratePercent(b.claimed,b.ordered)}</td><td class="money">${money(b.supply)}</td></tr>`;})).join('')||'<tr><td colspan="7">No shift data available for this period.</td></tr>';
+ $('plantRows').innerHTML=[...perPlant.entries()].filter(([p])=>filters.plants.includes(p)).map(([p,b])=>`<tr><td class="strong">${safe(p)}</td><td>${integer(b.ordered)}</td><td class="yes-cell">${integer(b.claimed)}</td><td class="${b.unclaimed?'warn-cell':''}">${integer(b.unclaimed)}</td><td>${integer(b.day)}</td><td>${integer(b.night)}</td><td>${integer(b.unknown)}</td><td class="money">${money(b.supply)}</td></tr>`).join('');
+ $('mOrdered').textContent=integer(total.ordered);$('mClaimed').textContent=integer(total.claimed);$('mUnclaimed').textContent=integer(total.unclaimed);$('mRate').textContent=ratePercent(total.claimed,total.ordered);$('mAmount').textContent=money(total.supply);$('mStaff').textContent=integer(total.staff.size);$('mDay').textContent=integer(total.day);$('mNight').textContent=integer(total.night);$('mUnknown').textContent=integer(total.unknown);$('mOrphan').textContent=integer(recon.exceptions.unmatched);
+ $('rVendor').textContent=session.vendor;$('rPeriod').textContent=`${fmtDate(filters.from)} - ${fmtDate(filters.to)}`;$('rPlant').textContent=plantSelectionLabel(filters.plants);
+ const code=normalText(session.vendor).slice(0,12).toUpperCase()||'VENDOR',scope=plantSelectionCode(filters.plants);
+ $('rNo').textContent=`CANTEEN-${code}-${filters.from.replaceAll('-','')}-${filters.to.replaceAll('-','')}-${scope}${filters.dept?'-'+filters.dept.replace(/[^a-z0-9]/gi,'').toUpperCase():''}`;
+ $('rGenerated').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date())+' MYT';
+ $('bSupply').textContent=money(total.supply);$('bClaimed').textContent=money(total.claimedPay);$('bUnclaimed').textContent=money(total.unclaimedPay);$('bPenalties').textContent='– '+money(total.penalty);$('bShort').textContent='– '+money(total.short);$('bSettlement').textContent=money(total.claimedPay+total.unclaimedPay-total.penalty-total.short);
+ const future=filters.to>=dateMY();
+ const danger=Boolean(meta.assumedCount||warnings.length||recon.unassigned.length||recon.exceptions.unmatched||recon.exceptions.conflicts||recon.exceptions.duplicates||recon.exceptions.orderNoScan||total.unknown||future||!meta.fullCoverage||!rows.length);
+ $('reportTag').textContent=danger?'PROVISIONAL • CHECK EXCEPTIONS':'SYSTEM RECONCILIATION';$('reportTag').className='tag'+(danger?' warning':'');
+ const coverage=$('coverage');coverage.classList.toggle('good',!danger);
+ coverage.querySelector('strong').textContent=!meta.fullCoverage?'Vendor-linked records only — complete unclaimed coverage NOT confirmed':recon.unassigned.length?`${integer(recon.unassigned.length)} orders have no verified vendor assignment`:danger?'Review the issues below before payment':'System order quantities and scanner claims reconciled';
+ coverage.querySelector('p').textContent=!meta.fullCoverage?'This account can only verify records linked to its vendor, or not all date queries completed. Untagged orders are not silently included in vendor totals. Order creation must save vendor assignment to make all unclaimed meals count.':'System order data is compared with scan records. The vendor’s original invoice quantities and contractual rates must still be checked manually.';
+ const diag=meta.diag||{};
+ const bits=[
+   `Order documents read: ${integer(diag.ordersRead||0)}`,
+   `Claim/scan documents read: ${integer(diag.claimsRead||0)}`,
+   `Claims containing scannedByEmail: ${integer(diag.scannedByEmailPresent||0)}`,
+   `Scans by signed-in vendor email: ${integer(diag.scannerEmailMatches||0)}`,
+   `Vendor-matched invoice order lines: ${integer(recon.report.length)}`,
+   `Orders without verified vendor: ${integer(recon.unassigned.length)}`,
+   `Failed queries: ${integer(warnings.length)}`
+ ];
+ if(session.isAdmin)bits.splice(4,0,`Date-scoped order query: ${diag.dateOrderResult===null?'FAILED':integer(diag.dateOrderResult||0)+' records'}`,`Date-scoped scan query: ${diag.dateClaimResult===null?'FAILED':integer(diag.dateClaimResult||0)+' records'}`);
+ $('sourceDiagnosticsText').textContent=bits.join(' • ')+(warnings.length?' | Query errors: '+warnings.slice(0,4).join(' | '):'')+(recon.report.length===0?' | ZERO REPORT IS NOT PROOF THAT ZERO ORDERS EXIST. Check source access, scanner email and vendor attribution.':'');
+ const summary=[`${integer(total.ordered)} meals ordered`,`${integer(total.claimed)} scan-verified claims`,`${integer(total.unclaimed)} unclaimed`,`Order rate: ${money(filters.rate)} per meal`];
+ $('reportNotes').textContent=summary.join(' • ')+'. '+(future?'This range includes today or a future date; scan outcomes may still change. ':'')+(total.unknown?'Some orders have no usable order time, so their quantity is shown under Unknown Shift.':'');
+ const problems=[];
+ if(recon.exceptions.unassigned)problems.push(`${integer(recon.exceptions.unassigned)} unassigned orders excluded (vendor unidentified)`);
+ if(recon.exceptions.unmatched)problems.push(`${integer(recon.exceptions.unmatched)} vendor scans without a counted source order`);
+ if(recon.exceptions.conflicts)problems.push(`${integer(recon.exceptions.conflicts)} conflicting order/scan vendor assignments excluded`);
+ if(recon.exceptions.duplicates)problems.push(`${integer(recon.exceptions.duplicates)} duplicate staff/date/shift orders suppressed`);
+ if(recon.exceptions.orderNoScan)problems.push(`${integer(recon.exceptions.orderNoScan)} order(s) marked claimed but with no verified scan`);
+ if(total.unknown)problems.push(`${integer(total.unknown)} meal(s) with unrecognised shift`);
+ if(future)problems.push('Current or future service dates need final claim confirmation');
+ if(meta.assumedCount)problems.push(`${integer(meta.assumedCount)} unassigned order(s) provisionally allocated by management (not verified against original invoice)`);
+ if(!meta.fullCoverage)problems.push('Full historical/date-scoped order coverage not verified');
+ if(warnings.length)problems.push(`${integer(warnings.length)} Firestore queries were denied or failed`);
+ if(!rows.length)problems.push('No verified vendor-attributed orders found for this filter');
+ $('exceptionsPanel').style.display=problems.length?'block':'none';$('exceptionsText').textContent=problems.join(' • ');
+ $('report').style.display='block';$('reportActions').style.display='flex';
+ status(danger?'Provisional statement generated. Verify the reconciliation alerts before payment.':'Statement generated. Confirm vendor invoice quantity and agreed payment rates before paying.',danger?'warning':'info');
+ lastReport=rows;lastSummary=dayEntries.map(([day,b])=>({day,...b,staffCount:b.staff.size}));lastFilters=filters;
+}
+async function generate(){
+ if(!session)return;
+ if(!session.vendor)return status('Please select a vendor before generating the invoice.','error');
+ const from=$('startDate').value,to=$('endDate').value,dept=$('departmentFilter').value,plants=selectedPlants(),rate=Number($('unitRate').value);
+ const includeVerified=session.isAdmin&&$('verifiedUnassigned').checked;
+ if(!iso.test(from)||!iso.test(to)||from>to)return status('Please enter a valid billing start and end date.','error');
+ if(daysBetween(from,to)>MAX_DAYS)return status(`Limit each statement to ${MAX_DAYS} days.`, 'error');
+ if(!Number.isFinite(rate)||rate<0||rate>9999)return status('Enter a valid vendor price per meal (RM0.00 to RM9999.00).','error');
+ if(plants.length===0)return status('Tick at least one Plant / Location before generating the invoice.','error');
+ const btn=$('generateBtn');btn.disabled=true;$('adminVendor').disabled=true;
+ btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>Reading orders & scans…';
+ hideReport();clearNotice();status('Reading Firestore (two primary queries; no repeated vendor-field search)…');
+ try{
+  const result=await fetchInvoiceSources(session,from,to);
+  const {orders,usingCache,sources}=result;
+  const warnings=[...result.warnings];
+  const claims=session.isAdmin?resolveScansForAdmin(result.claims):result.claims;
+  const scanEmailPresent=claims.filter(c=>String(c.scannedByEmail||'').trim()).length;
+  const scannerEmailMatches=claims.filter(c=>String(c.scannedByEmail||'').trim().toLowerCase()===session.email).length;
+  const diag={ordersRead:orders.length,claimsRead:claims.length,scannedByEmailPresent:scanEmailPresent,scannerEmailMatches,
+   dateOrderResult:orders.length,dateClaimResult:session.isAdmin?claims.length:null,
+   fetchMode:sources.map(r=>`${r.label} = ${r.rows.length} (${r.source})`).join(' | ')};
+  const recon=reconcile(orders,claims,session,rate,from,to);
+  const rows=recon.report.filter(x=>plants.includes(x.plant)&&(!dept||x.department===dept));
+  const filteredUnknown=recon.unassigned.filter(x=>plants.includes(plant(x))&&(!dept||String(x.department||'')===dept));
+  // Unidentified legacy orders from a documented trial period can be displayed
+  // as provisional, but are NOT scan-verified supplier assignment or a final bill.
+  const window=TRIAL_WINDOWS[session.vendor];
+  const trialCandidates=filteredUnknown.filter(o=>window&&serviceDay(o)>=window.start&&serviceDay(o)<=window.end);
+  const includeTrial=Boolean(!session.isAdmin && trialCandidates.length && window);
+  const assigned=includeVerified?filteredUnknown:includeTrial?trialCandidates:[];
+  const added=assigned.map(o=>provisionalRow(o,rate));
+  const stillUnassigned=filteredUnknown.filter(o=>!assigned.includes(o));
+  if(added.length)warnings.push(`${added.length} untagged historical orders allocated by trial-date inference: PROVISIONAL, NOT independently verified supplier ownership.`);
+  if(!orders.length&&!claims.length){
+   throw new Error('Queries succeeded but returned NO order or scan documents for the selected period. Please confirm date filter, project and Firestore collection contents. The previous quota error may mean data is temporarily inaccessible.');
+  }
+  if(!orders.length&&claims.length){
+   throw new Error(`Found ${claims.length} scanner records but NO source order records. Total ordered/unclaimed cannot be calculated accurately. Check canteen_orders read rules and serviceDate values.`);
+  }
+  const finalRows=[...rows,...added].sort((a,b)=>a.serviceDate.localeCompare(b.serviceDate)||a.plant.localeCompare(b.plant));
+  render(finalRows,{...recon,unassigned:stillUnassigned,exceptions:{...recon.exceptions,unassigned:stillUnassigned.length}},
+   {from,to,dept,plants,rate},warnings,{fullCoverage:!usingCache&&session.isAdmin,assumedCount:added.length,diag});
+  $('sourceDiagnosticsText').textContent += ' | Queries: '+diag.fetchMode;
+  if(usingCache){
+   errorNotice('CACHED DATA — NOT LIVE', 'Some queries failed on the server; the report uses a previously cached browser snapshot. Figures may be stale or incomplete and are NOT approved for payment.');
+   $('reportTag').textContent='CACHE PREVIEW — NOT VALID FOR PAYMENT';
+   $('printBtn').disabled=true;$('downloadSummary').disabled=true;$('downloadOrders').disabled=true;
+  }else{
+   $('printBtn').disabled=false;$('downloadSummary').disabled=false;$('downloadOrders').disabled=false;
+  }
+ }catch(e){
+  console.error('Invoice generation failed',e);
+  $('report').style.display='none';$('reportActions').style.display='none';lastReport=[];lastSummary=[];lastFilters=null;
+  const explanation=isQuotaError(e)||e?.code==='resource-exhausted'
+   ?'FIRESTORE QUOTA EXCEEDED. Firebase currently refuses database reads. The zero shown earlier was not a valid total. Check Firestore Usage/Billing; retry when the quota is restored. This HTML cannot bypass server quotas.'
+   :explainFetchError(e);
+  errorNotice('Invoice data unavailable',explanation);
+  status('Cannot generate an accurate invoice: '+explanation,'error');
+ }finally{
+  btn.disabled=session.isAdmin&&!session.vendor;$('adminVendor').disabled=false;
+  btn.innerHTML='<i class="fas fa-file-invoice"></i>Generate Invoice';
+ }
+}
+function csvDownload(headers,records,name){const esc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const content='\uFEFF'+[headers,...records].map(r=>r.map(esc).join(',')).join('\r\n');const u=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+function downloadSummary(){if(!lastFilters)return;csvDownload(['Date','Day Ordered','Night Ordered','Unknown Shift','Total Ordered','Claimed','Unclaimed','Unit Price RM','Total RM'],lastSummary.map(b=>[fmtDate(b.label),b.day,b.night,b.unknown,b.ordered,b.claimed,b.unclaimed,lastFilters.rate,b.supply]),`canteen_invoice_daily_${lastFilters.from}_${lastFilters.to}_${plantSelectionCode(lastFilters.plants)}.csv`);}
+function downloadOrders(){if(!lastFilters)return;csvDownload(['Service Date','Plant','Department','Employee ID','Order ID','Shift','Ordered Qty','Claimed Qty','Unclaimed Qty','Unit Price RM','Invoice Amount RM','Claimed Settlement RM','Unclaimed Settlement RM','Penalty RM','Short Supply RM','Scan Evidence','Vendor Attribution'],lastReport.map(r=>[fmtDate(r.serviceDate),r.plant,r.department,r.employeeId,r.id,r.shift,r.quantity,r.claimed,r.unclaimed,r.unitRate,r.invoiceAmount,r.claimedPay,r.unclaimedPay,r.penalty,r.short,r.evidence,r.origin]),`canteen_invoice_orders_${lastFilters.from}_${lastFilters.to}_${plantSelectionCode(lastFilters.plants)}.csv`);}
+document.addEventListener('DOMContentLoaded',()=>{
+ getPreset('previous');$('firstHalf').addEventListener('click',()=>getPreset('first'));$('secondHalf').addEventListener('click',()=>getPreset('second'));$('previousHalf').addEventListener('click',()=>getPreset('previous'));
+ $('generateBtn').addEventListener('click',generate);$('printBtn').addEventListener('click',()=>window.print());$('downloadSummary').addEventListener('click',downloadSummary);$('downloadOrders').addEventListener('click',downloadOrders);
+ ['startDate','endDate','departmentFilter','unitRate'].forEach(id=>$(id).addEventListener('change',hideReport));
+ $('plantPickerBtn').addEventListener('click',()=>{
+   const menu=$('plantPickerMenu'),show=menu.hidden;
+   menu.hidden=!show;
+   $('plantPickerBtn').setAttribute('aria-expanded',String(show));
+ });
+ document.querySelectorAll('input[name="plantChoice"]').forEach(el=>el.addEventListener('change',updatePlantSelection));
+  $('plantAllBtn').addEventListener('click',()=>setPlantSelection(PLANTS));
+ document.addEventListener('click',event=>{if(!$('plantPicker').contains(event.target))closePlantPicker();});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape')closePlantPicker();});
+ updatePlantSelection();
+ $('verifiedUnassigned').addEventListener('change',hideReport);$('adminScannerEmail').addEventListener('change',hideReport);
+ $('adminVendor').addEventListener('change',()=>{if(!session||!session.isAdmin)return;session.vendor=$('adminVendor').value;$('adminScannerEmail').value=session.vendor==='Al Arbai'?'alarbai@gmail.com':'';$('generateBtn').disabled=!session.vendor;$('verifiedUnassigned').checked=false;hideReport();});
+});
+</script>
 </body>
 </html>
